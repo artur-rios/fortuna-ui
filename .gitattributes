@@ -1,0 +1,47 @@
+# Line endings are LF in the repository and in the working tree, on every
+# platform. The index is already entirely LF, so this codifies what is there
+# rather than changing it.
+#
+# It matters more here than in most repositories: `native/include/fortuna_ffi.h`
+# is vendored verbatim from fortuna-api and CI diffs it against the published
+# copy (IR-11), and both generated outputs are regenerated and compared with what
+# is committed (IR-12). A line-ending difference would fail all three checks for
+# no real reason.
+* text=auto eol=lf
+
+# Scripts, where the ending is part of the contract with the interpreter.
+*.sh        text eol=lf
+gradlew     text eol=lf
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+
+# Generated, never hand-edited. Collapsed in diffs and excluded from language
+# statistics so a review shows the change that caused them, not their output.
+packages/fortuna_api_client/lib/**  linguist-generated=true
+lib/core/bindings/*_bindings.dart   linguist-generated=true
+api/fortuna.json                    linguist-generated=true
+
+# Binaries — never converted, never diffed as text.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.webp   binary
+*.svg    text
+*.ttf    binary
+*.otf    binary
+*.woff   binary
+*.woff2  binary
+*.pdf    binary
+*.zip    binary
+*.jar    binary
+*.keystore binary
+*.jks    binary
+*.dll    binary
+*.so     binary
+*.dylib  binary
+*.exe    binary
+*.apk    binary
+*.aab    binary
