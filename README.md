@@ -7,6 +7,10 @@ Flutter application that runs on the web, Windows, Linux and Android from one co
 and writes everything through the [Fortuna API](https://github.com/artur-rios/fortuna-api). The API
 owns the domain, the money and the integrations; this application owns the experience.
 
+[![Open issues](https://img.shields.io/github/issues/artur-rios/fortuna-ui?style=flat-square&label=open)](https://github.com/artur-rios/fortuna-ui/issues)
+[![Closed issues](https://img.shields.io/github/issues-closed-raw/artur-rios/fortuna-ui?style=flat-square&label=closed)](https://github.com/artur-rios/fortuna-ui/issues?q=is%3Aissue+is%3Aclosed)
+[![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
+
 > **Status:** specification complete, implementation not started.
 
 ## What it does
@@ -126,21 +130,25 @@ that names it. Every use case ships with its tests before its pull request is op
 
 ## Roadmap
 
-Seven milestones, in dependency order. Every milestone after `M-01` depends on it.
+Seven milestones, in dependency order. Every milestone after `M-01` depends on it. The progress
+badges are read from GitHub when this page renders, so they are never stale — click one for the
+milestone itself.
 
-| Milestone | Delivers | Depends on | Issues | Status |
+| Milestone | Delivers | Depends on | Issues | Progress |
 |---|---|---|---|---|
-| [M-01 — Foundation](https://github.com/artur-rios/fortuna-ui/milestone/1) | The project scaffold, both transports, the generation pipelines and CI that every use case is built on | — | 1 | 0 / 1 closed |
-| [M-02 — Access, shell and privacy](https://github.com/artur-rios/fortuna-ui/milestone/2) | Sign-in in every mode, the session, the app shell and its route guard, presentation preferences, the data rights screens and the administrative area | M-01 | 18 | 0 / 18 closed |
-| [M-03 — Holdings](https://github.com/artur-rios/fortuna-ui/milestone/3) | Financial accounts, credit cards with billing cycles and statements, and investments | M-02 | 5 | 0 / 5 closed |
-| [M-04 — Money movement and lifecycle](https://github.com/artur-rios/fortuna-ui/milestone/4) | Transactions, transfers, installments, recurrence, reconciliation, the spreadsheet view, and the deletion and audit surfaces | M-03 | 9 | 0 / 9 closed |
-| [M-05 — Organization and planning](https://github.com/artur-rios/fortuna-ui/milestone/5) | Categories, tags, counterparties, budgets and goals | M-04 | 4 | 0 / 4 closed |
-| [M-06 — Ingestion and attachments](https://github.com/artur-rios/fortuna-ui/milestone/6) | Connections, synchronization, file imports, job monitoring, imported records and attachments | M-04, M-05 | 6 | 0 / 6 closed |
-| [M-07 — Insight and output](https://github.com/artur-rios/fortuna-ui/milestone/7) | Charts, drill-down, net position, projections and export | M-04, M-05 | 4 | 0 / 4 closed |
+| [M-01 — Foundation](https://github.com/artur-rios/fortuna-ui/milestone/1) | The project scaffold, both transports, the generation pipelines and CI that every use case is built on | — | 1 | [![Progress](https://img.shields.io/github/milestones/progress/artur-rios/fortuna-ui/1?style=flat-square&label=)](https://github.com/artur-rios/fortuna-ui/milestone/1) |
+| [M-02 — Access, shell and privacy](https://github.com/artur-rios/fortuna-ui/milestone/2) | Sign-in in every mode, the session, the app shell and its route guard, presentation preferences, the data rights screens and the administrative area | M-01 | 18 | [![Progress](https://img.shields.io/github/milestones/progress/artur-rios/fortuna-ui/2?style=flat-square&label=)](https://github.com/artur-rios/fortuna-ui/milestone/2) |
+| [M-03 — Holdings](https://github.com/artur-rios/fortuna-ui/milestone/3) | Financial accounts, credit cards with billing cycles and statements, and investments | M-02 | 5 | [![Progress](https://img.shields.io/github/milestones/progress/artur-rios/fortuna-ui/3?style=flat-square&label=)](https://github.com/artur-rios/fortuna-ui/milestone/3) |
+| [M-04 — Money movement and lifecycle](https://github.com/artur-rios/fortuna-ui/milestone/4) | Transactions, transfers, installments, recurrence, reconciliation, the spreadsheet view, and the deletion and audit surfaces | M-03 | 9 | [![Progress](https://img.shields.io/github/milestones/progress/artur-rios/fortuna-ui/4?style=flat-square&label=)](https://github.com/artur-rios/fortuna-ui/milestone/4) |
+| [M-05 — Organization and planning](https://github.com/artur-rios/fortuna-ui/milestone/5) | Categories, tags, counterparties, budgets and goals | M-04 | 4 | [![Progress](https://img.shields.io/github/milestones/progress/artur-rios/fortuna-ui/5?style=flat-square&label=)](https://github.com/artur-rios/fortuna-ui/milestone/5) |
+| [M-06 — Ingestion and attachments](https://github.com/artur-rios/fortuna-ui/milestone/6) | Connections, synchronization, file imports, job monitoring, imported records and attachments | M-04, M-05 | 6 | [![Progress](https://img.shields.io/github/milestones/progress/artur-rios/fortuna-ui/6?style=flat-square&label=)](https://github.com/artur-rios/fortuna-ui/milestone/6) |
+| [M-07 — Insight and output](https://github.com/artur-rios/fortuna-ui/milestone/7) | Charts, drill-down, net position, projections and export | M-04, M-05 | 4 | [![Progress](https://img.shields.io/github/milestones/progress/artur-rios/fortuna-ui/7?style=flat-square&label=)](https://github.com/artur-rios/fortuna-ui/milestone/7) |
 
 ## Backlog
 
-47 issues: one per use case, plus one foundation issue. The counts below are as of creation; each milestone's own page is the live view.
+47 issues: one per use case, plus one foundation issue. This table lists what exists and where each
+issue's specification is; the roadmap badges above and the issue links themselves are the live view
+of what is done.
 
 ### M-01 — Foundation
 
