@@ -21,6 +21,7 @@ abstract final class Routes {
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
+  static const importFile = '/imports/new';
 
   // Instance administrator.
   static const admin = '/admin';
