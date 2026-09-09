@@ -23,6 +23,7 @@ abstract final class Routes {
   static const imports = '/imports';
   static const importFile = '/imports/new';
   static const connections = '/connections';
+  static const audit = '/audit';
 
   // Instance administrator.
   static const admin = '/admin';
