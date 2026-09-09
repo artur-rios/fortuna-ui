@@ -22,16 +22,6 @@ enum BudgetPeriodType {
       values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final int? json;
-  int toJson() {
-    final value = json;
-    if (value == null) {
-      throw StateError(
-        'Cannot convert enum value with null JSON representation to int. '
-        'This usually happens for \$unknown or @JsonValue(null) entries.',
-      );
-    }
-    return value as int;
-  }
 
   @override
   String toString() => json?.toString() ?? super.toString();

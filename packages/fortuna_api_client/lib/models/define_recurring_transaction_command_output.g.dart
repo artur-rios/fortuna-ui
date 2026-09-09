@@ -49,13 +49,27 @@ Map<String, dynamic> _$DefineRecurringTransactionCommandOutputToJson(
   'creditCardId': instance.creditCardId,
   'currencyCode': instance.currencyCode,
   'description': instance.description,
-  'direction': instance.direction,
+  'direction': _$TransactionDirectionEnumMap[instance.direction],
   'endsOn': instance.endsOn?.toIso8601String(),
   'financialAccountId': instance.financialAccountId,
-  'frequency': instance.frequency,
+  'frequency': _$RecurrenceFrequencyEnumMap[instance.frequency],
   'id': instance.id,
   'nextOccurrences': instance.nextOccurrences
       ?.map((e) => e.toIso8601String())
       .toList(),
   'startsOn': instance.startsOn?.toIso8601String(),
+};
+
+const _$TransactionDirectionEnumMap = {
+  TransactionDirection.value1: 1,
+  TransactionDirection.value2: 2,
+  TransactionDirection.$unknown: r'$unknown',
+};
+
+const _$RecurrenceFrequencyEnumMap = {
+  RecurrenceFrequency.value1: 1,
+  RecurrenceFrequency.value2: 2,
+  RecurrenceFrequency.value3: 3,
+  RecurrenceFrequency.value4: 4,
+  RecurrenceFrequency.$unknown: r'$unknown',
 };

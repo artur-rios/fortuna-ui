@@ -17,4 +17,15 @@ CashFlowFigureOutput _$CashFlowFigureOutputFromJson(
 
 Map<String, dynamic> _$CashFlowFigureOutputToJson(
   CashFlowFigureOutput instance,
-) => <String, dynamic>{'amount': instance.amount, 'kind': instance.kind};
+) => <String, dynamic>{
+  'amount': instance.amount,
+  'kind': _$CashFlowFigureKindEnumMap[instance.kind],
+};
+
+const _$CashFlowFigureKindEnumMap = {
+  CashFlowFigureKind.value1: 1,
+  CashFlowFigureKind.value2: 2,
+  CashFlowFigureKind.value3: 3,
+  CashFlowFigureKind.value4: 4,
+  CashFlowFigureKind.$unknown: r'$unknown',
+};

@@ -19,5 +19,13 @@ Map<String, dynamic> _$ImportPdfInvoiceCommandOutputToJson(
   ImportPdfInvoiceCommandOutput instance,
 ) => <String, dynamic>{
   'importJobId': instance.importJobId,
-  'status': instance.status,
+  'status': _$ImportJobStatusEnumMap[instance.status],
+};
+
+const _$ImportJobStatusEnumMap = {
+  ImportJobStatus.value1: 1,
+  ImportJobStatus.value2: 2,
+  ImportJobStatus.value3: 3,
+  ImportJobStatus.value4: 4,
+  ImportJobStatus.$unknown: r'$unknown',
 };

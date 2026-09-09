@@ -28,6 +28,12 @@ Map<String, dynamic> _$AuditEntryOutputToJson(AuditEntryOutput instance) =>
       'entityType': instance.entityType,
       'occurredAt': instance.occurredAt?.toIso8601String(),
       'operation': instance.operation,
-      'outcome': instance.outcome,
+      'outcome': _$AuditOutcomeEnumMap[instance.outcome],
       'reason': instance.reason,
     };
+
+const _$AuditOutcomeEnumMap = {
+  AuditOutcome.value1: 1,
+  AuditOutcome.value2: 2,
+  AuditOutcome.$unknown: r'$unknown',
+};

@@ -26,6 +26,14 @@ Map<String, dynamic> _$RecordInvestmentMovementCommandToJson(
   'amount': instance.amount,
   'financialAccountId': instance.financialAccountId,
   'id': instance.id,
-  'movementType': instance.movementType,
+  'movementType': _$InvestmentMovementTypeEnumMap[instance.movementType],
   'occurredOn': instance.occurredOn?.toIso8601String(),
+};
+
+const _$InvestmentMovementTypeEnumMap = {
+  InvestmentMovementType.value1: 1,
+  InvestmentMovementType.value2: 2,
+  InvestmentMovementType.value3: 3,
+  InvestmentMovementType.value4: 4,
+  InvestmentMovementType.$unknown: r'$unknown',
 };

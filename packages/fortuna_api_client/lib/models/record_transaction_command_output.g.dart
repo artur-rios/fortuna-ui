@@ -71,7 +71,7 @@ Map<String, dynamic> _$RecordTransactionCommandOutputToJson(
   'creditCardId': instance.creditCardId,
   'currencyCode': instance.currencyCode,
   'description': instance.description,
-  'direction': instance.direction,
+  'direction': _$TransactionDirectionEnumMap[instance.direction],
   'financialAccountId': instance.financialAccountId,
   'id': instance.id,
   'isLateArriving': instance.isLateArriving,
@@ -88,4 +88,10 @@ Map<String, dynamic> _$RecordTransactionCommandOutputToJson(
   'statementStatus': instance.statementStatus,
   'tags': instance.tags,
   'updatedAt': instance.updatedAt?.toIso8601String(),
+};
+
+const _$TransactionDirectionEnumMap = {
+  TransactionDirection.value1: 1,
+  TransactionDirection.value2: 2,
+  TransactionDirection.$unknown: r'$unknown',
 };

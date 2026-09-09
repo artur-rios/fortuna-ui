@@ -261,7 +261,7 @@ class _CreditCardsClient implements CreditCardsClient {
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
-      r'Status': status?.toJson(),
+      r'Status': status,
       r'From': from?.toIso8601String(),
       r'To': to?.toIso8601String(),
       r'SortBy': sortBy,

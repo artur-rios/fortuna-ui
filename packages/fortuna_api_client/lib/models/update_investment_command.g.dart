@@ -23,5 +23,13 @@ Map<String, dynamic> _$UpdateInvestmentCommandToJson(
   'currencyCode': instance.currencyCode,
   'institution': instance.institution,
   'instrument': instance.instrument,
-  'investmentType': instance.investmentType,
+  'investmentType': _$InvestmentTypeEnumMap[instance.investmentType],
+};
+
+const _$InvestmentTypeEnumMap = {
+  InvestmentType.value1: 1,
+  InvestmentType.value2: 2,
+  InvestmentType.value3: 3,
+  InvestmentType.value4: 4,
+  InvestmentType.$unknown: r'$unknown',
 };

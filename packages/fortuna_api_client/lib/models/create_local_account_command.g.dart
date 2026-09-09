@@ -21,5 +21,11 @@ Map<String, dynamic> _$CreateLocalAccountCommandToJson(
 ) => <String, dynamic>{
   'displayName': instance.displayName,
   'secret': instance.secret,
-  'storageMode': instance.storageMode,
+  'storageMode': _$LocalAccountStorageModeEnumMap[instance.storageMode],
+};
+
+const _$LocalAccountStorageModeEnumMap = {
+  LocalAccountStorageMode.value0: 0,
+  LocalAccountStorageMode.value1: 1,
+  LocalAccountStorageMode.$unknown: r'$unknown',
 };

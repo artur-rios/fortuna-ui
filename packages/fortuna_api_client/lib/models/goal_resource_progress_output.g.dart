@@ -39,9 +39,21 @@ Map<String, dynamic> _$GoalResourceProgressOutputToJson(
   'isIncluded': instance.isIncluded,
   'name': instance.name,
   'rateDate': instance.rateDate?.toIso8601String(),
-  'rateSource': instance.rateSource,
-  'resourceType': instance.resourceType,
+  'rateSource': _$ExchangeRateSourceEnumMap[instance.rateSource],
+  'resourceType': _$GoalResourceTypeEnumMap[instance.resourceType],
   'sourceAmount': instance.sourceAmount,
   'sourceCurrencyCode': instance.sourceCurrencyCode,
   'unconvertedReason': instance.unconvertedReason,
+};
+
+const _$ExchangeRateSourceEnumMap = {
+  ExchangeRateSource.value1: 1,
+  ExchangeRateSource.value2: 2,
+  ExchangeRateSource.$unknown: r'$unknown',
+};
+
+const _$GoalResourceTypeEnumMap = {
+  GoalResourceType.value1: 1,
+  GoalResourceType.value2: 2,
+  GoalResourceType.$unknown: r'$unknown',
 };

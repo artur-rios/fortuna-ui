@@ -32,6 +32,14 @@ Map<String, dynamic> _$CreateInvestmentCommandOutputToJson(
   'id': instance.id,
   'institution': instance.institution,
   'instrument': instance.instrument,
-  'investmentType': instance.investmentType,
+  'investmentType': _$InvestmentTypeEnumMap[instance.investmentType],
   'updatedAt': instance.updatedAt?.toIso8601String(),
+};
+
+const _$InvestmentTypeEnumMap = {
+  InvestmentType.value1: 1,
+  InvestmentType.value2: 2,
+  InvestmentType.value3: 3,
+  InvestmentType.value4: 4,
+  InvestmentType.$unknown: r'$unknown',
 };

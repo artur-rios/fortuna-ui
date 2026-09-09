@@ -36,7 +36,7 @@ class _AccountsClient implements AccountsClient {
     final queryParameters = <String, dynamic>{
       r'Name': name,
       r'Institution': institution,
-      r'AccountType': accountType?.toJson(),
+      r'AccountType': accountType,
       r'CurrencyCode': currencyCode,
       r'IncludeDeleted': includeDeleted,
       r'SortBy': sortBy,

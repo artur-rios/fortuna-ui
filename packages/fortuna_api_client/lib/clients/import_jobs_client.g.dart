@@ -31,8 +31,8 @@ class _ImportJobsClient implements ImportJobsClient {
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
-      r'SourceType': sourceType?.toJson(),
-      r'Status': status?.toJson(),
+      r'SourceType': sourceType,
+      r'Status': status,
       r'SortBy': sortBy,
       r'Descending': descending,
       r'PageNumber': pageNumber,

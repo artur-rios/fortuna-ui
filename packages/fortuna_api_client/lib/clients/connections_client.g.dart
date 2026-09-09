@@ -31,8 +31,8 @@ class _ConnectionsClient implements ConnectionsClient {
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
-      r'DataSourceType': dataSourceType?.toJson(),
-      r'Status': status?.toJson(),
+      r'DataSourceType': dataSourceType,
+      r'Status': status,
       r'SortBy': sortBy,
       r'Descending': descending,
       r'PageNumber': pageNumber,

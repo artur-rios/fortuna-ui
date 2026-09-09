@@ -49,13 +49,27 @@ Map<String, dynamic> _$InvestmentOutputToJson(InvestmentOutput instance) =>
       'id': instance.id,
       'institution': instance.institution,
       'instrument': instance.instrument,
-      'investmentType': instance.investmentType,
+      'investmentType': _$InvestmentTypeEnumMap[instance.investmentType],
       'isIndependentlyValued': instance.isIndependentlyValued,
       'latestValuationDate': instance.latestValuationDate?.toIso8601String(),
       'latestValuationValue': instance.latestValuationValue,
       'position': instance.position,
       'rateDate': instance.rateDate?.toIso8601String(),
-      'rateSource': instance.rateSource,
+      'rateSource': _$ExchangeRateSourceEnumMap[instance.rateSource],
       'unconvertedReason': instance.unconvertedReason,
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };
+
+const _$InvestmentTypeEnumMap = {
+  InvestmentType.value1: 1,
+  InvestmentType.value2: 2,
+  InvestmentType.value3: 3,
+  InvestmentType.value4: 4,
+  InvestmentType.$unknown: r'$unknown',
+};
+
+const _$ExchangeRateSourceEnumMap = {
+  ExchangeRateSource.value1: 1,
+  ExchangeRateSource.value2: 2,
+  ExchangeRateSource.$unknown: r'$unknown',
+};

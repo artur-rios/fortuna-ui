@@ -35,9 +35,16 @@ Map<String, dynamic> _$CashFlowProjectionOutputToJson(
   'displayCurrencyCode': instance.displayCurrencyCode,
   'estimateOmittedReason': instance.estimateOmittedReason,
   'flatReason': instance.flatReason,
-  'periodicity': instance.periodicity,
+  'periodicity': _$CashFlowPeriodicityEnumMap[instance.periodicity],
   'periods': instance.periods,
   'rates': instance.rates,
   'startingBalance': instance.startingBalance,
   'through': instance.through?.toIso8601String(),
+};
+
+const _$CashFlowPeriodicityEnumMap = {
+  CashFlowPeriodicity.value1: 1,
+  CashFlowPeriodicity.value2: 2,
+  CashFlowPeriodicity.value3: 3,
+  CashFlowPeriodicity.$unknown: r'$unknown',
 };

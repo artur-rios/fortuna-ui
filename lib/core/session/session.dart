@@ -13,22 +13,11 @@ library;
 import 'package:meta/meta.dart';
 
 /// What the signed-in identity may do (`FR-AD-01`, `FR-AD-05`).
-enum Role {
-  accountOwner,
-  instanceAdministrator;
-
-  /// Parses the role named by the API's token claim. An unrecognized role is
-  /// `null` rather than a guess — a stored token naming a role this instance
-  /// does not know is discarded and the user signs in again (`UC-11 AF-05`).
-  static Role? tryParse(String? value) => switch (value?.toLowerCase()) {
-    'accountowner' || 'account_owner' || 'owner' => Role.accountOwner,
-    'instanceadministrator' ||
-    'instance_administrator' ||
-    'administrator' ||
-    'admin' => Role.instanceAdministrator,
-    _ => null,
-  };
-}
+/// Resolved from the token's `role` claim, which the API writes as a **numeric**
+/// role id rather than a name. The mapping lives in `TokenClaims`, next to the
+/// parsing that produces it, so there is one place that knows the API's
+/// vocabulary.
+enum Role { accountOwner, instanceAdministrator }
 
 /// Which shape this installation runs in (`FR-CF-03`).
 enum AppMode { connected, selfHosted, desktopOffline }

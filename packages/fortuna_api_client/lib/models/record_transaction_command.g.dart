@@ -35,9 +35,15 @@ Map<String, dynamic> _$RecordTransactionCommandToJson(
   'creditCardId': instance.creditCardId,
   'currencyCode': instance.currencyCode,
   'description': instance.description,
-  'direction': instance.direction,
+  'direction': _$TransactionDirectionEnumMap[instance.direction],
   'financialAccountId': instance.financialAccountId,
   'occurredOn': instance.occurredOn?.toIso8601String(),
   'ownerId': instance.ownerId,
   'tags': instance.tags,
+};
+
+const _$TransactionDirectionEnumMap = {
+  TransactionDirection.value1: 1,
+  TransactionDirection.value2: 2,
+  TransactionDirection.$unknown: r'$unknown',
 };

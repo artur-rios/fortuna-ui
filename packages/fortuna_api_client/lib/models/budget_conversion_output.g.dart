@@ -28,8 +28,14 @@ Map<String, dynamic> _$BudgetConversionOutputToJson(
   'appliedRate': instance.appliedRate,
   'convertedAmount': instance.convertedAmount,
   'rateDate': instance.rateDate?.toIso8601String(),
-  'rateSource': instance.rateSource,
+  'rateSource': _$ExchangeRateSourceEnumMap[instance.rateSource],
   'sourceAmount': instance.sourceAmount,
   'sourceCurrencyCode': instance.sourceCurrencyCode,
   'unconvertedReason': instance.unconvertedReason,
+};
+
+const _$ExchangeRateSourceEnumMap = {
+  ExchangeRateSource.value1: 1,
+  ExchangeRateSource.value2: 2,
+  ExchangeRateSource.$unknown: r'$unknown',
 };

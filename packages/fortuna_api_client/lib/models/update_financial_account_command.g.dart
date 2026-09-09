@@ -22,10 +22,18 @@ UpdateFinancialAccountCommand _$UpdateFinancialAccountCommandFromJson(
 Map<String, dynamic> _$UpdateFinancialAccountCommandToJson(
   UpdateFinancialAccountCommand instance,
 ) => <String, dynamic>{
-  'accountType': instance.accountType,
+  'accountType': _$FinancialAccountTypeEnumMap[instance.accountType],
   'currencyCode': instance.currencyCode,
   'institution': instance.institution,
   'name': instance.name,
   'openingBalance': instance.openingBalance,
   'ownerId': instance.ownerId,
+};
+
+const _$FinancialAccountTypeEnumMap = {
+  FinancialAccountType.value1: 1,
+  FinancialAccountType.value2: 2,
+  FinancialAccountType.value3: 3,
+  FinancialAccountType.value4: 4,
+  FinancialAccountType.$unknown: r'$unknown',
 };

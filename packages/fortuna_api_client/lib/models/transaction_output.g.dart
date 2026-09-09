@@ -77,7 +77,7 @@ Map<String, dynamic> _$TransactionOutputToJson(TransactionOutput instance) =>
       'creditCardName': instance.creditCardName,
       'currencyCode': instance.currencyCode,
       'description': instance.description,
-      'direction': instance.direction,
+      'direction': _$TransactionDirectionEnumMap[instance.direction],
       'financialAccountId': instance.financialAccountId,
       'financialAccountName': instance.financialAccountName,
       'id': instance.id,
@@ -98,8 +98,22 @@ Map<String, dynamic> _$TransactionOutputToJson(TransactionOutput instance) =>
       'originalCurrencyCode': instance.originalCurrencyCode,
       'rateDate': instance.rateDate?.toIso8601String(),
       'recurringTransactionId': instance.recurringTransactionId,
-      'sourceType': instance.sourceType,
+      'sourceType': _$TransactionSourceTypeEnumMap[instance.sourceType],
       'statementId': instance.statementId,
       'tags': instance.tags,
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };
+
+const _$TransactionDirectionEnumMap = {
+  TransactionDirection.value1: 1,
+  TransactionDirection.value2: 2,
+  TransactionDirection.$unknown: r'$unknown',
+};
+
+const _$TransactionSourceTypeEnumMap = {
+  TransactionSourceType.value1: 1,
+  TransactionSourceType.value2: 2,
+  TransactionSourceType.value3: 3,
+  TransactionSourceType.value4: 4,
+  TransactionSourceType.$unknown: r'$unknown',
+};
