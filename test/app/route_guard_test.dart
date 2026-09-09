@@ -32,7 +32,13 @@ String? redirect({
   required InstanceConfig instance,
   required SessionState session,
   required String location,
-}) => resolveRedirect(instance: instance, session: session, location: location);
+  String? destination,
+}) => resolveRedirect(
+  instance: instance,
+  session: session,
+  location: location,
+  destination: destination,
+);
 
 void main() {
   group('resolveRedirect', () {
@@ -65,17 +71,98 @@ void main() {
       );
     });
 
-    test('Given no session '
-        'When an authenticated route is requested '
-        'Then it redirects to sign-in (UC-46 AF-02)', () {
+    test(
+      'Given no session '
+      'When an authenticated route is requested '
+      'Then it redirects to sign-in carrying the destination (UC-46 AF-02)',
+      () {
+        final target = redirect(
+          instance: _configured,
+          session: const SignedOut(),
+          location: '/transactions',
+        );
+
+        expect(target, isNotNull);
+        final uri = Uri.parse(target!);
+        expect(uri.path, Routes.signIn);
+        expect(
+          uri.queryParameters[Routes.destinationParameter],
+          '/transactions',
+        );
+      },
+    );
+
+    test('Given a remembered destination the role may reach '
+        'When the user arrives at sign-in with a session '
+        'Then they are sent there rather than to their home (UC-46 AF-02)', () {
       expect(
         redirect(
           instance: _configured,
-          session: const SignedOut(),
-          location: Routes.home,
+          session: _owner,
+          location: Routes.signIn,
+          destination: Routes.settings,
         ),
-        Routes.signIn,
+        Routes.settings,
       );
+    });
+
+    test('Given a remembered destination the role may NOT reach '
+        'When the user arrives at sign-in with a session '
+        'Then it is refused and they go to their own home', () {
+      // The remembered destination is a suggestion, not an instruction: an
+      // owner who was sent away from /admin must not be delivered there by
+      // having the guard trust its own query string.
+      expect(
+        redirect(
+          instance: _configured,
+          session: _owner,
+          location: Routes.signIn,
+          destination: Routes.admin,
+        ),
+        Routes.home,
+      );
+    });
+
+    test('Given no remembered destination '
+        'When the user arrives at sign-in with a session '
+        'Then they go to their own home', () {
+      expect(
+        redirect(
+          instance: _configured,
+          session: _owner,
+          location: Routes.signIn,
+        ),
+        Routes.home,
+      );
+    });
+
+    test('Given a remembered destination that is sign-in itself '
+        'When the user arrives with a session '
+        'Then it does not loop', () {
+      expect(
+        redirect(
+          instance: _configured,
+          session: _owner,
+          location: Routes.signIn,
+          destination: Routes.signIn,
+        ),
+        Routes.home,
+      );
+    });
+
+    test('Given settings '
+        'When either role requests it '
+        'Then both are admitted — presentation is not financial data', () {
+      for (final session in [_owner, _admin]) {
+        expect(
+          redirect(
+            instance: _configured,
+            session: session,
+            location: Routes.settings,
+          ),
+          isNull,
+        );
+      }
     });
 
     test('Given a two-factor challenge is outstanding '
@@ -87,14 +174,13 @@ void main() {
         expiresAt: DateTime.now().add(const Duration(minutes: 5)),
       );
 
-      expect(
-        redirect(
-          instance: _configured,
-          session: pending,
-          location: Routes.home,
-        ),
-        Routes.signIn,
+      final target = redirect(
+        instance: _configured,
+        session: pending,
+        location: Routes.home,
       );
+
+      expect(Uri.parse(target!).path, Routes.signIn);
     });
 
     test(

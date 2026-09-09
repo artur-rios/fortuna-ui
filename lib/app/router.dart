@@ -36,10 +36,14 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: Routes.home,
     refreshListenable: refresh,
+    // AF-06: evaluated on every navigation, not once at sign-in. go_router
+    // calls this for each redirect, and the refresh listenable above re-runs it
+    // whenever the session or the instance changes.
     redirect: (context, state) => resolveRedirect(
       instance: ref.read(instanceConfigProvider),
       session: ref.read(sessionProvider),
       location: state.matchedLocation,
+      destination: state.uri.queryParameters[Routes.destinationParameter],
     ),
     errorBuilder: (context, state) => NotFoundScreen(location: state.uri.path),
     routes: [

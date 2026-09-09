@@ -14,10 +14,17 @@ import 'routes.dart';
 /// Returns `null` to admit it, or the location to redirect to. Applied to
 /// **every** route however it was reached — a typed URL, a deep link, a
 /// restored session (`FR-AD-06`).
+///
+/// [destination] is the route the user was heading for before they were sent to
+/// sign in, carried in the query string. It is a **suggestion**, not an
+/// instruction: it is re-evaluated through this same function before being
+/// honoured, so a remembered destination cannot be used to reach somewhere the
+/// role may not go.
 String? resolveRedirect({
   required InstanceConfig instance,
   required SessionState session,
   required String location,
+  String? destination,
 }) {
   // Nothing works without somewhere to send requests, so setup precedes even
   // sign-in (UC-01).
@@ -28,13 +35,35 @@ String? resolveRedirect({
   if (!session.isAuthenticated) {
     // ChallengePending lands here too, deliberately: until the second factor is
     // accepted, the application is in the same state as signed out (BR-19).
-    return Routes.anonymous.contains(location) ? null : Routes.signIn;
+    if (Routes.anonymous.contains(location)) return null;
+
+    // AF-02: the destination is remembered, so signing in returns the user to
+    // where they were going rather than dropping them on a home screen and
+    // making them find it again. A path, never a token (FR-DA-12).
+    return Uri(
+      path: Routes.signIn,
+      queryParameters: {Routes.destinationParameter: location},
+    ).toString();
   }
 
   final signedIn = session as SignedIn;
 
-  // An authenticated user has no business on the anonymous routes.
+  // An authenticated user has no business on the anonymous routes — but if they
+  // arrived carrying a remembered destination, that is where they were going.
   if (Routes.anonymous.contains(location)) {
+    final remembered = destination ?? '';
+    if (remembered.isNotEmpty && remembered != location) {
+      // Re-evaluated rather than trusted: a destination remembered before
+      // sign-in may be one this role cannot reach, and an admitted-by-default
+      // redirect would be a hole in the guard rather than a convenience.
+      final wouldRefuse = resolveRedirect(
+        instance: instance,
+        session: session,
+        location: remembered,
+      );
+      if (wouldRefuse == null) return remembered;
+    }
+
     return homeFor(signedIn.role);
   }
 

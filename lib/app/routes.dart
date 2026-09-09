@@ -21,6 +21,10 @@ abstract final class Routes {
   // Instance administrator.
   static const admin = '/admin';
 
+  /// The query parameter carrying where the user was going before sign-in
+  /// (`UC-46 AF-02`).
+  static const destinationParameter = 'from';
+
   /// Routes an authenticated user of **either** role may reach.
   static const Set<String> sharedByBothRoles = {settings};
 
