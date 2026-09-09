@@ -34,8 +34,14 @@ Map<String, dynamic> _$NetPositionCurrencyOutputToJson(
   'financialAccounts': instance.financialAccounts,
   'investments': instance.investments,
   'rateDate': instance.rateDate?.toIso8601String(),
-  'rateSource': instance.rateSource,
+  'rateSource': _$ExchangeRateSourceEnumMap[instance.rateSource],
   'sourceCurrencyCode': instance.sourceCurrencyCode,
   'sourceNet': instance.sourceNet,
   'unconvertedReason': instance.unconvertedReason,
+};
+
+const _$ExchangeRateSourceEnumMap = {
+  ExchangeRateSource.value1: 1,
+  ExchangeRateSource.value2: 2,
+  ExchangeRateSource.$unknown: r'$unknown',
 };

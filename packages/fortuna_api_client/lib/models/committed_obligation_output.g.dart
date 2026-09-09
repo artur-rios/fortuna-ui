@@ -50,8 +50,20 @@ Map<String, dynamic> _$CommittedObligationOutputToJson(
   'dueDate': instance.dueDate?.toIso8601String(),
   'id': instance.id,
   'isOverdue': instance.isOverdue,
-  'kind': instance.kind,
+  'kind': _$CommittedObligationKindEnumMap[instance.kind],
   'rateDate': instance.rateDate?.toIso8601String(),
-  'rateSource': instance.rateSource,
+  'rateSource': _$ExchangeRateSourceEnumMap[instance.rateSource],
   'unconvertedReason': instance.unconvertedReason,
+};
+
+const _$CommittedObligationKindEnumMap = {
+  CommittedObligationKind.value1: 1,
+  CommittedObligationKind.value2: 2,
+  CommittedObligationKind.$unknown: r'$unknown',
+};
+
+const _$ExchangeRateSourceEnumMap = {
+  ExchangeRateSource.value1: 1,
+  ExchangeRateSource.value2: 2,
+  ExchangeRateSource.$unknown: r'$unknown',
 };

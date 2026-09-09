@@ -26,10 +26,23 @@ Map<String, dynamic> _$RequestDataExportCommandOutputToJson(
   RequestDataExportCommandOutput instance,
 ) => <String, dynamic>{
   'contentType': instance.contentType,
-  'delivery': instance.delivery,
+  'delivery': _$DataExportDeliveryEnumMap[instance.delivery],
   'exportId': instance.exportId,
   'fileName': instance.fileName,
-  'format': instance.format,
+  'format': _$DataExportFormatEnumMap[instance.format],
   'jobId': instance.jobId,
   'rowCount': instance.rowCount,
+};
+
+const _$DataExportDeliveryEnumMap = {
+  DataExportDelivery.value1: 1,
+  DataExportDelivery.value2: 2,
+  DataExportDelivery.$unknown: r'$unknown',
+};
+
+const _$DataExportFormatEnumMap = {
+  DataExportFormat.value1: 1,
+  DataExportFormat.value2: 2,
+  DataExportFormat.value3: 3,
+  DataExportFormat.$unknown: r'$unknown',
 };

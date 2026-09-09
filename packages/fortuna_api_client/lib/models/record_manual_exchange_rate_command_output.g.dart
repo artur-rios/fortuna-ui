@@ -30,6 +30,12 @@ Map<String, dynamic> _$RecordManualExchangeRateCommandOutputToJson(
   'rate': instance.rate,
   'rateDate': instance.rateDate?.toIso8601String(),
   'replacedExisting': instance.replacedExisting,
-  'source': instance.source,
+  'source': _$ExchangeRateSourceEnumMap[instance.source],
   'takesPrecedence': instance.takesPrecedence,
+};
+
+const _$ExchangeRateSourceEnumMap = {
+  ExchangeRateSource.value1: 1,
+  ExchangeRateSource.value2: 2,
+  ExchangeRateSource.$unknown: r'$unknown',
 };

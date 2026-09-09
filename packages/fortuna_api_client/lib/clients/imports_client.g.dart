@@ -76,7 +76,7 @@ class _ImportsClient implements ImportsClient {
       _data.fields.add(MapEntry('TargetId', targetId));
     }
     if (targetType != null) {
-      _data.fields.add(MapEntry('TargetType', targetType.toJson()));
+      _data.fields.add(MapEntry('TargetType', targetType.toString()));
     }
     final _options = _setStreamType<ImportExcelWorkbookCommandOutputDataOutput>(
       Options(

@@ -36,7 +36,7 @@ class _AuditEntriesClient implements AuditEntriesClient {
       r'EntityType': entityType,
       r'EntityId': entityId,
       r'Operation': operation,
-      r'Outcome': outcome?.toJson(),
+      r'Outcome': outcome,
       r'From': from?.toIso8601String(),
       r'To': to?.toIso8601String(),
       r'PageNumber': pageNumber,

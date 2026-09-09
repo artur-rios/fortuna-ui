@@ -40,10 +40,25 @@ Map<String, dynamic> _$RetrieveDataExportQueryOutputToJson(
   'expiresAt': instance.expiresAt?.toIso8601String(),
   'failureReason': instance.failureReason,
   'fileName': instance.fileName,
-  'format': instance.format,
+  'format': _$DataExportFormatEnumMap[instance.format],
   'id': instance.id,
   'jobId': instance.jobId,
   'rowCount': instance.rowCount,
-  'status': instance.status,
+  'status': _$DataExportStatusEnumMap[instance.status],
   'updatedAt': instance.updatedAt?.toIso8601String(),
+};
+
+const _$DataExportFormatEnumMap = {
+  DataExportFormat.value1: 1,
+  DataExportFormat.value2: 2,
+  DataExportFormat.value3: 3,
+  DataExportFormat.$unknown: r'$unknown',
+};
+
+const _$DataExportStatusEnumMap = {
+  DataExportStatus.value1: 1,
+  DataExportStatus.value2: 2,
+  DataExportStatus.value3: 3,
+  DataExportStatus.value4: 4,
+  DataExportStatus.$unknown: r'$unknown',
 };

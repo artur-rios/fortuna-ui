@@ -32,10 +32,16 @@ Map<String, dynamic> _$DataSourceOutputToJson(DataSourceOutput instance) =>
       'displayName': instance.displayName,
       'isAvailable': instance.isAvailable,
       'isNetworkBacked': instance.isNetworkBacked,
-      'kind': instance.kind,
+      'kind': _$DataSourceKindEnumMap[instance.kind],
       'name': instance.name,
       'requiredInputs': instance.requiredInputs,
       'supportedFormats': instance.supportedFormats,
       'supportedLayouts': instance.supportedLayouts,
       'unavailableReason': instance.unavailableReason,
     };
+
+const _$DataSourceKindEnumMap = {
+  DataSourceKind.value1: 1,
+  DataSourceKind.value2: 2,
+  DataSourceKind.$unknown: r'$unknown',
+};

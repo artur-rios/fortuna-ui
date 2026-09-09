@@ -32,10 +32,25 @@ Map<String, dynamic> _$ReauthenticateConnectionCommandOutputToJson(
   ReauthenticateConnectionCommandOutput instance,
 ) => <String, dynamic>{
   'createdAt': instance.createdAt?.toIso8601String(),
-  'dataSourceType': instance.dataSourceType,
+  'dataSourceType': _$TransactionSourceTypeEnumMap[instance.dataSourceType],
   'externalReference': instance.externalReference,
   'id': instance.id,
   'institution': instance.institution,
-  'status': instance.status,
+  'status': _$ConnectionStatusEnumMap[instance.status],
   'updatedAt': instance.updatedAt?.toIso8601String(),
+};
+
+const _$TransactionSourceTypeEnumMap = {
+  TransactionSourceType.value1: 1,
+  TransactionSourceType.value2: 2,
+  TransactionSourceType.value3: 3,
+  TransactionSourceType.value4: 4,
+  TransactionSourceType.$unknown: r'$unknown',
+};
+
+const _$ConnectionStatusEnumMap = {
+  ConnectionStatus.value1: 1,
+  ConnectionStatus.value2: 2,
+  ConnectionStatus.value3: 3,
+  ConnectionStatus.$unknown: r'$unknown',
 };

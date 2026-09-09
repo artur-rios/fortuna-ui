@@ -27,5 +27,13 @@ Map<String, dynamic> _$SynchronizeConnectionCommandOutputToJson(
   'importJobId': instance.importJobId,
   'periodEnd': instance.periodEnd?.toIso8601String(),
   'periodStart': instance.periodStart?.toIso8601String(),
-  'status': instance.status,
+  'status': _$ImportJobStatusEnumMap[instance.status],
+};
+
+const _$ImportJobStatusEnumMap = {
+  ImportJobStatus.value1: 1,
+  ImportJobStatus.value2: 2,
+  ImportJobStatus.value3: 3,
+  ImportJobStatus.value4: 4,
+  ImportJobStatus.$unknown: r'$unknown',
 };

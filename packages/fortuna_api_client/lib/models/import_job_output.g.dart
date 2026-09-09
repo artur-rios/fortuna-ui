@@ -47,7 +47,23 @@ Map<String, dynamic> _$ImportJobOutputToJson(ImportJobOutput instance) =>
       'periodStart': instance.periodStart?.toIso8601String(),
       'processedCount': instance.processedCount,
       'rejectedCount': instance.rejectedCount,
-      'sourceType': instance.sourceType,
-      'status': instance.status,
+      'sourceType': _$TransactionSourceTypeEnumMap[instance.sourceType],
+      'status': _$ImportJobStatusEnumMap[instance.status],
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };
+
+const _$TransactionSourceTypeEnumMap = {
+  TransactionSourceType.value1: 1,
+  TransactionSourceType.value2: 2,
+  TransactionSourceType.value3: 3,
+  TransactionSourceType.value4: 4,
+  TransactionSourceType.$unknown: r'$unknown',
+};
+
+const _$ImportJobStatusEnumMap = {
+  ImportJobStatus.value1: 1,
+  ImportJobStatus.value2: 2,
+  ImportJobStatus.value3: 3,
+  ImportJobStatus.value4: 4,
+  ImportJobStatus.$unknown: r'$unknown',
+};

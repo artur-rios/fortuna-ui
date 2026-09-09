@@ -15,6 +15,7 @@ import 'core/config/instance_config.dart';
 import 'core/session/session_controller.dart';
 import 'core/storage/preferences_store.dart';
 import 'core/storage/token_store.dart';
+import 'features/session/ui/startup_gate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +29,14 @@ Future<void> main() async {
     ],
   );
 
+  // The instance has to be resolved before a client can be built against it,
+  // which is why UC-01 precedes UC-11 in the start-up order.
   await container.read(instanceConfigProvider.notifier).restore();
 
   runApp(
-    UncontrolledProviderScope(container: container, child: const FortunaApp()),
+    UncontrolledProviderScope(
+      container: container,
+      child: const StartupGate(child: FortunaApp()),
+    ),
   );
 }

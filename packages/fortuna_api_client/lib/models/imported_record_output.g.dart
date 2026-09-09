@@ -30,8 +30,15 @@ Map<String, dynamic> _$ImportedRecordOutputToJson(
   'externalId': instance.externalId,
   'hasLiveTransaction': instance.hasLiveTransaction,
   'occurredOn': instance.occurredOn?.toIso8601String(),
-  'outcome': instance.outcome,
+  'outcome': _$ImportedRecordOutcomeEnumMap[instance.outcome],
   'rawPayload': instance.rawPayload,
   'rejectionReason': instance.rejectionReason,
   'transactionId': instance.transactionId,
+};
+
+const _$ImportedRecordOutcomeEnumMap = {
+  ImportedRecordOutcome.value1: 1,
+  ImportedRecordOutcome.value2: 2,
+  ImportedRecordOutcome.value3: 3,
+  ImportedRecordOutcome.$unknown: r'$unknown',
 };

@@ -30,5 +30,12 @@ Map<String, dynamic> _$UpdateBudgetCommandToJson(
   'currencyCode': instance.currencyCode,
   'includeDescendants': instance.includeDescendants,
   'periodStart': instance.periodStart?.toIso8601String(),
-  'periodType': instance.periodType,
+  'periodType': _$BudgetPeriodTypeEnumMap[instance.periodType],
+};
+
+const _$BudgetPeriodTypeEnumMap = {
+  BudgetPeriodType.value1: 1,
+  BudgetPeriodType.value2: 2,
+  BudgetPeriodType.value3: 3,
+  BudgetPeriodType.$unknown: r'$unknown',
 };

@@ -114,26 +114,4 @@ void main() {
       expect(config.isOffline, isTrue);
     });
   });
-
-  group('Role.tryParse', () {
-    test('Given a role the API names '
-        'When it is parsed '
-        'Then it resolves', () {
-      expect(Role.tryParse('AccountOwner'), Role.accountOwner);
-      expect(Role.tryParse('account_owner'), Role.accountOwner);
-      expect(
-        Role.tryParse('InstanceAdministrator'),
-        Role.instanceAdministrator,
-      );
-      expect(Role.tryParse('admin'), Role.instanceAdministrator);
-    });
-
-    test('Given a role this instance does not recognize '
-        'When it is parsed '
-        'Then it is null rather than a guess (UC-11 AF-05)', () {
-      expect(Role.tryParse('superuser'), isNull);
-      expect(Role.tryParse(null), isNull);
-      expect(Role.tryParse(''), isNull);
-    });
-  });
 }

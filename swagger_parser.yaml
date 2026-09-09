@@ -25,7 +25,7 @@ swagger_parser:
 
   # The API's enums travel as strings; keeping them enums here is what makes an
   # unknown value a visible failure rather than a silent empty string.
-  enums_to_json: true
+  enums_to_json: false
   enums_prefix: false
 
   # Every response is wrapped in the API's DataOutput envelope, so unwrapping is

@@ -25,5 +25,11 @@ Map<String, dynamic> _$CashFlowRateOutputToJson(CashFlowRateOutput instance) =>
       'quoteCurrencyCode': instance.quoteCurrencyCode,
       'rate': instance.rate,
       'rateDate': instance.rateDate?.toIso8601String(),
-      'source': instance.source,
+      'source': _$ExchangeRateSourceEnumMap[instance.source],
     };
+
+const _$ExchangeRateSourceEnumMap = {
+  ExchangeRateSource.value1: 1,
+  ExchangeRateSource.value2: 2,
+  ExchangeRateSource.$unknown: r'$unknown',
+};

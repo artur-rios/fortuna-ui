@@ -50,7 +50,7 @@ class _TransactionsClient implements TransactionsClient {
       r'CategoryId': categoryId,
       r'TagId': tagId,
       r'CounterpartyId': counterpartyId,
-      r'Direction': direction?.toJson(),
+      r'Direction': direction,
       r'MinimumAmount': minimumAmount,
       r'MaximumAmount': maximumAmount,
       r'Text': text,

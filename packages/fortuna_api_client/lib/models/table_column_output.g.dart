@@ -21,5 +21,17 @@ Map<String, dynamic> _$TableColumnOutputToJson(TableColumnOutput instance) =>
       'currencyColumn': instance.currencyColumn,
       'isNumeric': instance.isNumeric,
       'name': instance.name,
-      'type': instance.type,
+      'type': _$TableColumnTypeEnumMap[instance.type],
     };
+
+const _$TableColumnTypeEnumMap = {
+  TableColumnType.value1: 1,
+  TableColumnType.value2: 2,
+  TableColumnType.value3: 3,
+  TableColumnType.value4: 4,
+  TableColumnType.value5: 5,
+  TableColumnType.value6: 6,
+  TableColumnType.value7: 7,
+  TableColumnType.value8: 8,
+  TableColumnType.$unknown: r'$unknown',
+};

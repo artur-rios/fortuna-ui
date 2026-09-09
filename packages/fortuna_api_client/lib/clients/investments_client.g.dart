@@ -37,7 +37,7 @@ class _InvestmentsClient implements InvestmentsClient {
     final queryParameters = <String, dynamic>{
       r'Instrument': instrument,
       r'Institution': institution,
-      r'InvestmentType': investmentType?.toJson(),
+      r'InvestmentType': investmentType,
       r'CurrencyCode': currencyCode,
       r'DisplayCurrencyCode': displayCurrencyCode,
       r'FigureDate': figureDate?.toIso8601String(),

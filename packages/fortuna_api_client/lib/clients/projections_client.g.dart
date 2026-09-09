@@ -34,7 +34,7 @@ class _ProjectionsClient implements ProjectionsClient {
       r'HorizonDays': horizonDays,
       r'DisplayCurrencyCode': displayCurrencyCode,
       r'IncludeEstimate': includeEstimate,
-      r'Periodicity': periodicity?.toJson(),
+      r'Periodicity': periodicity,
       r'PageNumber': pageNumber,
       r'PageSize': pageSize,
     };

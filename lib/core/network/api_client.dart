@@ -6,9 +6,14 @@
 /// it would reach logs, history and referrers.
 library;
 
-import 'package:dio/dio.dart';
+import 'dart:async';
 
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../config/instance_config.dart';
 import '../result/result.dart';
+import '../session/session_controller.dart';
 import '../storage/token_store.dart';
 
 /// Builds the application's `dio` instance.
@@ -108,3 +113,21 @@ String? _messageFromResponse(Object? data) {
   final message = data['message'];
   return message is String && message.isNotEmpty ? message : null;
 }
+
+/// The application's shared `dio` instance (IR-08).
+///
+/// Derived from the resolved instance rather than wired by hand at start-up, so
+/// that pointing the application at a different instance rebuilds the client
+/// that talks to it, with no step for anyone to forget.
+final dioProvider = Provider<Dio>((ref) {
+  final instance = ref.watch(instanceConfigProvider);
+
+  return ApiClientFactory(
+    baseUrl: instance.address,
+    tokenStore: ref.watch(tokenStoreProvider),
+    // FR-SE-19: a rejected token ends the session. No silent refresh, and no
+    // replay of whatever was interrupted (FR-SE-20).
+    onUnauthenticated: () =>
+        unawaited(ref.read(sessionProvider.notifier).rejectedByApi()),
+  ).create();
+});

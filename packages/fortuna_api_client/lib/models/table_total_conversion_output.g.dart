@@ -32,8 +32,14 @@ Map<String, dynamic> _$TableTotalConversionOutputToJson(
   'convertedValue': instance.convertedValue,
   'figureDate': instance.figureDate?.toIso8601String(),
   'rateDate': instance.rateDate?.toIso8601String(),
-  'rateSource': instance.rateSource,
+  'rateSource': _$ExchangeRateSourceEnumMap[instance.rateSource],
   'sourceCurrencyCode': instance.sourceCurrencyCode,
   'sourceValue': instance.sourceValue,
   'unconvertedReason': instance.unconvertedReason,
+};
+
+const _$ExchangeRateSourceEnumMap = {
+  ExchangeRateSource.value1: 1,
+  ExchangeRateSource.value2: 2,
+  ExchangeRateSource.$unknown: r'$unknown',
 };
