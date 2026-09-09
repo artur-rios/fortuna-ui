@@ -19,6 +19,7 @@ abstract final class Routes {
   static const settings = '/settings';
 
   static const categories = '/categories';
+  static const labels = '/labels';
 
   // Instance administrator.
   static const admin = '/admin';
