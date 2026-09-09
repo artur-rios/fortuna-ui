@@ -1,0 +1,53 @@
+# IR-19: analyze and test on every push and pull request, failing on either.
+# This is the gate for merging.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    name: Analyze and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed lib test tool
+
+      # An analyzer failure is a failure (Development Workflow §4, Step 5).
+      - name: Analyze
+        run: flutter analyze
+
+      # IR-13 and IR-14. Enforced as a build step rather than an IDE plugin;
+      # see tool/boundary_rules.dart for why.
+      - name: Check boundaries
+        run: dart run tool/check_boundaries.dart
+
+      - name: Test
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: warn

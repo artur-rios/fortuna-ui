@@ -1,0 +1,41 @@
+# IR-10, IR-11: the FFI bindings are generated from the Fortuna core's published
+# C header, committed, and never hand-edited. A change to the header surfaces as
+# a compile error rather than as a runtime crash.
+#
+# The header is vendored at native/include/fortuna_ffi.h, copied verbatim from
+# the fortuna-api repository. CI diffs the two, so drift fails the build rather
+# than being discovered at run time.
+#
+# Regenerate with:
+#   dart run tool/generate_bindings.dart
+#
+# BLOCKED: the header does not exist yet. It is published by
+# artur-rios/fortuna-api#156, whose operation surface is #157 and whose SQLite
+# provider is #155. This configuration is written and ready; the generator will
+# refuse to run, with an explanation, until the header lands.
+
+name: FortunaBindings
+description: |
+  Generated bindings over the Fortuna core's C ABI.
+
+  DO NOT EDIT. Generated from native/include/fortuna_ffi.h by ffigen.
+output: 'lib/core/bindings/fortuna_bindings.dart'
+
+headers:
+  entry-points:
+    - 'native/include/fortuna_ffi.h'
+  include-directives:
+    - '**fortuna_ffi.h'
+
+preamble: |
+  // GENERATED — DO NOT EDIT.
+  //
+  // Produced by `dart run tool/generate_bindings.dart` from the Fortuna core's
+  // published C header. A wrong binding means a wrong header: fix it at the
+  // source in fortuna-api and regenerate (BR-36).
+  //
+  // ignore_for_file: type=lint, unused_element, camel_case_types
+
+comments:
+  style: any
+  length: full

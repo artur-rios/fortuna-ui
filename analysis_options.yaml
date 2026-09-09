@@ -1,0 +1,48 @@
+# Analysis configuration — IR-01, IR-13, IR-14.
+#
+# Generated code is excluded because it is regenerated and drift-checked in CI
+# (IR-12), which is a stronger guarantee than linting a generator's output. The
+# platform directories are excluded because their contents are `flutter create`
+# boilerplate, regenerated rather than maintained.
+#
+# NO HAND-WRITTEN DIRECTORY IS EXCLUDED. A directory of hand-written code that is
+# not analysed is a directory where an arity error survives a clean
+# `flutter analyze` — which is exactly how a boundary layer rots.
+
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-raw-types: true
+  errors:
+    # An unused import or dead code is a defect in review, not a suggestion.
+    unused_import: error
+    unused_local_variable: error
+    dead_code: error
+  exclude:
+    - "packages/fortuna_api_client/lib/**"
+    - "lib/core/bindings/*_bindings.dart"
+    - "**/*.g.dart"
+    - "**/generated_plugin_registrant.dart"
+    - build/**
+    - android/**
+    - web/**
+    - windows/**
+    - linux/**
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - avoid_slow_async_io
+    - cancel_subscriptions
+    - close_sinks
+    - directives_ordering
+    - prefer_final_locals
+    - prefer_single_quotes
+    - require_trailing_commas
+    - sort_constructors_first
+    - unawaited_futures
+    - unnecessary_parenthesis
+    - use_super_parameters
