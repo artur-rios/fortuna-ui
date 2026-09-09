@@ -156,6 +156,21 @@ milestone itself.
 issue's specification is; the roadmap badges above and the issue links themselves are the live view
 of what is done.
 
+### Blocked on the API
+
+Twelve use cases cannot be built yet, because the endpoints they call do not exist. Each issue
+records its blocker; they are collected here so the backlog explains itself.
+
+| Blocked | Waiting on |
+|---|---|
+| [UC-02](https://github.com/artur-rios/fortuna-ui/issues/3), [UC-06](https://github.com/artur-rios/fortuna-ui/issues/7), [UC-07](https://github.com/artur-rios/fortuna-ui/issues/8), [UC-08](https://github.com/artur-rios/fortuna-ui/issues/9) | The FFI boundary — artur-rios/fortuna-api#156, #157, #155 |
+| [UC-03](https://github.com/artur-rios/fortuna-ui/issues/4), [UC-04](https://github.com/artur-rios/fortuna-ui/issues/5), [UC-05](https://github.com/artur-rios/fortuna-ui/issues/6), [UC-09](https://github.com/artur-rios/fortuna-ui/issues/10), [UC-10](https://github.com/artur-rios/fortuna-ui/issues/11) | The `api/auth` surface — artur-rios/fortuna-api#153, #154 |
+| [UC-01](https://github.com/artur-rios/fortuna-ui/issues/2) | A readable API version — artur-rios/fortuna-api#161 |
+| [UC-42](https://github.com/artur-rios/fortuna-ui/issues/43), [UC-43](https://github.com/artur-rios/fortuna-ui/issues/44), [UC-44](https://github.com/artur-rios/fortuna-ui/issues/45) | The data-rights endpoints — artur-rios/fortuna-api#160, #159, #158 |
+
+Once one lands, copy the regenerated `docs/openapi/fortuna.json` to `api/fortuna.json` and run
+`dart run tool/generate_api_client.dart` before picking the use case up.
+
 ### M-01 — Foundation
 
 | Issue | Work | Spec |
