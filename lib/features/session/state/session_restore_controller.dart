@@ -92,7 +92,9 @@ class SessionRestoreController extends Notifier<SessionRestoreState> {
     // even if the API accepted it.
     final claims = TokenClaims.tryParse(token);
     if (claims == null) {
-      await _discard();
+      await _discard(
+        reason: 'The stored session could not be read. Please sign in again.',
+      );
       return;
     }
 
@@ -142,8 +144,15 @@ class SessionRestoreController extends Notifier<SessionRestoreState> {
   }
 
   /// Drops the stored token and finishes without a session.
-  Future<void> _discard() async {
-    await ref.read(sessionProvider.notifier).end();
+  ///
+  /// Uses the same path as a token the API rejected, because that is what this
+  /// is: a token that will not be honoured. It ends the session even if the
+  /// store cannot be cleared, since keeping a session on an unusable token
+  /// helps nobody.
+  Future<void> _discard({String? reason}) async {
+    await ref
+        .read(sessionProvider.notifier)
+        .rejectedByApi(reason: reason ?? 'Please sign in again.');
     state = const SessionRestoreComplete();
   }
 }

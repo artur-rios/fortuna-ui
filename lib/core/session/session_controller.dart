@@ -6,9 +6,11 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:meta/meta.dart';
 
 import '../storage/token_store.dart';
 import 'session.dart';
+import 'session_teardown.dart';
 
 /// Supplies the token store. Overridden in tests with an in-memory fake.
 final tokenStoreProvider = Provider<TokenStore>(
@@ -17,11 +19,29 @@ final tokenStoreProvider = Provider<TokenStore>(
   ),
 );
 
-/// Invoked when caches must be dropped because the session ended.
+/// The outcome of a deliberate sign-out (`UC-12`).
+@immutable
+sealed class SignOutOutcome {
+  const SignOutOutcome();
+}
+
+/// The session ended and nothing of it remains.
+@immutable
+final class SignedOutCleanly extends SignOutOutcome {
+  const SignedOutCleanly();
+}
+
+/// The token could not be removed, so the session did **not** end.
 ///
-/// Registered by each feature that caches reference data, so that `FR-SE-21`
-/// holds without this file having to know what those features are.
-final sessionTeardownProvider = Provider<List<void Function()>>((ref) => []);
+/// `AF-04`: the user is not presented as signed out while their token is still
+/// on the device. Telling someone they have signed out when they have not is
+/// the one outcome worse than refusing to sign them out.
+@immutable
+final class SignOutFailed extends SignOutOutcome {
+  const SignOutFailed(this.message);
+
+  final String message;
+}
 
 final sessionProvider = NotifierProvider<SessionController, SessionState>(
   SessionController.new,
@@ -69,25 +89,47 @@ class SessionController extends Notifier<SessionState> {
     state = session;
   }
 
-  /// Ends the session, clearing the token and every registered cache
-  /// (`FR-SE-21`).
+  /// Signs out deliberately (`UC-12` main flow).
   ///
-  /// [reason] is shown to the user where the session ended on its own — an
-  /// expired token — and is `null` for a deliberate sign-out.
-  Future<void> end({String? reason}) async {
-    await ref.read(tokenStoreProvider).clear();
-    for (final teardown in ref.read(sessionTeardownProvider)) {
-      teardown();
+  /// Clears the token first and only then the caches and view state, so that a
+  /// failure to remove the token leaves everything intact rather than
+  /// half-cleared — see `AF-04`.
+  Future<SignOutOutcome> signOut() async {
+    try {
+      await ref.read(tokenStoreProvider).clear();
+    } on Object {
+      return const SignOutFailed(
+        'Your session could not be ended on this device. '
+        'Please try again.',
+      );
     }
-    state = SignedOut(reason: reason);
+
+    await ref.read(sessionTeardownProvider).runAll();
+    state = const SignedOut();
+    return const SignedOutCleanly();
   }
 
   /// Ends the session because the API rejected the token mid-flight
-  /// (`FR-SE-19`).
+  /// (`FR-SE-19`, `UC-12 AF-01`).
+  ///
+  /// Unlike [signOut] this always ends the session, even if the token cannot be
+  /// removed: a token the API has rejected is worthless, and staying signed in
+  /// on it would offer a session that cannot do anything. Any token left behind
+  /// is discarded at the next start-up, where `UC-11 AF-02` refuses it.
   ///
   /// Deliberately does not retry, refresh, or replay the interrupted action:
   /// silently replaying a financial write the user cannot see is how an action
-  /// happens twice (`FR-SE-20`).
-  Future<void> rejectedByApi() =>
-      end(reason: 'Your session expired. Please sign in again.');
+  /// happens twice (`FR-SE-20`, `AF-02`).
+  Future<void> rejectedByApi({
+    String reason = 'Your session expired. Please sign in again.',
+  }) async {
+    try {
+      await ref.read(tokenStoreProvider).clear();
+    } on Object {
+      // Deliberately swallowed: see above. The session ends regardless.
+    }
+
+    await ref.read(sessionTeardownProvider).runAll();
+    state = SignedOut(reason: reason);
+  }
 }

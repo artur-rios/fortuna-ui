@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/session/ui/sign_out_action.dart';
 import 'routes.dart';
 
 /// Shown for a route that does not exist (`UC-46 AF-05`).
@@ -61,6 +62,7 @@ class PlaceholderScreen extends StatelessWidget {
     required this.title,
     required this.route,
     required this.implementedBy,
+    this.signedIn = true,
     super.key,
   });
 
@@ -68,11 +70,18 @@ class PlaceholderScreen extends StatelessWidget {
   final String route;
   final String implementedBy;
 
+  /// Whether this screen is reached with a session. The sign-out control is
+  /// offered only where there is a session to end.
+  final bool signedIn;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: Text(title),
+        actions: signedIn ? const [SignOutAction()] : null,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
