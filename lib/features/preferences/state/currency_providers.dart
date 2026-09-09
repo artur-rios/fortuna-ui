@@ -16,21 +16,25 @@ import '../data/currency_repository.dart';
 /// `AF-03`: a failure here does not change the user's choice. The current
 /// display currency stands and the interface reports that the list is
 /// unavailable, rather than clearing a preference because a request failed.
-final supportedCurrenciesProvider = FutureProvider<List<SupportedCurrency>>((
-  ref,
-) async {
-  ref.read(sessionTeardownProvider).register('currencies', () async {
-    ref.invalidateSelf();
-  });
+/// Automatic retry is **off**: Riverpod retries a failed provider on its own by
+/// default, which would poll an unreachable instance behind the user's back
+/// while the settings screen offers them a Retry button for the same thing.
+final supportedCurrenciesProvider = FutureProvider<List<SupportedCurrency>>(
+  retry: (retryCount, error) => null,
+  (ref) async {
+    ref.read(sessionTeardownProvider).register('currencies', () async {
+      ref.invalidateSelf();
+    });
 
-  final result = await ref.read(currencyRepositoryProvider).listSupported();
+    final result = await ref.read(currencyRepositoryProvider).listSupported();
 
-  return switch (result) {
-    Success<List<SupportedCurrency>>(:final value) => value,
-    Failure<List<SupportedCurrency>>(:final message) =>
-      throw CurrencyListUnavailable(message),
-  };
-});
+    return switch (result) {
+      Success<List<SupportedCurrency>>(:final value) => value,
+      Failure<List<SupportedCurrency>>(:final message) =>
+        throw CurrencyListUnavailable(message),
+    };
+  },
+);
 
 /// Raised when the instance cannot supply the currency list (`AF-03`).
 class CurrencyListUnavailable implements Exception {

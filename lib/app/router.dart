@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/config/instance_config.dart';
 import '../core/session/session_controller.dart';
+import '../features/administration/ui/instance_health_screen.dart';
 import '../features/preferences/ui/settings_screen.dart';
 import 'route_guard.dart';
 import 'routes.dart';
@@ -74,11 +75,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.admin,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Instance health',
-          route: Routes.admin,
-          implementedBy: 'UC-45',
-        ),
+        builder: (context, state) => const InstanceHealthScreen(),
       ),
     ],
   );
