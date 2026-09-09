@@ -47,6 +47,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           title: 'Set up your instance',
           route: Routes.setup,
           implementedBy: 'UC-01',
+          signedIn: false,
         ),
       ),
       GoRoute(
@@ -55,6 +56,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           title: 'Sign in',
           route: Routes.signIn,
           implementedBy: 'UC-03',
+          signedIn: false,
         ),
       ),
       GoRoute(
