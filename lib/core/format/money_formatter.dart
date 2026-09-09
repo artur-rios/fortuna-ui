@@ -21,10 +21,18 @@ import 'money.dart';
 
 /// Formats [Money] for display in a given locale.
 class MoneyFormatter {
-  MoneyFormatter(this.locale);
+  MoneyFormatter(this.locale, {this.minorUnitDigits = const {}});
 
   /// The BCP 47 locale tag, one of the four the application supports.
   final String locale;
+
+  /// Minor-unit precision per currency code, as the **API** reports it.
+  ///
+  /// Consulted before `intl`'s own table, because `FR-PS-06` says rounding is
+  /// to the currency's own precision and the instance is the authority on the
+  /// currencies it accepts. A library's table and an instance's list can
+  /// disagree; when they do, the instance is right.
+  final Map<String, int> minorUnitDigits;
 
   /// Formats [money] with its currency symbol, e.g. `R$ 1.234,56` in `pt-BR`
   /// and `$1,234.56` in `en-US`.
@@ -34,7 +42,7 @@ class MoneyFormatter {
       name: money.currencyCode,
     );
     final symbol = pattern.currencySymbol;
-    final digits = pattern.decimalDigits ?? 2;
+    final digits = _digitsFor(money.currencyCode, pattern.decimalDigits);
     final number = formatAmount(money, decimalDigits: digits);
 
     // Where the symbol precedes the number in this locale, `intl` reports a
@@ -69,6 +77,11 @@ class MoneyFormatter {
 
     return negative ? '${symbols.MINUS_SIGN}$body' : body;
   }
+
+  /// The precision for [currencyCode]: the API's figure where it has one, then
+  /// the formatting library's, then two.
+  int _digitsFor(String currencyCode, int? fromIntl) =>
+      minorUnitDigits[currencyCode] ?? fromIntl ?? 2;
 
   /// Inserts [groupSeparator] every three digits from the right.
   String _group(String integerDigits, String groupSeparator) {

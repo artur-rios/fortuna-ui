@@ -15,8 +15,14 @@ abstract final class Routes {
   // Account owner.
   static const home = '/';
 
+  /// Reachable by both roles: presentation choices are not financial data.
+  static const settings = '/settings';
+
   // Instance administrator.
   static const admin = '/admin';
+
+  /// Routes an authenticated user of **either** role may reach.
+  static const Set<String> sharedByBothRoles = {settings};
 
   /// Routes reachable without a session.
   ///
