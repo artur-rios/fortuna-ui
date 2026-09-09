@@ -1,0 +1,37 @@
+# IR-09: the API client is generated from the contract the API publishes, and
+# committed unmodified. `api/fortuna.json` is copied from fortuna-api, where it
+# is produced by that project's own build — it is never authored here, and a
+# change to it is the deliberate act of taking a new API version.
+#
+# Regenerate with:
+#   dart run tool/generate_api_client.dart
+#
+# Everything under packages/fortuna_api_client/lib is generated and is never
+# hand-edited (BR-36). The package's own pubspec.yaml is maintained by hand.
+# Ergonomic wrappers belong in the consuming feature's data/ layer.
+
+swagger_parser:
+  schema_path: api/fortuna.json
+  output_directory: packages/fortuna_api_client/lib
+  name: fortuna_api_client
+
+  language: dart
+  json_serializer: json_serializable
+
+  # One client per tag, in its own folder, named after the area it serves.
+  put_clients_in_folder: true
+  squash_clients: false
+  root_client: false
+
+  # The API's enums travel as strings; keeping them enums here is what makes an
+  # unknown value a visible failure rather than a silent empty string.
+  enums_to_json: true
+  enums_prefix: false
+
+  # Every response is wrapped in the API's DataOutput envelope, so unwrapping is
+  # the repository's job in the consuming feature, not the generator's.
+  unknown_enum_value: true
+  original_http_response: false
+
+  # A single entry point, so consumers import one file.
+  export_file: true

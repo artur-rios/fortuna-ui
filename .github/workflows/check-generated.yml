@@ -1,0 +1,93 @@
+# IR-11, IR-12: generated code stays generated.
+#
+# Regenerates the API client and compares it with what is committed, and diffs
+# the vendored C header against the copy the API publishes. Either difference
+# fails the build — which is what makes "never hand-edit the generated code"
+# an enforced rule rather than a request.
+
+name: Check generated
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: check-generated-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api-client-drift:
+    name: API client matches api/fortuna.json
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Regenerate the API client
+        run: dart run tool/generate_api_client.dart
+
+      - name: Fail on drift
+        run: |
+          if ! git diff --quiet -- packages/fortuna_api_client api; then
+            echo "::error::The committed API client differs from what regeneration produces."
+            echo "Run 'dart run tool/generate_api_client.dart' and commit the result."
+            echo "Never hand-edit packages/fortuna_api_client/lib (IR-09, BR-36)."
+            git diff --stat -- packages/fortuna_api_client api
+            exit 1
+          fi
+          echo "API client is in sync with api/fortuna.json."
+
+  header-drift:
+    name: Vendored C header matches the one the API publishes
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: fortuna-ui
+
+      - name: Check out the API
+        uses: actions/checkout@v4
+        with:
+          repository: artur-rios/fortuna-api
+          path: fortuna-api
+
+      # The header does not exist yet — it is published by fortuna-api#156.
+      # While that is true this job reports the fact and passes; once the header
+      # lands on either side, a difference fails the build (IR-11).
+      - name: Diff the header
+        run: |
+          VENDORED=fortuna-ui/native/include/fortuna_ffi.h
+          PUBLISHED=$(find fortuna-api -name 'fortuna_ffi.h' -print -quit)
+
+          if [ ! -f "$VENDORED" ] && [ -z "$PUBLISHED" ]; then
+            echo "::notice::No C header on either side yet — blocked on artur-rios/fortuna-api#156."
+            exit 0
+          fi
+
+          if [ ! -f "$VENDORED" ]; then
+            echo "::error::The API publishes a C header but this repository has not vendored it."
+            echo "Copy $PUBLISHED to $VENDORED and run 'dart run tool/generate_bindings.dart'."
+            exit 1
+          fi
+
+          if [ -z "$PUBLISHED" ]; then
+            echo "::error::A header is vendored here but the API publishes none."
+            exit 1
+          fi
+
+          if ! diff -u "$PUBLISHED" "$VENDORED"; then
+            echo "::error::The vendored header differs from the one the API publishes."
+            echo "Re-copy it and run 'dart run tool/generate_bindings.dart' (IR-10, IR-11)."
+            exit 1
+          fi
+          echo "Vendored header matches the published one."

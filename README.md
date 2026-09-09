@@ -85,11 +85,17 @@ cd fortuna-ui
 flutter pub get
 ```
 
-The API client and the FFI bindings are generated and committed, so a clean clone needs no
-generation step. Regenerate them only after taking a new API contract:
+The generated API client is committed, so a clean clone needs no generation step. Regenerate it only
+after taking a new API contract into `api/fortuna.json`:
 
 ```bash
 dart run tool/generate_api_client.dart
+```
+
+The FFI bindings have their own generator, which currently refuses to run and says why: the Fortuna
+core's C header does not exist yet. See [native/README.md](native/README.md).
+
+```bash
 dart run tool/generate_bindings.dart
 ```
 
