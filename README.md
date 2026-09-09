@@ -158,8 +158,11 @@ of what is done.
 
 ### Blocked on the API
 
-Twelve use cases cannot be built yet, because the endpoints they call do not exist. Each issue
+Thirteen use cases cannot be built yet, because the endpoints they call do not exist. Each issue
 records its blocker; they are collected here so the backlog explains itself.
+
+They are all of `M-02`'s remaining work, which is why that milestone stalls while the later ones are
+merely untouched — everything in `M-03` through `M-07` is buildable today.
 
 | Blocked | Waiting on |
 |---|---|
