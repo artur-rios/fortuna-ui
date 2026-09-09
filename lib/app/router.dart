@@ -20,6 +20,7 @@ import '../core/config/instance_config.dart';
 import '../core/session/session_controller.dart';
 import '../features/administration/ui/instance_health_screen.dart';
 import '../features/categories/ui/categories_screen.dart';
+import '../features/ingestion/ui/connections_screen.dart';
 import '../features/ingestion/ui/import_file_screen.dart';
 import '../features/ingestion/ui/import_jobs_screen.dart';
 import '../features/labels/ui/labels_screen.dart';
@@ -80,6 +81,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.categories,
         builder: (context, state) => const CategoriesScreen(),
+      ),
+      GoRoute(
+        path: Routes.connections,
+        builder: (context, state) => const ConnectionsScreen(),
       ),
       GoRoute(
         path: Routes.imports,
