@@ -38,6 +38,11 @@ String? resolveRedirect({
     return homeFor(signedIn.role);
   }
 
+  // Settings is presentation, not financial data, so both roles reach it —
+  // which is why it is exempt from the split below rather than duplicated
+  // under each role's tree.
+  if (Routes.sharedByBothRoles.contains(location)) return null;
+
   final isAdminRoute =
       location == Routes.admin || location.startsWith('${Routes.admin}/');
   final isAdmin = signedIn.role == Role.instanceAdministrator;
