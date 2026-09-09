@@ -158,11 +158,14 @@ of what is done.
 
 ### Blocked on the API
 
-Thirteen use cases cannot be built yet, because the endpoints they call do not exist. Each issue
-records its blocker; they are collected here so the backlog explains itself.
+**Everything is blocked on one contract defect.** The API publishes all 167 monetary fields as JSON
+numbers with `format: double`, so money is corrupted by the client's own JSON parse before any code
+runs — `8017.61` arrives as `8017.60999999999967`, and `1.005` rounds to `1.00`. That makes `BR-05`
+unachievable in any client, and every remaining use case puts a figure on screen. It is fixed by
+publishing monetary values as decimal strings: artur-rios/fortuna-api#162.
 
-They are all of `M-02`'s remaining work, which is why that milestone stalls while the later ones are
-merely untouched — everything in `M-03` through `M-07` is buildable today.
+Fourteen use cases are additionally blocked because the endpoints they call do not exist. Each issue
+records its blocker; they are collected here so the backlog explains itself.
 
 | Blocked | Waiting on |
 |---|---|
@@ -170,6 +173,7 @@ merely untouched — everything in `M-03` through `M-07` is buildable today.
 | [UC-03](https://github.com/artur-rios/fortuna-ui/issues/4), [UC-04](https://github.com/artur-rios/fortuna-ui/issues/5), [UC-05](https://github.com/artur-rios/fortuna-ui/issues/6), [UC-09](https://github.com/artur-rios/fortuna-ui/issues/10), [UC-10](https://github.com/artur-rios/fortuna-ui/issues/11) | The `api/auth` surface — artur-rios/fortuna-api#153, #154 |
 | [UC-01](https://github.com/artur-rios/fortuna-ui/issues/2) | A readable API version — artur-rios/fortuna-api#161 |
 | [UC-42](https://github.com/artur-rios/fortuna-ui/issues/43), [UC-43](https://github.com/artur-rios/fortuna-ui/issues/44), [UC-44](https://github.com/artur-rios/fortuna-ui/issues/45) | The data-rights endpoints — artur-rios/fortuna-api#160, #159, #158 |
+| [UC-30](https://github.com/artur-rios/fortuna-ui/issues/31) | Consent, which its main flow requires before disclosing anything — artur-rios/fortuna-api#160 |
 
 Once one lands, copy the regenerated `docs/openapi/fortuna.json` to `api/fortuna.json` and run
 `dart run tool/generate_api_client.dart` before picking the use case up.
