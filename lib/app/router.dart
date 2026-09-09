@@ -19,6 +19,7 @@ import 'package:go_router/go_router.dart';
 import '../core/config/instance_config.dart';
 import '../core/session/session_controller.dart';
 import '../features/administration/ui/instance_health_screen.dart';
+import '../features/categories/ui/categories_screen.dart';
 import '../features/preferences/ui/settings_screen.dart';
 import 'route_guard.dart';
 import 'routes.dart';
@@ -72,6 +73,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           route: Routes.home,
           implementedBy: 'UC-38',
         ),
+      ),
+      GoRoute(
+        path: Routes.categories,
+        builder: (context, state) => const CategoriesScreen(),
       ),
       GoRoute(
         path: Routes.settings,

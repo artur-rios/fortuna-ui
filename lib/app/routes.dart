@@ -18,6 +18,8 @@ abstract final class Routes {
   /// Reachable by both roles: presentation choices are not financial data.
   static const settings = '/settings';
 
+  static const categories = '/categories';
+
   // Instance administrator.
   static const admin = '/admin';
 
