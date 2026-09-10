@@ -1,9 +1,9 @@
 # IR-11, IR-12: generated code stays generated.
 #
-# Regenerates the API client and compares it with what is committed, and diffs
-# the vendored C header against the copy the API publishes. Either difference
-# fails the build — which is what makes "never hand-edit the generated code"
-# an enforced rule rather than a request.
+# Regenerates the API client and the FFI bindings and compares both with what is
+# committed, and diffs the vendored C header against the copy the API publishes.
+# Any difference fails the build — which is what makes "never hand-edit the
+# generated code" an enforced rule rather than a request (UC-02 AF-04, AF-05).
 
 name: Check generated
 
@@ -61,16 +61,17 @@ jobs:
           repository: artur-rios/fortuna-api
           path: fortuna-api
 
-      # The header does not exist yet — it is published by fortuna-api#156.
-      # While that is true this job reports the fact and passes; once the header
-      # lands on either side, a difference fails the build (IR-11).
+      # UC-02 AF-04: the vendored copy and the published one must be identical.
+      # The "neither exists" branch below is a guard for a repository state that
+      # no longer occurs, kept so the job explains itself rather than failing
+      # obscurely if the header were ever removed upstream.
       - name: Diff the header
         run: |
-          VENDORED=fortuna-ui/native/include/fortuna_ffi.h
-          PUBLISHED=$(find fortuna-api -name 'fortuna_ffi.h' -print -quit)
+          VENDORED=fortuna-ui/native/include/fortuna_core.h
+          PUBLISHED=$(find fortuna-api -name 'fortuna_core.h' -print -quit)
 
           if [ ! -f "$VENDORED" ] && [ -z "$PUBLISHED" ]; then
-            echo "::notice::No C header on either side yet — blocked on artur-rios/fortuna-api#156."
+            echo "::notice::No C header on either side — nothing to diff."
             exit 0
           fi
 
@@ -91,3 +92,35 @@ jobs:
             exit 1
           fi
           echo "Vendored header matches the published one."
+
+  bindings-drift:
+    name: FFI bindings match the vendored header
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # AF-05. The bindings and the route table are both derived from the
+      # vendored header, so regenerating them must be a no-op on a clean tree.
+      # A difference means somebody edited generated code by hand, which is
+      # exactly what BR-36 forbids.
+      - name: Regenerate the bindings
+        run: dart run tool/generate_bindings.dart
+
+      - name: Fail on drift
+        run: |
+          if ! git diff --quiet -- lib/core/bindings; then
+            echo "::error::The committed FFI bindings differ from what regeneration produces."
+            echo "Run 'dart run tool/generate_bindings.dart' and commit the result."
+            echo "Never hand-edit lib/core/bindings (IR-10, FR-DA-05, BR-36)."
+            git diff --stat -- lib/core/bindings
+            exit 1
+          fi
+          echo "FFI bindings are in sync with native/include/fortuna_core.h."
