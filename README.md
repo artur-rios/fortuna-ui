@@ -12,7 +12,7 @@ owns the domain, the money and the integrations; this application owns the exper
 [![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
 [![Project board](https://img.shields.io/badge/project-Fortuna%20UI-8250df?style=flat-square)](https://github.com/users/artur-rios/projects/14)
 
-> **Status:** specification complete; implementation under way — 21 of the 47 issues are
+> **Status:** specification complete; implementation under way — 22 of the 47 issues are
 > closed. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
 
 ## What it does
@@ -212,7 +212,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | [#12](https://github.com/artur-rios/fortuna-ui/issues/12) | ✅ | UC-11 — Restore a Session at Start | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#13](https://github.com/artur-rios/fortuna-ui/issues/13) | ✅ | UC-12 — End a Session | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#14](https://github.com/artur-rios/fortuna-ui/issues/14) | ✅ | UC-13 — Choose Theme, Locale and Display Currency | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#43](https://github.com/artur-rios/fortuna-ui/issues/43) | ⬜ | UC-42 — Review, Give and Withdraw Consents | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#43](https://github.com/artur-rios/fortuna-ui/issues/43) | ✅ | UC-42 — Review, Give and Withdraw Consents | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#44](https://github.com/artur-rios/fortuna-ui/issues/44) | ⬜ | UC-43 — Export All Personal Data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#45](https://github.com/artur-rios/fortuna-ui/issues/45) | ⬜ | UC-44 — Erase the Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#46](https://github.com/artur-rios/fortuna-ui/issues/46) | ✅ | UC-45 — View Instance Health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
