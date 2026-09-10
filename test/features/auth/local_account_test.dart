@@ -32,6 +32,18 @@ class FakeLocalAccounts implements LocalAccountRepository {
     required String secret,
   }) async =>
       const Failure(message: 'not used here', kind: FailureKind.serverError);
+
+  @override
+  Future<Result<RecoveredLocalAccount>> recover({
+    required String name,
+    required String recoveryCode,
+    required String newSecret,
+  }) async => const Failure(message: 'n/a', kind: FailureKind.serverError);
+
+  @override
+  Future<Result<CreatedLocalAccount>> regenerateRecoveryCodes({
+    required String secret,
+  }) async => const Failure(message: 'n/a', kind: FailureKind.serverError);
 }
 
 const _codes = ['AAAA-1111', 'BBBB-2222', 'CCCC-3333'];

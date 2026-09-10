@@ -14,6 +14,22 @@ import 'package:meta/meta.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/result/result.dart';
 
+/// A recovered local account: a session, and what is left of the codes.
+@immutable
+class RecoveredLocalAccount {
+  const RecoveredLocalAccount({
+    required this.token,
+    required this.remainingRecoveryCodes,
+  });
+
+  final String token;
+
+  /// How many codes are still unspent. Shown plainly, because a user who has
+  /// just spent one deserves to know how close they are to having none
+  /// (`UC-08` step 4, `AF-04`).
+  final int remainingRecoveryCodes;
+}
+
 /// A local account that was just created, and the codes that are the only way
 /// back into it.
 @immutable
@@ -45,6 +61,25 @@ abstract interface class LocalAccountRepository {
   /// Authenticates against the local account (`UC-07`).
   Future<Result<String>> authenticate({
     required String name,
+    required String secret,
+  });
+
+  /// Recovers the account with a recovery code, setting a new secret
+  /// (`UC-08`).
+  ///
+  /// The code is spent by the core whether or not the rest of the flow
+  /// finishes, which is why the count comes back with the session.
+  Future<Result<RecoveredLocalAccount>> recover({
+    required String name,
+    required String recoveryCode,
+    required String newSecret,
+  });
+
+  /// Issues a fresh set of recovery codes (`UC-08` step 6, `FR-SE-08`).
+  ///
+  /// The old codes stay valid until this succeeds, so a failure here costs
+  /// nothing (`AF-05`).
+  Future<Result<CreatedLocalAccount>> regenerateRecoveryCodes({
     required String secret,
   });
 }
@@ -126,6 +161,80 @@ class HttpLocalAccountRepository implements LocalAccountRepository {
       // the way to keep two things indistinguishable is to never tell them
       // apart.
       return failureFromDioException<String>(exception);
+    }
+  }
+
+  @override
+  Future<Result<RecoveredLocalAccount>> recover({
+    required String name,
+    required String recoveryCode,
+    required String newSecret,
+  }) async {
+    try {
+      final response = await _client.postApiLocalAccountsRecover(
+        body: RecoverLocalAccountCommand(
+          name: name,
+          recoveryCode: recoveryCode,
+          newSecret: newSecret,
+        ),
+      );
+
+      final token = response.data?.token;
+      if (token == null || token.isEmpty) {
+        return const Failure(
+          message: 'The core granted no session.',
+          kind: FailureKind.unauthenticated,
+        );
+      }
+
+      return Success(
+        RecoveredLocalAccount(
+          token: token,
+          remainingRecoveryCodes: response.data?.remainingRecoveryCodes ?? 0,
+        ),
+      );
+    } on DioException catch (exception) {
+      // `UC-08 AF-01`, `AF-02` and `AF-03` all come back through here with the
+      // core's own message. That a wrong code, a spent code and an account
+      // that does not exist are indistinguishable is the point: otherwise this
+      // screen becomes a way to discover which accounts exist.
+      return failureFromDioException<RecoveredLocalAccount>(exception);
+    }
+  }
+
+  @override
+  Future<Result<CreatedLocalAccount>> regenerateRecoveryCodes({
+    required String secret,
+  }) async {
+    try {
+      final response = await _client
+          .postApiLocalAccountsRecoveryCodesRegenerate(
+            body: RegenerateLocalAccountRecoveryCodesCommand(secret: secret),
+          );
+
+      final codes = response.data?.recoveryCodes ?? const <String>[];
+
+      // AF-05, in the form that matters: a regeneration that produced no codes
+      // has not replaced anything, and reporting success would leave the user
+      // believing their old codes are dead when they are not.
+      if (codes.isEmpty) {
+        return const Failure(
+          message:
+              'No new recovery codes were issued. Your existing codes are '
+              'still valid.',
+          kind: FailureKind.serverError,
+        );
+      }
+
+      return Success(
+        CreatedLocalAccount(
+          displayName: '',
+          recoveryCodes: codes,
+          warning: response.data?.recoveryWarning,
+        ),
+      );
+    } on DioException catch (exception) {
+      return failureFromDioException<CreatedLocalAccount>(exception);
     }
   }
 }
