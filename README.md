@@ -12,7 +12,7 @@ owns the domain, the money and the integrations; this application owns the exper
 [![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
 [![Project board](https://img.shields.io/badge/project-Fortuna%20UI-8250df?style=flat-square)](https://github.com/users/artur-rios/projects/14)
 
-> **Status:** specification complete; implementation under way — 12 of the 47 issues are
+> **Status:** specification complete; implementation under way — 13 of the 47 issues are
 > closed. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
 
 ## What it does
@@ -164,30 +164,31 @@ issue's specification is, and the status each issue held when this page was last
 
 **Legend:** ✅ merged and closed &nbsp;·&nbsp; 🚧 in progress &nbsp;·&nbsp; ⬜ not started
 
-### Blocked on the API
+### Formerly blocked on the API
 
-**One contract defect is still open.** The API publishes all 167 monetary fields as JSON numbers
-with `format: double`, so money is corrupted by the client's own JSON parse before any code runs —
-`8017.61` arrives as `8017.60999999999967`, and `1.005` rounds to `1.00`. That makes `BR-05`
-unachievable in any client, and every use case that puts a figure on screen inherits it. It is fixed
-by publishing monetary values as decimal strings: artur-rios/fortuna-api#162.
+Nothing in this backlog is blocked any more. Every issue the earlier version of
+this section recorded has closed upstream — the `api/auth` surface
+(artur-rios/fortuna-api#153, #154), the C ABI, its offline operation surface and
+the SQLite provider beneath it (#156, #157, #155), the data-rights and consent
+routes (#158, #159, #160), a readable contract version on the anonymous health
+check (#161), and the one that mattered most:
 
-Nine use cases are additionally blocked because the endpoints they call do not exist. Each issue
-records its blocker; they are collected here so the backlog explains itself.
+> **Money is no longer a `double`.** All 167 monetary fields were published as
+> JSON numbers with `format: double`, so a figure was corrupted by the client's
+> own parse before any code ran — `8017.61` arrived as `8017.60999999999967`.
+> They are decimal strings now (artur-rios/fortuna-api#162), which is what makes
+> `BR-05` achievable at all.
 
-| Blocked | Waiting on |
-|---|---|
-| [UC-02](https://github.com/artur-rios/fortuna-ui/issues/3), [UC-06](https://github.com/artur-rios/fortuna-ui/issues/7), [UC-07](https://github.com/artur-rios/fortuna-ui/issues/8), [UC-08](https://github.com/artur-rios/fortuna-ui/issues/9) | The rest of the FFI boundary — artur-rios/fortuna-api#157 |
-| [UC-01](https://github.com/artur-rios/fortuna-ui/issues/2) | A readable API version — artur-rios/fortuna-api#161 |
-| [UC-42](https://github.com/artur-rios/fortuna-ui/issues/43), [UC-43](https://github.com/artur-rios/fortuna-ui/issues/44), [UC-44](https://github.com/artur-rios/fortuna-ui/issues/45) | The data-rights endpoints — artur-rios/fortuna-api#160, #159, #158 |
-| [UC-30](https://github.com/artur-rios/fortuna-ui/issues/31) | Consent, which its main flow requires before disclosing anything — artur-rios/fortuna-api#160 |
+That contract was taken in #60, which regenerated the client against it. When a
+newer one lands, copy `docs/openapi/fortuna.json` to `api/fortuna.json` and run
+`dart run tool/generate_api_client.dart`; the version this build speaks is
+asserted against that file by `test/core/config/api_contract_test.dart`, so
+taking a contract without acknowledging it fails the suite rather than a user.
 
-Two blockers have since landed: the `api/auth` surface (artur-rios/fortuna-api#153, #154) and the C
-ABI and SQLite provider the FFI transport sits on (artur-rios/fortuna-api#156, #155). UC-03, UC-04,
-UC-05, UC-09 and UC-10 are no longer blocked on the contract.
-
-Once one lands, copy the regenerated `docs/openapi/fortuna.json` to `api/fortuna.json` and run
-`dart run tool/generate_api_client.dart` before picking the use case up.
+One thing is deliberately still outstanding: the FFI header is not vendored, and
+`ffigen.yaml`, `tool/generate_bindings.dart` and the drift check still call it
+`fortuna_ffi.h` where `fortuna-api` publishes `fortuna_core.h`. Both are UC-02's,
+the use case that introduces the transport — see [native/README.md](native/README.md).
 
 ### M-01 — Foundation
 
@@ -199,7 +200,7 @@ Once one lands, copy the regenerated `docs/openapi/fortuna.json` to `api/fortuna
 
 | Issue | Status | Work | Spec |
 |---|---|---|---|
-| [#2](https://github.com/artur-rios/fortuna-ui/issues/2) | ⬜ | UC-01 — Configure the Instance and Mode | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#2](https://github.com/artur-rios/fortuna-ui/issues/2) | ✅ | UC-01 — Configure the Instance and Mode | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#3](https://github.com/artur-rios/fortuna-ui/issues/3) | ⬜ | UC-02 — Reach the Fortuna Core Over the Configured Transport | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#4](https://github.com/artur-rios/fortuna-ui/issues/4) | ⬜ | UC-03 — Sign In with Credentials | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#5](https://github.com/artur-rios/fortuna-ui/issues/5) | ⬜ | UC-04 — Complete a Two-Factor Challenge | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |

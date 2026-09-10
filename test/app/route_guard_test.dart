@@ -1,19 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/app/route_guard.dart';
 import 'package:fortuna_ui/app/routes.dart';
+import 'package:fortuna_ui/core/bindings/core_library.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/session/session.dart';
 
 const _configured = InstanceConfig(
   address: 'https://fortuna.example',
   mode: AppMode.connected,
-  offlineAvailable: false,
+  coreLibrary: CoreLibraryAvailability.absent,
 );
 
 const _unconfigured = InstanceConfig(
   address: '',
   mode: AppMode.connected,
-  offlineAvailable: false,
+  coreLibrary: CoreLibraryAvailability.absent,
 );
 
 const _owner = SignedIn(
@@ -278,7 +279,7 @@ void main() {
       const offline = InstanceConfig(
         address: '',
         mode: AppMode.desktopOffline,
-        offlineAvailable: true,
+        coreLibrary: CoreLibraryAvailability.available,
       );
 
       expect(

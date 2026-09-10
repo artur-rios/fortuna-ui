@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/core/bindings/core_library.dart';
 import 'package:fortuna_ui/core/config/app_config.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/session/session.dart';
@@ -51,7 +52,7 @@ void main() {
       const config = InstanceConfig(
         address: 'https://fortuna.example',
         mode: AppMode.connected,
-        offlineAvailable: false,
+        coreLibrary: CoreLibraryAvailability.absent,
       );
 
       expect(config.isResolved, isTrue);
@@ -63,7 +64,7 @@ void main() {
       const config = InstanceConfig(
         address: '',
         mode: AppMode.connected,
-        offlineAvailable: false,
+        coreLibrary: CoreLibraryAvailability.absent,
       );
 
       expect(config.isResolved, isFalse);
@@ -77,7 +78,7 @@ void main() {
         const config = InstanceConfig(
           address: '',
           mode: AppMode.desktopOffline,
-          offlineAvailable: true,
+          coreLibrary: CoreLibraryAvailability.available,
         );
 
         expect(config.isResolved, isTrue);

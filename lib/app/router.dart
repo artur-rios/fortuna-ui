@@ -26,6 +26,7 @@ import '../features/ingestion/ui/import_file_screen.dart';
 import '../features/ingestion/ui/import_jobs_screen.dart';
 import '../features/labels/ui/labels_screen.dart';
 import '../features/preferences/ui/settings_screen.dart';
+import '../features/setup/ui/setup_screen.dart';
 import 'route_guard.dart';
 import 'routes.dart';
 import 'shell.dart';
@@ -55,12 +56,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: Routes.setup,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Set up your instance',
-          route: Routes.setup,
-          implementedBy: 'UC-01',
-          signedIn: false,
-        ),
+        builder: (context, state) => const SetupScreen(),
       ),
       GoRoute(
         path: Routes.signIn,
