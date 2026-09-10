@@ -57,6 +57,12 @@ abstract interface class CredentialsRepository {
     required String password,
   });
 
+  /// Exchanges a Google ID token for a session (`UC-05`).
+  ///
+  /// A first exchange creates the account, which is why this is also the
+  /// sign-up path — the API decides that, not the client.
+  Future<Result<SignInGranted>> exchangeGoogleIdToken(String idToken);
+
   /// Submits a second factor against an outstanding challenge (`UC-04`).
   Future<Result<SignInGranted>> verifyTwoFactor({
     required String challengeToken,
@@ -139,6 +145,35 @@ class HttpCredentialsRepository implements CredentialsRepository {
       // FR-SE-23 exists so that "no such account" and "wrong password" stay
       // indistinguishable, and the way to guarantee that is to never look.
       return failureFromDioException<SignInOutcome>(exception);
+    }
+  }
+
+  @override
+  Future<Result<SignInGranted>> exchangeGoogleIdToken(String idToken) async {
+    try {
+      final response = await _client.postApiAuthGoogle(
+        body: GoogleSignInThroughApiCommand(idToken: idToken),
+      );
+
+      final token = response.data?.token;
+      if (token == null || token.isEmpty) {
+        return const Failure(
+          message: 'The instance granted no session.',
+          kind: FailureKind.unauthenticated,
+        );
+      }
+
+      return Success(
+        SignInGranted(
+          token: token,
+          emailVerified: response.data?.emailVerified ?? true,
+        ),
+      );
+    } on DioException catch (exception) {
+      // AF-03 and AF-05 both arrive here carrying the API's own reason — an
+      // account that already has a password and will not be linked is the
+      // API's rule to state, not this client's to guess at.
+      return failureFromDioException<SignInGranted>(exception);
     }
   }
 
