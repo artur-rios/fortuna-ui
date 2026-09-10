@@ -58,6 +58,13 @@ abstract final class Routes {
     required String statementId,
   }) => '$creditCards/$creditCardId/statements/$statementId';
 
+  /// Investments and one investment (`UC-17`, `UC-18`).
+  static const investments = '/investments';
+  static const investment = '$investments/:id';
+
+  /// The concrete path for one investment.
+  static String investmentOf(String id) => '$investments/$id';
+
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';

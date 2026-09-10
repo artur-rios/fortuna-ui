@@ -26,6 +26,8 @@ import '../features/categories/ui/categories_screen.dart';
 import '../features/holdings/ui/accounts_screen.dart';
 import '../features/holdings/ui/card_statements_screen.dart';
 import '../features/holdings/ui/credit_cards_screen.dart';
+import '../features/holdings/ui/investment_screen.dart';
+import '../features/holdings/ui/investments_screen.dart';
 import '../features/holdings/ui/statement_screen.dart';
 import '../features/ingestion/ui/connections_screen.dart';
 import '../features/ingestion/ui/import_file_screen.dart';
@@ -126,6 +128,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           creditCardId: state.pathParameters['id'] ?? '',
           statementId: state.pathParameters['statementId'] ?? '',
         ),
+      ),
+      GoRoute(
+        path: Routes.investments,
+        builder: (context, state) => const InvestmentsScreen(),
+      ),
+      GoRoute(
+        path: Routes.investment,
+        builder: (context, state) =>
+            InvestmentScreen(investmentId: state.pathParameters['id'] ?? ''),
       ),
       GoRoute(
         path: Routes.categories,
