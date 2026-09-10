@@ -13,8 +13,11 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart' hide InvestmentType;
-import 'package:fortuna_api_client/export.dart' as api show InvestmentType;
+import 'package:fortuna_api_client/export.dart'
+    hide InvestmentMovementType, InvestmentType;
+import 'package:fortuna_api_client/export.dart'
+    as api
+    show InvestmentMovementType, InvestmentType;
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -58,6 +61,24 @@ class RecordedValuation {
   /// Shown alongside the value, because a valuation without its date invites
   /// the reader to assume it is current.
   final DateTime? asOf;
+}
+
+/// What kind of movement was recorded against an investment (`UC-18`).
+///
+/// Mapped from the contract's numbers for the reason [InvestmentType] gives.
+enum MovementType {
+  contribution(1, 'Contribution'),
+  withdrawal(2, 'Withdrawal'),
+  yieldEarned(3, 'Yield'),
+  fee(4, 'Fee');
+
+  const MovementType(this.wire, this.label);
+
+  final int wire;
+  final String label;
+
+  api.InvestmentMovementType get asApi =>
+      api.InvestmentMovementType.fromJson(wire);
 }
 
 /// One of the user's investments.
@@ -115,6 +136,26 @@ abstract interface class InvestmentRepository {
   });
 
   Future<Result<void>> delete(String id);
+
+  /// The valuations recorded against an investment, most recent first
+  /// (`FR-HO-11`).
+  Future<Result<List<RecordedValuation>>> valuations(String investmentId);
+
+  /// Records a contribution, withdrawal, yield or fee (`UC-18`).
+  Future<Result<void>> recordMovement({
+    required String investmentId,
+    required MovementType type,
+    required String amount,
+    required DateTime occurredOn,
+    String? financialAccountId,
+  });
+
+  /// Records what the investment was worth on a date (`UC-18`).
+  Future<Result<void>> recordValuation({
+    required String investmentId,
+    required String value,
+    required DateTime valuedOn,
+  });
 }
 
 class HttpInvestmentRepository implements InvestmentRepository {
@@ -210,6 +251,85 @@ class HttpInvestmentRepository implements InvestmentRepository {
       return const Success(null);
     } on DioException catch (exception) {
       // AF-04: still-referenced by movements, in the API's words.
+      return failureFromDioException<void>(exception);
+    }
+  }
+
+  @override
+  Future<Result<List<RecordedValuation>>> valuations(
+    String investmentId,
+  ) async {
+    try {
+      final page = await _client.getApiInvestmentsIdValuations(
+        id: investmentId,
+        sortBy: 'valuedOn',
+        descending: true,
+      );
+
+      return Success([
+        for (final valuation
+            in page.data ?? const <InvestmentValuationOutput>[])
+          RecordedValuation(
+            value: Money.parse(
+              valuation.value ?? '0',
+              valuation.currencyCode ?? '',
+            ),
+            asOf: valuation.valuedOn,
+          ),
+      ]);
+    } on DioException catch (exception) {
+      // AF-04.
+      return failureFromDioException<List<RecordedValuation>>(exception);
+    }
+  }
+
+  @override
+  Future<Result<void>> recordMovement({
+    required String investmentId,
+    required MovementType type,
+    required String amount,
+    required DateTime occurredOn,
+    String? financialAccountId,
+  }) async {
+    try {
+      await _client.postApiInvestmentsIdMovements(
+        id: investmentId,
+        body: RecordInvestmentMovementCommand(
+          id: investmentId,
+          movementType: type.asApi,
+          // The string as typed. Never parsed to a number on the way out.
+          amount: amount,
+          occurredOn: occurredOn,
+          financialAccountId: financialAccountId,
+        ),
+      );
+      return const Success(null);
+    } on DioException catch (exception) {
+      // AF-05: a currency mismatch is the API's refusal to state, and nothing
+      // is converted here to make the amounts agree.
+      return failureFromDioException<void>(exception);
+    }
+  }
+
+  @override
+  Future<Result<void>> recordValuation({
+    required String investmentId,
+    required String value,
+    required DateTime valuedOn,
+  }) async {
+    try {
+      await _client.postApiInvestmentsIdValuations(
+        id: investmentId,
+        body: RecordInvestmentValuationCommand(
+          id: investmentId,
+          value: value,
+          valuedOn: valuedOn,
+        ),
+      );
+      return const Success(null);
+    } on DioException catch (exception) {
+      // AF-03: whether a second valuation on one date is refused or replaces
+      // the first is the API's rule, and its answer is what reaches the user.
       return failureFromDioException<void>(exception);
     }
   }
