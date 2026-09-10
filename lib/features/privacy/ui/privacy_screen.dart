@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/instance_config.dart';
 import '../data/consent_repository.dart';
 import '../state/consent_controller.dart';
+import '../state/personal_export_controller.dart';
 
 class PrivacyScreen extends ConsumerStatefulWidget {
   const PrivacyScreen({super.key});
@@ -201,8 +202,146 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
               ],
             ),
           },
+
+          const SizedBox(height: 32),
+          const Divider(),
+          const SizedBox(height: 16),
+          const _PersonalExport(),
         ],
       ),
+    );
+  }
+}
+
+/// UC-43, on the same screen the right is exercised from.
+class _PersonalExport extends ConsumerWidget {
+  const _PersonalExport();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(personalExportControllerProvider);
+    final controller = ref.read(personalExportControllerProvider.notifier);
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Take everything', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Text(
+          // Step 2. Said before anything is requested, because "export" already
+          // means something else in this application and the two are not
+          // interchangeable.
+          'This is everything the instance holds about you, in a '
+          'machine-readable archive — the portability right. It is not the '
+          'same as '
+          'exporting a data set from the spreadsheet or chart screens, which '
+          'gives you only what you asked for.',
+          key: const Key('export.explanation'),
+          style: theme.textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 16),
+
+        switch (state) {
+          PersonalExportIdle() => FilledButton(
+            key: const Key('export.request'),
+            onPressed: () => unawaited(controller.request()),
+            child: const Text('Produce my archive'),
+          ),
+
+          // AF-04: the job runs on the instance. Leaving does not cancel it.
+          PersonalExportRunning(:final export) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LinearProgressIndicator(
+                key: const Key('export.progress'),
+                value: export.progress > 0 ? export.progress / 100 : null,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'This runs on the instance. You can leave this screen and '
+                'come back to it.',
+                key: Key('export.keepsRunning'),
+              ),
+            ],
+          ),
+
+          PersonalExportReady() => FilledButton(
+            key: const Key('export.save'),
+            onPressed: () => unawaited(controller.save()),
+            child: const Text('Save the archive'),
+          ),
+
+          // AF-02: gone before it was fetched, and a new one can be made.
+          PersonalExportExpired() => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _Notice(
+                key: Key('export.expired'),
+                message:
+                    'That archive expired before it was downloaded. Nothing '
+                    'is wrong with your data — the copy was just cleaned up.',
+                isError: false,
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                key: const Key('export.requestAgain'),
+                onPressed: () => unawaited(controller.request()),
+                child: const Text('Produce a new one'),
+              ),
+            ],
+          ),
+
+          // AF-01: the reason, and a retry.
+          PersonalExportFailed(:final reason) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _Notice(
+                key: const Key('export.failed'),
+                message: reason,
+                isError: true,
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                key: const Key('export.retry'),
+                onPressed: () => unawaited(controller.request()),
+                child: const Text('Try again'),
+              ),
+            ],
+          ),
+
+          // AF-03: the archive is still there; only the location was refused.
+          PersonalExportSaveRefused(:final reason) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _Notice(
+                key: const Key('export.saveRefused'),
+                message: reason,
+                isError: true,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Your archive is still ready. Choose somewhere else.',
+                key: Key('export.stillReady'),
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                key: const Key('export.saveAgain'),
+                onPressed: () => unawaited(controller.save()),
+                child: const Text('Choose a location'),
+              ),
+            ],
+          ),
+
+          PersonalExportSaved(:final where, :final sizeBytes) => _Notice(
+            key: const Key('export.saved'),
+            // AF-05: a near-empty archive is a valid one, and the size says so
+            // without dressing it up as a problem.
+            message: 'Saved to $where ($sizeBytes bytes).',
+            isError: false,
+          ),
+        },
+      ],
     );
   }
 }
