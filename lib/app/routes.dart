@@ -36,6 +36,9 @@ abstract final class Routes {
   /// Data rights: consents, complete export and erasure (`UC-42` … `UC-44`).
   static const privacy = '/privacy';
 
+  /// Holdings (`UC-14` … `UC-18`).
+  static const accounts = '/accounts';
+
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
