@@ -12,6 +12,8 @@ enum DataExportFormat {
   value2(2),
   @JsonValue(3)
   value3(3),
+  @JsonValue(4)
+  value4(4),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

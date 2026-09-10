@@ -23,10 +23,10 @@ class TransactionReconciliationOutput {
 
   final bool? hasDiscrepancy;
   final String? importJobId;
-  final double? importedAmount;
+  final String? importedAmount;
   final DateTime? importedOccurredOn;
   final int? importedRecordId;
-  final double? transactionAmount;
+  final String? transactionAmount;
   final DateTime? transactionOccurredOn;
 
   Map<String, Object?> toJson() =>

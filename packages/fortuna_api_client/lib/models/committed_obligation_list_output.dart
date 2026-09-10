@@ -33,7 +33,7 @@ class CommittedObligationListOutput {
   final List<CommittedObligationPeriodOutput>? periods;
   final List<CommittedObligationRateOutput>? rates;
   final DateTime? through;
-  final double? total;
+  final String? total;
 
   Map<String, Object?> toJson() => _$CommittedObligationListOutputToJson(this);
 }

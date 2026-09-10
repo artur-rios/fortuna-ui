@@ -9,7 +9,7 @@ part of 'record_transfer_command_output.dart';
 RecordTransferCommandOutput _$RecordTransferCommandOutputFromJson(
   Map<String, dynamic> json,
 ) => RecordTransferCommandOutput(
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+  appliedRate: json['appliedRate'] as String?,
   createdAt: json['createdAt'] == null
       ? null
       : DateTime.parse(json['createdAt'] as String),
@@ -17,14 +17,14 @@ RecordTransferCommandOutput _$RecordTransferCommandOutputFromJson(
       json['destinationFinancialAccountId'] as String?,
   destinationStatementId: json['destinationStatementId'] as String?,
   id: json['id'] as String?,
-  inboundAmount: (json['inboundAmount'] as num?)?.toDouble(),
+  inboundAmount: json['inboundAmount'] as String?,
   inboundCurrencyCode: json['inboundCurrencyCode'] as String?,
   inboundTransactionId: json['inboundTransactionId'] as String?,
   occurredOn: json['occurredOn'] == null
       ? null
       : DateTime.parse(json['occurredOn'] as String),
   originFinancialAccountId: json['originFinancialAccountId'] as String?,
-  outboundAmount: (json['outboundAmount'] as num?)?.toDouble(),
+  outboundAmount: json['outboundAmount'] as String?,
   outboundCurrencyCode: json['outboundCurrencyCode'] as String?,
   outboundTransactionId: json['outboundTransactionId'] as String?,
   rateDate: json['rateDate'] == null

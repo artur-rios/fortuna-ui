@@ -29,7 +29,7 @@ class RecordInstallmentPlanCommand {
   final int? installmentCount;
   final String? ownerId;
   final DateTime? purchasedOn;
-  final double? totalAmount;
+  final String? totalAmount;
 
   Map<String, Object?> toJson() => _$RecordInstallmentPlanCommandToJson(this);
 }

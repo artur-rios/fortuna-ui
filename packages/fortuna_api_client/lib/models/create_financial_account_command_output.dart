@@ -31,7 +31,7 @@ class CreateFinancialAccountCommandOutput {
   final String? id;
   final String? institution;
   final String? name;
-  final double? openingBalance;
+  final String? openingBalance;
   final DateTime? updatedAt;
 
   Map<String, Object?> toJson() =>

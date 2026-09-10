@@ -11,12 +11,12 @@ TransactionReconciliationOutput _$TransactionReconciliationOutputFromJson(
 ) => TransactionReconciliationOutput(
   hasDiscrepancy: json['hasDiscrepancy'] as bool?,
   importJobId: json['importJobId'] as String?,
-  importedAmount: (json['importedAmount'] as num?)?.toDouble(),
+  importedAmount: json['importedAmount'] as String?,
   importedOccurredOn: json['importedOccurredOn'] == null
       ? null
       : DateTime.parse(json['importedOccurredOn'] as String),
   importedRecordId: (json['importedRecordId'] as num?)?.toInt(),
-  transactionAmount: (json['transactionAmount'] as num?)?.toDouble(),
+  transactionAmount: json['transactionAmount'] as String?,
   transactionOccurredOn: json['transactionOccurredOn'] == null
       ? null
       : DateTime.parse(json['transactionOccurredOn'] as String),

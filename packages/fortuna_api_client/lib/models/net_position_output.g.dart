@@ -19,7 +19,7 @@ NetPositionOutput _$NetPositionOutputFromJson(Map<String, dynamic> json) =>
           .toList(),
       displayCurrencyCode: json['displayCurrencyCode'] as String?,
       isFullyConverted: json['isFullyConverted'] as bool?,
-      total: (json['total'] as num?)?.toDouble(),
+      total: json['total'] as String?,
     );
 
 Map<String, dynamic> _$NetPositionOutputToJson(NetPositionOutput instance) =>

@@ -9,7 +9,7 @@ part of 'settle_credit_card_statement_command.dart';
 SettleCreditCardStatementCommand _$SettleCreditCardStatementCommandFromJson(
   Map<String, dynamic> json,
 ) => SettleCreditCardStatementCommand(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   financialAccountId: json['financialAccountId'] as String?,
   id: json['id'] as String?,
   paymentDate: json['paymentDate'] == null

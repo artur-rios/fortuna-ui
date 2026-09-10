@@ -19,7 +19,7 @@ class SettleCreditCardStatementCommand {
     Map<String, Object?> json,
   ) => _$SettleCreditCardStatementCommandFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? financialAccountId;
   final String? id;
   final DateTime? paymentDate;

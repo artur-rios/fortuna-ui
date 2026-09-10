@@ -34,20 +34,20 @@ class CreditCardStatementOutput {
   factory CreditCardStatementOutput.fromJson(Map<String, Object?> json) =>
       _$CreditCardStatementOutputFromJson(json);
 
-  final double? amountDue;
+  final String? amountDue;
   final DateTime? closingDate;
   final DateTime? createdAt;
   final String? creditCardId;
   final String? currencyCode;
   final DateTime? dueDate;
-  final double? foreignTaxTotal;
+  final String? foreignTaxTotal;
   final String? id;
-  final double? otherEntries;
-  final double? paymentsReceived;
+  final String? otherEntries;
+  final String? paymentsReceived;
   final DateTime? periodEnd;
   final DateTime? periodStart;
-  final double? previousBalance;
-  final double? purchaseTotal;
+  final String? previousBalance;
+  final String? purchaseTotal;
   final String? settlementTransactionId;
   final String? status;
   final List<CreditCardStatementTransactionOutput>? transactions;

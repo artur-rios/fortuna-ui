@@ -31,8 +31,8 @@ class TransactionAggregationBucketOutput {
   final String? label;
   final DateTime? periodEnd;
   final DateTime? periodStart;
-  final double? share;
-  final double? total;
+  final String? share;
+  final String? total;
 
   Map<String, Object?> toJson() =>
       _$TransactionAggregationBucketOutputToJson(this);

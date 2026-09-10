@@ -8,7 +8,7 @@ part of 'figure_amount_input.dart';
 
 FigureAmountInput _$FigureAmountInputFromJson(Map<String, dynamic> json) =>
     FigureAmountInput(
-      amount: (json['amount'] as num?)?.toDouble(),
+      amount: json['amount'] as String?,
       currencyCode: json['currencyCode'] as String?,
     );
 

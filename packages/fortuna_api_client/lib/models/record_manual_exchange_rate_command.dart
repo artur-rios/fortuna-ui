@@ -20,7 +20,7 @@ class RecordManualExchangeRateCommand {
 
   final String? baseCurrencyCode;
   final String? quoteCurrencyCode;
-  final double? rate;
+  final String? rate;
   final DateTime? rateDate;
 
   Map<String, Object?> toJson() =>

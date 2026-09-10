@@ -28,17 +28,17 @@ class RecordInstallmentPlanCommandOutput {
     Map<String, Object?> json,
   ) => _$RecordInstallmentPlanCommandOutputFromJson(json);
 
-  final double? appliedRate;
+  final String? appliedRate;
   final String? creditCardId;
   final String? currencyCode;
   final String? id;
   final int? installmentCount;
   final List<InstallmentCommandOutput>? installments;
   final String? originalCurrencyCode;
-  final double? originalTotalAmount;
+  final String? originalTotalAmount;
   final DateTime? purchasedOn;
   final DateTime? rateDate;
-  final double? totalAmount;
+  final String? totalAmount;
 
   Map<String, Object?> toJson() =>
       _$RecordInstallmentPlanCommandOutputToJson(this);

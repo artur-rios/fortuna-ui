@@ -22,7 +22,7 @@ class CreateCreditCardCommand {
       _$CreateCreditCardCommandFromJson(json);
 
   final int? closingDay;
-  final double? creditLimit;
+  final String? creditLimit;
   final String? currencyCode;
   final int? dueDay;
   final String? issuer;

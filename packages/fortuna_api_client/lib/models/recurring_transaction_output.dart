@@ -34,7 +34,7 @@ class RecurringTransactionOutput {
   factory RecurringTransactionOutput.fromJson(Map<String, Object?> json) =>
       _$RecurringTransactionOutputFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? categoryId;
   final String? counterpartyId;
   final String? counterpartyName;

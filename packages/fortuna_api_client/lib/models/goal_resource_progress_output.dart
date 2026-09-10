@@ -29,8 +29,8 @@ class GoalResourceProgressOutput {
   factory GoalResourceProgressOutput.fromJson(Map<String, Object?> json) =>
       _$GoalResourceProgressOutputFromJson(json);
 
-  final double? appliedRate;
-  final double? convertedAmount;
+  final String? appliedRate;
+  final String? convertedAmount;
   final String? exclusionReason;
   final String? id;
   final bool? isIncluded;
@@ -38,7 +38,7 @@ class GoalResourceProgressOutput {
   final DateTime? rateDate;
   final ExchangeRateSource? rateSource;
   final GoalResourceType? resourceType;
-  final double? sourceAmount;
+  final String? sourceAmount;
   final String? sourceCurrencyCode;
   final String? unconvertedReason;
 

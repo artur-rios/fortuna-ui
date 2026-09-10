@@ -24,14 +24,14 @@ class CloseCreditCardStatementCommandOutput {
     Map<String, Object?> json,
   ) => _$CloseCreditCardStatementCommandOutputFromJson(json);
 
-  final double? amountDue;
+  final String? amountDue;
   final DateTime? closingDate;
   final String? creditCardId;
   final DateTime? dueDate;
   final String? id;
   final DateTime? periodEnd;
   final DateTime? periodStart;
-  final double? purchaseTotal;
+  final String? purchaseTotal;
   final String? status;
 
   Map<String, Object?> toJson() =>

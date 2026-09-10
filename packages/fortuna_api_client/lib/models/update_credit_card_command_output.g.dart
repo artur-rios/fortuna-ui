@@ -13,7 +13,7 @@ UpdateCreditCardCommandOutput _$UpdateCreditCardCommandOutputFromJson(
   createdAt: json['createdAt'] == null
       ? null
       : DateTime.parse(json['createdAt'] as String),
-  creditLimit: (json['creditLimit'] as num?)?.toDouble(),
+  creditLimit: json['creditLimit'] as String?,
   currencyCode: json['currencyCode'] as String?,
   dueDay: (json['dueDay'] as num?)?.toInt(),
   id: json['id'] as String?,

@@ -23,7 +23,7 @@ class CommittedObligationRateOutput {
 
   final String? baseCurrencyCode;
   final String? quoteCurrencyCode;
-  final double? rate;
+  final String? rate;
   final DateTime? rateDate;
   final ExchangeRateSource? source;
 

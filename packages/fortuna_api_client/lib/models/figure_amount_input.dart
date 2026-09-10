@@ -13,7 +13,7 @@ class FigureAmountInput {
   factory FigureAmountInput.fromJson(Map<String, Object?> json) =>
       _$FigureAmountInputFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? currencyCode;
 
   Map<String, Object?> toJson() => _$FigureAmountInputToJson(this);

@@ -31,13 +31,13 @@ class CommittedObligationOutput {
   factory CommittedObligationOutput.fromJson(Map<String, Object?> json) =>
       _$CommittedObligationOutputFromJson(json);
 
-  final double? amount;
-  final double? appliedRate;
+  final String? amount;
+  final String? appliedRate;
   final String? currencyCode;
   final DateTime? cycleEnd;
   final DateTime? cycleStart;
   final int? daysOverdue;
-  final double? displayAmount;
+  final String? displayAmount;
   final DateTime? dueDate;
   final String? id;
   final bool? isOverdue;

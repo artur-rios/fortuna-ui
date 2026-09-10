@@ -26,14 +26,14 @@ class CreditCardStatementTransactionOutput {
     Map<String, Object?> json,
   ) => _$CreditCardStatementTransactionOutputFromJson(json);
 
-  final double? amount;
-  final double? appliedRate;
+  final String? amount;
+  final String? appliedRate;
   final DateTime? createdAt;
   final String? direction;
   final String? id;
   final bool? isLateArriving;
   final DateTime? occurredOn;
-  final double? originalAmount;
+  final String? originalAmount;
   final String? originalCurrencyCode;
   final DateTime? rateDate;
   final DateTime? updatedAt;

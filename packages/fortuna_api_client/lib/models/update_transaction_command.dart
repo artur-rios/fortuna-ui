@@ -27,7 +27,7 @@ class UpdateTransactionCommand {
   factory UpdateTransactionCommand.fromJson(Map<String, Object?> json) =>
       _$UpdateTransactionCommandFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? categoryId;
   final String? counterparty;
   final String? creditCardId;

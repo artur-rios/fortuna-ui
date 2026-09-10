@@ -45,8 +45,8 @@ class UpdateTransactionCommandOutput {
   factory UpdateTransactionCommandOutput.fromJson(Map<String, Object?> json) =>
       _$UpdateTransactionCommandOutputFromJson(json);
 
-  final double? amount;
-  final double? appliedRate;
+  final String? amount;
+  final String? appliedRate;
   final String? categoryId;
   final String? categoryName;
   final String? counterpartyId;
@@ -65,7 +65,7 @@ class UpdateTransactionCommandOutput {
   final bool? isReconciled;
   final bool? isTransfer;
   final DateTime? occurredOn;
-  final double? originalAmount;
+  final String? originalAmount;
   final String? originalCurrencyCode;
   final DateTime? rateDate;
   final TransactionSourceType? sourceType;

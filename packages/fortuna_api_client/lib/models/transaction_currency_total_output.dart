@@ -28,15 +28,15 @@ class TransactionCurrencyTotalOutput {
   factory TransactionCurrencyTotalOutput.fromJson(Map<String, Object?> json) =>
       _$TransactionCurrencyTotalOutputFromJson(json);
 
-  final double? appliedRate;
+  final String? appliedRate;
   final String? currencyCode;
   final String? displayCurrencyCode;
-  final double? displayEarning;
-  final double? displayExpense;
-  final double? displayNet;
-  final double? earning;
-  final double? expense;
-  final double? net;
+  final String? displayEarning;
+  final String? displayExpense;
+  final String? displayNet;
+  final String? earning;
+  final String? expense;
+  final String? net;
   final DateTime? rateDate;
   final ExchangeRateSource? rateSource;
   final String? unconvertedReason;

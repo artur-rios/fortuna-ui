@@ -28,17 +28,17 @@ class RecordTransferCommandOutput {
   factory RecordTransferCommandOutput.fromJson(Map<String, Object?> json) =>
       _$RecordTransferCommandOutputFromJson(json);
 
-  final double? appliedRate;
+  final String? appliedRate;
   final DateTime? createdAt;
   final String? destinationFinancialAccountId;
   final String? destinationStatementId;
   final String? id;
-  final double? inboundAmount;
+  final String? inboundAmount;
   final String? inboundCurrencyCode;
   final String? inboundTransactionId;
   final DateTime? occurredOn;
   final String? originFinancialAccountId;
-  final double? outboundAmount;
+  final String? outboundAmount;
   final String? outboundCurrencyCode;
   final String? outboundTransactionId;
   final DateTime? rateDate;

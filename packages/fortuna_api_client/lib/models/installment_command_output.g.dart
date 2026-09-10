@@ -9,15 +9,15 @@ part of 'installment_command_output.dart';
 InstallmentCommandOutput _$InstallmentCommandOutputFromJson(
   Map<String, dynamic> json,
 ) => InstallmentCommandOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
+  appliedRate: json['appliedRate'] as String?,
   currencyCode: json['currencyCode'] as String?,
   isLateArriving: json['isLateArriving'] as bool?,
   number: (json['number'] as num?)?.toInt(),
   occurredOn: json['occurredOn'] == null
       ? null
       : DateTime.parse(json['occurredOn'] as String),
-  originalAmount: (json['originalAmount'] as num?)?.toDouble(),
+  originalAmount: json['originalAmount'] as String?,
   originalCurrencyCode: json['originalCurrencyCode'] as String?,
   rateDate: json['rateDate'] == null
       ? null

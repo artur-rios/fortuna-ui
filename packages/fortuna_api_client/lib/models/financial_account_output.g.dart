@@ -20,7 +20,7 @@ FinancialAccountOutput _$FinancialAccountOutputFromJson(
   institution: json['institution'] as String?,
   isDeleted: json['isDeleted'] as bool?,
   name: json['name'] as String?,
-  openingBalance: (json['openingBalance'] as num?)?.toDouble(),
+  openingBalance: json['openingBalance'] as String?,
   updatedAt: json['updatedAt'] == null
       ? null
       : DateTime.parse(json['updatedAt'] as String),

@@ -44,8 +44,8 @@ class RecordTransactionCommandOutput {
   factory RecordTransactionCommandOutput.fromJson(Map<String, Object?> json) =>
       _$RecordTransactionCommandOutputFromJson(json);
 
-  final double? amount;
-  final double? appliedRate;
+  final String? amount;
+  final String? appliedRate;
   final String? categoryId;
   final String? categoryName;
   final String? counterpartyId;
@@ -59,7 +59,7 @@ class RecordTransactionCommandOutput {
   final String? id;
   final bool? isLateArriving;
   final DateTime? occurredOn;
-  final double? originalAmount;
+  final String? originalAmount;
   final String? originalCurrencyCode;
   final DateTime? rateDate;
   final DateTime? statementClosingDate;
@@ -67,7 +67,7 @@ class RecordTransactionCommandOutput {
   final String? statementId;
   final DateTime? statementPeriodEnd;
   final DateTime? statementPeriodStart;
-  final double? statementPurchaseTotal;
+  final String? statementPurchaseTotal;
   final String? statementStatus;
   final List<TransactionTagOutput>? tags;
   final DateTime? updatedAt;

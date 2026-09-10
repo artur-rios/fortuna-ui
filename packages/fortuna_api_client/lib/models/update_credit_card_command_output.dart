@@ -26,7 +26,7 @@ class UpdateCreditCardCommandOutput {
 
   final int? closingDay;
   final DateTime? createdAt;
-  final double? creditLimit;
+  final String? creditLimit;
   final String? currencyCode;
   final int? dueDay;
   final String? id;

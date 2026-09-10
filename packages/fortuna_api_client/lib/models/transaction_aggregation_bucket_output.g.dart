@@ -25,8 +25,8 @@ TransactionAggregationBucketOutput _$TransactionAggregationBucketOutputFromJson(
   periodStart: json['periodStart'] == null
       ? null
       : DateTime.parse(json['periodStart'] as String),
-  share: (json['share'] as num?)?.toDouble(),
-  total: (json['total'] as num?)?.toDouble(),
+  share: json['share'] as String?,
+  total: json['total'] as String?,
 );
 
 Map<String, dynamic> _$TransactionAggregationBucketOutputToJson(

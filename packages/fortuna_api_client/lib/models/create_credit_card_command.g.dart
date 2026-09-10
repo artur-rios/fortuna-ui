@@ -10,7 +10,7 @@ CreateCreditCardCommand _$CreateCreditCardCommandFromJson(
   Map<String, dynamic> json,
 ) => CreateCreditCardCommand(
   closingDay: (json['closingDay'] as num?)?.toInt(),
-  creditLimit: (json['creditLimit'] as num?)?.toDouble(),
+  creditLimit: json['creditLimit'] as String?,
   currencyCode: json['currencyCode'] as String?,
   dueDay: (json['dueDay'] as num?)?.toInt(),
   issuer: json['issuer'] as String?,

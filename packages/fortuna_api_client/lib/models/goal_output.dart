@@ -36,7 +36,7 @@ class GoalOutput {
   final List<GoalResourceOutput>? investments;
   final bool? isDeleted;
   final String? name;
-  final double? targetAmount;
+  final String? targetAmount;
   final DateTime? targetDate;
   final DateTime? updatedAt;
 

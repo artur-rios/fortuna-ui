@@ -17,7 +17,7 @@ TableTotalOutput _$TableTotalOutputFromJson(Map<String, dynamic> json) =>
           .toList(),
       currencyCode: json['currencyCode'] as String?,
       isFullyConverted: json['isFullyConverted'] as bool?,
-      value: (json['value'] as num?)?.toDouble(),
+      value: json['value'] as String?,
     );
 
 Map<String, dynamic> _$TableTotalOutputToJson(TableTotalOutput instance) =>

@@ -9,8 +9,8 @@ part of 'committed_obligation_output.dart';
 CommittedObligationOutput _$CommittedObligationOutputFromJson(
   Map<String, dynamic> json,
 ) => CommittedObligationOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
+  appliedRate: json['appliedRate'] as String?,
   currencyCode: json['currencyCode'] as String?,
   cycleEnd: json['cycleEnd'] == null
       ? null
@@ -19,7 +19,7 @@ CommittedObligationOutput _$CommittedObligationOutputFromJson(
       ? null
       : DateTime.parse(json['cycleStart'] as String),
   daysOverdue: (json['daysOverdue'] as num?)?.toInt(),
-  displayAmount: (json['displayAmount'] as num?)?.toDouble(),
+  displayAmount: json['displayAmount'] as String?,
   dueDate: json['dueDate'] == null
       ? null
       : DateTime.parse(json['dueDate'] as String),

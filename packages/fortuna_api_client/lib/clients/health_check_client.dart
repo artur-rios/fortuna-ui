@@ -5,6 +5,8 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/liveness_output.dart';
+
 part 'health_check_client.g.dart';
 
 @RestApi()
@@ -12,5 +14,5 @@ abstract class HealthCheckClient {
   factory HealthCheckClient(Dio dio, {String? baseUrl}) = _HealthCheckClient;
 
   @GET('/healthcheck')
-  Future<void> getHealthcheck();
+  Future<LivenessOutput> getHealthcheck();
 }

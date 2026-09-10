@@ -52,6 +52,7 @@ const _$DataExportFormatEnumMap = {
   DataExportFormat.value1: 1,
   DataExportFormat.value2: 2,
   DataExportFormat.value3: 3,
+  DataExportFormat.value4: 4,
   DataExportFormat.$unknown: r'$unknown',
 };
 

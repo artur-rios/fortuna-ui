@@ -109,10 +109,6 @@
       "AuditEntryOutput": {
         "additionalProperties": false,
         "properties": {
-          "actorUserId": {
-            "format": "uuid",
-            "type": "string"
-          },
           "entityId": {
             "format": "uuid",
             "nullable": true,
@@ -135,6 +131,10 @@
           },
           "reason": {
             "nullable": true,
+            "type": "string"
+          },
+          "subjectReference": {
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -198,7 +198,11 @@
           2
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Succeeded",
+          "Refused"
+        ]
       },
       "AuthenticateLocalAccountCommand": {
         "additionalProperties": false,
@@ -291,8 +295,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categories": {
             "items": {
@@ -378,9 +383,10 @@
             "type": "boolean"
           },
           "overage": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "periodEnd": {
             "format": "date",
@@ -391,14 +397,16 @@
             "type": "string"
           },
           "remaining": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "spent": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -407,8 +415,9 @@
         "additionalProperties": false,
         "properties": {
           "budgetAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "budgetId": {
             "format": "uuid",
@@ -436,9 +445,10 @@
             "type": "boolean"
           },
           "overage": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "periodEnd": {
             "format": "date",
@@ -455,18 +465,20 @@
             "type": "string"
           },
           "remaining": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "requestedDate": {
             "format": "date",
             "type": "string"
           },
           "spent": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -513,9 +525,10 @@
             "type": "boolean"
           },
           "overage": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "periodEnd": {
             "format": "date",
@@ -526,14 +539,16 @@
             "type": "string"
           },
           "remaining": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "spent": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -542,14 +557,16 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "convertedAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -560,8 +577,9 @@
             "$ref": "#/components/schemas/ExchangeRateSource"
           },
           "sourceAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "sourceCurrencyCode": {
             "nullable": true,
@@ -622,8 +640,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categories": {
             "items": {
@@ -705,7 +724,12 @@
           3
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Monthly",
+          "Quarterly",
+          "Yearly"
+        ]
       },
       "CashFlowFigureKind": {
         "enum": [
@@ -715,14 +739,21 @@
           4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Recorded",
+          "Projected",
+          "Committed",
+          "Estimated"
+        ]
       },
       "CashFlowFigureOutput": {
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "kind": {
             "$ref": "#/components/schemas/CashFlowFigureKind"
@@ -734,8 +765,9 @@
         "additionalProperties": false,
         "properties": {
           "closingBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "figures": {
             "items": {
@@ -745,8 +777,9 @@
             "type": "array"
           },
           "openingBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "periodEnd": {
             "format": "date",
@@ -766,7 +799,12 @@
           3
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Daily",
+          "Weekly",
+          "Monthly"
+        ]
       },
       "CashFlowProjectionOutput": {
         "additionalProperties": false,
@@ -805,8 +843,9 @@
             "type": "array"
           },
           "startingBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "through": {
             "format": "date",
@@ -858,8 +897,9 @@
             "type": "string"
           },
           "rate": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -1040,8 +1080,9 @@
         "additionalProperties": false,
         "properties": {
           "amountDue": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "closingDate": {
             "format": "date",
@@ -1068,8 +1109,9 @@
             "type": "string"
           },
           "purchaseTotal": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "status": {
             "nullable": true,
@@ -1115,7 +1157,11 @@
           2
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Installment",
+          "Statement"
+        ]
       },
       "CommittedObligationListOutput": {
         "additionalProperties": false,
@@ -1157,9 +1203,10 @@
             "type": "string"
           },
           "total": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -1199,13 +1246,15 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -1226,9 +1275,10 @@
             "type": "integer"
           },
           "displayAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "dueDate": {
             "format": "date",
@@ -1274,9 +1324,10 @@
             "type": "string"
           },
           "total": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -1293,8 +1344,9 @@
             "type": "string"
           },
           "rate": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -1302,6 +1354,67 @@
           },
           "source": {
             "$ref": "#/components/schemas/ExchangeRateSource"
+          }
+        },
+        "type": "object"
+      },
+      "ConfirmTwoFactorThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "appCode": {
+            "nullable": true,
+            "type": "string"
+          },
+          "emailCode": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ConfirmTwoFactorThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "recoveryCodes": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ConfirmTwoFactorThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ConfirmTwoFactorThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "type": "object"
@@ -1424,7 +1537,12 @@
           3
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Active",
+          "RequiresReauthentication",
+          "Revoked"
+        ]
       },
       "ConvertFigureQuery": {
         "additionalProperties": false,
@@ -1477,9 +1595,10 @@
             "type": "boolean"
           },
           "total": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -1519,14 +1638,16 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "displayAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -1537,8 +1658,9 @@
             "$ref": "#/components/schemas/ExchangeRateSource"
           },
           "sourceAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "sourceCurrencyCode": {
             "nullable": true,
@@ -1789,8 +1911,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryIds": {
             "items": {
@@ -1985,8 +2108,9 @@
             "type": "integer"
           },
           "creditLimit": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -2023,8 +2147,9 @@
             "type": "string"
           },
           "creditLimit": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -2107,8 +2232,9 @@
             "type": "string"
           },
           "openingBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -2140,8 +2266,9 @@
             "type": "string"
           },
           "openingBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "updatedAt": {
             "format": "date-time",
@@ -2209,8 +2336,9 @@
             "type": "string"
           },
           "targetAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "targetDate": {
             "format": "date",
@@ -2410,8 +2538,9 @@
             "type": "string"
           },
           "outstandingAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -2451,8 +2580,9 @@
         "additionalProperties": false,
         "properties": {
           "availableAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "closingDay": {
             "format": "int32",
@@ -2463,8 +2593,9 @@
             "type": "string"
           },
           "creditLimit": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -2491,16 +2622,18 @@
             "type": "string"
           },
           "overageAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "updatedAt": {
             "format": "date-time",
             "type": "string"
           },
           "usedAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -2592,8 +2725,9 @@
         "additionalProperties": false,
         "properties": {
           "amountDue": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "closingDate": {
             "format": "date",
@@ -2616,20 +2750,23 @@
             "type": "string"
           },
           "foreignTaxTotal": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "id": {
             "format": "uuid",
             "type": "string"
           },
           "otherEntries": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "paymentsReceived": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "periodEnd": {
             "format": "date",
@@ -2640,12 +2777,14 @@
             "type": "string"
           },
           "previousBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "purchaseTotal": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "settlementTransactionId": {
             "format": "uuid",
@@ -2760,19 +2899,26 @@
           3
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Open",
+          "Closed",
+          "Settled"
+        ]
       },
       "CreditCardStatementTransactionOutput": {
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "createdAt": {
             "format": "date-time",
@@ -2794,9 +2940,10 @@
             "type": "string"
           },
           "originalAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "originalCurrencyCode": {
             "nullable": true,
@@ -2869,7 +3016,11 @@
           2
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Direct",
+          "Queued"
+        ]
       },
       "DataExportFilterInput": {
         "additionalProperties": false,
@@ -2893,10 +3044,17 @@
         "enum": [
           1,
           2,
-          3
+          3,
+          4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Csv",
+          "Excel",
+          "Pdf",
+          "Zip"
+        ]
       },
       "DataExportSortInput": {
         "additionalProperties": false,
@@ -2919,7 +3077,13 @@
           4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Pending",
+          "Running",
+          "Completed",
+          "Failed"
+        ]
       },
       "DataSourceKind": {
         "enum": [
@@ -2927,7 +3091,11 @@
           2
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Network",
+          "File"
+        ]
       },
       "DataSourceListOutput": {
         "additionalProperties": false,
@@ -3025,8 +3193,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -3077,8 +3246,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -3176,20 +3346,204 @@
         },
         "type": "object"
       },
+      "DisableTwoFactorThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "nullable": true,
+            "type": "string"
+          },
+          "password": {
+            "nullable": true,
+            "type": "string"
+          },
+          "recoveryCode": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DisableTwoFactorThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "disabled": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "DisableTwoFactorThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DisableTwoFactorThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "EnableTwoFactorThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "methods": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "EnableTwoFactorThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "emailCodeSent": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "otpAuthUri": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "EnableTwoFactorThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/EnableTwoFactorThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "EraseUserCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmation": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "EraseUserCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "erased": {
+            "additionalProperties": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "nullable": true,
+            "type": "object"
+          },
+          "irreversible": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "revokedConnections": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "EraseUserCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/EraseUserCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ExchangeRateSource": {
         "enum": [
           1,
           2
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Published",
+          "Manual"
+        ]
       },
       "FigureAmountInput": {
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -3206,8 +3560,9 @@
             "type": "string"
           },
           "balance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -3322,8 +3677,9 @@
             "type": "string"
           },
           "openingBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "updatedAt": {
             "format": "date-time",
@@ -3423,7 +3779,63 @@
           4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Checking",
+          "Savings",
+          "Cash",
+          "Other"
+        ]
+      },
+      "GetTwoFactorStatusThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "appEnabled": {
+            "type": "boolean"
+          },
+          "emailEnabled": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "remainingRecoveryCodes": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "GetTwoFactorStatusThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GetTwoFactorStatusThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "GoalCommandOutput": {
         "additionalProperties": false,
@@ -3465,8 +3877,9 @@
             "type": "string"
           },
           "targetAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "targetDate": {
             "format": "date",
@@ -3594,8 +4007,9 @@
             "type": "string"
           },
           "targetAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "targetDate": {
             "format": "date",
@@ -3643,9 +4057,10 @@
         "additionalProperties": false,
         "properties": {
           "currentAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "isFullyConverted": {
             "type": "boolean"
@@ -3655,14 +4070,16 @@
             "type": "boolean"
           },
           "proportionReached": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "remaining": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -3679,9 +4096,10 @@
             "type": "string"
           },
           "currentAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "daysRemaining": {
             "format": "int32",
@@ -3703,9 +4121,10 @@
             "type": "boolean"
           },
           "proportionReached": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "resources": {
             "items": {
@@ -3715,13 +4134,15 @@
             "type": "array"
           },
           "shortfall": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "targetAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "targetDate": {
             "format": "date",
@@ -3765,9 +4186,10 @@
         "additionalProperties": false,
         "properties": {
           "currentAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "isFullyConverted": {
             "type": "boolean"
@@ -3777,14 +4199,16 @@
             "type": "boolean"
           },
           "proportionReached": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "remaining": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -3821,14 +4245,16 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "convertedAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "exclusionReason": {
             "nullable": true,
@@ -3857,9 +4283,10 @@
             "$ref": "#/components/schemas/GoalResourceType"
           },
           "sourceAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "sourceCurrencyCode": {
             "nullable": true,
@@ -3878,7 +4305,174 @@
           2
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Account",
+          "Investment"
+        ]
+      },
+      "GoogleSignInThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "idToken": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GoogleSignInThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "token": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GoogleSignInThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GoogleSignInThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GoogleSignOutThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "GoogleSignOutThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GoogleSignOutThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GrantProcessingConsentCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "purpose": {
+            "nullable": true,
+            "type": "string"
+          },
+          "version": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GrantProcessingConsentCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "grantedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "purpose": {
+            "nullable": true,
+            "type": "string"
+          },
+          "version": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GrantProcessingConsentCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GrantProcessingConsentCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "ImportExcelWorkbookCommandOutput": {
         "additionalProperties": false,
@@ -4074,7 +4668,13 @@
           4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Pending",
+          "Running",
+          "Completed",
+          "Failed"
+        ]
       },
       "ImportPdfInvoiceCommandOutput": {
         "additionalProperties": false,
@@ -4126,7 +4726,11 @@
           2
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Account",
+          "CreditCard"
+        ]
       },
       "ImportedRecordOutcome": {
         "enum": [
@@ -4135,15 +4739,21 @@
           3
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Imported",
+          "Duplicate",
+          "Rejected"
+        ]
       },
       "ImportedRecordOutput": {
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "externalId": {
             "nullable": true,
@@ -4232,13 +4842,15 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -4256,9 +4868,10 @@
             "type": "string"
           },
           "originalAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "originalCurrencyCode": {
             "nullable": true,
@@ -4285,13 +4898,15 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -4312,9 +4927,10 @@
             "type": "string"
           },
           "originalAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "originalCurrencyCode": {
             "nullable": true,
@@ -4382,9 +4998,10 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "createdAt": {
             "format": "date-time",
@@ -4421,9 +5038,10 @@
             "type": "string"
           },
           "originalTotalAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "purchasedOn": {
             "format": "date",
@@ -4435,8 +5053,9 @@
             "type": "string"
           },
           "totalAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "updatedAt": {
             "format": "date-time",
@@ -4525,15 +5144,22 @@
           4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Contribution",
+          "Withdrawal",
+          "Yield",
+          "Fee"
+        ]
       },
       "InvestmentOutput": {
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "createdAt": {
             "format": "date-time",
@@ -4548,9 +5174,10 @@
             "type": "string"
           },
           "displayPosition": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "id": {
             "format": "uuid",
@@ -4576,13 +5203,15 @@
             "type": "string"
           },
           "latestValuationValue": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "position": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -4694,7 +5323,13 @@
           4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "FixedIncome",
+          "Equity",
+          "Fund",
+          "Other"
+        ]
       },
       "InvestmentValuationOutput": {
         "additionalProperties": false,
@@ -4720,8 +5355,9 @@
             "type": "string"
           },
           "value": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "valuedOn": {
             "format": "date",
@@ -4826,13 +5462,113 @@
         },
         "type": "object"
       },
+      "LivenessOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "contractVersion": {
+            "nullable": true,
+            "type": "string"
+          },
+          "service": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "contractVersion",
+          "service"
+        ],
+        "type": "object"
+      },
       "LocalAccountStorageMode": {
         "enum": [
           0,
           1
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "InMemory",
+          "OperatingSystem"
+        ]
+      },
+      "LoginThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "nullable": true,
+            "type": "string"
+          },
+          "password": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LoginThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "availableMethods": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "challengeToken": {
+            "nullable": true,
+            "type": "string"
+          },
+          "emailVerified": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "requiresTwoFactor": {
+            "type": "boolean"
+          },
+          "token": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LoginThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/LoginThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "MaterializeRecurringTransactionsCommand": {
         "additionalProperties": false,
@@ -4915,26 +5651,31 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "creditCards": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "displayNet": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "financialAccounts": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "investments": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -4949,8 +5690,9 @@
             "type": "string"
           },
           "sourceNet": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "unconvertedReason": {
             "nullable": true,
@@ -4981,9 +5723,10 @@
             "type": "boolean"
           },
           "total": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -5085,6 +5828,148 @@
             "type": "integer"
           },
           "status": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PersonalDataExportQueryOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "contentType": {
+            "nullable": true,
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "failureReason": {
+            "nullable": true,
+            "type": "string"
+          },
+          "fileName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "jobId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "progress": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DataExportStatus"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PersonalDataExportQueryOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PersonalDataExportQueryOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ProcessingConsentQueryOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "consents": {
+            "items": {
+              "$ref": "#/components/schemas/ProcessingConsentStateOutput"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ProcessingConsentQueryOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ProcessingConsentQueryOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ProcessingConsentStateOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "currentVersion": {
+            "nullable": true,
+            "type": "string"
+          },
+          "grantedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "grantedVersion": {
+            "nullable": true,
+            "type": "string"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "purpose": {
             "nullable": true,
             "type": "string"
           }
@@ -5295,8 +6180,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -5387,8 +6273,9 @@
             "type": "string"
           },
           "totalAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -5397,9 +6284,10 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "creditCardId": {
             "format": "uuid",
@@ -5429,9 +6317,10 @@
             "type": "string"
           },
           "originalTotalAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "purchasedOn": {
             "format": "date",
@@ -5443,8 +6332,9 @@
             "type": "string"
           },
           "totalAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -5484,8 +6374,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "financialAccountId": {
             "format": "uuid",
@@ -5510,13 +6401,15 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "createdAt": {
             "format": "date-time",
@@ -5532,9 +6425,10 @@
             "type": "string"
           },
           "fundingAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "fundingCurrencyCode": {
             "nullable": true,
@@ -5561,8 +6455,9 @@
             "type": "string"
           },
           "position": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -5620,8 +6515,9 @@
             "type": "string"
           },
           "value": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "valuedOn": {
             "format": "date",
@@ -5658,13 +6554,15 @@
             "type": "string"
           },
           "latestValuationValue": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "position": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "replacedExisting": {
             "type": "boolean"
@@ -5674,8 +6572,9 @@
             "type": "string"
           },
           "value": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "valuedOn": {
             "format": "date",
@@ -5727,8 +6626,9 @@
             "type": "string"
           },
           "rate": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -5749,8 +6649,9 @@
             "type": "string"
           },
           "rate": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -5803,8 +6704,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -5858,13 +6760,15 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -5920,9 +6824,10 @@
             "type": "string"
           },
           "originalAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "originalCurrencyCode": {
             "nullable": true,
@@ -5959,9 +6864,10 @@
             "type": "string"
           },
           "statementPurchaseTotal": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "statementStatus": {
             "nullable": true,
@@ -6016,8 +6922,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "destinationFinancialAccountId": {
             "format": "uuid",
@@ -6049,9 +6956,10 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "createdAt": {
             "format": "date-time",
@@ -6072,8 +6980,9 @@
             "type": "string"
           },
           "inboundAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "inboundCurrencyCode": {
             "nullable": true,
@@ -6092,8 +7001,9 @@
             "type": "string"
           },
           "outboundAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "outboundCurrencyCode": {
             "nullable": true,
@@ -6217,7 +7127,13 @@
           4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Weekly",
+          "Monthly",
+          "Quarterly",
+          "Yearly"
+        ]
       },
       "RecurringOccurrenceMaterializationCommandOutput": {
         "additionalProperties": false,
@@ -6321,8 +7237,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -6487,6 +7404,64 @@
         },
         "type": "object"
       },
+      "RegenerateRecoveryCodesThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "nullable": true,
+            "type": "string"
+          },
+          "recoveryCode": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RegenerateRecoveryCodesThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "recoveryCodes": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RegenerateRecoveryCodesThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RegenerateRecoveryCodesThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RequestDataExportCommand": {
         "additionalProperties": false,
         "properties": {
@@ -6569,6 +7544,187 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/RequestDataExportCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RequestPasswordRecoveryThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RequestPasswordRecoveryThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "RequestPasswordRecoveryThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RequestPasswordRecoveryThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RequestPersonalDataExportCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "jobId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "progress": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DataExportStatus"
+          }
+        },
+        "type": "object"
+      },
+      "RequestPersonalDataExportCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RequestPersonalDataExportCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResendVerificationThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "ResendVerificationThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ResendVerificationThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResetPasswordThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "newPassword": {
+            "nullable": true,
+            "type": "string"
+          },
+          "token": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResetPasswordThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "ResetPasswordThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ResetPasswordThroughApiCommandOutput"
           },
           "errors": {
             "items": {
@@ -6823,8 +7979,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "financialAccountId": {
             "format": "uuid",
@@ -6845,13 +8002,15 @@
         "additionalProperties": false,
         "properties": {
           "appliedAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "carryStatementId": {
             "format": "uuid",
@@ -6859,8 +8018,9 @@
             "type": "string"
           },
           "creditAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "creditCardCurrencyCode": {
             "nullable": true,
@@ -6883,8 +8043,9 @@
             "type": "string"
           },
           "paymentAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "paymentCurrencyCode": {
             "nullable": true,
@@ -6900,12 +8061,14 @@
             "type": "string"
           },
           "remainingBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "statementAmountDue": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "status": {
             "nullable": true,
@@ -7111,7 +8274,17 @@
           8
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Uuid",
+          "Text",
+          "Integer",
+          "Decimal",
+          "Boolean",
+          "Date",
+          "Timestamp",
+          "Enumeration"
+        ]
       },
       "TableFilterInput": {
         "additionalProperties": false,
@@ -7223,14 +8396,16 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "convertedValue": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "figureDate": {
             "format": "date",
@@ -7250,8 +8425,9 @@
             "type": "string"
           },
           "sourceValue": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "unconvertedReason": {
             "nullable": true,
@@ -7282,9 +8458,10 @@
             "type": "boolean"
           },
           "value": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -7450,14 +8627,16 @@
             "type": "string"
           },
           "share": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "total": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -7466,14 +8645,16 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "displayAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "figureDate": {
             "format": "date",
@@ -7488,8 +8669,9 @@
             "$ref": "#/components/schemas/ExchangeRateSource"
           },
           "sourceAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "sourceCurrencyCode": {
             "nullable": true,
@@ -7573,9 +8755,10 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -7586,32 +8769,38 @@
             "type": "string"
           },
           "displayEarning": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "displayExpense": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "displayNet": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "earning": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "expense": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "net": {
-            "format": "double",
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
             "readOnly": true,
-            "type": "number"
+            "type": "string"
           },
           "rateDate": {
             "format": "date",
@@ -7634,7 +8823,11 @@
           2
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Expense",
+          "Earning"
+        ]
       },
       "TransactionDrillDownOutput": {
         "additionalProperties": false,
@@ -7781,13 +8974,15 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -7849,9 +9044,10 @@
             "type": "string"
           },
           "importedAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "importedOccurredOn": {
             "format": "date",
@@ -7896,9 +9092,10 @@
             "type": "string"
           },
           "originalAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "originalCurrencyCode": {
             "nullable": true,
@@ -7978,8 +9175,9 @@
             "type": "string"
           },
           "importedAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "importedOccurredOn": {
             "format": "date",
@@ -7990,8 +9188,9 @@
             "type": "integer"
           },
           "transactionAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "transactionOccurredOn": {
             "format": "date",
@@ -8072,7 +9271,13 @@
           4
         ],
         "format": "int32",
-        "type": "integer"
+        "type": "integer",
+        "x-enum-varnames": [
+          "Manual",
+          "Pluggy",
+          "Excel",
+          "Pdf"
+        ]
       },
       "TransactionTagCommandOutput": {
         "additionalProperties": false,
@@ -8155,19 +9360,22 @@
             "type": "string"
           },
           "displayEarning": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "displayExpense": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "displayNet": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           }
         },
         "type": "object"
@@ -8217,9 +9425,10 @@
         "additionalProperties": false,
         "properties": {
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "createdAt": {
             "format": "date-time",
@@ -8250,8 +9459,9 @@
             "type": "string"
           },
           "inboundAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "inboundCurrencyCode": {
             "nullable": true,
@@ -8282,8 +9492,9 @@
             "type": "string"
           },
           "outboundAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "outboundCurrencyCode": {
             "nullable": true,
@@ -8343,8 +9554,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryIds": {
             "items": {
@@ -8462,8 +9674,9 @@
             "type": "integer"
           },
           "creditLimit": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -8496,8 +9709,9 @@
             "type": "string"
           },
           "creditLimit": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "currencyCode": {
             "nullable": true,
@@ -8580,9 +9794,10 @@
             "type": "string"
           },
           "openingBalance": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "ownerId": {
             "format": "uuid",
@@ -8619,8 +9834,9 @@
             "type": "string"
           },
           "openingBalance": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "updatedAt": {
             "format": "date-time",
@@ -8688,8 +9904,9 @@
             "type": "string"
           },
           "targetAmount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "targetDate": {
             "format": "date",
@@ -8787,8 +10004,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -8839,8 +10057,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliesFrom": {
             "format": "date",
@@ -8969,8 +10188,9 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -9024,13 +10244,15 @@
         "additionalProperties": false,
         "properties": {
           "amount": {
-            "format": "double",
-            "type": "number"
+            "format": "decimal",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "appliedRate": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "categoryId": {
             "format": "uuid",
@@ -9103,9 +10325,10 @@
             "type": "string"
           },
           "originalAmount": {
-            "format": "double",
+            "format": "decimal",
             "nullable": true,
-            "type": "number"
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "type": "string"
           },
           "originalCurrencyCode": {
             "nullable": true,
@@ -9217,6 +10440,166 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/UserProfileOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "VerifyEmailThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "token": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "VerifyEmailThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "VerifyEmailThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "VerifyTwoFactorThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "challengeToken": {
+            "nullable": true,
+            "type": "string"
+          },
+          "code": {
+            "nullable": true,
+            "type": "string"
+          },
+          "recoveryCode": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "VerifyTwoFactorThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "token": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "VerifyTwoFactorThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/VerifyTwoFactorThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WithdrawProcessingConsentCommandOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "purpose": {
+            "nullable": true,
+            "type": "string"
+          },
+          "revokedConnections": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "stoppedSynchronizations": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "WithdrawProcessingConsentCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/WithdrawProcessingConsentCommandOutput"
           },
           "errors": {
             "items": {
@@ -9862,6 +11245,573 @@
         },
         "tags": [
           "AuditEntries"
+        ]
+      }
+    },
+    "/api/auth/2fa": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTwoFactorStatusThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTwoFactorStatusThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTwoFactorStatusThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/confirm": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmTwoFactorThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmTwoFactorThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmTwoFactorThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/disable": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisableTwoFactorThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisableTwoFactorThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisableTwoFactorThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisableTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisableTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisableTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/enable": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnableTwoFactorThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnableTwoFactorThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnableTwoFactorThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnableTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnableTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnableTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/recovery-codes/regenerate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateRecoveryCodesThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateRecoveryCodesThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateRecoveryCodesThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegenerateRecoveryCodesThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegenerateRecoveryCodesThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegenerateRecoveryCodesThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/2fa/verify": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTwoFactorThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTwoFactorThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTwoFactorThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyTwoFactorThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/google": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleSignInThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleSignInThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleSignInThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleSignInThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleSignInThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleSignInThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/google/sign-out": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleSignOutThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleSignOutThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleSignOutThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/password-recovery": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordRecoveryThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordRecoveryThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordRecoveryThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestPasswordRecoveryThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestPasswordRecoveryThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestPasswordRecoveryThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/password-reset": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/resend-verification": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendVerificationThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendVerificationThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendVerificationThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/verify-email": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
         ]
       }
     },
@@ -13573,6 +15523,237 @@
         ]
       }
     },
+    "/api/me/consents": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessingConsentQueryOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessingConsentQueryOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessingConsentQueryOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Me"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantProcessingConsentCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantProcessingConsentCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantProcessingConsentCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrantProcessingConsentCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrantProcessingConsentCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrantProcessingConsentCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Me"
+        ]
+      }
+    },
+    "/api/me/consents/{purpose}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "purpose",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawProcessingConsentCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawProcessingConsentCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithdrawProcessingConsentCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Me"
+        ]
+      }
+    },
+    "/api/me/data-export": {
+      "post": {
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestPersonalDataExportCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestPersonalDataExportCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestPersonalDataExportCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Accepted"
+          }
+        },
+        "tags": [
+          "Me"
+        ]
+      }
+    },
+    "/api/me/data-export/{jobId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "jobId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonalDataExportQueryOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonalDataExportQueryOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonalDataExportQueryOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Me"
+        ]
+      }
+    },
+    "/api/me/erasure": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EraseUserCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EraseUserCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EraseUserCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraseUserCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraseUserCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraseUserCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Me"
+        ]
+      }
+    },
     "/api/projections/cash-flow": {
       "get": {
         "parameters": [
@@ -14033,16 +16214,18 @@
             "in": "query",
             "name": "MinimumAmount",
             "schema": {
-              "format": "double",
-              "type": "number"
+              "format": "decimal",
+              "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+              "type": "string"
             }
           },
           {
             "in": "query",
             "name": "MaximumAmount",
             "schema": {
-              "format": "double",
-              "type": "number"
+              "format": "decimal",
+              "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+              "type": "string"
             }
           },
           {
@@ -14665,16 +16848,18 @@
             "in": "query",
             "name": "MinimumAmount",
             "schema": {
-              "format": "double",
-              "type": "number"
+              "format": "decimal",
+              "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+              "type": "string"
             }
           },
           {
             "in": "query",
             "name": "MaximumAmount",
             "schema": {
-              "format": "double",
-              "type": "number"
+              "format": "decimal",
+              "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+              "type": "string"
             }
           },
           {
@@ -15422,10 +17607,86 @@
         ]
       }
     },
+    "/api/users/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EraseUserCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EraseUserCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EraseUserCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraseUserCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraseUserCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EraseUserCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/healthcheck": {
       "get": {
         "responses": {
           "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LivenessOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LivenessOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LivenessOutput"
+                }
+              }
+            },
             "description": "OK"
           }
         },
@@ -15496,6 +17757,9 @@
     },
     {
       "name": "AuditEntries"
+    },
+    {
+      "name": "Auth"
     },
     {
       "name": "Budgets"
@@ -15574,6 +17838,9 @@
     },
     {
       "name": "Transfers"
+    },
+    {
+      "name": "Users"
     }
   ]
 }

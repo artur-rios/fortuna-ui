@@ -8,23 +8,23 @@ part of 'credit_card_output.dart';
 
 CreditCardOutput _$CreditCardOutputFromJson(Map<String, dynamic> json) =>
     CreditCardOutput(
-      availableAmount: (json['availableAmount'] as num?)?.toDouble(),
+      availableAmount: json['availableAmount'] as String?,
       closingDay: (json['closingDay'] as num?)?.toInt(),
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
-      creditLimit: (json['creditLimit'] as num?)?.toDouble(),
+      creditLimit: json['creditLimit'] as String?,
       currencyCode: json['currencyCode'] as String?,
       dueDay: (json['dueDay'] as num?)?.toInt(),
       id: json['id'] as String?,
       issuer: json['issuer'] as String?,
       lastFourDigits: json['lastFourDigits'] as String?,
       name: json['name'] as String?,
-      overageAmount: (json['overageAmount'] as num?)?.toDouble(),
+      overageAmount: json['overageAmount'] as String?,
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
-      usedAmount: (json['usedAmount'] as num?)?.toDouble(),
+      usedAmount: json['usedAmount'] as String?,
     );
 
 Map<String, dynamic> _$CreditCardOutputToJson(CreditCardOutput instance) =>

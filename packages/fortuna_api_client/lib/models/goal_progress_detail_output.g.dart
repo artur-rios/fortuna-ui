@@ -11,20 +11,20 @@ GoalProgressDetailOutput _$GoalProgressDetailOutputFromJson(
 ) => GoalProgressDetailOutput(
   asOf: json['asOf'] == null ? null : DateTime.parse(json['asOf'] as String),
   currencyCode: json['currencyCode'] as String?,
-  currentAmount: (json['currentAmount'] as num?)?.toDouble(),
+  currentAmount: json['currentAmount'] as String?,
   daysRemaining: (json['daysRemaining'] as num?)?.toInt(),
   goalId: json['goalId'] as String?,
   isFullyConverted: json['isFullyConverted'] as bool?,
   isPastDue: json['isPastDue'] as bool?,
   isReached: json['isReached'] as bool?,
-  proportionReached: (json['proportionReached'] as num?)?.toDouble(),
+  proportionReached: json['proportionReached'] as String?,
   resources: (json['resources'] as List<dynamic>?)
       ?.map(
         (e) => GoalResourceProgressOutput.fromJson(e as Map<String, dynamic>),
       )
       .toList(),
-  shortfall: (json['shortfall'] as num?)?.toDouble(),
-  targetAmount: (json['targetAmount'] as num?)?.toDouble(),
+  shortfall: json['shortfall'] as String?,
+  targetAmount: json['targetAmount'] as String?,
   targetDate: json['targetDate'] == null
       ? null
       : DateTime.parse(json['targetDate'] as String),

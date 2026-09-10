@@ -21,9 +21,9 @@ class CashFlowPeriodOutput {
   factory CashFlowPeriodOutput.fromJson(Map<String, Object?> json) =>
       _$CashFlowPeriodOutputFromJson(json);
 
-  final double? closingBalance;
+  final String? closingBalance;
   final List<CashFlowFigureOutput>? figures;
-  final double? openingBalance;
+  final String? openingBalance;
   final DateTime? periodEnd;
   final DateTime? periodStart;
 

@@ -33,19 +33,19 @@ class RecordInvestmentMovementCommandOutput {
     Map<String, Object?> json,
   ) => _$RecordInvestmentMovementCommandOutputFromJson(json);
 
-  final double? amount;
-  final double? appliedRate;
+  final String? amount;
+  final String? appliedRate;
   final DateTime? createdAt;
   final String? currencyCode;
   final String? financialAccountId;
-  final double? fundingAmount;
+  final String? fundingAmount;
   final String? fundingCurrencyCode;
   final String? id;
   final String? investmentId;
   final InvestmentMovementType? movementType;
   final DateTime? occurredOn;
   final String? outboundTransactionId;
-  final double? position;
+  final String? position;
   final DateTime? rateDate;
   final String? transferId;
   final DateTime? updatedAt;

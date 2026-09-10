@@ -23,11 +23,11 @@ class ConvertedCurrencyGroupOutput {
   factory ConvertedCurrencyGroupOutput.fromJson(Map<String, Object?> json) =>
       _$ConvertedCurrencyGroupOutputFromJson(json);
 
-  final double? appliedRate;
-  final double? displayAmount;
+  final String? appliedRate;
+  final String? displayAmount;
   final DateTime? rateDate;
   final ExchangeRateSource? rateSource;
-  final double? sourceAmount;
+  final String? sourceAmount;
   final String? sourceCurrencyCode;
   final String? unconvertedReason;
 

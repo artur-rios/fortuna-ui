@@ -9,8 +9,8 @@ part of 'table_total_conversion_output.dart';
 TableTotalConversionOutput _$TableTotalConversionOutputFromJson(
   Map<String, dynamic> json,
 ) => TableTotalConversionOutput(
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
-  convertedValue: (json['convertedValue'] as num?)?.toDouble(),
+  appliedRate: json['appliedRate'] as String?,
+  convertedValue: json['convertedValue'] as String?,
   figureDate: json['figureDate'] == null
       ? null
       : DateTime.parse(json['figureDate'] as String),
@@ -21,7 +21,7 @@ TableTotalConversionOutput _$TableTotalConversionOutputFromJson(
       ? null
       : ExchangeRateSource.fromJson((json['rateSource'] as num).toInt()),
   sourceCurrencyCode: json['sourceCurrencyCode'] as String?,
-  sourceValue: (json['sourceValue'] as num?)?.toDouble(),
+  sourceValue: json['sourceValue'] as String?,
   unconvertedReason: json['unconvertedReason'] as String?,
 );
 

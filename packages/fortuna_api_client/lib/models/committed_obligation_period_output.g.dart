@@ -16,7 +16,7 @@ CommittedObligationPeriodOutput _$CommittedObligationPeriodOutputFromJson(
   periodStart: json['periodStart'] == null
       ? null
       : DateTime.parse(json['periodStart'] as String),
-  total: (json['total'] as num?)?.toDouble(),
+  total: json['total'] as String?,
 );
 
 Map<String, dynamic> _$CommittedObligationPeriodOutputToJson(

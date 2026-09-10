@@ -19,13 +19,13 @@ _$RecordInvestmentValuationCommandOutputFromJson(Map<String, dynamic> json) =>
       latestValuationDate: json['latestValuationDate'] == null
           ? null
           : DateTime.parse(json['latestValuationDate'] as String),
-      latestValuationValue: (json['latestValuationValue'] as num?)?.toDouble(),
-      position: (json['position'] as num?)?.toDouble(),
+      latestValuationValue: json['latestValuationValue'] as String?,
+      position: json['position'] as String?,
       replacedExisting: json['replacedExisting'] as bool?,
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
-      value: (json['value'] as num?)?.toDouble(),
+      value: json['value'] as String?,
       valuedOn: json['valuedOn'] == null
           ? null
           : DateTime.parse(json['valuedOn'] as String),

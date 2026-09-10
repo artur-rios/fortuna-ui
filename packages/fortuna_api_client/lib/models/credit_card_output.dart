@@ -27,19 +27,19 @@ class CreditCardOutput {
   factory CreditCardOutput.fromJson(Map<String, Object?> json) =>
       _$CreditCardOutputFromJson(json);
 
-  final double? availableAmount;
+  final String? availableAmount;
   final int? closingDay;
   final DateTime? createdAt;
-  final double? creditLimit;
+  final String? creditLimit;
   final String? currencyCode;
   final int? dueDay;
   final String? id;
   final String? issuer;
   final String? lastFourDigits;
   final String? name;
-  final double? overageAmount;
+  final String? overageAmount;
   final DateTime? updatedAt;
-  final double? usedAmount;
+  final String? usedAmount;
 
   Map<String, Object?> toJson() => _$CreditCardOutputToJson(this);
 }

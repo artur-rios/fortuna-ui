@@ -9,7 +9,7 @@ part of 'close_credit_card_statement_command_output.dart';
 CloseCreditCardStatementCommandOutput
 _$CloseCreditCardStatementCommandOutputFromJson(Map<String, dynamic> json) =>
     CloseCreditCardStatementCommandOutput(
-      amountDue: (json['amountDue'] as num?)?.toDouble(),
+      amountDue: json['amountDue'] as String?,
       closingDate: json['closingDate'] == null
           ? null
           : DateTime.parse(json['closingDate'] as String),
@@ -24,7 +24,7 @@ _$CloseCreditCardStatementCommandOutputFromJson(Map<String, dynamic> json) =>
       periodStart: json['periodStart'] == null
           ? null
           : DateTime.parse(json['periodStart'] as String),
-      purchaseTotal: (json['purchaseTotal'] as num?)?.toDouble(),
+      purchaseTotal: json['purchaseTotal'] as String?,
       status: json['status'] as String?,
     );
 

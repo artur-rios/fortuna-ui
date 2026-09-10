@@ -11,7 +11,7 @@ _$RecordManualExchangeRateCommandOutputFromJson(Map<String, dynamic> json) =>
     RecordManualExchangeRateCommandOutput(
       baseCurrencyCode: json['baseCurrencyCode'] as String?,
       quoteCurrencyCode: json['quoteCurrencyCode'] as String?,
-      rate: (json['rate'] as num?)?.toDouble(),
+      rate: json['rate'] as String?,
       rateDate: json['rateDate'] == null
           ? null
           : DateTime.parse(json['rateDate'] as String),

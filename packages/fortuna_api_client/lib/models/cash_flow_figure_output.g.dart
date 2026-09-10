@@ -9,7 +9,7 @@ part of 'cash_flow_figure_output.dart';
 CashFlowFigureOutput _$CashFlowFigureOutputFromJson(
   Map<String, dynamic> json,
 ) => CashFlowFigureOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   kind: json['kind'] == null
       ? null
       : CashFlowFigureKind.fromJson((json['kind'] as num).toInt()),

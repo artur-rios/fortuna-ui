@@ -22,7 +22,7 @@ CashFlowProjectionOutput _$CashFlowProjectionOutputFromJson(
   rates: (json['rates'] as List<dynamic>?)
       ?.map((e) => CashFlowRateOutput.fromJson(e as Map<String, dynamic>))
       .toList(),
-  startingBalance: (json['startingBalance'] as num?)?.toDouble(),
+  startingBalance: json['startingBalance'] as String?,
   through: json['through'] == null
       ? null
       : DateTime.parse(json['through'] as String),

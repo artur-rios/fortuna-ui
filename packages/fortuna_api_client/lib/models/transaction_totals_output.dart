@@ -23,9 +23,9 @@ class TransactionTotalsOutput {
 
   final List<TransactionCurrencyTotalOutput>? byCurrency;
   final String? displayCurrencyCode;
-  final double? displayEarning;
-  final double? displayExpense;
-  final double? displayNet;
+  final String? displayEarning;
+  final String? displayExpense;
+  final String? displayNet;
 
   Map<String, Object?> toJson() => _$TransactionTotalsOutputToJson(this);
 }

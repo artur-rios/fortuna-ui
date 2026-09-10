@@ -9,8 +9,8 @@ part of 'update_transaction_command_output.dart';
 UpdateTransactionCommandOutput _$UpdateTransactionCommandOutputFromJson(
   Map<String, dynamic> json,
 ) => UpdateTransactionCommandOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
+  appliedRate: json['appliedRate'] as String?,
   categoryId: json['categoryId'] as String?,
   categoryName: json['categoryName'] as String?,
   counterpartyId: json['counterpartyId'] as String?,
@@ -35,7 +35,7 @@ UpdateTransactionCommandOutput _$UpdateTransactionCommandOutputFromJson(
   occurredOn: json['occurredOn'] == null
       ? null
       : DateTime.parse(json['occurredOn'] as String),
-  originalAmount: (json['originalAmount'] as num?)?.toDouble(),
+  originalAmount: json['originalAmount'] as String?,
   originalCurrencyCode: json['originalCurrencyCode'] as String?,
   rateDate: json['rateDate'] == null
       ? null

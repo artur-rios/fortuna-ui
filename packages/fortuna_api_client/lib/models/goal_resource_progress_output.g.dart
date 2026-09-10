@@ -9,8 +9,8 @@ part of 'goal_resource_progress_output.dart';
 GoalResourceProgressOutput _$GoalResourceProgressOutputFromJson(
   Map<String, dynamic> json,
 ) => GoalResourceProgressOutput(
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
-  convertedAmount: (json['convertedAmount'] as num?)?.toDouble(),
+  appliedRate: json['appliedRate'] as String?,
+  convertedAmount: json['convertedAmount'] as String?,
   exclusionReason: json['exclusionReason'] as String?,
   id: json['id'] as String?,
   isIncluded: json['isIncluded'] as bool?,
@@ -24,7 +24,7 @@ GoalResourceProgressOutput _$GoalResourceProgressOutputFromJson(
   resourceType: json['resourceType'] == null
       ? null
       : GoalResourceType.fromJson((json['resourceType'] as num).toInt()),
-  sourceAmount: (json['sourceAmount'] as num?)?.toDouble(),
+  sourceAmount: json['sourceAmount'] as String?,
   sourceCurrencyCode: json['sourceCurrencyCode'] as String?,
   unconvertedReason: json['unconvertedReason'] as String?,
 );

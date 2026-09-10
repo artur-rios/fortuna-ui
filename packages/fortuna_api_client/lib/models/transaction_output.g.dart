@@ -11,7 +11,7 @@ TransactionOutput _$TransactionOutputFromJson(Map<String, dynamic> json) =>
       direction: json['direction'] == null
           ? null
           : TransactionDirection.fromJson((json['direction'] as num).toInt()),
-      appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+      appliedRate: json['appliedRate'] as String?,
       categoryId: json['categoryId'] as String?,
       categoryName: json['categoryName'] as String?,
       counterpartyId: json['counterpartyId'] as String?,
@@ -23,12 +23,12 @@ TransactionOutput _$TransactionOutputFromJson(Map<String, dynamic> json) =>
       creditCardName: json['creditCardName'] as String?,
       currencyCode: json['currencyCode'] as String?,
       description: json['description'] as String?,
-      amount: (json['amount'] as num?)?.toDouble(),
+      amount: json['amount'] as String?,
       financialAccountId: json['financialAccountId'] as String?,
       financialAccountName: json['financialAccountName'] as String?,
       id: json['id'] as String?,
       importJobId: json['importJobId'] as String?,
-      importedAmount: (json['importedAmount'] as num?)?.toDouble(),
+      importedAmount: json['importedAmount'] as String?,
       importedOccurredOn: json['importedOccurredOn'] == null
           ? null
           : DateTime.parse(json['importedOccurredOn'] as String),
@@ -46,7 +46,7 @@ TransactionOutput _$TransactionOutputFromJson(Map<String, dynamic> json) =>
       occurredOn: json['occurredOn'] == null
           ? null
           : DateTime.parse(json['occurredOn'] as String),
-      originalAmount: (json['originalAmount'] as num?)?.toDouble(),
+      originalAmount: json['originalAmount'] as String?,
       originalCurrencyCode: json['originalCurrencyCode'] as String?,
       rateDate: json['rateDate'] == null
           ? null

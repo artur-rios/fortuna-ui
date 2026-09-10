@@ -9,8 +9,8 @@ part of 'credit_card_statement_transaction_output.dart';
 CreditCardStatementTransactionOutput
 _$CreditCardStatementTransactionOutputFromJson(Map<String, dynamic> json) =>
     CreditCardStatementTransactionOutput(
-      amount: (json['amount'] as num?)?.toDouble(),
-      appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+      amount: json['amount'] as String?,
+      appliedRate: json['appliedRate'] as String?,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -20,7 +20,7 @@ _$CreditCardStatementTransactionOutputFromJson(Map<String, dynamic> json) =>
       occurredOn: json['occurredOn'] == null
           ? null
           : DateTime.parse(json['occurredOn'] as String),
-      originalAmount: (json['originalAmount'] as num?)?.toDouble(),
+      originalAmount: json['originalAmount'] as String?,
       originalCurrencyCode: json['originalCurrencyCode'] as String?,
       rateDate: json['rateDate'] == null
           ? null

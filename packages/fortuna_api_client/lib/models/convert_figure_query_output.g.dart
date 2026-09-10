@@ -19,7 +19,7 @@ ConvertFigureQueryOutput _$ConvertFigureQueryOutputFromJson(
       )
       .toList(),
   isFullyConverted: json['isFullyConverted'] as bool?,
-  total: (json['total'] as num?)?.toDouble(),
+  total: json['total'] as String?,
 );
 
 Map<String, dynamic> _$ConvertFigureQueryOutputToJson(

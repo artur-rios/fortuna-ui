@@ -18,7 +18,7 @@ InvestmentValuationOutput _$InvestmentValuationOutputFromJson(
   updatedAt: json['updatedAt'] == null
       ? null
       : DateTime.parse(json['updatedAt'] as String),
-  value: (json['value'] as num?)?.toDouble(),
+  value: json['value'] as String?,
   valuedOn: json['valuedOn'] == null
       ? null
       : DateTime.parse(json['valuedOn'] as String),

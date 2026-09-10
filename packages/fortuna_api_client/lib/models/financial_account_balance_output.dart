@@ -19,7 +19,7 @@ class FinancialAccountBalanceOutput {
       _$FinancialAccountBalanceOutputFromJson(json);
 
   final DateTime? asOf;
-  final double? balance;
+  final String? balance;
   final String? currencyCode;
   final String? id;
 

@@ -9,14 +9,14 @@ part of 'record_investment_movement_command_output.dart';
 RecordInvestmentMovementCommandOutput
 _$RecordInvestmentMovementCommandOutputFromJson(Map<String, dynamic> json) =>
     RecordInvestmentMovementCommandOutput(
-      amount: (json['amount'] as num?)?.toDouble(),
-      appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+      amount: json['amount'] as String?,
+      appliedRate: json['appliedRate'] as String?,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
       currencyCode: json['currencyCode'] as String?,
       financialAccountId: json['financialAccountId'] as String?,
-      fundingAmount: (json['fundingAmount'] as num?)?.toDouble(),
+      fundingAmount: json['fundingAmount'] as String?,
       fundingCurrencyCode: json['fundingCurrencyCode'] as String?,
       id: json['id'] as String?,
       investmentId: json['investmentId'] as String?,
@@ -29,7 +29,7 @@ _$RecordInvestmentMovementCommandOutputFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['occurredOn'] as String),
       outboundTransactionId: json['outboundTransactionId'] as String?,
-      position: (json['position'] as num?)?.toDouble(),
+      position: json['position'] as String?,
       rateDate: json['rateDate'] == null
           ? null
           : DateTime.parse(json['rateDate'] as String),

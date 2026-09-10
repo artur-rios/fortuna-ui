@@ -19,11 +19,11 @@ class GoalProgressCommandOutput {
   factory GoalProgressCommandOutput.fromJson(Map<String, Object?> json) =>
       _$GoalProgressCommandOutputFromJson(json);
 
-  final double? currentAmount;
+  final String? currentAmount;
   final bool? isFullyConverted;
   final bool? isReached;
-  final double? proportionReached;
-  final double? remaining;
+  final String? proportionReached;
+  final String? remaining;
 
   Map<String, Object?> toJson() => _$GoalProgressCommandOutputToJson(this);
 }

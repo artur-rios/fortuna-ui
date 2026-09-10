@@ -21,7 +21,7 @@ class RecordInvestmentMovementCommand {
   factory RecordInvestmentMovementCommand.fromJson(Map<String, Object?> json) =>
       _$RecordInvestmentMovementCommandFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? financialAccountId;
   final String? id;
   final InvestmentMovementType? movementType;

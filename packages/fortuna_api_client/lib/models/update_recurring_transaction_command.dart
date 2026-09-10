@@ -29,7 +29,7 @@ class UpdateRecurringTransactionCommand {
     Map<String, Object?> json,
   ) => _$UpdateRecurringTransactionCommandFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? categoryId;
   final String? counterparty;
   final String? creditCardId;

@@ -9,7 +9,7 @@ part of 'update_recurring_transaction_command_output.dart';
 UpdateRecurringTransactionCommandOutput
 _$UpdateRecurringTransactionCommandOutputFromJson(Map<String, dynamic> json) =>
     UpdateRecurringTransactionCommandOutput(
-      amount: (json['amount'] as num?)?.toDouble(),
+      amount: json['amount'] as String?,
       appliesFrom: json['appliesFrom'] == null
           ? null
           : DateTime.parse(json['appliesFrom'] as String),

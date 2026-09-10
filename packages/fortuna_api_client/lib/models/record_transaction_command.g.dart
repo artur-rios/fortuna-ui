@@ -9,7 +9,7 @@ part of 'record_transaction_command.dart';
 RecordTransactionCommand _$RecordTransactionCommandFromJson(
   Map<String, dynamic> json,
 ) => RecordTransactionCommand(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   categoryId: json['categoryId'] as String?,
   counterparty: json['counterparty'] as String?,
   creditCardId: json['creditCardId'] as String?,

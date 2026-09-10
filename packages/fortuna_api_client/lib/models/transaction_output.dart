@@ -54,8 +54,8 @@ class TransactionOutput {
   factory TransactionOutput.fromJson(Map<String, Object?> json) =>
       _$TransactionOutputFromJson(json);
 
-  final double? amount;
-  final double? appliedRate;
+  final String? amount;
+  final String? appliedRate;
   final String? categoryId;
   final String? categoryName;
   final String? counterpartyId;
@@ -70,7 +70,7 @@ class TransactionOutput {
   final String? financialAccountName;
   final String? id;
   final String? importJobId;
-  final double? importedAmount;
+  final String? importedAmount;
   final DateTime? importedOccurredOn;
   final int? importedRecordId;
   final int? installmentNumber;
@@ -82,7 +82,7 @@ class TransactionOutput {
   final bool? isReconciled;
   final bool? isTransfer;
   final DateTime? occurredOn;
-  final double? originalAmount;
+  final String? originalAmount;
   final String? originalCurrencyCode;
   final DateTime? rateDate;
   final String? recurringTransactionId;

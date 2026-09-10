@@ -8,7 +8,7 @@ part of 'transfer_output.dart';
 
 TransferOutput _$TransferOutputFromJson(Map<String, dynamic> json) =>
     TransferOutput(
-      appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+      appliedRate: json['appliedRate'] as String?,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -18,7 +18,7 @@ TransferOutput _$TransferOutputFromJson(Map<String, dynamic> json) =>
       destinationInvestmentId: json['destinationInvestmentId'] as String?,
       destinationStatementId: json['destinationStatementId'] as String?,
       id: json['id'] as String?,
-      inboundAmount: (json['inboundAmount'] as num?)?.toDouble(),
+      inboundAmount: json['inboundAmount'] as String?,
       inboundCurrencyCode: json['inboundCurrencyCode'] as String?,
       inboundInvestmentMovementId:
           json['inboundInvestmentMovementId'] as String?,
@@ -29,7 +29,7 @@ TransferOutput _$TransferOutputFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['occurredOn'] as String),
       originFinancialAccountId: json['originFinancialAccountId'] as String?,
-      outboundAmount: (json['outboundAmount'] as num?)?.toDouble(),
+      outboundAmount: json['outboundAmount'] as String?,
       outboundCurrencyCode: json['outboundCurrencyCode'] as String?,
       outboundIsDeleted: json['outboundIsDeleted'] as bool?,
       outboundTransactionId: json['outboundTransactionId'] as String?,

@@ -9,15 +9,15 @@ part of 'transaction_currency_total_output.dart';
 TransactionCurrencyTotalOutput _$TransactionCurrencyTotalOutputFromJson(
   Map<String, dynamic> json,
 ) => TransactionCurrencyTotalOutput(
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+  appliedRate: json['appliedRate'] as String?,
   currencyCode: json['currencyCode'] as String?,
   displayCurrencyCode: json['displayCurrencyCode'] as String?,
-  displayEarning: (json['displayEarning'] as num?)?.toDouble(),
-  displayExpense: (json['displayExpense'] as num?)?.toDouble(),
-  displayNet: (json['displayNet'] as num?)?.toDouble(),
-  earning: (json['earning'] as num?)?.toDouble(),
-  expense: (json['expense'] as num?)?.toDouble(),
-  net: (json['net'] as num?)?.toDouble(),
+  displayEarning: json['displayEarning'] as String?,
+  displayExpense: json['displayExpense'] as String?,
+  displayNet: json['displayNet'] as String?,
+  earning: json['earning'] as String?,
+  expense: json['expense'] as String?,
+  net: json['net'] as String?,
   rateDate: json['rateDate'] == null
       ? null
       : DateTime.parse(json['rateDate'] as String),

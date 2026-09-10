@@ -9,11 +9,11 @@ part of 'cash_flow_period_output.dart';
 CashFlowPeriodOutput _$CashFlowPeriodOutputFromJson(
   Map<String, dynamic> json,
 ) => CashFlowPeriodOutput(
-  closingBalance: (json['closingBalance'] as num?)?.toDouble(),
+  closingBalance: json['closingBalance'] as String?,
   figures: (json['figures'] as List<dynamic>?)
       ?.map((e) => CashFlowFigureOutput.fromJson(e as Map<String, dynamic>))
       .toList(),
-  openingBalance: (json['openingBalance'] as num?)?.toDouble(),
+  openingBalance: json['openingBalance'] as String?,
   periodEnd: json['periodEnd'] == null
       ? null
       : DateTime.parse(json['periodEnd'] as String),

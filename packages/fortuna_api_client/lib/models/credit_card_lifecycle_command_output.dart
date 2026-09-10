@@ -20,7 +20,7 @@ class CreditCardLifecycleCommandOutput {
 
   final String? currencyCode;
   final String? id;
-  final double? outstandingAmount;
+  final String? outstandingAmount;
 
   Map<String, Object?> toJson() =>
       _$CreditCardLifecycleCommandOutputToJson(this);
