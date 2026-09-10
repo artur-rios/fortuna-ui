@@ -12,7 +12,7 @@ owns the domain, the money and the integrations; this application owns the exper
 [![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
 [![Project board](https://img.shields.io/badge/project-Fortuna%20UI-8250df?style=flat-square)](https://github.com/users/artur-rios/projects/14)
 
-> **Status:** specification complete; implementation under way — 25 of the 47 issues are
+> **Status:** specification complete; implementation under way — 26 of the 47 issues are
 > closed. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
 
 ## What it does
@@ -223,7 +223,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | Issue | Status | Work | Spec |
 |---|---|---|---|
 | [#15](https://github.com/artur-rios/fortuna-ui/issues/15) | ✅ | UC-14 — Manage Financial Accounts | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#16](https://github.com/artur-rios/fortuna-ui/issues/16) | ⬜ | UC-15 — Manage Credit Cards | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#16](https://github.com/artur-rios/fortuna-ui/issues/16) | ✅ | UC-15 — Manage Credit Cards | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#17](https://github.com/artur-rios/fortuna-ui/issues/17) | ⬜ | UC-16 — Review and Settle a Credit Card Statement | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#18](https://github.com/artur-rios/fortuna-ui/issues/18) | ⬜ | UC-17 — Manage Investments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#19](https://github.com/artur-rios/fortuna-ui/issues/19) | ⬜ | UC-18 — Record an Investment Movement or Valuation | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
