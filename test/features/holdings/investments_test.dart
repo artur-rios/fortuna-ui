@@ -80,6 +80,30 @@ class FakeInvestments implements InvestmentRepository {
     deleted.add(id);
     return onDelete?.call() ?? const Success(null);
   }
+
+  // UC-18 added these to the interface. Defaulted here so the UC-17 tests
+  // stay about UC-17; `RecordingInvestments` in investment_records_test.dart
+  // is where they are actually exercised.
+  @override
+  Future<Result<List<RecordedValuation>>> valuations(
+    String investmentId,
+  ) async => const Success([]);
+
+  @override
+  Future<Result<void>> recordMovement({
+    required String investmentId,
+    required MovementType type,
+    required String amount,
+    required DateTime occurredOn,
+    String? financialAccountId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> recordValuation({
+    required String investmentId,
+    required String value,
+    required DateTime valuedOn,
+  }) async => const Success(null);
 }
 
 /// Answers only when the test lets it, so the loading state is observable.

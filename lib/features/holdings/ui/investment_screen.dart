@@ -21,6 +21,7 @@ import '../../preferences/state/preferences_controller.dart';
 import '../data/investment_repository.dart';
 import '../state/investment_providers.dart';
 import 'investment_editor.dart';
+import 'investment_record_sheet.dart';
 
 class InvestmentScreen extends ConsumerWidget {
   const InvestmentScreen({required this.investmentId, super.key});
@@ -181,6 +182,107 @@ class _Investment extends ConsumerWidget {
               ),
             ),
           ),
+
+        const SizedBox(height: 16),
+
+        // UC-18 step 1: the two things that can be recorded, offered as two
+        // actions because they mean two different things.
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                key: const Key('investment.recordMovement'),
+                icon: const Icon(Icons.swap_vert),
+                label: const Text('Record movement'),
+                onPressed: () => unawaited(
+                  showInvestmentRecordSheet(
+                    context,
+                    ref,
+                    investment: investment,
+                    kind: RecordKind.movement,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                key: const Key('investment.recordValuation'),
+                icon: const Icon(Icons.assessment_outlined),
+                label: const Text('Record valuation'),
+                onPressed: () => unawaited(
+                  showInvestmentRecordSheet(
+                    context,
+                    ref,
+                    investment: investment,
+                    kind: RecordKind.valuation,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+
+        _ValuationHistory(investmentId: investment.id, locale: locale),
+      ],
+    );
+  }
+}
+
+/// What has been recorded, most recent first. Read-only: the history is the
+/// evidence behind the position, and editing it here would be editing the
+/// past rather than recording the present.
+class _ValuationHistory extends ConsumerWidget {
+  const _ValuationHistory({required this.investmentId, required this.locale});
+
+  final String investmentId;
+  final String locale;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final valuations = ref.watch(investmentValuationsProvider(investmentId));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Recorded valuations', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        valuations.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (error, _) =>
+              Text('$error', key: const Key('investment.valuations.error')),
+          data: (list) {
+            if (list.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  'Nothing recorded yet.',
+                  key: Key('investment.valuations.empty'),
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                for (final valuation in list)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      valuation.asOf == null
+                          ? 'Undated'
+                          : DateFormat.yMMMd(locale).format(valuation.asOf!),
+                    ),
+                    trailing: MoneyText(valuation.value),
+                  ),
+              ],
+            );
+          },
+        ),
       ],
     );
   }
