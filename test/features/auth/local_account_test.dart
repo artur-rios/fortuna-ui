@@ -25,6 +25,13 @@ class FakeLocalAccounts implements LocalAccountRepository {
     created.add((displayName: displayName, secret: secret));
     return answer(displayName, secret);
   }
+
+  @override
+  Future<Result<String>> authenticate({
+    required String name,
+    required String secret,
+  }) async =>
+      const Failure(message: 'not used here', kind: FailureKind.serverError);
 }
 
 const _codes = ['AAAA-1111', 'BBBB-2222', 'CCCC-3333'];

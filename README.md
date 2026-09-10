@@ -12,7 +12,7 @@ owns the domain, the money and the integrations; this application owns the exper
 [![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
 [![Project board](https://img.shields.io/badge/project-Fortuna%20UI-8250df?style=flat-square)](https://github.com/users/artur-rios/projects/14)
 
-> **Status:** specification complete; implementation under way — 17 of the 47 issues are
+> **Status:** specification complete; implementation under way — 18 of the 47 issues are
 > closed. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
 
 ## What it does
@@ -205,7 +205,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | [#5](https://github.com/artur-rios/fortuna-ui/issues/5) | ⬜ | UC-04 — Complete a Two-Factor Challenge | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#6](https://github.com/artur-rios/fortuna-ui/issues/6) | ✅ | UC-05 — Sign In with Google | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#7](https://github.com/artur-rios/fortuna-ui/issues/7) | ✅ | UC-06 — Create a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#8](https://github.com/artur-rios/fortuna-ui/issues/8) | ⬜ | UC-07 — Sign In to a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#8](https://github.com/artur-rios/fortuna-ui/issues/8) | ✅ | UC-07 — Sign In to a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#9](https://github.com/artur-rios/fortuna-ui/issues/9) | ⬜ | UC-08 — Recover a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#10](https://github.com/artur-rios/fortuna-ui/issues/10) | ⬜ | UC-09 — Recover a Password and Verify an Address | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#11](https://github.com/artur-rios/fortuna-ui/issues/11) | ⬜ | UC-10 — Manage Two-Factor Authentication | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
