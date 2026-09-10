@@ -56,17 +56,16 @@ class StatementScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 FilledButton(
                   key: const Key('statement.retry'),
-                  onPressed: () => ref.invalidate(statementProvider(statementId)),
+                  onPressed: () =>
+                      ref.invalidate(statementProvider(statementId)),
                   child: const Text('Try again'),
                 ),
               ],
             ),
           ),
         ),
-        data: (value) => _Statement(
-          statement: value,
-          creditCardId: creditCardId,
-        ),
+        data: (value) =>
+            _Statement(statement: value, creditCardId: creditCardId),
       ),
     );
   }

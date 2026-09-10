@@ -201,8 +201,7 @@ class _CardTile extends ConsumerWidget {
                     key: Key('cards.statements.${card.id}'),
                     icon: const Icon(Icons.receipt_long_outlined, size: 18),
                     label: const Text('Statements'),
-                    onPressed: () =>
-                        context.go(Routes.statementsOf(card.id)),
+                    onPressed: () => context.go(Routes.statementsOf(card.id)),
                   ),
                 ],
               ),

@@ -17,10 +17,12 @@ final cardStatementsProvider =
     FutureProvider.family<List<CardStatement>, String>(
       retry: (retryCount, error) => null,
       (ref, creditCardId) async {
-        ref.read(sessionTeardownProvider).register(
-          'statements:$creditCardId',
-          () async => ref.invalidateSelf(),
-        );
+        ref
+            .read(sessionTeardownProvider)
+            .register(
+              'statements:$creditCardId',
+              () async => ref.invalidateSelf(),
+            );
 
         final result = await ref
             .read(statementRepositoryProvider)
@@ -38,12 +40,13 @@ final cardStatementsProvider =
 final statementProvider = FutureProvider.family<CardStatement, String>(
   retry: (retryCount, error) => null,
   (ref, statementId) async {
-    ref.read(sessionTeardownProvider).register(
-      'statement:$statementId',
-      () async => ref.invalidateSelf(),
-    );
+    ref
+        .read(sessionTeardownProvider)
+        .register('statement:$statementId', () async => ref.invalidateSelf());
 
-    final result = await ref.read(statementRepositoryProvider).read(statementId);
+    final result = await ref
+        .read(statementRepositoryProvider)
+        .read(statementId);
 
     return switch (result) {
       Success<CardStatement>(:final value) => value,

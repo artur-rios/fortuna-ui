@@ -106,10 +106,7 @@ class _StatementTile extends ConsumerWidget {
     return Card(
       key: Key('statements.item.${statement.id}'),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         title: Text(
           '${dates.format(statement.periodStart)} – '
           '${dates.format(statement.periodEnd)}',
@@ -123,7 +120,10 @@ class _StatementTile extends ConsumerWidget {
             const SizedBox(height: 6),
             Row(
               children: [
-                _StatusChip(status: statement.status, statementId: statement.id),
+                _StatusChip(
+                  status: statement.status,
+                  statementId: statement.id,
+                ),
                 if (statement.hasLateArrivals) ...[
                   const SizedBox(width: 8),
                   Tooltip(
@@ -168,9 +168,18 @@ class _StatusChip extends StatelessWidget {
 
     // Not colour alone (NFR-17): the state is named as well as tinted.
     final (background, foreground) = switch (status) {
-      StatementStatus.open => (scheme.surfaceContainerHighest, scheme.onSurface),
-      StatementStatus.closed => (scheme.secondaryContainer, scheme.onSecondaryContainer),
-      StatementStatus.settled => (scheme.primaryContainer, scheme.onPrimaryContainer),
+      StatementStatus.open => (
+        scheme.surfaceContainerHighest,
+        scheme.onSurface,
+      ),
+      StatementStatus.closed => (
+        scheme.secondaryContainer,
+        scheme.onSecondaryContainer,
+      ),
+      StatementStatus.settled => (
+        scheme.primaryContainer,
+        scheme.onPrimaryContainer,
+      ),
     };
 
     return Container(
@@ -182,9 +191,8 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         status.label,
-        style: Theme.of(
-          context,
-        ).textTheme.labelSmall?.copyWith(color: foreground),
+        style: Theme.of(context).textTheme.labelSmall
+            ?.copyWith(color: foreground),
       ),
     );
   }

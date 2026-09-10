@@ -186,8 +186,12 @@ ProviderContainer containerWith(
   return container;
 }
 
-Future<void> _pump(WidgetTester tester, Widget screen, FakeStatements fake,
-    {FakeAccounts? accounts}) async {
+Future<void> _pump(
+  WidgetTester tester,
+  Widget screen,
+  FakeStatements fake, {
+  FakeAccounts? accounts,
+}) async {
   tester.view.physicalSize = const Size(1000, 2400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -273,7 +277,10 @@ void main() {
         'When it is asked '
         'Then it reports one (FR-HO-09)', () {
       final late = statement(
-        charges: [charge(), charge(id: 'ch2', isLateArriving: true)],
+        charges: [
+          charge(),
+          charge(id: 'ch2', isLateArriving: true),
+        ],
       );
 
       expect(late.hasLateArrivals, isTrue);
@@ -329,15 +336,12 @@ void main() {
         'When they are read '
         'Then they are returned in the order the API sent them', () async {
       final fake = FakeStatements(
-        onList: () => Success([
-          statement(id: 'newest'),
-          statement(id: 'older'),
-        ]),
+        onList: () =>
+            Success([statement(id: 'newest'), statement(id: 'older')]),
       );
 
-      final list = await containerWith(fake).read(
-        cardStatementsProvider('c1').future,
-      );
+      final list = await containerWith(fake)
+          .read(cardStatementsProvider('c1').future);
 
       expect(list.map((s) => s.id), ['newest', 'older']);
     });
@@ -407,47 +411,51 @@ void main() {
         'Then the amount is sent as the string the API stated', () async {
       final fake = FakeStatements();
 
-      await containerWith(fake).read(statementActionsProvider).settle(
-        statementId: 's1',
-        creditCardId: 'c1',
-        financialAccountId: 'a1',
-        amount: '1320.45',
-        paymentDate: DateTime(2026, 5, 2),
-      );
+      await containerWith(fake)
+          .read(statementActionsProvider)
+          .settle(
+            statementId: 's1',
+            creditCardId: 'c1',
+            financialAccountId: 'a1',
+            amount: '1320.45',
+            paymentDate: DateTime(2026, 5, 2),
+          );
 
       expect(fake.settled.single['amount'], '1320.45');
       expect(fake.settled.single['financialAccountId'], 'a1');
     });
 
-    test('Given settlement from an account in another currency '
-        'When the API refuses '
-        'Then its reason is carried back and nothing is converted (AF-03)',
-        () async {
-      final fake = FakeStatements(
-        onSettle: () => const Failure(
-          message: 'The account must be in BRL to settle this statement.',
-          kind: FailureKind.invalidInput,
-        ),
-      );
+    test(
+      'Given settlement from an account in another currency '
+      'When the API refuses '
+      'Then its reason is carried back and nothing is converted (AF-03)',
+      () async {
+        final fake = FakeStatements(
+          onSettle: () => const Failure(
+            message: 'The account must be in BRL to settle this statement.',
+            kind: FailureKind.invalidInput,
+          ),
+        );
 
-      final result = await containerWith(fake)
-          .read(statementActionsProvider)
-          .settle(
-            statementId: 's1',
-            creditCardId: 'c1',
-            financialAccountId: 'a-usd',
-            amount: '1320.45',
-            paymentDate: DateTime(2026, 5, 2),
-          );
+        final result = await containerWith(fake)
+            .read(statementActionsProvider)
+            .settle(
+              statementId: 's1',
+              creditCardId: 'c1',
+              financialAccountId: 'a-usd',
+              amount: '1320.45',
+              paymentDate: DateTime(2026, 5, 2),
+            );
 
-      expect(
-        result,
-        const Failure<void>(
-          message: 'The account must be in BRL to settle this statement.',
-          kind: FailureKind.invalidInput,
-        ),
-      );
-    });
+        expect(
+          result,
+          const Failure<void>(
+            message: 'The account must be in BRL to settle this statement.',
+            kind: FailureKind.invalidInput,
+          ),
+        );
+      },
+    );
   });
 
   group('CardStatementsScreen', () {
@@ -487,9 +495,13 @@ void main() {
 
     testWidgets('Given a card with no cycles '
         'When the screen settles '
-        'Then an empty state explains that cycles follow charges (AF-06)',
-        (tester) async {
-      await pumpStatements(tester, FakeStatements(onList: () => const Success([])));
+        'Then an empty state explains that cycles follow charges (AF-06)', (
+      tester,
+    ) async {
+      await pumpStatements(
+        tester,
+        FakeStatements(onList: () => const Success([])),
+      );
 
       expect(find.byKey(const Key('statements.empty')), findsOneWidget);
       expect(find.textContaining('once the card has charges'), findsOneWidget);
@@ -497,8 +509,9 @@ void main() {
 
     testWidgets('Given the cycles cannot be read '
         'When the screen settles '
-        'Then the failure is shown with a retry, not an empty state',
-        (tester) async {
+        'Then the failure is shown with a retry, not an empty state', (
+      tester,
+    ) async {
       var attempts = 0;
       final fake = FakeStatements(
         onList: () {
@@ -557,8 +570,9 @@ void main() {
   group('CreditCardsScreen reaching statements', () {
     testWidgets('Given a card '
         'When it is listed '
-        'Then its statements are reachable from it (UC-16 step 1)',
-        (tester) async {
+        'Then its statements are reachable from it (UC-16 step 1)', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1000, 2000);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -660,8 +674,9 @@ void main() {
 
     testWidgets('Given a settled statement '
         'When it is opened '
-        'Then it reads as frozen and offers neither action (AF-04)',
-        (tester) async {
+        'Then it reads as frozen and offers neither action (AF-04)', (
+      tester,
+    ) async {
       await pumpStatement(
         tester,
         FakeStatements(
@@ -804,10 +819,7 @@ void main() {
       await tester.tap(find.byKey(const Key('statement.settle.confirm')));
       await tester.pumpAndSettle();
 
-      expect(
-        find.byKey(const Key('statement.settle.reason')),
-        findsOneWidget,
-      );
+      expect(find.byKey(const Key('statement.settle.reason')), findsOneWidget);
       expect(
         find.text('The account must be in BRL to settle this statement.'),
         findsOneWidget,
@@ -836,24 +848,21 @@ void main() {
         find.byKey(const Key('statement.charge.late.ch2')),
         findsOneWidget,
       );
-      expect(
-        find.byKey(const Key('statement.charge.late.ch1')),
-        findsNothing,
-      );
+      expect(find.byKey(const Key('statement.charge.late.ch1')), findsNothing);
       expect(find.text('Late arrival'), findsOneWidget);
     });
 
     testWidgets('Given a charge converted from another currency '
         'When the statement is opened '
-        'Then the original amount is shown in its own currency', (tester) async {
+        'Then the original amount is shown in its own currency', (
+      tester,
+    ) async {
       await pumpStatement(
         tester,
         FakeStatements(
           onRead: (_) => Success(
             statement(
-              charges: [
-                charge(originalAmount: '20.00', appliedRate: '5.4321'),
-              ],
+              charges: [charge(originalAmount: '20.00', appliedRate: '5.4321')],
             ),
           ),
         ),
