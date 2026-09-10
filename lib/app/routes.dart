@@ -40,6 +40,24 @@ abstract final class Routes {
   static const accounts = '/accounts';
   static const creditCards = '/credit-cards';
 
+  /// A card's billing cycles, and one statement within them (`UC-16`).
+  ///
+  /// Nested under the card because a statement has no meaning apart from it,
+  /// and because the guard classifies by prefix — a route under an owner route
+  /// needs no separate entry to be protected.
+  static const cardStatements = '$creditCards/:id/statements';
+  static const cardStatement = '$creditCards/:id/statements/:statementId';
+
+  /// The concrete path for one card's cycles.
+  static String statementsOf(String creditCardId) =>
+      '$creditCards/$creditCardId/statements';
+
+  /// The concrete path for one statement.
+  static String statementOf({
+    required String creditCardId,
+    required String statementId,
+  }) => '$creditCards/$creditCardId/statements/$statementId';
+
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
