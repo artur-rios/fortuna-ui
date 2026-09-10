@@ -20,6 +20,7 @@ import '../core/config/instance_config.dart';
 import '../core/session/session_controller.dart';
 import '../features/administration/ui/instance_health_screen.dart';
 import '../features/audit/ui/audit_trail_screen.dart';
+import '../features/auth/ui/sign_in_screen.dart';
 import '../features/categories/ui/categories_screen.dart';
 import '../features/ingestion/ui/connections_screen.dart';
 import '../features/ingestion/ui/import_file_screen.dart';
@@ -60,10 +61,32 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.signIn,
+        builder: (context, state) => const SignInScreen(),
+      ),
+      GoRoute(
+        path: Routes.twoFactor,
         builder: (context, state) => const PlaceholderScreen(
-          title: 'Sign in',
-          route: Routes.signIn,
-          implementedBy: 'UC-03',
+          title: 'Two-factor challenge',
+          route: Routes.twoFactor,
+          implementedBy: 'UC-04',
+          signedIn: false,
+        ),
+      ),
+      GoRoute(
+        path: Routes.passwordRecovery,
+        builder: (context, state) => const PlaceholderScreen(
+          title: 'Recover your password',
+          route: Routes.passwordRecovery,
+          implementedBy: 'UC-09',
+          signedIn: false,
+        ),
+      ),
+      GoRoute(
+        path: Routes.verifyEmail,
+        builder: (context, state) => const PlaceholderScreen(
+          title: 'Verify your email address',
+          route: Routes.verifyEmail,
+          implementedBy: 'UC-09',
           signedIn: false,
         ),
       ),

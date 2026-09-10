@@ -83,6 +83,15 @@ class SessionController extends Notifier<SessionState> {
   /// Records that the API answered with a two-factor challenge (`UC-04`).
   void challenge(ChallengePending pending) => state = pending;
 
+  /// Returns to signed out from an authentication that did not complete.
+  ///
+  /// Every sign-in failure ends here, and so does an abandoned or expired
+  /// challenge (`UC-04 AF-03`). Named for what it means rather than reusing
+  /// [signOut], which tears down caches and view state that a failed sign-in
+  /// never built.
+  void challengeAbandoned({String? reason}) =>
+      state = SignedOut(reason: reason);
+
   /// Grants a session and persists its token.
   Future<void> grant({required String token, required SignedIn session}) async {
     await ref.read(tokenStoreProvider).write(token);
