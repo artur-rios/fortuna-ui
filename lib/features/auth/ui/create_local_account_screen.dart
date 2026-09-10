@@ -13,8 +13,8 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/local_account_repository.dart';
 import '../state/local_account_controller.dart';
@@ -92,9 +92,11 @@ class _CreateLocalAccountScreenState
       canPop: state is! LocalAccountCodesShown,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop || !mounted) return;
-        if (await _confirmLeaving() && mounted) {
-          Navigator.of(context).pop();
-        }
+
+        // The navigator is captured before the await: after it, `context` is
+        // an async gap the analyzer rightly refuses to let us reach through.
+        final navigator = Navigator.of(context);
+        if (await _confirmLeaving()) navigator.pop();
       },
       child: Scaffold(
         appBar: AppBar(title: const Text('Create a local account')),
