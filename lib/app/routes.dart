@@ -19,7 +19,13 @@ abstract final class Routes {
 
   /// Recovering a password and verifying an address (`UC-09`).
   static const passwordRecovery = '/password-recovery';
+
+  /// Where a reset link lands, carrying its token in the query string.
+  static const passwordReset = '/password-reset';
   static const verifyEmail = '/verify-email';
+
+  /// The query parameter a reset or verification link carries its token in.
+  static const tokenParameter = 'token';
 
   // Account owner.
   static const home = '/';
@@ -54,6 +60,7 @@ abstract final class Routes {
     signIn,
     twoFactor,
     passwordRecovery,
+    passwordReset,
     verifyEmail,
   };
 }

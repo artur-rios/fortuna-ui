@@ -20,6 +20,7 @@ import '../core/config/instance_config.dart';
 import '../core/session/session_controller.dart';
 import '../features/administration/ui/instance_health_screen.dart';
 import '../features/audit/ui/audit_trail_screen.dart';
+import '../features/auth/ui/password_recovery_screen.dart';
 import '../features/auth/ui/sign_in_screen.dart';
 import '../features/categories/ui/categories_screen.dart';
 import '../features/ingestion/ui/connections_screen.dart';
@@ -74,20 +75,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.passwordRecovery,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Recover your password',
-          route: Routes.passwordRecovery,
-          implementedBy: 'UC-09',
-          signedIn: false,
+        builder: (context, state) => const PasswordRecoveryScreen(),
+      ),
+      GoRoute(
+        // The reset link carries its token in the query string, which is where
+        // an emailed link can put one. It is read here and handed to the
+        // screen rather than typed by a user who never chose it.
+        path: Routes.passwordReset,
+        builder: (context, state) => PasswordResetScreen(
+          token: state.uri.queryParameters[Routes.tokenParameter] ?? '',
+          onDone: () => context.go(Routes.signIn),
         ),
       ),
       GoRoute(
         path: Routes.verifyEmail,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Verify your email address',
-          route: Routes.verifyEmail,
-          implementedBy: 'UC-09',
-          signedIn: false,
+        builder: (context, state) => VerifyEmailScreen(
+          token: state.uri.queryParameters[Routes.tokenParameter] ?? '',
         ),
       ),
       GoRoute(
