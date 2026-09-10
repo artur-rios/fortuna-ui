@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/instance_config.dart';
 import '../data/consent_repository.dart';
 import '../state/consent_controller.dart';
+import '../state/erasure_controller.dart';
 import '../state/personal_export_controller.dart';
 
 class PrivacyScreen extends ConsumerStatefulWidget {
@@ -207,6 +208,11 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
           const Divider(),
           const SizedBox(height: 16),
           const _PersonalExport(),
+
+          const SizedBox(height: 32),
+          const Divider(),
+          const SizedBox(height: 16),
+          const _Erasure(),
         ],
       ),
     );
@@ -339,6 +345,174 @@ class _PersonalExport extends ConsumerWidget {
             // without dressing it up as a problem.
             message: 'Saved to $where ($sizeBytes bytes).',
             isError: false,
+          ),
+        },
+      ],
+    );
+  }
+}
+
+/// UC-44. Deliberately last on the screen, and deliberately unlike every
+/// other confirmation in the application.
+class _Erasure extends ConsumerStatefulWidget {
+  const _Erasure();
+
+  @override
+  ConsumerState<_Erasure> createState() => _ErasureState();
+}
+
+class _ErasureState extends ConsumerState<_Erasure> {
+  final _typed = TextEditingController();
+
+  @override
+  void dispose() {
+    _typed.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(erasureControllerProvider);
+    final controller = ref.read(erasureControllerProvider.notifier);
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Erase this account',
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: theme.colorScheme.error,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        switch (state) {
+          ErasureIdle() || ErasureRefused() => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (state is ErasureRefused) ...[
+                _Notice(
+                  key: const Key('erasure.refused'),
+                  message: state.message!,
+                  isError: true,
+                ),
+                const SizedBox(height: 12),
+              ],
+              const Text(
+                'This destroys the account and everything in it. It cannot be '
+                'undone.',
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                key: const Key('erasure.begin'),
+                onPressed: () => unawaited(controller.begin()),
+                child: const Text('Erase my account'),
+              ),
+            ],
+          ),
+
+          // Steps 2-4. Everything the user is agreeing to, before they agree.
+          ErasureConfirming(:final liveConnections) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _Notice(
+                key: Key('erasure.warning'),
+                message:
+                    'This is irreversible. It is not the deletion you can '
+                    'restore a record from — nothing survives it and nobody '
+                    'can put it back, including whoever runs this instance.\n\n'
+                    'The audit trail is kept, as the law requires, but it will '
+                    'no longer identify you.',
+                isError: true,
+              ),
+              const SizedBox(height: 12),
+
+              // AF-04: named, before the confirmation.
+              if (liveConnections.isNotEmpty) ...[
+                const Text('These connections will be revoked as part of it:'),
+                const SizedBox(height: 4),
+                for (final connection in liveConnections)
+                  Text(
+                    '• ${connection.externalReference ?? connection.id}',
+                    key: Key('erasure.connection.${connection.id}'),
+                  ),
+                const SizedBox(height: 12),
+              ],
+
+              // Step 3: the export first, because afterwards there is nothing
+              // left to export.
+              const Text(
+                'Take a copy first if you want one. After this there is '
+                'nothing left to export.',
+                key: Key('erasure.exportFirst'),
+              ),
+              const SizedBox(height: 16),
+
+              // Step 4: a confirmation unlike any record deletion in this
+              // application. Nobody types this by muscle memory.
+              Text(
+                'Type ${ErasureController.requiredWord} to confirm.',
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                key: const Key('erasure.confirmation'),
+                controller: _typed,
+                autocorrect: false,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                key: const Key('erasure.confirm'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.colorScheme.error,
+                  foregroundColor: theme.colorScheme.onError,
+                ),
+                onPressed: ErasureController.isConfirmed(_typed.text)
+                    ? () => unawaited(controller.erase(_typed.text))
+                    : null,
+                child: const Text('Erase everything, permanently'),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                key: const Key('erasure.cancel'),
+                onPressed: controller.cancel,
+                child: const Text('Keep my account'),
+              ),
+            ],
+          ),
+
+          ErasureWorking() => const Padding(
+            padding: EdgeInsets.all(24),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+
+          // Step 6: what went, before the session ends.
+          ErasureDone(:final report) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Your account is gone',
+                key: const Key('erasure.done'),
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              for (final entry in report.erased.entries)
+                Text('• ${entry.value} ${entry.key}'),
+              if (report.revokedConnections > 0)
+                Text(
+                  '• ${report.revokedConnections} connection'
+                  '${report.revokedConnections == 1 ? '' : 's'} revoked',
+                ),
+              const SizedBox(height: 16),
+              FilledButton(
+                key: const Key('erasure.finish'),
+                onPressed: () => unawaited(controller.finish()),
+                child: const Text('Close'),
+              ),
+            ],
           ),
         },
       ],
