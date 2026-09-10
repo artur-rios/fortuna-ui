@@ -12,6 +12,15 @@ abstract final class Routes {
   static const setup = '/setup';
   static const signIn = '/sign-in';
 
+  /// The second-factor challenge (`UC-04`). Anonymous because a challenge
+  /// grants nothing — until it is satisfied the application is signed out
+  /// (`BR-19`).
+  static const twoFactor = '/sign-in/two-factor';
+
+  /// Recovering a password and verifying an address (`UC-09`).
+  static const passwordRecovery = '/password-recovery';
+  static const verifyEmail = '/verify-email';
+
   // Account owner.
   static const home = '/';
 
@@ -40,5 +49,11 @@ abstract final class Routes {
   /// Membership of this set is the *only* thing that makes a route anonymous —
   /// which is what stops a new screen being reachable by having forgotten to
   /// guard it.
-  static const Set<String> anonymous = {setup, signIn};
+  static const Set<String> anonymous = {
+    setup,
+    signIn,
+    twoFactor,
+    passwordRecovery,
+    verifyEmail,
+  };
 }
