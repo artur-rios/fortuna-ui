@@ -21,7 +21,10 @@ import '../../../core/result/result.dart';
 /// What an instance said about itself.
 @immutable
 class InstanceIdentity {
-  const InstanceIdentity({required this.contractVersion, required this.service});
+  const InstanceIdentity({
+    required this.contractVersion,
+    required this.service,
+  });
 
   /// The contract the instance speaks, or `null` if it named none.
   final String? contractVersion;

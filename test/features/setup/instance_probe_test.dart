@@ -29,9 +29,8 @@ HttpInstanceProbe probeAnswering(
 }) => HttpInstanceProbe(
   buildClient: (address) {
     onBuild?.call(address);
-    return Dio(BaseOptions(baseUrl: address))..httpClientAdapter = _Adapter(
-      respond,
-    );
+    return Dio(BaseOptions(baseUrl: address))
+      ..httpClientAdapter = _Adapter(respond);
   },
 );
 
@@ -46,39 +45,41 @@ Future<ResponseBody> json(int status, Object? body) async =>
 
 void main() {
   group('HttpInstanceProbe', () {
-    test('Given an instance that answers the anonymous health check '
-        'When it is probed '
-        'Then its contract and service are reported (UC-01 main flow)', () async {
-      final probe = probeAnswering(
-        (_) => json(200, {
-          'contractVersion': 'v1',
-          'service': 'Fortuna API',
-        }),
-      );
+    test(
+      'Given an instance that answers the anonymous health check '
+      'When it is probed '
+      'Then its contract and service are reported (UC-01 main flow)',
+      () async {
+        final probe = probeAnswering(
+          (_) => json(200, {'contractVersion': 'v1', 'service': 'Fortuna API'}),
+        );
 
-      final result = await probe.probe('https://fortuna.example');
+        final result = await probe.probe('https://fortuna.example');
 
-      expect(result, isA<Success<InstanceIdentity>>());
-      final identity = result.valueOrNull!;
-      expect(identity.contractVersion, 'v1');
-      expect(identity.service, 'Fortuna API');
-      expect(identity.compatibility.isCompatible, isTrue);
-    });
+        expect(result, isA<Success<InstanceIdentity>>());
+        final identity = result.valueOrNull!;
+        expect(identity.contractVersion, 'v1');
+        expect(identity.service, 'Fortuna API');
+        expect(identity.compatibility.isCompatible, isTrue);
+      },
+    );
 
-    test('Given the candidate address '
-        'When it is probed '
-        'Then the client is built against that address, not the configured one',
-        () async {
-      final built = <String>[];
-      final probe = probeAnswering(
-        (_) => json(200, {'contractVersion': 'v1', 'service': 'Fortuna API'}),
-        onBuild: built.add,
-      );
+    test(
+      'Given the candidate address '
+      'When it is probed '
+      'Then the client is built against that address, not the configured one',
+      () async {
+        final built = <String>[];
+        final probe = probeAnswering(
+          (_) => json(200, {'contractVersion': 'v1', 'service': 'Fortuna API'}),
+          onBuild: built.add,
+        );
 
-      await probe.probe('https://elsewhere.example:8443');
+        await probe.probe('https://elsewhere.example:8443');
 
-      expect(built, ['https://elsewhere.example:8443']);
-    });
+        expect(built, ['https://elsewhere.example:8443']);
+      },
+    );
 
     test('Given an instance that cannot be reached '
         'When it is probed '
@@ -109,10 +110,7 @@ void main() {
       final probe = probeAnswering((options) {
         if (answered) {
           answered = false;
-          return json(200, {
-            'contractVersion': 'v1',
-            'service': 'Fortuna API',
-          });
+          return json(200, {'contractVersion': 'v1', 'service': 'Fortuna API'});
         }
         return Future.error(
           DioException.connectionError(

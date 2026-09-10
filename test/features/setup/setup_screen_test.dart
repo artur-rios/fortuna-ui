@@ -230,7 +230,9 @@ void main() {
           coreLibraryProbeProvider.overrideWithValue(
             const FixedCoreLibraryProbe(CoreLibraryAvailability.available),
           ),
-          instanceProbeProvider.overrideWithValue(FakeProbe((_) => reachable())),
+          instanceProbeProvider.overrideWithValue(
+            FakeProbe((_) => reachable()),
+          ),
         ],
       );
       addTearDown(container.dispose);

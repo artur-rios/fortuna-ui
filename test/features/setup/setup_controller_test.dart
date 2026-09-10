@@ -27,10 +27,7 @@ Result<InstanceIdentity> reachable({String? version = 'v1'}) =>
     Success(InstanceIdentity(contractVersion: version, service: 'Fortuna API'));
 
 Result<InstanceIdentity> unreachable([String message = 'No answer.']) =>
-    Failure<InstanceIdentity>(
-      message: message,
-      kind: FailureKind.unreachable,
-    );
+    Failure<InstanceIdentity>(message: message, kind: FailureKind.unreachable);
 
 ProviderContainer containerWith({
   required FakeProbe probe,
@@ -59,20 +56,22 @@ ProviderContainer containerWith({
 
 void main() {
   group('SetupController.useAddress', () {
-    test('Given a malformed address '
-        'When it is submitted '
-        'Then it is rejected and no request is attempted (UC-01 AF-01)',
-        () async {
-      final probe = FakeProbe((_) => reachable());
-      final container = containerWith(probe: probe);
+    test(
+      'Given a malformed address '
+      'When it is submitted '
+      'Then it is rejected and no request is attempted (UC-01 AF-01)',
+      () async {
+        final probe = FakeProbe((_) => reachable());
+        final container = containerWith(probe: probe);
 
-      await container
-          .read(setupControllerProvider.notifier)
-          .useAddress('fortuna.example');
+        await container
+            .read(setupControllerProvider.notifier)
+            .useAddress('fortuna.example');
 
-      expect(container.read(setupControllerProvider), isA<SetupRejected>());
-      expect(probe.probed, isEmpty);
-    });
+        expect(container.read(setupControllerProvider), isA<SetupRejected>());
+        expect(probe.probed, isEmpty);
+      },
+    );
 
     test('Given a malformed address '
         'When it is rejected '
@@ -117,66 +116,77 @@ void main() {
       expect(instance.isResolved, isTrue);
     });
 
-    test('Given an instance that cannot be reached '
-        'When its address is submitted '
-        'Then it is reported and the address is not persisted (UC-01 AF-02)',
-        () async {
-      final preferences = InMemoryPreferencesStore();
-      final container = containerWith(
-        probe: FakeProbe((_) => unreachable('The instance could not be reached.')),
-        preferences: preferences,
-      );
+    test(
+      'Given an instance that cannot be reached '
+      'When its address is submitted '
+      'Then it is reported and the address is not persisted (UC-01 AF-02)',
+      () async {
+        final preferences = InMemoryPreferencesStore();
+        final container = containerWith(
+          probe: FakeProbe(
+            (_) => unreachable('The instance could not be reached.'),
+          ),
+          preferences: preferences,
+        );
 
-      await container
-          .read(setupControllerProvider.notifier)
-          .useAddress('https://nowhere.example');
+        await container
+            .read(setupControllerProvider.notifier)
+            .useAddress('https://nowhere.example');
 
-      final state = container.read(setupControllerProvider);
-      expect(state, isA<SetupUnreachable>());
-      expect(state.message, 'The instance could not be reached.');
-      expect(await preferences.read(PreferenceKey.instanceAddress), isNull);
-      expect(container.read(instanceConfigProvider).isResolved, isFalse);
-    });
+        final state = container.read(setupControllerProvider);
+        expect(state, isA<SetupUnreachable>());
+        expect(state.message, 'The instance could not be reached.');
+        expect(await preferences.read(PreferenceKey.instanceAddress), isNull);
+        expect(container.read(instanceConfigProvider).isResolved, isFalse);
+      },
+    );
 
-    test('Given an instance reporting an incompatible contract '
-        'When its address is submitted '
-        'Then setup refuses to proceed and names both versions (UC-01 AF-05)',
-        () async {
-      final preferences = InMemoryPreferencesStore();
-      final container = containerWith(
-        probe: FakeProbe((_) => reachable(version: 'v9')),
-        preferences: preferences,
-      );
+    test(
+      'Given an instance reporting an incompatible contract '
+      'When its address is submitted '
+      'Then setup refuses to proceed and names both versions (UC-01 AF-05)',
+      () async {
+        final preferences = InMemoryPreferencesStore();
+        final container = containerWith(
+          probe: FakeProbe((_) => reachable(version: 'v9')),
+          preferences: preferences,
+        );
 
-      await container
-          .read(setupControllerProvider.notifier)
-          .useAddress('https://fortuna.example');
+        await container
+            .read(setupControllerProvider.notifier)
+            .useAddress('https://fortuna.example');
 
-      final state = container.read(setupControllerProvider);
-      expect(state, isA<SetupIncompatible>());
-      final incompatible = state as SetupIncompatible;
-      expect(incompatible.compatibility.reportedOrUnknown, 'v9');
-      expect(incompatible.compatibility.expected, 'v1');
+        final state = container.read(setupControllerProvider);
+        expect(state, isA<SetupIncompatible>());
+        final incompatible = state as SetupIncompatible;
+        expect(incompatible.compatibility.reportedOrUnknown, 'v9');
+        expect(incompatible.compatibility.expected, 'v1');
 
-      // Refusing to proceed means exactly that: nothing was pointed at it.
-      expect(await preferences.read(PreferenceKey.instanceAddress), isNull);
-      expect(container.read(instanceConfigProvider).isResolved, isFalse);
-    });
+        // Refusing to proceed means exactly that: nothing was pointed at it.
+        expect(await preferences.read(PreferenceKey.instanceAddress), isNull);
+        expect(container.read(instanceConfigProvider).isResolved, isFalse);
+      },
+    );
 
-    test('Given an instance that names no contract version at all '
-        'When its address is submitted '
-        'Then it is refused rather than optimistically accepted (UC-01 AF-05)',
-        () async {
-      final container = containerWith(
-        probe: FakeProbe((_) => reachable(version: null)),
-      );
+    test(
+      'Given an instance that names no contract version at all '
+      'When its address is submitted '
+      'Then it is refused rather than optimistically accepted (UC-01 AF-05)',
+      () async {
+        final container = containerWith(
+          probe: FakeProbe((_) => reachable(version: null)),
+        );
 
-      await container
-          .read(setupControllerProvider.notifier)
-          .useAddress('https://fortuna.example');
+        await container
+            .read(setupControllerProvider.notifier)
+            .useAddress('https://fortuna.example');
 
-      expect(container.read(setupControllerProvider), isA<SetupIncompatible>());
-    });
+        expect(
+          container.read(setupControllerProvider),
+          isA<SetupIncompatible>(),
+        );
+      },
+    );
 
     test('Given a configured instance whose connection is then lost '
         'When it is configured again '
@@ -326,53 +336,57 @@ void main() {
       expect(instance.isResolved, isTrue);
     });
 
-    test('Given a build naming a default instance '
-        'When the instance is resolved '
-        'Then it is adopted without the setup screen (UC-01 main flow step 3)',
-        () {
-      final container = containerWith(
-        probe: FakeProbe((_) => reachable()),
-        config: const AppConfig(
-          apiBaseUrl: 'https://fortuna.example',
-          googleClientId: '',
-          transport: Transport.http,
-          databasePath: '',
-        ),
-      );
+    test(
+      'Given a build naming a default instance '
+      'When the instance is resolved '
+      'Then it is adopted without the setup screen (UC-01 main flow step 3)',
+      () {
+        final container = containerWith(
+          probe: FakeProbe((_) => reachable()),
+          config: const AppConfig(
+            apiBaseUrl: 'https://fortuna.example',
+            googleClientId: '',
+            transport: Transport.http,
+            databasePath: '',
+          ),
+        );
 
-      final instance = container.read(instanceConfigProvider);
+        final instance = container.read(instanceConfigProvider);
 
-      expect(instance.address, 'https://fortuna.example');
-      expect(instance.mode, AppMode.connected);
-      expect(instance.isResolved, isTrue);
-    });
+        expect(instance.address, 'https://fortuna.example');
+        expect(instance.mode, AppMode.connected);
+        expect(instance.isResolved, isTrue);
+      },
+    );
 
-    test('Given a stored address set by the user '
-        'When the instance is restored '
-        'Then it overrides the build-time default (UC-01 main flow step 3)',
-        () async {
-      final preferences = InMemoryPreferencesStore();
-      await preferences.write(
-        PreferenceKey.instanceAddress,
-        'https://mine.example',
-      );
+    test(
+      'Given a stored address set by the user '
+      'When the instance is restored '
+      'Then it overrides the build-time default (UC-01 main flow step 3)',
+      () async {
+        final preferences = InMemoryPreferencesStore();
+        await preferences.write(
+          PreferenceKey.instanceAddress,
+          'https://mine.example',
+        );
 
-      final container = containerWith(
-        probe: FakeProbe((_) => reachable()),
-        preferences: preferences,
-        config: const AppConfig(
-          apiBaseUrl: 'https://default.example',
-          googleClientId: '',
-          transport: Transport.http,
-          databasePath: '',
-        ),
-      );
+        final container = containerWith(
+          probe: FakeProbe((_) => reachable()),
+          preferences: preferences,
+          config: const AppConfig(
+            apiBaseUrl: 'https://default.example',
+            googleClientId: '',
+            transport: Transport.http,
+            databasePath: '',
+          ),
+        );
 
-      await container.read(instanceConfigProvider.notifier).restore();
+        await container.read(instanceConfigProvider.notifier).restore();
 
-      final instance = container.read(instanceConfigProvider);
-      expect(instance.address, 'https://mine.example');
-      expect(instance.mode, AppMode.selfHosted);
-    });
+        final instance = container.read(instanceConfigProvider);
+        expect(instance.address, 'https://mine.example');
+        expect(instance.mode, AppMode.selfHosted);
+      },
+    );
   });
 }

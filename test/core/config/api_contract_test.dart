@@ -13,9 +13,9 @@ void main() {
       // at run time, so it is asserted against it here: taking a new
       // api/fortuna.json without updating the constant fails the suite rather
       // than reaching a user as a spurious AF-05.
-      final contract =
-          jsonDecode(File('api/fortuna.json').readAsStringSync())
-              as Map<String, dynamic>;
+      final contract = jsonDecode(
+        File('api/fortuna.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
       final declared = (contract['info'] as Map<String, dynamic>)['version'];
 
       expect(declared, ApiContract.version);
@@ -42,14 +42,16 @@ void main() {
       }
     });
 
-    test('Given an instance that names no version at all '
-        'When it is checked '
-        'Then it is refused rather than optimistically admitted (UC-01 AF-05)',
-        () {
-      expect(ApiContract.accepts(null), isFalse);
-      expect(ApiContract.accepts(''), isFalse);
-      expect(ApiContract.accepts('   '), isFalse);
-    });
+    test(
+      'Given an instance that names no version at all '
+      'When it is checked '
+      'Then it is refused rather than optimistically admitted (UC-01 AF-05)',
+      () {
+        expect(ApiContract.accepts(null), isFalse);
+        expect(ApiContract.accepts(''), isFalse);
+        expect(ApiContract.accepts('   '), isFalse);
+      },
+    );
   });
 
   group('ContractCompatibility', () {

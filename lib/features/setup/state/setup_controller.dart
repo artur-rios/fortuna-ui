@@ -92,8 +92,9 @@ final class SetupComplete extends SetupState {
   const SetupComplete();
 }
 
-final setupControllerProvider =
-    NotifierProvider<SetupController, SetupState>(SetupController.new);
+final setupControllerProvider = NotifierProvider<SetupController, SetupState>(
+  SetupController.new,
+);
 
 class SetupController extends Notifier<SetupState> {
   @override
@@ -144,9 +145,7 @@ class SetupController extends Notifier<SetupState> {
           return;
         }
 
-        await ref
-            .read(instanceConfigProvider.notifier)
-            .useInstance(address);
+        await ref.read(instanceConfigProvider.notifier).useInstance(address);
         state = const SetupComplete();
     }
   }

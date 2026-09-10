@@ -34,9 +34,10 @@ class NativeCoreLibraryProbe implements CoreLibraryProbe {
   /// running from source finds a locally built core without installing it.
   static String? locate() {
     final fileName = coreLibraryFileName(isWindows: Platform.isWindows);
-    final executableDirectory = File(
-      Platform.resolvedExecutable,
-    ).parent.absolute.path;
+    final executableDirectory = File(Platform.resolvedExecutable)
+        .parent
+        .absolute
+        .path;
 
     final candidates = [
       '$executableDirectory${Platform.pathSeparator}$fileName',
