@@ -71,6 +71,7 @@ All at the latest stable release at implementation time, per §1.1.
 | **flutter_secure_storage** | latest stable at implementation time | `core/storage` | Token storage: Keystore on Android, DPAPI on Windows, libsecret on Linux, WebCrypto-encrypted local storage on the web. |
 | **shared_preferences** | latest stable at implementation time | `core/storage` | Non-sensitive preferences — theme mode, locale, display currency. Never a token, never a credential. |
 | **google_sign_in** | latest stable at implementation time | `features/auth` | Obtains the Google ID token the API exchanges for a session. |
+| **qr_flutter** | latest stable at implementation time | `features/auth` | Renders the authenticator setup as a scannable code (`FR-SE-13`). The same secret is always offered as text beside it, so the image is never the only way through. |
 | **fl_chart** | latest stable at implementation time | `features/insight` | Charts. Chosen over the alternatives because it is MIT-licensed, actively maintained, and reports which element was touched — which is what makes drill-down possible at all. |
 | **trina_grid** | latest stable at implementation time | `features/insight` | The spreadsheet view: server-side pagination, sorting, filtering, column freezing and typed columns. Chosen over `pluto_grid_plus`, which is discontinued and directs users here. |
 | **file_picker** | latest stable at implementation time | `features/ingestion` | Selecting a workbook or statement file for upload, across all four targets. |
@@ -211,6 +212,7 @@ Every technology named above appears here exactly once. This is the table to che
 | Secure storage | flutter_secure_storage | latest stable at implementation time |
 | Preferences | shared_preferences | latest stable at implementation time |
 | Identity | google_sign_in | latest stable at implementation time |
+| Identity | qr_flutter | latest stable at implementation time |
 | Charts | fl_chart | latest stable at implementation time |
 | Data grid | trina_grid | latest stable at implementation time |
 | File selection | file_picker | latest stable at implementation time |
