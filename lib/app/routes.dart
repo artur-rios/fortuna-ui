@@ -38,6 +38,7 @@ abstract final class Routes {
 
   /// Holdings (`UC-14` … `UC-18`).
   static const accounts = '/accounts';
+  static const creditCards = '/credit-cards';
 
   static const categories = '/categories';
   static const labels = '/labels';
