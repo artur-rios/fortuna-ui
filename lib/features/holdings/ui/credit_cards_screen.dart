@@ -10,7 +10,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../../../shared/widgets/money_text.dart';
 import '../data/credit_card_repository.dart';
 import '../state/credit_card_providers.dart';
@@ -184,9 +186,24 @@ class _CardTile extends ConsumerWidget {
               ],
 
               const SizedBox(height: 8),
-              Text(
-                'Closes on day ${card.closingDay} · due on day ${card.dueDay}',
-                style: theme.textTheme.bodySmall,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Closes on day ${card.closingDay} · '
+                      'due on day ${card.dueDay}',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
+                  // UC-16 step 1: the cycles are reached by opening the card,
+                  // which is the only place they mean anything.
+                  TextButton.icon(
+                    key: Key('cards.statements.${card.id}'),
+                    icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                    label: const Text('Statements'),
+                    onPressed: () => context.go(Routes.statementsOf(card.id)),
+                  ),
+                ],
               ),
             ],
           ),

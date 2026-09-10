@@ -224,7 +224,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 |---|---|---|---|
 | [#15](https://github.com/artur-rios/fortuna-ui/issues/15) | ✅ | UC-14 — Manage Financial Accounts | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#16](https://github.com/artur-rios/fortuna-ui/issues/16) | ✅ | UC-15 — Manage Credit Cards | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#17](https://github.com/artur-rios/fortuna-ui/issues/17) | ⬜ | UC-16 — Review and Settle a Credit Card Statement | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#17](https://github.com/artur-rios/fortuna-ui/issues/17) | ✅ | UC-16 — Review and Settle a Credit Card Statement | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#18](https://github.com/artur-rios/fortuna-ui/issues/18) | ⬜ | UC-17 — Manage Investments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#19](https://github.com/artur-rios/fortuna-ui/issues/19) | ⬜ | UC-18 — Record an Investment Movement or Valuation | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 

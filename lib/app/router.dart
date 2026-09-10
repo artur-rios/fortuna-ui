@@ -24,7 +24,9 @@ import '../features/auth/ui/password_recovery_screen.dart';
 import '../features/auth/ui/sign_in_screen.dart';
 import '../features/categories/ui/categories_screen.dart';
 import '../features/holdings/ui/accounts_screen.dart';
+import '../features/holdings/ui/card_statements_screen.dart';
 import '../features/holdings/ui/credit_cards_screen.dart';
+import '../features/holdings/ui/statement_screen.dart';
 import '../features/ingestion/ui/connections_screen.dart';
 import '../features/ingestion/ui/import_file_screen.dart';
 import '../features/ingestion/ui/import_jobs_screen.dart';
@@ -111,6 +113,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.creditCards,
         builder: (context, state) => const CreditCardsScreen(),
+      ),
+      GoRoute(
+        path: Routes.cardStatements,
+        builder: (context, state) => CardStatementsScreen(
+          creditCardId: state.pathParameters['id'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: Routes.cardStatement,
+        builder: (context, state) => StatementScreen(
+          creditCardId: state.pathParameters['id'] ?? '',
+          statementId: state.pathParameters['statementId'] ?? '',
+        ),
       ),
       GoRoute(
         path: Routes.categories,
