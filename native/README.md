@@ -26,31 +26,30 @@ packages ship them beside the application.
 hand-edited. A wrong binding means a wrong header: fix it at the source and
 regenerate.
 
-## Currently absent, pending UC-02
+## What is here, and what is not
 
-The directory holds no header and no libraries yet. Everything it waits on has
-landed upstream — the C ABI and its header
-([fortuna-api#156](https://github.com/artur-rios/fortuna-api/issues/156)), the
-offline operation surface
-([#157](https://github.com/artur-rios/fortuna-api/issues/157)) and the SQLite
-provider ([#155](https://github.com/artur-rios/fortuna-api/issues/155)) are all
-closed. Vendoring the header and generating the bindings is **UC-02**, the use
-case that introduces the transport.
+The **header is vendored** — `include/fortuna_core.h`, copied verbatim from
+[fortuna-api](https://github.com/artur-rios/fortuna-api), and diffed against the
+published copy by CI so drift fails the build rather than surfacing at run time
+(`FR-DA-06`, UC-02 `AF-04`).
 
-Two things are still to reconcile there, and they are recorded here so they are
-not discovered again: `ffigen.yaml`, `tool/generate_bindings.dart` and the drift
-check in `.github/workflows/check-generated.yml` all still name the header
-`fortuna_ffi.h`. They are deliberately untouched for now — renaming them before
-the header is vendored would make the drift check demand a file that is not
-there yet, failing the build for describing the future accurately.
+The **libraries are not**, and will not be. `libfortuna_core.so` and
+`fortuna_core.dll` are build artifacts of that repository; the desktop packages
+ship them beside the executable, and a developer running from source drops a
+locally built one into `linux/` or `windows/`. UC-01's probe looks in both
+places, so an installation that carries no library is simply never offered
+offline mode.
 
-Until UC-02 lands, this application is HTTP-only. That is what the web and
-Android targets use regardless, and what a desktop installation pointed at a
-remote or self-hosted instance uses; only desktop **offline** mode needs what is
-missing. UC-01 already probes for the library, so an installation that does not
-carry one simply is not offered the mode.
+## One wrinkle in the published header
 
-The generator refuses to run rather than emitting empty bindings, and
-`tool/check_boundaries.dart` still enforces that `dart:ffi` stays confined to
-`lib/core/bindings/` — so the rule that protects this boundary is in force
-before there is a boundary to protect.
+cbindgen emits the route-export doc comment containing glob patterns like
+`/api/auth/**`. The `/*` inside `auth/**` opens a nested comment, so clang warns
+three times and ffigen refuses on warnings by default. `ffigen.yaml` therefore
+sets `ignore-source-errors: true`, with the reasoning recorded there.
+
+The warnings are about comment lexing only — every declaration parses normally,
+and `test/core/bindings/core_route_test.dart` checks the generated route table
+against the header's own declarations, so a genuinely mis-parsed header would
+fail the suite. Editing the vendored header to silence it is not an option:
+`FR-DA-06` requires it verbatim. The fix belongs to fortuna-api's cbindgen
+output.

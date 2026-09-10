@@ -7,6 +7,7 @@ library;
 
 import 'core_library.dart';
 
-/// Always reports [CoreLibraryAvailability.unsupportedPlatform].
+/// Always reports [CoreLibraryAvailability.unsupportedPlatform], and never a
+/// path — there is nothing here to open.
 CoreLibraryProbe platformCoreLibraryProbe() =>
     const FixedCoreLibraryProbe(CoreLibraryAvailability.unsupportedPlatform);

@@ -20,6 +20,9 @@ class NativeCoreLibraryProbe implements CoreLibraryProbe {
   const NativeCoreLibraryProbe();
 
   @override
+  String? get libraryPath => locate();
+
+  @override
   CoreLibraryAvailability probe() => classifyCoreLibrary(
     platformSupportsOffline: Platform.isWindows || Platform.isLinux,
     locatedAt: locate(),

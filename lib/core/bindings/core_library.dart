@@ -87,15 +87,24 @@ CoreLibraryAvailability classifyCoreLibrary({
 /// Reports what this installation carries.
 abstract interface class CoreLibraryProbe {
   CoreLibraryAvailability probe();
+
+  /// Where the library was found, or `null` when there is none to open.
+  ///
+  /// The transport needs the path the probe already resolved; making it look
+  /// again would be a second search that could disagree with the first.
+  String? get libraryPath;
 }
 
 /// A probe that reports whatever it was told to. For tests, and for overriding
 /// the answer in a build that should not go looking.
 @immutable
 class FixedCoreLibraryProbe implements CoreLibraryProbe {
-  const FixedCoreLibraryProbe(this._availability);
+  const FixedCoreLibraryProbe(this._availability, {this.libraryPath});
 
   final CoreLibraryAvailability _availability;
+
+  @override
+  final String? libraryPath;
 
   @override
   CoreLibraryAvailability probe() => _availability;

@@ -7,14 +7,18 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../bindings/core_dispatcher.dart';
 import '../config/instance_config.dart';
 import '../result/result.dart';
+import '../session/session.dart';
 import '../session/session_controller.dart';
 import '../storage/token_store.dart';
+import 'ffi_transport.dart';
 
 /// Builds the application's `dio` instance.
 class ApiClientFactory {
@@ -22,10 +26,16 @@ class ApiClientFactory {
     required this.baseUrl,
     required this.tokenStore,
     this.onUnauthenticated,
+    this.offlineDispatcher,
   });
 
   final String baseUrl;
   final TokenStore tokenStore;
+
+  /// Set in desktop offline mode. When present, requests go to the in-process
+  /// core instead of the network — the same `dio`, a different way out of it
+  /// (`UC-02`, `FR-DA-02`).
+  final CoreDispatcher? offlineDispatcher;
 
   /// Invoked when the API rejects the token, so the session can end
   /// (`FR-SE-19`). Deliberately a callback rather than a direct dependency on
@@ -43,6 +53,11 @@ class ApiClientFactory {
         headers: const {'Accept': 'application/json'},
       ),
     );
+
+    final dispatcher = offlineDispatcher;
+    if (dispatcher != null) {
+      dio.httpClientAdapter = FfiHttpClientAdapter(dispatcher);
+    }
 
     dio.interceptors.add(
       InterceptorsWrapper(
@@ -114,6 +129,33 @@ String? _messageFromResponse(Object? data) {
   return message is String && message.isNotEmpty ? message : null;
 }
 
+/// The core dispatcher, in desktop offline mode only (`UC-02`).
+///
+/// `null` on every other transport, which is what makes the offline branch in
+/// [dioProvider] a single question rather than a mode flag threaded everywhere.
+final coreDispatcherProvider = Provider<CoreDispatcher?>((ref) {
+  final instance = ref.watch(instanceConfigProvider);
+  if (instance.mode != AppMode.desktopOffline) return null;
+
+  final path = ref.watch(coreLibraryProbeProvider).libraryPath;
+  if (path == null) return null;
+
+  final config = ref.watch(appConfigProvider);
+  final dispatcher = InitializingCoreDispatcher(
+    createCoreDispatcher(libraryPath: path),
+    configurationJson: jsonEncode({
+      // Empty means "beside the executable", which is what makes the portable
+      // package portable (AppConfig.databasePath).
+      'databasePath': config.databasePath,
+      'localAuthEnabled': true,
+      'tokenLifetimeSeconds': 3600,
+    }),
+  );
+
+  ref.onDispose(() => unawaited(dispatcher.dispose()));
+  return dispatcher;
+});
+
 /// The application's shared `dio` instance (IR-08).
 ///
 /// Derived from the resolved instance rather than wired by hand at start-up, so
@@ -121,10 +163,16 @@ String? _messageFromResponse(Object? data) {
 /// that talks to it, with no step for anyone to forget.
 final dioProvider = Provider<Dio>((ref) {
   final instance = ref.watch(instanceConfigProvider);
+  final dispatcher = ref.watch(coreDispatcherProvider);
 
   return ApiClientFactory(
-    baseUrl: instance.address,
+    // In offline mode nothing is ever sent anywhere, but `dio` still requires a
+    // base against which to resolve a path. This one names the transport rather
+    // than a host, so a request that somehow escaped would fail visibly instead
+    // of reaching a real address.
+    baseUrl: dispatcher != null ? 'core://fortuna/' : instance.address,
     tokenStore: ref.watch(tokenStoreProvider),
+    offlineDispatcher: dispatcher,
     // FR-SE-19: a rejected token ends the session. No silent refresh, and no
     // replay of whatever was interrupted (FR-SE-20).
     onUnauthenticated: () =>
