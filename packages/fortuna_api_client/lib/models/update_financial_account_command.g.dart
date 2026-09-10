@@ -15,7 +15,7 @@ UpdateFinancialAccountCommand _$UpdateFinancialAccountCommandFromJson(
   currencyCode: json['currencyCode'] as String?,
   institution: json['institution'] as String?,
   name: json['name'] as String?,
-  openingBalance: (json['openingBalance'] as num?)?.toDouble(),
+  openingBalance: json['openingBalance'] as String?,
   ownerId: json['ownerId'] as String?,
 );
 

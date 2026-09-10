@@ -8,7 +8,7 @@ part of 'create_budget_command.dart';
 
 CreateBudgetCommand _$CreateBudgetCommandFromJson(Map<String, dynamic> json) =>
     CreateBudgetCommand(
-      amount: (json['amount'] as num?)?.toDouble(),
+      amount: json['amount'] as String?,
       categoryIds: (json['categoryIds'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),

@@ -26,15 +26,15 @@ class NetPositionCurrencyOutput {
   factory NetPositionCurrencyOutput.fromJson(Map<String, Object?> json) =>
       _$NetPositionCurrencyOutputFromJson(json);
 
-  final double? appliedRate;
-  final double? creditCards;
-  final double? displayNet;
-  final double? financialAccounts;
-  final double? investments;
+  final String? appliedRate;
+  final String? creditCards;
+  final String? displayNet;
+  final String? financialAccounts;
+  final String? investments;
   final DateTime? rateDate;
   final ExchangeRateSource? rateSource;
   final String? sourceCurrencyCode;
-  final double? sourceNet;
+  final String? sourceNet;
   final String? unconvertedReason;
 
   Map<String, Object?> toJson() => _$NetPositionCurrencyOutputToJson(this);

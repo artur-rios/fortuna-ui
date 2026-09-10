@@ -30,20 +30,20 @@ class BudgetConsumptionDetailOutput {
   factory BudgetConsumptionDetailOutput.fromJson(Map<String, Object?> json) =>
       _$BudgetConsumptionDetailOutputFromJson(json);
 
-  final double? budgetAmount;
+  final String? budgetAmount;
   final String? budgetId;
   final List<BudgetConversionOutput>? conversions;
   final String? currencyCode;
   final bool? isCovered;
   final bool? isExceeded;
   final bool? isFullyConverted;
-  final double? overage;
+  final String? overage;
   final DateTime? periodEnd;
   final DateTime? periodStart;
   final String? reason;
-  final double? remaining;
+  final String? remaining;
   final DateTime? requestedDate;
-  final double? spent;
+  final String? spent;
 
   Map<String, Object?> toJson() => _$BudgetConsumptionDetailOutputToJson(this);
 }

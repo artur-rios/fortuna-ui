@@ -21,12 +21,12 @@ class _HealthCheckClient implements HealthCheckClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<void> getHealthcheck() async {
+  Future<LivenessOutput> getHealthcheck() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<void>(
+    final _options = _setStreamType<LivenessOutput>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -36,7 +36,15 @@ class _HealthCheckClient implements HealthCheckClient {
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    await _dio.fetch<void>(_options);
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late LivenessOutput _value;
+    try {
+      _value = LivenessOutput.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

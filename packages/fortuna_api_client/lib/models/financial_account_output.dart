@@ -32,7 +32,7 @@ class FinancialAccountOutput {
   final String? institution;
   final bool? isDeleted;
   final String? name;
-  final double? openingBalance;
+  final String? openingBalance;
   final DateTime? updatedAt;
 
   Map<String, Object?> toJson() => _$FinancialAccountOutputToJson(this);

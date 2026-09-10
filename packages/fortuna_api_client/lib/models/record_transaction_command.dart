@@ -27,7 +27,7 @@ class RecordTransactionCommand {
   factory RecordTransactionCommand.fromJson(Map<String, Object?> json) =>
       _$RecordTransactionCommandFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? categoryId;
   final String? counterparty;
   final String? creditCardId;

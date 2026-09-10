@@ -9,7 +9,7 @@ part of 'update_recurring_transaction_command.dart';
 UpdateRecurringTransactionCommand _$UpdateRecurringTransactionCommandFromJson(
   Map<String, dynamic> json,
 ) => UpdateRecurringTransactionCommand(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   categoryId: json['categoryId'] as String?,
   counterparty: json['counterparty'] as String?,
   creditCardId: json['creditCardId'] as String?,

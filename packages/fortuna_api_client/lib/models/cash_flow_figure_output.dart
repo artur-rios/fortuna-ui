@@ -15,7 +15,7 @@ class CashFlowFigureOutput {
   factory CashFlowFigureOutput.fromJson(Map<String, Object?> json) =>
       _$CashFlowFigureOutputFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final CashFlowFigureKind? kind;
 
   Map<String, Object?> toJson() => _$CashFlowFigureOutputToJson(this);

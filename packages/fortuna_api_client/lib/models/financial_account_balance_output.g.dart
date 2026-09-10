@@ -10,7 +10,7 @@ FinancialAccountBalanceOutput _$FinancialAccountBalanceOutputFromJson(
   Map<String, dynamic> json,
 ) => FinancialAccountBalanceOutput(
   asOf: json['asOf'] == null ? null : DateTime.parse(json['asOf'] as String),
-  balance: (json['balance'] as num?)?.toDouble(),
+  balance: json['balance'] as String?,
   currencyCode: json['currencyCode'] as String?,
   id: json['id'] as String?,
 );

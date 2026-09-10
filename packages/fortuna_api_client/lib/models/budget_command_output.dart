@@ -29,7 +29,7 @@ class BudgetCommandOutput {
   factory BudgetCommandOutput.fromJson(Map<String, Object?> json) =>
       _$BudgetCommandOutputFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final List<BudgetCategoryCommandOutput>? categories;
   final DateTime? createdAt;
   final String? currencyCode;

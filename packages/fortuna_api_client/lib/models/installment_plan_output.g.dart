@@ -9,7 +9,7 @@ part of 'installment_plan_output.dart';
 InstallmentPlanOutput _$InstallmentPlanOutputFromJson(
   Map<String, dynamic> json,
 ) => InstallmentPlanOutput(
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+  appliedRate: json['appliedRate'] as String?,
   createdAt: json['createdAt'] == null
       ? null
       : DateTime.parse(json['createdAt'] as String),
@@ -22,14 +22,14 @@ InstallmentPlanOutput _$InstallmentPlanOutputFromJson(
       .toList(),
   isDeleted: json['isDeleted'] as bool?,
   originalCurrencyCode: json['originalCurrencyCode'] as String?,
-  originalTotalAmount: (json['originalTotalAmount'] as num?)?.toDouble(),
+  originalTotalAmount: json['originalTotalAmount'] as String?,
   purchasedOn: json['purchasedOn'] == null
       ? null
       : DateTime.parse(json['purchasedOn'] as String),
   rateDate: json['rateDate'] == null
       ? null
       : DateTime.parse(json['rateDate'] as String),
-  totalAmount: (json['totalAmount'] as num?)?.toDouble(),
+  totalAmount: json['totalAmount'] as String?,
   updatedAt: json['updatedAt'] == null
       ? null
       : DateTime.parse(json['updatedAt'] as String),

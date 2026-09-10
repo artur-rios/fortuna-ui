@@ -8,13 +8,13 @@ part of 'investment_output.dart';
 
 InvestmentOutput _$InvestmentOutputFromJson(Map<String, dynamic> json) =>
     InvestmentOutput(
-      appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+      appliedRate: json['appliedRate'] as String?,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
       currencyCode: json['currencyCode'] as String?,
       displayCurrencyCode: json['displayCurrencyCode'] as String?,
-      displayPosition: (json['displayPosition'] as num?)?.toDouble(),
+      displayPosition: json['displayPosition'] as String?,
       id: json['id'] as String?,
       institution: json['institution'] as String?,
       instrument: json['instrument'] as String?,
@@ -25,8 +25,8 @@ InvestmentOutput _$InvestmentOutputFromJson(Map<String, dynamic> json) =>
       latestValuationDate: json['latestValuationDate'] == null
           ? null
           : DateTime.parse(json['latestValuationDate'] as String),
-      latestValuationValue: (json['latestValuationValue'] as num?)?.toDouble(),
-      position: (json['position'] as num?)?.toDouble(),
+      latestValuationValue: json['latestValuationValue'] as String?,
+      position: json['position'] as String?,
       rateDate: json['rateDate'] == null
           ? null
           : DateTime.parse(json['rateDate'] as String),

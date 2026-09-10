@@ -9,7 +9,7 @@ part of 'credit_card_statement_output.dart';
 CreditCardStatementOutput _$CreditCardStatementOutputFromJson(
   Map<String, dynamic> json,
 ) => CreditCardStatementOutput(
-  amountDue: (json['amountDue'] as num?)?.toDouble(),
+  amountDue: json['amountDue'] as String?,
   closingDate: json['closingDate'] == null
       ? null
       : DateTime.parse(json['closingDate'] as String),
@@ -21,18 +21,18 @@ CreditCardStatementOutput _$CreditCardStatementOutputFromJson(
   dueDate: json['dueDate'] == null
       ? null
       : DateTime.parse(json['dueDate'] as String),
-  foreignTaxTotal: (json['foreignTaxTotal'] as num?)?.toDouble(),
+  foreignTaxTotal: json['foreignTaxTotal'] as String?,
   id: json['id'] as String?,
-  otherEntries: (json['otherEntries'] as num?)?.toDouble(),
-  paymentsReceived: (json['paymentsReceived'] as num?)?.toDouble(),
+  otherEntries: json['otherEntries'] as String?,
+  paymentsReceived: json['paymentsReceived'] as String?,
   periodEnd: json['periodEnd'] == null
       ? null
       : DateTime.parse(json['periodEnd'] as String),
   periodStart: json['periodStart'] == null
       ? null
       : DateTime.parse(json['periodStart'] as String),
-  previousBalance: (json['previousBalance'] as num?)?.toDouble(),
-  purchaseTotal: (json['purchaseTotal'] as num?)?.toDouble(),
+  previousBalance: json['previousBalance'] as String?,
+  purchaseTotal: json['purchaseTotal'] as String?,
   settlementTransactionId: json['settlementTransactionId'] as String?,
   status: json['status'] as String?,
   transactions: (json['transactions'] as List<dynamic>?)

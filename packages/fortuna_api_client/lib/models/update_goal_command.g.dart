@@ -16,7 +16,7 @@ UpdateGoalCommand _$UpdateGoalCommandFromJson(Map<String, dynamic> json) =>
           ?.map((e) => e as String)
           .toList(),
       name: json['name'] as String?,
-      targetAmount: (json['targetAmount'] as num?)?.toDouble(),
+      targetAmount: json['targetAmount'] as String?,
       targetDate: json['targetDate'] == null
           ? null
           : DateTime.parse(json['targetDate'] as String),

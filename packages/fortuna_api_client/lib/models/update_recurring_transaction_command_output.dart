@@ -37,7 +37,7 @@ class UpdateRecurringTransactionCommandOutput {
     Map<String, Object?> json,
   ) => _$UpdateRecurringTransactionCommandOutputFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final DateTime? appliesFrom;
   final String? categoryId;
   final String? counterpartyId;

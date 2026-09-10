@@ -35,14 +35,14 @@ class TransferOutput {
   factory TransferOutput.fromJson(Map<String, Object?> json) =>
       _$TransferOutputFromJson(json);
 
-  final double? appliedRate;
+  final String? appliedRate;
   final DateTime? createdAt;
   final String? destinationCreditCardId;
   final String? destinationFinancialAccountId;
   final String? destinationInvestmentId;
   final String? destinationStatementId;
   final String? id;
-  final double? inboundAmount;
+  final String? inboundAmount;
   final String? inboundCurrencyCode;
   final String? inboundInvestmentMovementId;
   final bool? inboundIsDeleted;
@@ -50,7 +50,7 @@ class TransferOutput {
   final bool? isDeleted;
   final DateTime? occurredOn;
   final String? originFinancialAccountId;
-  final double? outboundAmount;
+  final String? outboundAmount;
   final String? outboundCurrencyCode;
   final bool? outboundIsDeleted;
   final String? outboundTransactionId;

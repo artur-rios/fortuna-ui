@@ -33,11 +33,11 @@ class RecordInvestmentValuationCommandOutput {
   final String? investmentId;
   final bool? isIndependentlyValued;
   final DateTime? latestValuationDate;
-  final double? latestValuationValue;
-  final double? position;
+  final String? latestValuationValue;
+  final String? position;
   final bool? replacedExisting;
   final DateTime? updatedAt;
-  final double? value;
+  final String? value;
   final DateTime? valuedOn;
 
   Map<String, Object?> toJson() =>

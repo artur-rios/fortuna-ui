@@ -34,19 +34,19 @@ class InvestmentOutput {
   factory InvestmentOutput.fromJson(Map<String, Object?> json) =>
       _$InvestmentOutputFromJson(json);
 
-  final double? appliedRate;
+  final String? appliedRate;
   final DateTime? createdAt;
   final String? currencyCode;
   final String? displayCurrencyCode;
-  final double? displayPosition;
+  final String? displayPosition;
   final String? id;
   final String? institution;
   final String? instrument;
   final InvestmentType? investmentType;
   final bool? isIndependentlyValued;
   final DateTime? latestValuationDate;
-  final double? latestValuationValue;
-  final double? position;
+  final String? latestValuationValue;
+  final String? position;
   final DateTime? rateDate;
   final ExchangeRateSource? rateSource;
   final String? unconvertedReason;

@@ -25,7 +25,7 @@ class ConvertFigureQueryOutput {
   final DateTime? figureDate;
   final List<ConvertedCurrencyGroupOutput>? groups;
   final bool? isFullyConverted;
-  final double? total;
+  final String? total;
 
   Map<String, Object?> toJson() => _$ConvertFigureQueryOutputToJson(this);
 }

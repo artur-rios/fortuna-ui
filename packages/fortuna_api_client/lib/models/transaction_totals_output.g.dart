@@ -16,9 +16,9 @@ TransactionTotalsOutput _$TransactionTotalsOutputFromJson(
       )
       .toList(),
   displayCurrencyCode: json['displayCurrencyCode'] as String?,
-  displayEarning: (json['displayEarning'] as num?)?.toDouble(),
-  displayExpense: (json['displayExpense'] as num?)?.toDouble(),
-  displayNet: (json['displayNet'] as num?)?.toDouble(),
+  displayEarning: json['displayEarning'] as String?,
+  displayExpense: json['displayExpense'] as String?,
+  displayNet: json['displayNet'] as String?,
 );
 
 Map<String, dynamic> _$TransactionTotalsOutputToJson(

@@ -9,8 +9,8 @@ part of 'record_transaction_command_output.dart';
 RecordTransactionCommandOutput _$RecordTransactionCommandOutputFromJson(
   Map<String, dynamic> json,
 ) => RecordTransactionCommandOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
+  appliedRate: json['appliedRate'] as String?,
   categoryId: json['categoryId'] as String?,
   categoryName: json['categoryName'] as String?,
   counterpartyId: json['counterpartyId'] as String?,
@@ -30,7 +30,7 @@ RecordTransactionCommandOutput _$RecordTransactionCommandOutputFromJson(
   occurredOn: json['occurredOn'] == null
       ? null
       : DateTime.parse(json['occurredOn'] as String),
-  originalAmount: (json['originalAmount'] as num?)?.toDouble(),
+  originalAmount: json['originalAmount'] as String?,
   originalCurrencyCode: json['originalCurrencyCode'] as String?,
   rateDate: json['rateDate'] == null
       ? null
@@ -48,7 +48,7 @@ RecordTransactionCommandOutput _$RecordTransactionCommandOutputFromJson(
   statementPeriodStart: json['statementPeriodStart'] == null
       ? null
       : DateTime.parse(json['statementPeriodStart'] as String),
-  statementPurchaseTotal: (json['statementPurchaseTotal'] as num?)?.toDouble(),
+  statementPurchaseTotal: json['statementPurchaseTotal'] as String?,
   statementStatus: json['statementStatus'] as String?,
   tags: (json['tags'] as List<dynamic>?)
       ?.map((e) => TransactionTagOutput.fromJson(e as Map<String, dynamic>))

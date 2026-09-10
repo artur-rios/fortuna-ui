@@ -20,7 +20,7 @@ class RecordTransferCommand {
   factory RecordTransferCommand.fromJson(Map<String, Object?> json) =>
       _$RecordTransferCommandFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? destinationFinancialAccountId;
   final String? destinationStatementId;
   final DateTime? occurredOn;

@@ -9,7 +9,7 @@ part of 'recurring_transaction_output.dart';
 RecurringTransactionOutput _$RecurringTransactionOutputFromJson(
   Map<String, dynamic> json,
 ) => RecurringTransactionOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   categoryId: json['categoryId'] as String?,
   counterpartyId: json['counterpartyId'] as String?,
   counterpartyName: json['counterpartyName'] as String?,

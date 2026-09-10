@@ -7,7 +7,7 @@ part of 'budget_output.dart';
 // **************************************************************************
 
 BudgetOutput _$BudgetOutputFromJson(Map<String, dynamic> json) => BudgetOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   categories: (json['categories'] as List<dynamic>?)
       ?.map((e) => BudgetCategoryOutput.fromJson(e as Map<String, dynamic>))
       .toList(),

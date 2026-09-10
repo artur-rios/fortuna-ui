@@ -32,7 +32,7 @@ CommittedObligationListOutput _$CommittedObligationListOutputFromJson(
   through: json['through'] == null
       ? null
       : DateTime.parse(json['through'] as String),
-  total: (json['total'] as num?)?.toDouble(),
+  total: json['total'] as String?,
 );
 
 Map<String, dynamic> _$CommittedObligationListOutputToJson(

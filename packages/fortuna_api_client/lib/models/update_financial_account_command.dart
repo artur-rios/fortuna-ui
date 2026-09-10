@@ -26,7 +26,7 @@ class UpdateFinancialAccountCommand {
   final String? currencyCode;
   final String? institution;
   final String? name;
-  final double? openingBalance;
+  final String? openingBalance;
   final String? ownerId;
 
   Map<String, Object?> toJson() => _$UpdateFinancialAccountCommandToJson(this);

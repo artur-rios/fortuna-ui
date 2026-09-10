@@ -9,16 +9,16 @@ part of 'settle_credit_card_statement_command_output.dart';
 SettleCreditCardStatementCommandOutput
 _$SettleCreditCardStatementCommandOutputFromJson(Map<String, dynamic> json) =>
     SettleCreditCardStatementCommandOutput(
-      appliedAmount: (json['appliedAmount'] as num?)?.toDouble(),
-      appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+      appliedAmount: json['appliedAmount'] as String?,
+      appliedRate: json['appliedRate'] as String?,
       carryStatementId: json['carryStatementId'] as String?,
-      creditAmount: (json['creditAmount'] as num?)?.toDouble(),
+      creditAmount: json['creditAmount'] as String?,
       creditCardCurrencyCode: json['creditCardCurrencyCode'] as String?,
       financialAccountId: json['financialAccountId'] as String?,
       id: json['id'] as String?,
       inboundTransactionId: json['inboundTransactionId'] as String?,
       outboundTransactionId: json['outboundTransactionId'] as String?,
-      paymentAmount: (json['paymentAmount'] as num?)?.toDouble(),
+      paymentAmount: json['paymentAmount'] as String?,
       paymentCurrencyCode: json['paymentCurrencyCode'] as String?,
       paymentDate: json['paymentDate'] == null
           ? null
@@ -26,8 +26,8 @@ _$SettleCreditCardStatementCommandOutputFromJson(Map<String, dynamic> json) =>
       rateDate: json['rateDate'] == null
           ? null
           : DateTime.parse(json['rateDate'] as String),
-      remainingBalance: (json['remainingBalance'] as num?)?.toDouble(),
-      statementAmountDue: (json['statementAmountDue'] as num?)?.toDouble(),
+      remainingBalance: json['remainingBalance'] as String?,
+      statementAmountDue: json['statementAmountDue'] as String?,
       status: json['status'] as String?,
       transferId: json['transferId'] as String?,
     );

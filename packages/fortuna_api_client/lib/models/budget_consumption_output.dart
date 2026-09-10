@@ -23,11 +23,11 @@ class BudgetConsumptionOutput {
 
   final bool? isExceeded;
   final bool? isFullyConverted;
-  final double? overage;
+  final String? overage;
   final DateTime? periodEnd;
   final DateTime? periodStart;
-  final double? remaining;
-  final double? spent;
+  final String? remaining;
+  final String? spent;
 
   Map<String, Object?> toJson() => _$BudgetConsumptionOutputToJson(this);
 }

@@ -18,7 +18,7 @@ RecordInstallmentPlanCommand _$RecordInstallmentPlanCommandFromJson(
   purchasedOn: json['purchasedOn'] == null
       ? null
       : DateTime.parse(json['purchasedOn'] as String),
-  totalAmount: (json['totalAmount'] as num?)?.toDouble(),
+  totalAmount: json['totalAmount'] as String?,
 );
 
 Map<String, dynamic> _$RecordInstallmentPlanCommandToJson(

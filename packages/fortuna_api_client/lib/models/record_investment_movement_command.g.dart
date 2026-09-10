@@ -9,7 +9,7 @@ part of 'record_investment_movement_command.dart';
 RecordInvestmentMovementCommand _$RecordInvestmentMovementCommandFromJson(
   Map<String, dynamic> json,
 ) => RecordInvestmentMovementCommand(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   financialAccountId: json['financialAccountId'] as String?,
   id: json['id'] as String?,
   movementType: json['movementType'] == null

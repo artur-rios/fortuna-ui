@@ -25,7 +25,7 @@ GoalOutput _$GoalOutputFromJson(Map<String, dynamic> json) => GoalOutput(
       .toList(),
   isDeleted: json['isDeleted'] as bool?,
   name: json['name'] as String?,
-  targetAmount: (json['targetAmount'] as num?)?.toDouble(),
+  targetAmount: json['targetAmount'] as String?,
   targetDate: json['targetDate'] == null
       ? null
       : DateTime.parse(json['targetDate'] as String),

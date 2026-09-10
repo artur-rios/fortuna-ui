@@ -8,8 +8,8 @@ part of 'installment_output.dart';
 
 InstallmentOutput _$InstallmentOutputFromJson(Map<String, dynamic> json) =>
     InstallmentOutput(
-      amount: (json['amount'] as num?)?.toDouble(),
-      appliedRate: (json['appliedRate'] as num?)?.toDouble(),
+      amount: json['amount'] as String?,
+      appliedRate: json['appliedRate'] as String?,
       currencyCode: json['currencyCode'] as String?,
       isDeleted: json['isDeleted'] as bool?,
       isLateArriving: json['isLateArriving'] as bool?,
@@ -17,7 +17,7 @@ InstallmentOutput _$InstallmentOutputFromJson(Map<String, dynamic> json) =>
       occurredOn: json['occurredOn'] == null
           ? null
           : DateTime.parse(json['occurredOn'] as String),
-      originalAmount: (json['originalAmount'] as num?)?.toDouble(),
+      originalAmount: json['originalAmount'] as String?,
       originalCurrencyCode: json['originalCurrencyCode'] as String?,
       rateDate: json['rateDate'] == null
           ? null

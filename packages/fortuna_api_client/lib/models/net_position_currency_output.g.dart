@@ -9,11 +9,11 @@ part of 'net_position_currency_output.dart';
 NetPositionCurrencyOutput _$NetPositionCurrencyOutputFromJson(
   Map<String, dynamic> json,
 ) => NetPositionCurrencyOutput(
-  appliedRate: (json['appliedRate'] as num?)?.toDouble(),
-  creditCards: (json['creditCards'] as num?)?.toDouble(),
-  displayNet: (json['displayNet'] as num?)?.toDouble(),
-  financialAccounts: (json['financialAccounts'] as num?)?.toDouble(),
-  investments: (json['investments'] as num?)?.toDouble(),
+  appliedRate: json['appliedRate'] as String?,
+  creditCards: json['creditCards'] as String?,
+  displayNet: json['displayNet'] as String?,
+  financialAccounts: json['financialAccounts'] as String?,
+  investments: json['investments'] as String?,
   rateDate: json['rateDate'] == null
       ? null
       : DateTime.parse(json['rateDate'] as String),
@@ -21,7 +21,7 @@ NetPositionCurrencyOutput _$NetPositionCurrencyOutputFromJson(
       ? null
       : ExchangeRateSource.fromJson((json['rateSource'] as num).toInt()),
   sourceCurrencyCode: json['sourceCurrencyCode'] as String?,
-  sourceNet: (json['sourceNet'] as num?)?.toDouble(),
+  sourceNet: json['sourceNet'] as String?,
   unconvertedReason: json['unconvertedReason'] as String?,
 );
 

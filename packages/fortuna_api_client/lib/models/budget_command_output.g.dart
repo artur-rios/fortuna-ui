@@ -8,7 +8,7 @@ part of 'budget_command_output.dart';
 
 BudgetCommandOutput _$BudgetCommandOutputFromJson(Map<String, dynamic> json) =>
     BudgetCommandOutput(
-      amount: (json['amount'] as num?)?.toDouble(),
+      amount: json['amount'] as String?,
       categories: (json['categories'] as List<dynamic>?)
           ?.map(
             (e) =>

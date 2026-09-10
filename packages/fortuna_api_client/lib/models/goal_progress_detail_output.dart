@@ -31,16 +31,16 @@ class GoalProgressDetailOutput {
 
   final DateTime? asOf;
   final String? currencyCode;
-  final double? currentAmount;
+  final String? currentAmount;
   final int? daysRemaining;
   final String? goalId;
   final bool? isFullyConverted;
   final bool? isPastDue;
   final bool? isReached;
-  final double? proportionReached;
+  final String? proportionReached;
   final List<GoalResourceProgressOutput>? resources;
-  final double? shortfall;
-  final double? targetAmount;
+  final String? shortfall;
+  final String? targetAmount;
   final DateTime? targetDate;
 
   Map<String, Object?> toJson() => _$GoalProgressDetailOutputToJson(this);

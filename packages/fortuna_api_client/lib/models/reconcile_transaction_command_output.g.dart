@@ -9,7 +9,7 @@ part of 'reconcile_transaction_command_output.dart';
 ReconcileTransactionCommandOutput _$ReconcileTransactionCommandOutputFromJson(
   Map<String, dynamic> json,
 ) => ReconcileTransactionCommandOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   currencyCode: json['currencyCode'] as String?,
   id: json['id'] as String?,
   isReconciled: json['isReconciled'] as bool?,

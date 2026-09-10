@@ -32,21 +32,21 @@ class SettleCreditCardStatementCommandOutput {
     Map<String, Object?> json,
   ) => _$SettleCreditCardStatementCommandOutputFromJson(json);
 
-  final double? appliedAmount;
-  final double? appliedRate;
+  final String? appliedAmount;
+  final String? appliedRate;
   final String? carryStatementId;
-  final double? creditAmount;
+  final String? creditAmount;
   final String? creditCardCurrencyCode;
   final String? financialAccountId;
   final String? id;
   final String? inboundTransactionId;
   final String? outboundTransactionId;
-  final double? paymentAmount;
+  final String? paymentAmount;
   final String? paymentCurrencyCode;
   final DateTime? paymentDate;
   final DateTime? rateDate;
-  final double? remainingBalance;
-  final double? statementAmountDue;
+  final String? remainingBalance;
+  final String? statementAmountDue;
   final String? status;
   final String? transferId;
 

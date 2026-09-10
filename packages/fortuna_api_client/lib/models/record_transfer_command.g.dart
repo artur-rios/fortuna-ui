@@ -9,7 +9,7 @@ part of 'record_transfer_command.dart';
 RecordTransferCommand _$RecordTransferCommandFromJson(
   Map<String, dynamic> json,
 ) => RecordTransferCommand(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   destinationFinancialAccountId:
       json['destinationFinancialAccountId'] as String?,
   destinationStatementId: json['destinationStatementId'] as String?,

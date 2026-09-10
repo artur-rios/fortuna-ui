@@ -25,7 +25,7 @@ class NetPositionOutput {
   final List<NetPositionCurrencyOutput>? currencyGroups;
   final String? displayCurrencyCode;
   final bool? isFullyConverted;
-  final double? total;
+  final String? total;
 
   Map<String, Object?> toJson() => _$NetPositionOutputToJson(this);
 }

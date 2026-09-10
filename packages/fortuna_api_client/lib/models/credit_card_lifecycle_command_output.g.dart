@@ -11,7 +11,7 @@ CreditCardLifecycleCommandOutput _$CreditCardLifecycleCommandOutputFromJson(
 ) => CreditCardLifecycleCommandOutput(
   currencyCode: json['currencyCode'] as String?,
   id: json['id'] as String?,
-  outstandingAmount: (json['outstandingAmount'] as num?)?.toDouble(),
+  outstandingAmount: json['outstandingAmount'] as String?,
 );
 
 Map<String, dynamic> _$CreditCardLifecycleCommandOutputToJson(

@@ -24,7 +24,7 @@ class ReconcileTransactionCommandOutput {
     Map<String, Object?> json,
   ) => _$ReconcileTransactionCommandOutputFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? currencyCode;
   final String? id;
   final bool? isReconciled;

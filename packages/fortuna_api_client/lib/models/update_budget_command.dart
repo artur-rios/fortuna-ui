@@ -22,7 +22,7 @@ class UpdateBudgetCommand {
   factory UpdateBudgetCommand.fromJson(Map<String, Object?> json) =>
       _$UpdateBudgetCommandFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final List<String>? categoryIds;
   final String? currencyCode;
   final bool? includeDescendants;

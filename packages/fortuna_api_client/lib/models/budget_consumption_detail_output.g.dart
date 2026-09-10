@@ -9,7 +9,7 @@ part of 'budget_consumption_detail_output.dart';
 BudgetConsumptionDetailOutput _$BudgetConsumptionDetailOutputFromJson(
   Map<String, dynamic> json,
 ) => BudgetConsumptionDetailOutput(
-  budgetAmount: (json['budgetAmount'] as num?)?.toDouble(),
+  budgetAmount: json['budgetAmount'] as String?,
   budgetId: json['budgetId'] as String?,
   conversions: (json['conversions'] as List<dynamic>?)
       ?.map((e) => BudgetConversionOutput.fromJson(e as Map<String, dynamic>))
@@ -18,7 +18,7 @@ BudgetConsumptionDetailOutput _$BudgetConsumptionDetailOutputFromJson(
   isCovered: json['isCovered'] as bool?,
   isExceeded: json['isExceeded'] as bool?,
   isFullyConverted: json['isFullyConverted'] as bool?,
-  overage: (json['overage'] as num?)?.toDouble(),
+  overage: json['overage'] as String?,
   periodEnd: json['periodEnd'] == null
       ? null
       : DateTime.parse(json['periodEnd'] as String),
@@ -26,11 +26,11 @@ BudgetConsumptionDetailOutput _$BudgetConsumptionDetailOutputFromJson(
       ? null
       : DateTime.parse(json['periodStart'] as String),
   reason: json['reason'] as String?,
-  remaining: (json['remaining'] as num?)?.toDouble(),
+  remaining: json['remaining'] as String?,
   requestedDate: json['requestedDate'] == null
       ? null
       : DateTime.parse(json['requestedDate'] as String),
-  spent: (json['spent'] as num?)?.toDouble(),
+  spent: json['spent'] as String?,
 );
 
 Map<String, dynamic> _$BudgetConsumptionDetailOutputToJson(

@@ -11,15 +11,15 @@ BudgetConsumptionOutput _$BudgetConsumptionOutputFromJson(
 ) => BudgetConsumptionOutput(
   isExceeded: json['isExceeded'] as bool?,
   isFullyConverted: json['isFullyConverted'] as bool?,
-  overage: (json['overage'] as num?)?.toDouble(),
+  overage: json['overage'] as String?,
   periodEnd: json['periodEnd'] == null
       ? null
       : DateTime.parse(json['periodEnd'] as String),
   periodStart: json['periodStart'] == null
       ? null
       : DateTime.parse(json['periodStart'] as String),
-  remaining: (json['remaining'] as num?)?.toDouble(),
-  spent: (json['spent'] as num?)?.toDouble(),
+  remaining: json['remaining'] as String?,
+  spent: json['spent'] as String?,
 );
 
 Map<String, dynamic> _$BudgetConsumptionOutputToJson(

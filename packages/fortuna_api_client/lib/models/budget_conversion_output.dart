@@ -23,11 +23,11 @@ class BudgetConversionOutput {
   factory BudgetConversionOutput.fromJson(Map<String, Object?> json) =>
       _$BudgetConversionOutputFromJson(json);
 
-  final double? appliedRate;
-  final double? convertedAmount;
+  final String? appliedRate;
+  final String? convertedAmount;
   final DateTime? rateDate;
   final ExchangeRateSource? rateSource;
-  final double? sourceAmount;
+  final String? sourceAmount;
   final String? sourceCurrencyCode;
   final String? unconvertedReason;
 

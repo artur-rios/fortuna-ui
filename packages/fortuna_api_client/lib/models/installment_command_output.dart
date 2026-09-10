@@ -25,13 +25,13 @@ class InstallmentCommandOutput {
   factory InstallmentCommandOutput.fromJson(Map<String, Object?> json) =>
       _$InstallmentCommandOutputFromJson(json);
 
-  final double? amount;
-  final double? appliedRate;
+  final String? amount;
+  final String? appliedRate;
   final String? currencyCode;
   final bool? isLateArriving;
   final int? number;
   final DateTime? occurredOn;
-  final double? originalAmount;
+  final String? originalAmount;
   final String? originalCurrencyCode;
   final DateTime? rateDate;
   final String? statementId;

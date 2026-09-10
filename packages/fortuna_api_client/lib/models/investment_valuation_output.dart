@@ -26,7 +26,7 @@ class InvestmentValuationOutput {
   final String? id;
   final String? investmentId;
   final DateTime? updatedAt;
-  final double? value;
+  final String? value;
   final DateTime? valuedOn;
 
   Map<String, Object?> toJson() => _$InvestmentValuationOutputToJson(this);

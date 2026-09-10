@@ -9,7 +9,7 @@ part of 'imported_record_output.dart';
 ImportedRecordOutput _$ImportedRecordOutputFromJson(
   Map<String, dynamic> json,
 ) => ImportedRecordOutput(
-  amount: (json['amount'] as num?)?.toDouble(),
+  amount: json['amount'] as String?,
   externalId: json['externalId'] as String?,
   hasLiveTransaction: json['hasLiveTransaction'] as bool?,
   occurredOn: json['occurredOn'] == null

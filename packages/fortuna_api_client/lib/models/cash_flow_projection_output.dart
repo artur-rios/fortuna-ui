@@ -34,7 +34,7 @@ class CashFlowProjectionOutput {
   final CashFlowPeriodicity? periodicity;
   final List<CashFlowPeriodOutput>? periods;
   final List<CashFlowRateOutput>? rates;
-  final double? startingBalance;
+  final String? startingBalance;
   final DateTime? through;
 
   Map<String, Object?> toJson() => _$CashFlowProjectionOutputToJson(this);

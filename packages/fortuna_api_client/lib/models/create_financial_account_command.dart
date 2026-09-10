@@ -25,7 +25,7 @@ class CreateFinancialAccountCommand {
   final String? currencyCode;
   final String? institution;
   final String? name;
-  final double? openingBalance;
+  final String? openingBalance;
 
   Map<String, Object?> toJson() => _$CreateFinancialAccountCommandToJson(this);
 }

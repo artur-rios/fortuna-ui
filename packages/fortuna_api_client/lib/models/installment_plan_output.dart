@@ -30,7 +30,7 @@ class InstallmentPlanOutput {
   factory InstallmentPlanOutput.fromJson(Map<String, Object?> json) =>
       _$InstallmentPlanOutputFromJson(json);
 
-  final double? appliedRate;
+  final String? appliedRate;
   final DateTime? createdAt;
   final String? creditCardId;
   final String? currencyCode;
@@ -39,10 +39,10 @@ class InstallmentPlanOutput {
   final List<InstallmentOutput>? installments;
   final bool? isDeleted;
   final String? originalCurrencyCode;
-  final double? originalTotalAmount;
+  final String? originalTotalAmount;
   final DateTime? purchasedOn;
   final DateTime? rateDate;
-  final double? totalAmount;
+  final String? totalAmount;
   final DateTime? updatedAt;
 
   Map<String, Object?> toJson() => _$InstallmentPlanOutputToJson(this);

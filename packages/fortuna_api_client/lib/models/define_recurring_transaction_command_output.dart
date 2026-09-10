@@ -33,7 +33,7 @@ class DefineRecurringTransactionCommandOutput {
     Map<String, Object?> json,
   ) => _$DefineRecurringTransactionCommandOutputFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? categoryId;
   final String? counterpartyId;
   final String? counterpartyName;

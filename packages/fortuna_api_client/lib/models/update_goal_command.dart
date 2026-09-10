@@ -24,7 +24,7 @@ class UpdateGoalCommand {
   final String? currencyCode;
   final List<String>? investmentIds;
   final String? name;
-  final double? targetAmount;
+  final String? targetAmount;
   final DateTime? targetDate;
 
   Map<String, Object?> toJson() => _$UpdateGoalCommandToJson(this);

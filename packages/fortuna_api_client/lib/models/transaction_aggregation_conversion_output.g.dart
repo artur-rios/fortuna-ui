@@ -9,8 +9,8 @@ part of 'transaction_aggregation_conversion_output.dart';
 TransactionAggregationConversionOutput
 _$TransactionAggregationConversionOutputFromJson(Map<String, dynamic> json) =>
     TransactionAggregationConversionOutput(
-      appliedRate: (json['appliedRate'] as num?)?.toDouble(),
-      displayAmount: (json['displayAmount'] as num?)?.toDouble(),
+      appliedRate: json['appliedRate'] as String?,
+      displayAmount: json['displayAmount'] as String?,
       figureDate: json['figureDate'] == null
           ? null
           : DateTime.parse(json['figureDate'] as String),
@@ -20,7 +20,7 @@ _$TransactionAggregationConversionOutputFromJson(Map<String, dynamic> json) =>
       rateSource: json['rateSource'] == null
           ? null
           : ExchangeRateSource.fromJson((json['rateSource'] as num).toInt()),
-      sourceAmount: (json['sourceAmount'] as num?)?.toDouble(),
+      sourceAmount: json['sourceAmount'] as String?,
       sourceCurrencyCode: json['sourceCurrencyCode'] as String?,
       unconvertedReason: json['unconvertedReason'] as String?,
     );

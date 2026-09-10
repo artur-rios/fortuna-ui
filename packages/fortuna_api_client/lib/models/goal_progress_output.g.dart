@@ -8,11 +8,11 @@ part of 'goal_progress_output.dart';
 
 GoalProgressOutput _$GoalProgressOutputFromJson(Map<String, dynamic> json) =>
     GoalProgressOutput(
-      currentAmount: (json['currentAmount'] as num?)?.toDouble(),
+      currentAmount: json['currentAmount'] as String?,
       isFullyConverted: json['isFullyConverted'] as bool?,
       isReached: json['isReached'] as bool?,
-      proportionReached: (json['proportionReached'] as num?)?.toDouble(),
-      remaining: (json['remaining'] as num?)?.toDouble(),
+      proportionReached: json['proportionReached'] as String?,
+      remaining: json['remaining'] as String?,
     );
 
 Map<String, dynamic> _$GoalProgressOutputToJson(GoalProgressOutput instance) =>

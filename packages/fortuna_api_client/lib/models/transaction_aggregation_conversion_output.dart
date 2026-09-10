@@ -25,12 +25,12 @@ class TransactionAggregationConversionOutput {
     Map<String, Object?> json,
   ) => _$TransactionAggregationConversionOutputFromJson(json);
 
-  final double? appliedRate;
-  final double? displayAmount;
+  final String? appliedRate;
+  final String? displayAmount;
   final DateTime? figureDate;
   final DateTime? rateDate;
   final ExchangeRateSource? rateSource;
-  final double? sourceAmount;
+  final String? sourceAmount;
   final String? sourceCurrencyCode;
   final String? unconvertedReason;
 

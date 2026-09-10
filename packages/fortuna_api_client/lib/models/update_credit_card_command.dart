@@ -21,7 +21,7 @@ class UpdateCreditCardCommand {
       _$UpdateCreditCardCommandFromJson(json);
 
   final int? closingDay;
-  final double? creditLimit;
+  final String? creditLimit;
   final String? currencyCode;
   final int? dueDay;
   final String? issuer;

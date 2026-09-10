@@ -24,7 +24,7 @@ class ImportedRecordOutput {
   factory ImportedRecordOutput.fromJson(Map<String, Object?> json) =>
       _$ImportedRecordOutputFromJson(json);
 
-  final double? amount;
+  final String? amount;
   final String? externalId;
   final bool? hasLiveTransaction;
   final DateTime? occurredOn;

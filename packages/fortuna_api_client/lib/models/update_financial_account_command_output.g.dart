@@ -19,7 +19,7 @@ _$UpdateFinancialAccountCommandOutputFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String?,
       institution: json['institution'] as String?,
       name: json['name'] as String?,
-      openingBalance: (json['openingBalance'] as num?)?.toDouble(),
+      openingBalance: json['openingBalance'] as String?,
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),

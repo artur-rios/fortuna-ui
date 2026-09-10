@@ -15,7 +15,7 @@ class RecordInvestmentValuationCommand {
   ) => _$RecordInvestmentValuationCommandFromJson(json);
 
   final String? id;
-  final double? value;
+  final String? value;
   final DateTime? valuedOn;
 
   Map<String, Object?> toJson() =>

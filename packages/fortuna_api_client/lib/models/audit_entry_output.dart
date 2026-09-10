@@ -11,25 +11,25 @@ part 'audit_entry_output.g.dart';
 @JsonSerializable()
 class AuditEntryOutput {
   const AuditEntryOutput({
-    this.actorUserId,
     this.entityId,
     this.entityType,
     this.occurredAt,
     this.operation,
     this.outcome,
     this.reason,
+    this.subjectReference,
   });
 
   factory AuditEntryOutput.fromJson(Map<String, Object?> json) =>
       _$AuditEntryOutputFromJson(json);
 
-  final String? actorUserId;
   final String? entityId;
   final String? entityType;
   final DateTime? occurredAt;
   final String? operation;
   final AuditOutcome? outcome;
   final String? reason;
+  final String? subjectReference;
 
   Map<String, Object?> toJson() => _$AuditEntryOutputToJson(this);
 }

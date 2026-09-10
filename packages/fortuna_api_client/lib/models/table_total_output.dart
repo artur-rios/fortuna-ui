@@ -25,7 +25,7 @@ class TableTotalOutput {
   final List<TableTotalConversionOutput>? conversions;
   final String? currencyCode;
   final bool? isFullyConverted;
-  final double? value;
+  final String? value;
 
   Map<String, Object?> toJson() => _$TableTotalOutputToJson(this);
 }

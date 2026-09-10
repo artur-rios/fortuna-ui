@@ -24,13 +24,13 @@ class TableTotalConversionOutput {
   factory TableTotalConversionOutput.fromJson(Map<String, Object?> json) =>
       _$TableTotalConversionOutputFromJson(json);
 
-  final double? appliedRate;
-  final double? convertedValue;
+  final String? appliedRate;
+  final String? convertedValue;
   final DateTime? figureDate;
   final DateTime? rateDate;
   final ExchangeRateSource? rateSource;
   final String? sourceCurrencyCode;
-  final double? sourceValue;
+  final String? sourceValue;
   final String? unconvertedReason;
 
   Map<String, Object?> toJson() => _$TableTotalConversionOutputToJson(this);

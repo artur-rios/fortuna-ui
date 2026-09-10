@@ -21,7 +21,7 @@ class CommittedObligationPeriodOutput {
   final bool? isFullyConverted;
   final DateTime? periodEnd;
   final DateTime? periodStart;
-  final double? total;
+  final String? total;
 
   Map<String, Object?> toJson() =>
       _$CommittedObligationPeriodOutputToJson(this);
