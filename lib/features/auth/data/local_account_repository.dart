@@ -41,6 +41,12 @@ abstract interface class LocalAccountRepository {
     required String displayName,
     required String secret,
   });
+
+  /// Authenticates against the local account (`UC-07`).
+  Future<Result<String>> authenticate({
+    required String name,
+    required String secret,
+  });
 }
 
 class HttpLocalAccountRepository implements LocalAccountRepository {
@@ -92,6 +98,34 @@ class HttpLocalAccountRepository implements LocalAccountRepository {
       // already exists, a credential store that cannot be written, and local
       // accounts being disabled are the core's rules to state.
       return failureFromDioException<CreatedLocalAccount>(exception);
+    }
+  }
+
+  @override
+  Future<Result<String>> authenticate({
+    required String name,
+    required String secret,
+  }) async {
+    try {
+      final response = await _client.postApiLocalAccountsAuthenticate(
+        body: AuthenticateLocalAccountCommand(name: name, secret: secret),
+      );
+
+      final token = response.data?.token;
+      if (token == null || token.isEmpty) {
+        return const Failure(
+          message: 'The core granted no session.',
+          kind: FailureKind.unauthenticated,
+        );
+      }
+
+      return Success(token);
+    } on DioException catch (exception) {
+      // `UC-07 AF-02`: the core answers an unknown name and a wrong secret with
+      // the same message, and this client passes it through without looking —
+      // the way to keep two things indistinguishable is to never tell them
+      // apart.
+      return failureFromDioException<String>(exception);
     }
   }
 }
