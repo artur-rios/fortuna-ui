@@ -37,6 +37,17 @@ class FakeCredentials implements CredentialsRepository {
     return answer(email, password);
   }
 
+  /// What the Google exchange answers, and what it was handed.
+  Result<SignInGranted> Function(String idToken) googleAnswer = (_) =>
+      const Failure(message: 'not used here', kind: FailureKind.serverError);
+  final List<String> exchangedIdTokens = [];
+
+  @override
+  Future<Result<SignInGranted>> exchangeGoogleIdToken(String idToken) async {
+    exchangedIdTokens.add(idToken);
+    return googleAnswer(idToken);
+  }
+
   @override
   Future<Result<SignInGranted>> verifyTwoFactor({
     required String challengeToken,

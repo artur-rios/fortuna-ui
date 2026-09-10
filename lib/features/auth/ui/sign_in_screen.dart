@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../data/google_identity.dart';
 import '../state/sign_in_controller.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -53,6 +54,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(signInControllerProvider);
+    // AF-04: null where this instance has no Google client configured, and the
+    // option is then not offered at all rather than offered and broken.
+    final googleAvailable = ref.watch(googleIdentityServiceProvider) != null;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -124,6 +128,22 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         )
                       : const Text('Sign in'),
                 ),
+
+                if (googleAvailable) ...[
+                  const SizedBox(height: 16),
+                  const _OrDivider(),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    key: const Key('signIn.google'),
+                    onPressed: state.isBusy
+                        ? null
+                        : ref
+                              .read(signInControllerProvider.notifier)
+                              .signInWithGoogle,
+                    icon: const Icon(Icons.account_circle_outlined),
+                    label: const Text('Continue with Google'),
+                  ),
+                ],
 
                 if (state.message case final message?) ...[
                   const SizedBox(height: 16),
@@ -209,4 +229,20 @@ class _Notice extends StatelessWidget {
       ),
     );
   }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      const Expanded(child: Divider()),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Text('or', style: Theme.of(context).textTheme.bodySmall),
+      ),
+      const Expanded(child: Divider()),
+    ],
+  );
 }

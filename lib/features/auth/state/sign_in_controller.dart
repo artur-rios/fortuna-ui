@@ -20,6 +20,7 @@ import '../../../core/session/session.dart';
 import '../../../core/session/session_controller.dart';
 import '../../../core/session/token_claims.dart';
 import '../data/credentials_repository.dart';
+import '../data/google_identity.dart';
 
 /// Where the sign-in form is in its work.
 @immutable
@@ -177,6 +178,51 @@ class SignInController extends Notifier<SignInFormState> {
             // Only a session that was actually granted ends the form. A token
             // this client cannot read leaves the refusal _grant set standing.
             if (await _grant(token)) state = const SignInDone();
+        }
+    }
+  }
+
+  /// Signs in with Google (`UC-05`).
+  ///
+  /// Only ever called where the option was offered, which is only where this
+  /// build carries a client id (`AF-04`).
+  Future<void> signInWithGoogle() async {
+    final google = ref.read(googleIdentityServiceProvider);
+    if (google == null) return;
+
+    state = const SignInSubmitting();
+
+    final outcome = await google.obtainIdToken();
+
+    switch (outcome) {
+      // AF-01. Nothing changed, and nothing is presented as a failure: closing
+      // the sheet is a decision, not an error.
+      case GoogleIdentityCancelled():
+        state = const SignInReady();
+        return;
+
+      // AF-02. Reported, with the credential path still on the screen beneath.
+      case GoogleIdentityUnavailable(:final reason):
+        state = SignInRefused(reason);
+        return;
+
+      case GoogleIdentityObtained(:final idToken):
+        ref.read(sessionProvider.notifier).beginAuthentication();
+
+        final result = await ref
+            .read(credentialsRepositoryProvider)
+            .exchangeGoogleIdToken(idToken);
+
+        switch (result) {
+          // AF-03 and AF-05: the API's own reason, unaltered.
+          case Failure<SignInGranted>(:final message, :final kind):
+            ref.read(sessionProvider.notifier).challengeAbandoned();
+            state = kind == FailureKind.unreachable
+                ? SignInUnreachable(message)
+                : SignInRefused(message);
+
+          case Success<SignInGranted>(:final value):
+            if (await _grant(value.token)) state = const SignInDone();
         }
     }
   }
