@@ -10,8 +10,10 @@ owns the domain, the money and the integrations; this application owns the exper
 [![Open issues](https://img.shields.io/github/issues/artur-rios/fortuna-ui?style=flat-square&label=open)](https://github.com/artur-rios/fortuna-ui/issues)
 [![Closed issues](https://img.shields.io/github/issues-closed-raw/artur-rios/fortuna-ui?style=flat-square&label=closed)](https://github.com/artur-rios/fortuna-ui/issues?q=is%3Aissue+is%3Aclosed)
 [![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
+[![Project board](https://img.shields.io/badge/project-Fortuna%20UI-8250df?style=flat-square)](https://github.com/users/artur-rios/projects/14)
 
-> **Status:** specification complete, implementation not started.
+> **Status:** specification complete; implementation under way — 12 of the 47 issues are
+> closed. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
 
 ## What it does
 
@@ -138,7 +140,10 @@ that names it. Every use case ships with its tests before its pull request is op
 
 Seven milestones, in dependency order. Every milestone after `M-01` depends on it. The progress
 badges are read from GitHub when this page renders, so they are never stale — click one for the
-milestone itself.
+milestone itself. The [project board](https://github.com/users/artur-rios/projects/14) carries every
+issue across all seven milestones, and its `Status` field carries the lifecycle the
+[Development Workflow Document](docs/requirements/Development%20Workflow%20Document.md) defines:
+**Todo → In Progress → Testing → Done**.
 
 | Milestone | Delivers | Depends on | Issues | Progress |
 |---|---|---|---|---|
@@ -152,113 +157,119 @@ milestone itself.
 
 ## Backlog
 
-47 issues: one per use case, plus one foundation issue. This table lists what exists and where each
-issue's specification is; the roadmap badges above and the issue links themselves are the live view
-of what is done.
+47 issues: one per use case, plus one foundation issue. Every one of them is on the
+[project board](https://github.com/users/artur-rios/projects/14), which — together with the roadmap
+badges above — is the live view of what is done. The tables below list what exists, where each
+issue's specification is, and the status each issue held when this page was last edited.
+
+**Legend:** ✅ merged and closed &nbsp;·&nbsp; 🚧 in progress &nbsp;·&nbsp; ⬜ not started
 
 ### Blocked on the API
 
-**Everything is blocked on one contract defect.** The API publishes all 167 monetary fields as JSON
-numbers with `format: double`, so money is corrupted by the client's own JSON parse before any code
-runs — `8017.61` arrives as `8017.60999999999967`, and `1.005` rounds to `1.00`. That makes `BR-05`
-unachievable in any client, and every remaining use case puts a figure on screen. It is fixed by
-publishing monetary values as decimal strings: artur-rios/fortuna-api#162.
+**One contract defect is still open.** The API publishes all 167 monetary fields as JSON numbers
+with `format: double`, so money is corrupted by the client's own JSON parse before any code runs —
+`8017.61` arrives as `8017.60999999999967`, and `1.005` rounds to `1.00`. That makes `BR-05`
+unachievable in any client, and every use case that puts a figure on screen inherits it. It is fixed
+by publishing monetary values as decimal strings: artur-rios/fortuna-api#162.
 
-Fourteen use cases are additionally blocked because the endpoints they call do not exist. Each issue
+Nine use cases are additionally blocked because the endpoints they call do not exist. Each issue
 records its blocker; they are collected here so the backlog explains itself.
 
 | Blocked | Waiting on |
 |---|---|
-| [UC-02](https://github.com/artur-rios/fortuna-ui/issues/3), [UC-06](https://github.com/artur-rios/fortuna-ui/issues/7), [UC-07](https://github.com/artur-rios/fortuna-ui/issues/8), [UC-08](https://github.com/artur-rios/fortuna-ui/issues/9) | The FFI boundary — artur-rios/fortuna-api#156, #157, #155 |
-| [UC-03](https://github.com/artur-rios/fortuna-ui/issues/4), [UC-04](https://github.com/artur-rios/fortuna-ui/issues/5), [UC-05](https://github.com/artur-rios/fortuna-ui/issues/6), [UC-09](https://github.com/artur-rios/fortuna-ui/issues/10), [UC-10](https://github.com/artur-rios/fortuna-ui/issues/11) | The `api/auth` surface — artur-rios/fortuna-api#153, #154 |
+| [UC-02](https://github.com/artur-rios/fortuna-ui/issues/3), [UC-06](https://github.com/artur-rios/fortuna-ui/issues/7), [UC-07](https://github.com/artur-rios/fortuna-ui/issues/8), [UC-08](https://github.com/artur-rios/fortuna-ui/issues/9) | The rest of the FFI boundary — artur-rios/fortuna-api#157 |
 | [UC-01](https://github.com/artur-rios/fortuna-ui/issues/2) | A readable API version — artur-rios/fortuna-api#161 |
 | [UC-42](https://github.com/artur-rios/fortuna-ui/issues/43), [UC-43](https://github.com/artur-rios/fortuna-ui/issues/44), [UC-44](https://github.com/artur-rios/fortuna-ui/issues/45) | The data-rights endpoints — artur-rios/fortuna-api#160, #159, #158 |
 | [UC-30](https://github.com/artur-rios/fortuna-ui/issues/31) | Consent, which its main flow requires before disclosing anything — artur-rios/fortuna-api#160 |
+
+Two blockers have since landed: the `api/auth` surface (artur-rios/fortuna-api#153, #154) and the C
+ABI and SQLite provider the FFI transport sits on (artur-rios/fortuna-api#156, #155). UC-03, UC-04,
+UC-05, UC-09 and UC-10 are no longer blocked on the contract.
 
 Once one lands, copy the regenerated `docs/openapi/fortuna.json` to `api/fortuna.json` and run
 `dart run tool/generate_api_client.dart` before picking the use case up.
 
 ### M-01 — Foundation
 
-| Issue | Work | Spec |
-|---|---|---|
-| [#1](https://github.com/artur-rios/fortuna-ui/issues/1) | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) |
+| Issue | Status | Work | Spec |
+|---|---|---|---|
+| [#1](https://github.com/artur-rios/fortuna-ui/issues/1) | ✅ | Project scaffold and initial infrastructure | [Operations & Infrastructure](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) |
 
 ### M-02 — Access, shell and privacy
 
-| Issue | Work | Spec |
-|---|---|---|
-| [#2](https://github.com/artur-rios/fortuna-ui/issues/2) | UC-01 — Configure the Instance and Mode | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#3](https://github.com/artur-rios/fortuna-ui/issues/3) | UC-02 — Reach the Fortuna Core Over the Configured Transport | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#4](https://github.com/artur-rios/fortuna-ui/issues/4) | UC-03 — Sign In with Credentials | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#5](https://github.com/artur-rios/fortuna-ui/issues/5) | UC-04 — Complete a Two-Factor Challenge | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#6](https://github.com/artur-rios/fortuna-ui/issues/6) | UC-05 — Sign In with Google | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#7](https://github.com/artur-rios/fortuna-ui/issues/7) | UC-06 — Create a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#8](https://github.com/artur-rios/fortuna-ui/issues/8) | UC-07 — Sign In to a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#9](https://github.com/artur-rios/fortuna-ui/issues/9) | UC-08 — Recover a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#10](https://github.com/artur-rios/fortuna-ui/issues/10) | UC-09 — Recover a Password and Verify an Address | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#11](https://github.com/artur-rios/fortuna-ui/issues/11) | UC-10 — Manage Two-Factor Authentication | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#12](https://github.com/artur-rios/fortuna-ui/issues/12) | UC-11 — Restore a Session at Start | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#13](https://github.com/artur-rios/fortuna-ui/issues/13) | UC-12 — End a Session | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#14](https://github.com/artur-rios/fortuna-ui/issues/14) | UC-13 — Choose Theme, Locale and Display Currency | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#43](https://github.com/artur-rios/fortuna-ui/issues/43) | UC-42 — Review, Give and Withdraw Consents | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#44](https://github.com/artur-rios/fortuna-ui/issues/44) | UC-43 — Export All Personal Data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#45](https://github.com/artur-rios/fortuna-ui/issues/45) | UC-44 — Erase the Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#46](https://github.com/artur-rios/fortuna-ui/issues/46) | UC-45 — View Instance Health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#47](https://github.com/artur-rios/fortuna-ui/issues/47) | UC-46 — Guard a Route by Session and Role | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| Issue | Status | Work | Spec |
+|---|---|---|---|
+| [#2](https://github.com/artur-rios/fortuna-ui/issues/2) | ⬜ | UC-01 — Configure the Instance and Mode | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#3](https://github.com/artur-rios/fortuna-ui/issues/3) | ⬜ | UC-02 — Reach the Fortuna Core Over the Configured Transport | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#4](https://github.com/artur-rios/fortuna-ui/issues/4) | ⬜ | UC-03 — Sign In with Credentials | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#5](https://github.com/artur-rios/fortuna-ui/issues/5) | ⬜ | UC-04 — Complete a Two-Factor Challenge | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#6](https://github.com/artur-rios/fortuna-ui/issues/6) | ⬜ | UC-05 — Sign In with Google | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#7](https://github.com/artur-rios/fortuna-ui/issues/7) | ⬜ | UC-06 — Create a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#8](https://github.com/artur-rios/fortuna-ui/issues/8) | ⬜ | UC-07 — Sign In to a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#9](https://github.com/artur-rios/fortuna-ui/issues/9) | ⬜ | UC-08 — Recover a Desktop Local Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#10](https://github.com/artur-rios/fortuna-ui/issues/10) | ⬜ | UC-09 — Recover a Password and Verify an Address | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#11](https://github.com/artur-rios/fortuna-ui/issues/11) | ⬜ | UC-10 — Manage Two-Factor Authentication | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#12](https://github.com/artur-rios/fortuna-ui/issues/12) | ✅ | UC-11 — Restore a Session at Start | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#13](https://github.com/artur-rios/fortuna-ui/issues/13) | ✅ | UC-12 — End a Session | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#14](https://github.com/artur-rios/fortuna-ui/issues/14) | ✅ | UC-13 — Choose Theme, Locale and Display Currency | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#43](https://github.com/artur-rios/fortuna-ui/issues/43) | ⬜ | UC-42 — Review, Give and Withdraw Consents | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#44](https://github.com/artur-rios/fortuna-ui/issues/44) | ⬜ | UC-43 — Export All Personal Data | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#45](https://github.com/artur-rios/fortuna-ui/issues/45) | ⬜ | UC-44 — Erase the Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#46](https://github.com/artur-rios/fortuna-ui/issues/46) | ✅ | UC-45 — View Instance Health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#47](https://github.com/artur-rios/fortuna-ui/issues/47) | ✅ | UC-46 — Guard a Route by Session and Role | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ### M-03 — Holdings
 
-| Issue | Work | Spec |
-|---|---|---|
-| [#15](https://github.com/artur-rios/fortuna-ui/issues/15) | UC-14 — Manage Financial Accounts | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#16](https://github.com/artur-rios/fortuna-ui/issues/16) | UC-15 — Manage Credit Cards | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#17](https://github.com/artur-rios/fortuna-ui/issues/17) | UC-16 — Review and Settle a Credit Card Statement | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#18](https://github.com/artur-rios/fortuna-ui/issues/18) | UC-17 — Manage Investments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#19](https://github.com/artur-rios/fortuna-ui/issues/19) | UC-18 — Record an Investment Movement or Valuation | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| Issue | Status | Work | Spec |
+|---|---|---|---|
+| [#15](https://github.com/artur-rios/fortuna-ui/issues/15) | ⬜ | UC-14 — Manage Financial Accounts | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#16](https://github.com/artur-rios/fortuna-ui/issues/16) | ⬜ | UC-15 — Manage Credit Cards | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#17](https://github.com/artur-rios/fortuna-ui/issues/17) | ⬜ | UC-16 — Review and Settle a Credit Card Statement | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#18](https://github.com/artur-rios/fortuna-ui/issues/18) | ⬜ | UC-17 — Manage Investments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#19](https://github.com/artur-rios/fortuna-ui/issues/19) | ⬜ | UC-18 — Record an Investment Movement or Valuation | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ### M-04 — Money movement and lifecycle
 
-| Issue | Work | Spec |
-|---|---|---|
-| [#20](https://github.com/artur-rios/fortuna-ui/issues/20) | UC-19 — Record a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#21](https://github.com/artur-rios/fortuna-ui/issues/21) | UC-20 — Update or Delete a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#22](https://github.com/artur-rios/fortuna-ui/issues/22) | UC-21 — Record a Transfer | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#23](https://github.com/artur-rios/fortuna-ui/issues/23) | UC-22 — Record an Installment Purchase | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#24](https://github.com/artur-rios/fortuna-ui/issues/24) | UC-23 — Manage Recurring Commitments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#25](https://github.com/artur-rios/fortuna-ui/issues/25) | UC-24 — Reconcile a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#26](https://github.com/artur-rios/fortuna-ui/issues/26) | UC-25 — Explore Records as a Spreadsheet | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#41](https://github.com/artur-rios/fortuna-ui/issues/41) | UC-40 — Restore or Permanently Remove a Deleted Record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#42](https://github.com/artur-rios/fortuna-ui/issues/42) | UC-41 — Read the Audit Trail | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| Issue | Status | Work | Spec |
+|---|---|---|---|
+| [#20](https://github.com/artur-rios/fortuna-ui/issues/20) | ⬜ | UC-19 — Record a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#21](https://github.com/artur-rios/fortuna-ui/issues/21) | ⬜ | UC-20 — Update or Delete a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#22](https://github.com/artur-rios/fortuna-ui/issues/22) | ⬜ | UC-21 — Record a Transfer | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#23](https://github.com/artur-rios/fortuna-ui/issues/23) | ⬜ | UC-22 — Record an Installment Purchase | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#24](https://github.com/artur-rios/fortuna-ui/issues/24) | ⬜ | UC-23 — Manage Recurring Commitments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#25](https://github.com/artur-rios/fortuna-ui/issues/25) | ⬜ | UC-24 — Reconcile a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#26](https://github.com/artur-rios/fortuna-ui/issues/26) | ⬜ | UC-25 — Explore Records as a Spreadsheet | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#41](https://github.com/artur-rios/fortuna-ui/issues/41) | ⬜ | UC-40 — Restore or Permanently Remove a Deleted Record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#42](https://github.com/artur-rios/fortuna-ui/issues/42) | ✅ | UC-41 — Read the Audit Trail | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ### M-05 — Organization and planning
 
-| Issue | Work | Spec |
-|---|---|---|
-| [#27](https://github.com/artur-rios/fortuna-ui/issues/27) | UC-26 — Manage the Category Tree | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#28](https://github.com/artur-rios/fortuna-ui/issues/28) | UC-27 — Manage Tags and Counterparties | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#29](https://github.com/artur-rios/fortuna-ui/issues/29) | UC-28 — Manage Budgets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#30](https://github.com/artur-rios/fortuna-ui/issues/30) | UC-29 — Manage Goals | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| Issue | Status | Work | Spec |
+|---|---|---|---|
+| [#27](https://github.com/artur-rios/fortuna-ui/issues/27) | ✅ | UC-26 — Manage the Category Tree | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#28](https://github.com/artur-rios/fortuna-ui/issues/28) | ✅ | UC-27 — Manage Tags and Counterparties | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#29](https://github.com/artur-rios/fortuna-ui/issues/29) | ⬜ | UC-28 — Manage Budgets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#30](https://github.com/artur-rios/fortuna-ui/issues/30) | ⬜ | UC-29 — Manage Goals | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ### M-06 — Ingestion and attachments
 
-| Issue | Work | Spec |
-|---|---|---|
-| [#31](https://github.com/artur-rios/fortuna-ui/issues/31) | UC-30 — Connect an Institution | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#32](https://github.com/artur-rios/fortuna-ui/issues/32) | UC-31 — Synchronize, Reauthenticate or Revoke a Connection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#33](https://github.com/artur-rios/fortuna-ui/issues/33) | UC-32 — Import a File | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#34](https://github.com/artur-rios/fortuna-ui/issues/34) | UC-33 — Monitor an Import Job | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#35](https://github.com/artur-rios/fortuna-ui/issues/35) | UC-34 — Review Imported Records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#36](https://github.com/artur-rios/fortuna-ui/issues/36) | UC-35 — Manage a Transaction's Attachments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| Issue | Status | Work | Spec |
+|---|---|---|---|
+| [#31](https://github.com/artur-rios/fortuna-ui/issues/31) | ⬜ | UC-30 — Connect an Institution | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#32](https://github.com/artur-rios/fortuna-ui/issues/32) | ✅ | UC-31 — Synchronize, Reauthenticate or Revoke a Connection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#33](https://github.com/artur-rios/fortuna-ui/issues/33) | ✅ | UC-32 — Import a File | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#34](https://github.com/artur-rios/fortuna-ui/issues/34) | ✅ | UC-33 — Monitor an Import Job | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#35](https://github.com/artur-rios/fortuna-ui/issues/35) | ⬜ | UC-34 — Review Imported Records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#36](https://github.com/artur-rios/fortuna-ui/issues/36) | ⬜ | UC-35 — Manage a Transaction's Attachments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ### M-07 — Insight and output
 
-| Issue | Work | Spec |
-|---|---|---|
-| [#37](https://github.com/artur-rios/fortuna-ui/issues/37) | UC-36 — Read an Aggregation as a Chart | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#38](https://github.com/artur-rios/fortuna-ui/issues/38) | UC-37 — Drill Into a Chart Aggregation | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#39](https://github.com/artur-rios/fortuna-ui/issues/39) | UC-38 — View the Net Position, Projections and Obligations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#40](https://github.com/artur-rios/fortuna-ui/issues/40) | UC-39 — Export a Data Set | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| Issue | Status | Work | Spec |
+|---|---|---|---|
+| [#37](https://github.com/artur-rios/fortuna-ui/issues/37) | ⬜ | UC-36 — Read an Aggregation as a Chart | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#38](https://github.com/artur-rios/fortuna-ui/issues/38) | ⬜ | UC-37 — Drill Into a Chart Aggregation | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#39](https://github.com/artur-rios/fortuna-ui/issues/39) | ⬜ | UC-38 — View the Net Position, Projections and Obligations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#40](https://github.com/artur-rios/fortuna-ui/issues/40) | ⬜ | UC-39 — Export a Data Set | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ## Contributing
 
