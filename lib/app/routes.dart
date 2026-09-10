@@ -33,6 +33,9 @@ abstract final class Routes {
   /// Reachable by both roles: presentation choices are not financial data.
   static const settings = '/settings';
 
+  /// Data rights: consents, complete export and erasure (`UC-42` … `UC-44`).
+  static const privacy = '/privacy';
+
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
@@ -48,7 +51,7 @@ abstract final class Routes {
   static const destinationParameter = 'from';
 
   /// Routes an authenticated user of **either** role may reach.
-  static const Set<String> sharedByBothRoles = {settings};
+  static const Set<String> sharedByBothRoles = {settings, privacy};
 
   /// Routes reachable without a session.
   ///

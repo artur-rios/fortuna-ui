@@ -28,6 +28,7 @@ import '../features/ingestion/ui/import_file_screen.dart';
 import '../features/ingestion/ui/import_jobs_screen.dart';
 import '../features/labels/ui/labels_screen.dart';
 import '../features/preferences/ui/settings_screen.dart';
+import '../features/privacy/ui/privacy_screen.dart';
 import '../features/setup/ui/setup_screen.dart';
 import 'route_guard.dart';
 import 'routes.dart';
@@ -128,6 +129,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.settings,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.privacy,
+        builder: (context, state) => const PrivacyScreen(),
       ),
       GoRoute(
         path: Routes.admin,
