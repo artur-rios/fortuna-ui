@@ -73,6 +73,9 @@ abstract final class Routes {
   /// The concrete path for one transaction.
   static String transactionOf(String id) => '$transactions/$id';
 
+  /// Recording a transfer (`UC-21`).
+  static const recordTransfer = '/transfers/new';
+
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
