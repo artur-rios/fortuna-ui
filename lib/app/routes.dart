@@ -97,6 +97,10 @@ abstract final class Routes {
 
   /// Data sources and connecting an institution (`UC-30`).
   static const dataSources = '/sources';
+
+  /// Charts and drill-down (`UC-36`, `UC-37`).
+  static const insight = '/insight';
+
   static const audit = '/audit';
 
   // Instance administrator.
