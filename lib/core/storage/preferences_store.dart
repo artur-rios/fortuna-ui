@@ -21,7 +21,14 @@ enum PreferenceKey {
   themeMode('fortuna.preference.themeMode'),
   locale('fortuna.preference.locale'),
   displayCurrency('fortuna.preference.displayCurrency'),
-  instanceAddress('fortuna.preference.instanceAddress');
+  instanceAddress('fortuna.preference.instanceAddress'),
+
+  /// The spreadsheet view's filters, sort and page (`UC-25`, `FR-TB-05`).
+  ///
+  /// A presentation choice — which slice of their own records the user is
+  /// looking at — and so at home here. It carries ids and dates, never an
+  /// amount the API holds and never a credential.
+  transactionsView('fortuna.preference.transactionsView');
 
   const PreferenceKey(this.storageKey);
 

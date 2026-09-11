@@ -82,6 +82,36 @@ class EditableTransactions extends FakeTransactions {
     int? importedRecordId,
     String? importJobId,
   }) async => Success(stored(isReconciled: true));
+
+  // UC-25 added this to the interface. Defaulted here so these tests stay
+  // about their own use case; `SearchableTransactions` in
+  // transactions_table_test.dart is where it is actually exercised.
+  @override
+  Future<Result<TransactionPage>> search({
+    DateTime? from,
+    DateTime? to,
+    String? financialAccountId,
+    String? creditCardId,
+    String? categoryId,
+    String? tagId,
+    String? counterpartyId,
+    Direction? direction,
+    String? minimumAmount,
+    String? maximumAmount,
+    String? text,
+    String? sortBy,
+    bool descending = true,
+    int pageNumber = 1,
+    int pageSize = 25,
+  }) async => const Success(
+    TransactionPage(
+      items: [],
+      pageNumber: 1,
+      pageSize: 25,
+      totalItems: 0,
+      totalPages: 0,
+    ),
+  );
 }
 
 /// Answers only when the test lets it, so the loading state is observable.
