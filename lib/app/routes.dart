@@ -104,6 +104,9 @@ abstract final class Routes {
   /// Projections and committed obligations (`UC-38`).
   static const projections = '$insight/projections';
 
+  /// Deleted records: restore or remove permanently (`UC-40`).
+  static const deleted = '/deleted';
+
   static const audit = '/audit';
 
   // Instance administrator.
