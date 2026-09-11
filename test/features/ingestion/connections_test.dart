@@ -41,6 +41,22 @@ class FakeConnections implements ConnectionRepository {
     calls.add('revoke:$id');
     return writeFailure ?? const Success(null);
   }
+
+  // UC-30 added this to the interface. Defaulted here so the UC-31 tests stay
+  // about UC-31; `ConnectableConnections` in data_sources_test.dart is where
+  // it is actually exercised.
+  @override
+  Future<Result<Connection>> connect({
+    required String dataSource,
+    required String externalReference,
+  }) async => Success(
+    Connection(
+      id: 'new',
+      state: BankConnectionState.active,
+      connectedAt: DateTime(2026, 9, 11),
+      externalReference: externalReference,
+    ),
+  );
 }
 
 class FakeJobs implements ImportJobRepository {

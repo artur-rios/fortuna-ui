@@ -65,6 +65,17 @@ class Connection {
 abstract interface class ConnectionRepository {
   Future<Result<List<Connection>>> list();
 
+  /// Connects an institution through the API (`UC-30`, `FR-IN-03`).
+  ///
+  /// The aggregator is reached by the instance, never by this client. That is
+  /// the whole point of the requirement: an application that talked to an
+  /// aggregator directly would be disclosing the user's data on its own
+  /// authority, outside anything the instance recorded consent for.
+  Future<Result<Connection>> connect({
+    required String dataSource,
+    required String externalReference,
+  });
+
   /// Starts a synchronization, returning the job the API created.
   Future<Result<String?>> synchronize(String id);
 
@@ -98,6 +109,42 @@ class HttpConnectionRepository implements ConnectionRepository {
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Connection>>(exception);
+    }
+  }
+
+  @override
+  Future<Result<Connection>> connect({
+    required String dataSource,
+    required String externalReference,
+  }) async {
+    try {
+      final output = (await _connections.postApiConnections(
+        body: CreateConnectionCommand(
+          dataSource: dataSource,
+          externalReference: externalReference,
+        ),
+      )).data;
+
+      if (output == null) {
+        return const Failure(
+          message: 'The instance did not confirm the connection.',
+          kind: FailureKind.serverError,
+        );
+      }
+
+      return Success(
+        Connection(
+          id: output.id ?? '',
+          state: BankConnectionState.from(output.status),
+          connectedAt: output.createdAt ?? DateTime.now(),
+          externalReference: output.externalReference ?? externalReference,
+        ),
+      );
+    } on DioException catch (exception) {
+      // AF-03 and AF-05 both arrive here: a missing consent the API names,
+      // and an aggregator it could not reach. The screen decides which of the
+      // two it is showing by the failure's kind.
+      return failureFromDioException<Connection>(exception);
     }
   }
 
