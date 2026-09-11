@@ -68,6 +68,10 @@ abstract final class Routes {
   /// Recording and editing money movement (`UC-19`, `UC-20`).
   static const transactions = '/transactions';
   static const recordTransaction = '$transactions/new';
+  static const transaction = '$transactions/:id';
+
+  /// The concrete path for one transaction.
+  static String transactionOf(String id) => '$transactions/$id';
 
   static const categories = '/categories';
   static const labels = '/labels';

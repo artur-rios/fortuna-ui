@@ -54,6 +54,30 @@ class FakeTransactions implements TransactionRepository {
     });
     return onRecord?.call() ?? Success(transaction(amount: amount));
   }
+
+  // UC-20 added these to the interface. Defaulted here so the UC-19 tests stay
+  // about UC-19; `EditableTransactions` in transaction_detail_test.dart is
+  // where they are actually exercised.
+  @override
+  Future<Result<Transaction>> read(String id) async => Success(transaction());
+
+  @override
+  Future<Result<Transaction>> update({
+    required String id,
+    required DateTime occurredOn,
+    required String amount,
+    required Direction direction,
+    required String categoryId,
+    required String currencyCode,
+    String? financialAccountId,
+    String? creditCardId,
+    String? description,
+    String? counterparty,
+    List<String> tags = const [],
+  }) async => Success(transaction(amount: amount));
+
+  @override
+  Future<Result<void>> delete(String id) async => const Success(null);
 }
 
 class FakeCards implements CreditCardRepository {

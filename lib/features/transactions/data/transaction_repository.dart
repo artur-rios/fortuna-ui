@@ -15,10 +15,11 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart' hide TransactionDirection;
+import 'package:fortuna_api_client/export.dart'
+    hide TransactionDirection, TransactionSourceType;
 import 'package:fortuna_api_client/export.dart'
     as api
-    show TransactionDirection;
+    show TransactionDirection, TransactionSourceType;
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -48,6 +49,58 @@ enum Direction {
   api.TransactionDirection get asApi => api.TransactionDirection.fromJson(wire);
 }
 
+/// Where a transaction came from (`FR-MM-13`).
+///
+/// Mapped from the contract's numbers for the reason [Direction] gives.
+enum TransactionSource {
+  manual(1, 'Entered by hand'),
+  connection(2, 'From a connected institution'),
+  spreadsheet(3, 'Imported from a spreadsheet'),
+  statementFile(4, 'Imported from a statement file');
+
+  const TransactionSource(this.wire, this.label);
+
+  final int wire;
+  final String label;
+
+  static TransactionSource from(api.TransactionSourceType? source) =>
+      switch (source?.json) {
+        2 => TransactionSource.connection,
+        3 => TransactionSource.spreadsheet,
+        4 => TransactionSource.statementFile,
+        _ => TransactionSource.manual,
+      };
+
+  /// Whether this transaction derives from an imported record, which is what
+  /// decides whether there is evidence to show beneath it.
+  bool get isImported => this != TransactionSource.manual;
+}
+
+/// The raw record an imported transaction derives from (`FR-MM-13`, `AF-04`).
+///
+/// Deliberately a separate type from [Transaction], and deliberately carrying
+/// no way to change itself. It is the evidence the import is reconciled
+/// against: if it could be edited, it would stop being evidence of anything.
+@immutable
+class ImportedRecord {
+  const ImportedRecord({
+    required this.recordId,
+    this.importJobId,
+    this.amount,
+    this.occurredOn,
+  });
+
+  final int recordId;
+  final String? importJobId;
+
+  /// What the file or institution said, before any correction. Kept beside
+  /// the transaction's own amount precisely so a correction is visible as a
+  /// difference rather than silently replacing the original.
+  final Money? amount;
+
+  final DateTime? occurredOn;
+}
+
 /// A recorded transaction, as the API stored it.
 @immutable
 class Transaction {
@@ -66,6 +119,11 @@ class Transaction {
     this.counterpartyName,
     this.isTransfer = false,
     this.isReconciled = false,
+    this.isDeleted = false,
+    this.isManuallyCorrected = false,
+    this.source = TransactionSource.manual,
+    this.importedRecord,
+    this.tags = const [],
   });
 
   final String id;
@@ -93,8 +151,25 @@ class Transaction {
 
   final bool isReconciled;
 
+  /// `AF-05`: a deleted transaction is not editable, only restorable.
+  final bool isDeleted;
+
+  /// Whether a value was changed after import, which is what makes the
+  /// imported record worth showing beside it.
+  final bool isManuallyCorrected;
+
+  final TransactionSource source;
+
+  /// Present only where this derives from an import (`FR-MM-13`).
+  final ImportedRecord? importedRecord;
+
+  final List<String> tags;
+
   /// What the transaction is attached to, for display.
   String? get holdingName => financialAccountName ?? creditCardName;
+
+  /// Whether editing is offered at all (`AF-05`).
+  bool get isEditable => !isDeleted;
 }
 
 abstract interface class TransactionRepository {
@@ -111,6 +186,30 @@ abstract interface class TransactionRepository {
     String? counterparty,
     List<String> tags,
   });
+
+  /// Reads one transaction, including a deleted one (`AF-02`, `AF-05`).
+  ///
+  /// Deleted records are fetched rather than hidden so the screen can offer
+  /// restoration instead of claiming the transaction never existed.
+  Future<Result<Transaction>> read(String id);
+
+  /// Updates the editable fields (`FR-MM-06`).
+  Future<Result<Transaction>> update({
+    required String id,
+    required DateTime occurredOn,
+    required String amount,
+    required Direction direction,
+    required String categoryId,
+    required String currencyCode,
+    String? financialAccountId,
+    String? creditCardId,
+    String? description,
+    String? counterparty,
+    List<String> tags,
+  });
+
+  /// Deletes a transaction, recoverably (`UC-40`).
+  Future<Result<void>> delete(String id);
 }
 
 class HttpTransactionRepository implements TransactionRepository {
@@ -172,6 +271,123 @@ class HttpTransactionRepository implements TransactionRepository {
       // claiming the transaction was recorded.
       return failureFromDioException<Transaction>(exception);
     }
+  }
+
+  @override
+  Future<Result<Transaction>> read(String id) async {
+    try {
+      final output = (await _client.getApiTransactionsId(
+        id: id,
+        // AF-05 needs the deleted one back, not a 404 that would read as
+        // AF-02 and send the user looking for something that is still there.
+        includeDeleted: true,
+      )).data;
+
+      // AF-02.
+      if (output == null) {
+        return const Failure(
+          message: 'That transaction was not found.',
+          kind: FailureKind.notFound,
+        );
+      }
+
+      return Success(fromOutput(output));
+    } on DioException catch (exception) {
+      return failureFromDioException<Transaction>(exception);
+    }
+  }
+
+  @override
+  Future<Result<Transaction>> update({
+    required String id,
+    required DateTime occurredOn,
+    required String amount,
+    required Direction direction,
+    required String categoryId,
+    required String currencyCode,
+    String? financialAccountId,
+    String? creditCardId,
+    String? description,
+    String? counterparty,
+    List<String> tags = const [],
+  }) async {
+    try {
+      await _client.putApiTransactionsId(
+        id: id,
+        body: UpdateTransactionCommand(
+          occurredOn: occurredOn,
+          amount: amount,
+          direction: direction.asApi,
+          categoryId: categoryId,
+          currencyCode: currencyCode,
+          financialAccountId: financialAccountId,
+          creditCardId: creditCardId,
+          description: description,
+          counterparty: counterparty,
+          tags: tags.isEmpty ? null : tags,
+        ),
+      );
+
+      // The update response carries the command's own shape rather than the
+      // full transaction, so the stored record is re-read: step 3 confirms
+      // what the API now holds, not what was sent to it.
+      return await read(id);
+    } on DioException catch (exception) {
+      // AF-03: a settled statement, a reconciled record, or any other rule
+      // this client does not know — all in the API's own words.
+      return failureFromDioException<Transaction>(exception);
+    }
+  }
+
+  @override
+  Future<Result<void>> delete(String id) async {
+    try {
+      await _client.deleteApiTransactionsId(id: id);
+      return const Success(null);
+    } on DioException catch (exception) {
+      return failureFromDioException<void>(exception);
+    }
+  }
+
+  /// Maps the full transaction the API stores.
+  ///
+  /// Public because the search and the detail read the same shape, and two
+  /// mappings of one payload is how the two drift apart.
+  static Transaction fromOutput(TransactionOutput output) {
+    final currency = output.currencyCode ?? '';
+    final recordId = output.importedRecordId;
+    final importedAmount = output.importedAmount;
+
+    return Transaction(
+      id: output.id ?? '',
+      occurredOn: output.occurredOn ?? DateTime(1970),
+      amount: Money.parse(output.amount ?? '0', currency),
+      direction: Direction.from(output.direction),
+      categoryId: output.categoryId ?? '',
+      categoryName: output.categoryName,
+      financialAccountId: output.financialAccountId,
+      financialAccountName: output.financialAccountName,
+      creditCardId: output.creditCardId,
+      creditCardName: output.creditCardName,
+      description: output.description,
+      counterpartyName: output.counterpartyName,
+      isTransfer: output.isTransfer ?? false,
+      isReconciled: output.isReconciled ?? false,
+      isDeleted: output.isDeleted ?? false,
+      isManuallyCorrected: output.isManuallyCorrected ?? false,
+      source: TransactionSource.from(output.sourceType),
+      tags: output.tags?.whereType<String>().toList() ?? const [],
+      importedRecord: recordId == null
+          ? null
+          : ImportedRecord(
+              recordId: recordId,
+              importJobId: output.importJobId,
+              amount: importedAmount == null
+                  ? null
+                  : Money.parse(importedAmount, currency),
+              occurredOn: output.importedOccurredOn,
+            ),
+    );
   }
 
   static Transaction _from(RecordTransactionCommandOutput output) {
