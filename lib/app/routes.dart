@@ -101,6 +101,9 @@ abstract final class Routes {
   /// Charts and drill-down (`UC-36`, `UC-37`).
   static const insight = '/insight';
 
+  /// Projections and committed obligations (`UC-38`).
+  static const projections = '$insight/projections';
+
   static const audit = '/audit';
 
   // Instance administrator.
