@@ -72,6 +72,16 @@ class EditableTransactions extends FakeTransactions {
     deleted.add(id);
     return onDelete?.call() ?? const Success(null);
   }
+
+  // UC-24 added this to the interface. Defaulted here so the UC-20 tests stay
+  // about UC-20; `ReconcilableTransactions` in reconcile_transaction_test.dart
+  // is where it is actually exercised.
+  @override
+  Future<Result<Transaction>> reconcile({
+    required String id,
+    int? importedRecordId,
+    String? importJobId,
+  }) async => Success(stored(isReconciled: true));
 }
 
 /// Answers only when the test lets it, so the loading state is observable.

@@ -101,6 +101,26 @@ class ImportedRecord {
   final DateTime? occurredOn;
 }
 
+/// How a transaction came to be reconciled (`UC-24 AF-02`).
+///
+/// The two are kept apart because they are different claims. A matched
+/// reconciliation says an institution reported this movement; a self-confirmed
+/// one says the user vouches for it with nothing behind it but their word.
+/// `AF-02` requires the interface to say which happened, and a single boolean
+/// could not.
+enum ReconciliationKind {
+  /// Reconciled against an imported record.
+  matchedToRecord,
+
+  /// Confirmed by the user, with no imported record behind it.
+  selfConfirmed;
+
+  String get label => switch (this) {
+    ReconciliationKind.matchedToRecord => 'Matched to an imported record',
+    ReconciliationKind.selfConfirmed => 'Confirmed by you',
+  };
+}
+
 /// A recorded transaction, as the API stored it.
 @immutable
 class Transaction {
@@ -168,8 +188,31 @@ class Transaction {
   /// What the transaction is attached to, for display.
   String? get holdingName => financialAccountName ?? creditCardName;
 
-  /// Whether editing is offered at all (`AF-05`).
+  /// Whether editing is offered at all (`UC-20 AF-05`).
   bool get isEditable => !isDeleted;
+
+  /// Whether reconciling is offered (`UC-24` step 1, `AF-01`).
+  ///
+  /// A deleted transaction is excluded as well as an already-reconciled one:
+  /// vouching for a record that is not in any view would be confirming
+  /// something the user cannot see.
+  bool get canReconcile => !isReconciled && !isDeleted;
+
+  /// Which kind of reconciliation happened (`AF-02`), or `null` where none
+  /// has.
+  ///
+  /// Derived from whether an imported record backs the transaction, because
+  /// that is what the API's transaction payload actually carries: it reports
+  /// `isReconciled` and the imported record, but not a separate account of
+  /// how the two were joined. A transaction with a record behind it was
+  /// matched to one; a transaction without is the user's own word.
+  ReconciliationKind? get reconciliationKind {
+    if (!isReconciled) return null;
+
+    return importedRecord == null
+        ? ReconciliationKind.selfConfirmed
+        : ReconciliationKind.matchedToRecord;
+  }
 }
 
 abstract interface class TransactionRepository {
@@ -210,6 +253,16 @@ abstract interface class TransactionRepository {
 
   /// Deletes a transaction, recoverably (`UC-40`).
   Future<Result<void>> delete(String id);
+
+  /// Reconciles a transaction (`FR-MM-12`).
+  ///
+  /// With an imported record where the API proposed one, and without where
+  /// the user is vouching for the transaction themselves (`AF-02`).
+  Future<Result<Transaction>> reconcile({
+    required String id,
+    int? importedRecordId,
+    String? importJobId,
+  });
 }
 
 class HttpTransactionRepository implements TransactionRepository {
@@ -346,6 +399,35 @@ class HttpTransactionRepository implements TransactionRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    }
+  }
+
+  @override
+  Future<Result<Transaction>> reconcile({
+    required String id,
+    int? importedRecordId,
+    String? importJobId,
+  }) async {
+    try {
+      await _client.postApiTransactionsIdReconcile(
+        id: id,
+        body: ReconcileTransactionCommand(
+          importedRecordId: importedRecordId,
+          importJobId: importJobId,
+          // This use case only reconciles. Undoing one is a different action
+          // with a different meaning, and sending `false` here states that
+          // plainly rather than leaving the flag to a default.
+          unreconcile: false,
+        ),
+      );
+
+      // The reconcile response carries a narrow projection, so the stored
+      // record is re-read: step 4 shows the transaction's new state as the
+      // API now holds it, including which kind of reconciliation happened.
+      return await read(id);
+    } on DioException catch (exception) {
+      // AF-03 and AF-04, in the API's own words.
+      return failureFromDioException<Transaction>(exception);
     }
   }
 

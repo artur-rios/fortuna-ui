@@ -93,6 +93,31 @@ class TransactionActions {
     return result;
   }
 
+  /// Reconciles a transaction (`UC-24`).
+  ///
+  /// [importedRecordId] and [importJobId] are passed where the API proposed a
+  /// match, and omitted where the user is confirming the transaction
+  /// themselves — which is `AF-02`, and is a different claim rather than a
+  /// lesser one.
+  Future<Result<Transaction>> reconcile({
+    required String id,
+    int? importedRecordId,
+    String? importJobId,
+  }) async {
+    final result = await _ref
+        .read(transactionRepositoryProvider)
+        .reconcile(
+          id: id,
+          importedRecordId: importedRecordId,
+          importJobId: importJobId,
+        );
+
+    // Reconciling changes no figure, so only the transaction is re-read.
+    if (result.isSuccess) _ref.invalidate(transactionProvider(id));
+
+    return result;
+  }
+
   /// A transaction moves money, so anything that reported a figure including
   /// it is now stale. Re-reading is cheaper than showing a balance that
   /// disagrees with the record the user is looking at.
