@@ -34,6 +34,7 @@ import '../features/ingestion/ui/import_file_screen.dart';
 import '../features/ingestion/ui/import_jobs_screen.dart';
 import '../features/labels/ui/labels_screen.dart';
 import '../features/planning/ui/budgets_screen.dart';
+import '../features/planning/ui/goals_screen.dart';
 import '../features/preferences/ui/settings_screen.dart';
 import '../features/privacy/ui/privacy_screen.dart';
 import '../features/setup/ui/setup_screen.dart';
@@ -168,6 +169,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.budgets,
         builder: (context, state) => const BudgetsScreen(),
+      ),
+      GoRoute(
+        path: Routes.goals,
+        builder: (context, state) => const GoalsScreen(),
       ),
       GoRoute(
         path: Routes.categories,
