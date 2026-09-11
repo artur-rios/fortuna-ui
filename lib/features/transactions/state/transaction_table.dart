@@ -20,6 +20,7 @@ import 'package:meta/meta.dart';
 import '../../../core/config/instance_config.dart';
 import '../../../core/result/result.dart';
 import '../../../core/storage/preferences_store.dart';
+import '../../insight/data/export_repository.dart';
 import '../data/transaction_repository.dart';
 
 /// How many records a page holds.
@@ -390,3 +391,64 @@ class TableUnavailable implements Exception {
   @override
   String toString() => message;
 }
+
+/// The view's filters, described as the user reads them (`FR-EX-03`).
+///
+/// Lives here rather than in the export sheet because the wording has to come
+/// from whatever knows what the filter means. An export that said
+/// `categoryId=cat1` would be technically accurate and useless: step 2 exists
+/// so the user can check the scope, and a scope stated in identifiers cannot
+/// be checked.
+List<ExportFilter> describeFilters(TransactionView view) {
+  final described = <ExportFilter>[];
+
+  void add(String field, String operator, String value, String description) =>
+      described.add(
+        ExportFilter(
+          field: field,
+          operator: operator,
+          value: value,
+          description: description,
+        ),
+      );
+
+  if (view.from case final from?) {
+    add('occurredOn', 'gte', from.toIso8601String(), 'From ${_day(from)}');
+  }
+  if (view.to case final to?) {
+    add('occurredOn', 'lte', to.toIso8601String(), 'Up to ${_day(to)}');
+  }
+  if (view.financialAccountId case final id?) {
+    add('financialAccountId', 'eq', id, 'One account only');
+  }
+  if (view.creditCardId case final id?) {
+    add('creditCardId', 'eq', id, 'One card only');
+  }
+  if (view.categoryId case final id?) {
+    add('categoryId', 'eq', id, 'One category only');
+  }
+  if (view.tagId case final id?) {
+    add('tagId', 'eq', id, 'One tag only');
+  }
+  if (view.counterpartyId case final id?) {
+    add('counterpartyId', 'eq', id, 'One counterparty only');
+  }
+  if (view.direction case final direction?) {
+    add('direction', 'eq', '${direction.wire}', '${direction.label}s only');
+  }
+  if (view.minimumAmount case final minimum? when minimum.isNotEmpty) {
+    add('amount', 'gte', minimum, 'At least $minimum');
+  }
+  if (view.maximumAmount case final maximum? when maximum.isNotEmpty) {
+    add('amount', 'lte', maximum, 'At most $maximum');
+  }
+  if (view.text case final text? when text.isNotEmpty) {
+    add('text', 'contains', text, 'Matching "$text"');
+  }
+
+  return described;
+}
+
+String _day(DateTime date) =>
+    '${date.year}-${date.month.toString().padLeft(2, '0')}-'
+    '${date.day.toString().padLeft(2, '0')}';
