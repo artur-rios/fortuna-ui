@@ -121,6 +121,35 @@ enum ReconciliationKind {
   };
 }
 
+/// One page of the spreadsheet view (`UC-25`).
+@immutable
+class TransactionPage {
+  const TransactionPage({
+    required this.items,
+    required this.pageNumber,
+    required this.pageSize,
+    required this.totalItems,
+    required this.totalPages,
+  });
+
+  final List<Transaction> items;
+
+  /// The page the API actually returned, which is not always the page asked
+  /// for — `AF-05` relies on this being the API's answer rather than the
+  /// request echoed back.
+  final int pageNumber;
+
+  final int pageSize;
+  final int totalItems;
+  final int totalPages;
+
+  /// `AF-02`: no matching records, which is not a failure.
+  bool get isEmpty => items.isEmpty;
+
+  bool get hasPrevious => pageNumber > 1;
+  bool get hasNext => pageNumber < totalPages;
+}
+
 /// A recorded transaction, as the API stored it.
 @immutable
 class Transaction {
@@ -253,6 +282,30 @@ abstract interface class TransactionRepository {
 
   /// Deletes a transaction, recoverably (`UC-40`).
   Future<Result<void>> delete(String id);
+
+  /// One page of records, filtered and sorted **by the API** (`FR-TB-02`).
+  ///
+  /// Every argument is a question for the instance, not a hint for a local
+  /// pass: this client never holds a full set to filter or sort. That is what
+  /// keeps the view usable on a history too large to fit in memory, and it is
+  /// why there is no unfiltered `list` on this interface to be tempted by.
+  Future<Result<TransactionPage>> search({
+    DateTime? from,
+    DateTime? to,
+    String? financialAccountId,
+    String? creditCardId,
+    String? categoryId,
+    String? tagId,
+    String? counterpartyId,
+    Direction? direction,
+    String? minimumAmount,
+    String? maximumAmount,
+    String? text,
+    String? sortBy,
+    bool descending,
+    int pageNumber,
+    int pageSize,
+  });
 
   /// Reconciles a transaction (`FR-MM-12`).
   ///
@@ -399,6 +452,72 @@ class HttpTransactionRepository implements TransactionRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    }
+  }
+
+  @override
+  Future<Result<TransactionPage>> search({
+    DateTime? from,
+    DateTime? to,
+    String? financialAccountId,
+    String? creditCardId,
+    String? categoryId,
+    String? tagId,
+    String? counterpartyId,
+    Direction? direction,
+    String? minimumAmount,
+    String? maximumAmount,
+    String? text,
+    String? sortBy,
+    bool descending = true,
+    int pageNumber = 1,
+    int pageSize = 25,
+  }) async {
+    try {
+      final output = (await _client.getApiTransactions(
+        from: from,
+        to: to,
+        financialAccountId: financialAccountId,
+        creditCardId: creditCardId,
+        categoryId: categoryId,
+        tagId: tagId,
+        counterpartyId: counterpartyId,
+        direction: direction?.asApi,
+        // The bounds travel as strings, like every other amount.
+        minimumAmount: minimumAmount,
+        maximumAmount: maximumAmount,
+        text: text,
+        sortBy: sortBy,
+        descending: descending,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      )).data;
+
+      if (output == null) {
+        return const Failure(
+          message: 'The instance returned no page.',
+          kind: FailureKind.serverError,
+        );
+      }
+
+      return Success(
+        TransactionPage(
+          items: [
+            for (final item in output.items ?? const <TransactionOutput>[])
+              fromOutput(item),
+          ],
+          // The API's own page number, not the one requested: asking beyond
+          // the last page is answered with the last, and `AF-05` shows what
+          // came back rather than insisting on what was asked for.
+          pageNumber: output.pageNumber ?? pageNumber,
+          pageSize: output.pageSize ?? pageSize,
+          totalItems: output.totalItems ?? 0,
+          totalPages: output.totalPages ?? 0,
+        ),
+      );
+    } on DioException catch (exception) {
+      // AF-03.
+      return failureFromDioException<TransactionPage>(exception);
     }
   }
 

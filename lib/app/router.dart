@@ -40,6 +40,7 @@ import '../features/transactions/ui/record_installment_screen.dart';
 import '../features/transactions/ui/record_transaction_screen.dart';
 import '../features/transactions/ui/record_transfer_screen.dart';
 import '../features/transactions/ui/transaction_screen.dart';
+import '../features/transactions/ui/transactions_screen.dart';
 import 'route_guard.dart';
 import 'routes.dart';
 import 'shell.dart';
@@ -141,6 +142,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.investment,
         builder: (context, state) =>
             InvestmentScreen(investmentId: state.pathParameters['id'] ?? ''),
+      ),
+      GoRoute(
+        path: Routes.transactions,
+        builder: (context, state) => const TransactionsScreen(),
       ),
       GoRoute(
         path: Routes.recordTransaction,
