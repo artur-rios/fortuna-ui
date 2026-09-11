@@ -76,6 +76,9 @@ abstract final class Routes {
   /// Recording a transfer (`UC-21`).
   static const recordTransfer = '/transfers/new';
 
+  /// Recording an installment purchase (`UC-22`).
+  static const recordInstallment = '/installments/new';
+
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
