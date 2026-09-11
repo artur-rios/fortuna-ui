@@ -161,6 +161,52 @@ class Aggregation {
       !isFullyConverted || buckets.any((bucket) => !bucket.isFullyConverted);
 }
 
+/// What a drill-down level turned out to be.
+///
+/// The API decides which: a level that can be broken down further answers
+/// with buckets, and the finest level answers with the transactions
+/// themselves. `AF-01` therefore needs no test for "is this the bottom" —
+/// the answer arrives with the data.
+@immutable
+sealed class DrillLevel {
+  const DrillLevel();
+}
+
+/// A deeper aggregation, drillable in turn.
+@immutable
+final class DrillBuckets extends DrillLevel {
+  const DrillBuckets({required this.dimension, required this.buckets});
+
+  /// What this level groups by, as the API named it.
+  final String dimension;
+
+  final List<AggregationBucket> buckets;
+
+  /// `AF-03`: nothing at this level, with the path still intact above it.
+  bool get isEmpty => buckets.isEmpty;
+}
+
+/// The finest level: the transactions that produced the figure (step 6).
+@immutable
+final class DrillTransactions extends DrillLevel {
+  const DrillTransactions({
+    required this.transactions,
+    required this.totalItems,
+    required this.mayDifferFromChart,
+  });
+
+  final List<Transaction> transactions;
+  final int totalItems;
+
+  /// The API's own warning that these rows may not reconstruct the figure
+  /// above them exactly — a conversion, a rounding, or a filter can make the
+  /// two differ. Passed through rather than hidden: a reader adding the rows
+  /// up and getting a different number deserves to know why in advance.
+  final bool mayDifferFromChart;
+
+  bool get isEmpty => transactions.isEmpty;
+}
+
 abstract interface class AggregationRepository {
   /// Asks the API for an aggregation (`FR-CH-02`).
   Future<Result<Aggregation>> aggregate({
@@ -174,6 +220,27 @@ abstract interface class AggregationRepository {
     String? categoryId,
     String? counterpartyId,
     bool rollUpSmallest,
+  });
+
+  /// Asks the API for the level beneath [key] (`FR-CH-04`).
+  ///
+  /// Each level is requested; none is produced by subdividing an aggregate
+  /// this client already holds. That is the difference between a breakdown
+  /// the instance stands behind and one this client invented from a total.
+  Future<Result<DrillLevel>> drillDown({
+    required String key,
+    String? dimension,
+
+    /// The currency the chart above is displaying in.
+    ///
+    /// Carried down rather than re-derived: the drill-down response states no
+    /// display currency of its own, and a total without a currency is the
+    /// bare number `BR-07` forbids. Where the chart has none, the deeper
+    /// totals have none either, and the interface says so instead of
+    /// guessing.
+    String? displayCurrencyCode,
+    int pageNumber,
+    int pageSize,
   });
 }
 
@@ -226,6 +293,64 @@ class HttpAggregationRepository implements AggregationRepository {
     } on DioException catch (exception) {
       // AF-02.
       return failureFromDioException<Aggregation>(exception);
+    }
+  }
+
+  @override
+  Future<Result<DrillLevel>> drillDown({
+    required String key,
+    String? dimension,
+    String? displayCurrencyCode,
+    int pageNumber = 1,
+    int pageSize = 50,
+  }) async {
+    try {
+      final output = (await _client.getApiReportsDrillDown(
+        key: key,
+        dimension: dimension,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      )).data;
+
+      if (output == null) {
+        return const Failure(
+          message: 'The instance returned no breakdown.',
+          kind: FailureKind.serverError,
+        );
+      }
+
+      final transactions = output.transactions;
+
+      // The API says which kind of level this is by what it sends. A level
+      // carrying transactions is the finest one; anything else is a further
+      // grouping.
+      if (transactions != null) {
+        return Success(
+          DrillTransactions(
+            transactions: [
+              for (final transaction in transactions)
+                HttpTransactionRepository.fromOutput(transaction),
+            ],
+            totalItems: output.totalItems ?? transactions.length,
+            mayDifferFromChart: output.mayDifferFromChart ?? false,
+          ),
+        );
+      }
+
+      return Success(
+        DrillBuckets(
+          dimension: output.dimension ?? '',
+          buckets: [
+            for (final bucket
+                in output.buckets ??
+                    const <TransactionAggregationBucketOutput>[])
+              _bucketFrom(bucket, displayCurrencyCode),
+          ],
+        ),
+      );
+    } on DioException catch (exception) {
+      // AF-02: the current level stays displayed and this is reported.
+      return failureFromDioException<DrillLevel>(exception);
     }
   }
 

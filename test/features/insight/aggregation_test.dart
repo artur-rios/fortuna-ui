@@ -48,6 +48,18 @@ class FakeAggregations implements AggregationRepository {
     });
     return onAggregate?.call(grouping) ?? Success(aggregation());
   }
+
+  // UC-37 added this to the interface. Defaulted here so the UC-36 tests stay
+  // about UC-36; `DrillableAggregations` in drill_down_test.dart is where it
+  // is actually exercised.
+  @override
+  Future<Result<DrillLevel>> drillDown({
+    required String key,
+    String? dimension,
+    String? displayCurrencyCode,
+    int pageNumber = 1,
+    int pageSize = 50,
+  }) async => const Success(DrillBuckets(dimension: '', buckets: []));
 }
 
 /// Answers only when the test lets it, so the loading state is observable.
@@ -69,6 +81,15 @@ class SlowAggregations implements AggregationRepository {
     String? counterpartyId,
     bool rollUpSmallest = true,
   }) => _pending;
+
+  @override
+  Future<Result<DrillLevel>> drillDown({
+    required String key,
+    String? dimension,
+    String? displayCurrencyCode,
+    int pageNumber = 1,
+    int pageSize = 50,
+  }) async => const Success(DrillBuckets(dimension: '', buckets: []));
 }
 
 AggregationBucket bucket({

@@ -267,7 +267,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | Issue | Status | Work | Spec |
 |---|---|---|---|
 | [#37](https://github.com/artur-rios/fortuna-ui/issues/37) | ✅ | UC-36 — Read an Aggregation as a Chart | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#38](https://github.com/artur-rios/fortuna-ui/issues/38) | ⬜ | UC-37 — Drill Into a Chart Aggregation | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#38](https://github.com/artur-rios/fortuna-ui/issues/38) | ✅ | UC-37 — Drill Into a Chart Aggregation | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#39](https://github.com/artur-rios/fortuna-ui/issues/39) | ⬜ | UC-38 — View the Net Position, Projections and Obligations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#40](https://github.com/artur-rios/fortuna-ui/issues/40) | ⬜ | UC-39 — Export a Data Set | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
