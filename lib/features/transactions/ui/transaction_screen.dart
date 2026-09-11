@@ -189,21 +189,13 @@ class _Detail extends ConsumerWidget {
                 Text('Source', style: theme.textTheme.labelMedium),
                 const SizedBox(height: 4),
                 Text(transaction.source.label),
-                if (transaction.isReconciled) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    key: const Key('transaction.reconciled'),
-                    children: [
-                      const Icon(Icons.verified_outlined, size: 16),
-                      const SizedBox(width: 8),
-                      Text('Reconciled', style: theme.textTheme.bodySmall),
-                    ],
-                  ),
-                ],
               ],
             ),
           ),
         ),
+
+        const SizedBox(height: 16),
+        _Reconciliation(transaction: transaction),
 
         // FR-MM-13 and AF-04: the raw record, read-only, with the reason.
         if (transaction.importedRecord case final record?) ...[
@@ -215,6 +207,147 @@ class _Detail extends ConsumerWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Reconciliation (UC-24).
+///
+/// `AF-01` and `AF-02` are both about saying what is true rather than showing
+/// a control. A reconciled transaction states **which kind** of reconciliation
+/// happened, because "an institution reported this" and "the user vouched for
+/// it" are different claims that a single tick would flatten into one.
+class _Reconciliation extends ConsumerStatefulWidget {
+  const _Reconciliation({required this.transaction});
+
+  final Transaction transaction;
+
+  @override
+  ConsumerState<_Reconciliation> createState() => _ReconciliationState();
+}
+
+class _ReconciliationState extends ConsumerState<_Reconciliation> {
+  String? _error;
+  var _busy = false;
+
+  Future<void> _reconcile() async {
+    setState(() {
+      _error = null;
+      _busy = true;
+    });
+
+    final record = widget.transaction.importedRecord;
+
+    final result = await ref
+        .read(transactionActionsProvider)
+        .reconcile(
+          id: widget.transaction.id,
+          // Where the API proposed a match, it is what gets reconciled
+          // against; where it did not, the user is confirming the transaction
+          // themselves (AF-02).
+          importedRecordId: record?.recordId,
+          importJobId: record?.importJobId,
+        );
+
+    if (!mounted) return;
+
+    switch (result) {
+      // Step 4: the provider was invalidated, so the new state arrives on its
+      // own and this widget rebuilds into the reconciled branch.
+      case Success<Transaction>():
+        setState(() => _busy = false);
+      // AF-03 and AF-04, in the API's own words.
+      case Failure<Transaction>(:final message):
+        setState(() {
+          _error = message;
+          _busy = false;
+        });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final transaction = widget.transaction;
+
+    // AF-01: the action is not offered, and the state is shown instead.
+    if (transaction.reconciliationKind case final kind?) {
+      return Card(
+        key: const Key('transaction.reconciled'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.verified_outlined, color: theme.colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Reconciled', style: theme.textTheme.titleSmall),
+                    const SizedBox(height: 2),
+                    // AF-02: which kind, said rather than implied.
+                    Text(
+                      kind.label,
+                      key: const Key('transaction.reconciliationKind'),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (!transaction.canReconcile) return const SizedBox.shrink();
+
+    final record = transaction.importedRecord;
+
+    return Card(
+      key: const Key('transaction.reconcile'),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Not yet reconciled', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 4),
+            Text(
+              // Step 2 and AF-02 say different things here, so the screen
+              // does too: with a record, reconciling confirms a match; with
+              // none, it is the user's own word and should read that way.
+              record == null
+                  ? 'No imported record matches this transaction. You can '
+                        'still confirm it yourself — it will be recorded as '
+                        'your own confirmation rather than as a match.'
+                  : 'The instance proposes the imported record below as its '
+                        'match. Reconciling confirms the two describe the '
+                        'same movement.',
+              key: const Key('transaction.reconcile.explanation'),
+              style: theme.textTheme.bodySmall,
+            ),
+
+            if (_error case final message?) ...[
+              const SizedBox(height: 12),
+              Text(
+                message,
+                key: const Key('transaction.reconcile.error'),
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              key: const Key('transaction.reconcile.confirm'),
+              icon: const Icon(Icons.check),
+              label: Text(record == null ? 'Confirm it myself' : 'Reconcile'),
+              onPressed: _busy ? null : () => unawaited(_reconcile()),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -78,6 +78,13 @@ class FakeTransactions implements TransactionRepository {
 
   @override
   Future<Result<void>> delete(String id) async => const Success(null);
+
+  @override
+  Future<Result<Transaction>> reconcile({
+    required String id,
+    int? importedRecordId,
+    String? importJobId,
+  }) async => Success(transaction());
 }
 
 class FakeCards implements CreditCardRepository {

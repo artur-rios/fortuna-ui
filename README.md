@@ -237,7 +237,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | [#22](https://github.com/artur-rios/fortuna-ui/issues/22) | ✅ | UC-21 — Record a Transfer | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#23](https://github.com/artur-rios/fortuna-ui/issues/23) | ✅ | UC-22 — Record an Installment Purchase | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#24](https://github.com/artur-rios/fortuna-ui/issues/24) | ⬜ | UC-23 — Manage Recurring Commitments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#25](https://github.com/artur-rios/fortuna-ui/issues/25) | ⬜ | UC-24 — Reconcile a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#25](https://github.com/artur-rios/fortuna-ui/issues/25) | ✅ | UC-24 — Reconcile a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#26](https://github.com/artur-rios/fortuna-ui/issues/26) | ⬜ | UC-25 — Explore Records as a Spreadsheet | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#41](https://github.com/artur-rios/fortuna-ui/issues/41) | ⬜ | UC-40 — Restore or Permanently Remove a Deleted Record | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#42](https://github.com/artur-rios/fortuna-ui/issues/42) | ✅ | UC-41 — Read the Audit Trail | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
