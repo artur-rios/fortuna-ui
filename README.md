@@ -248,7 +248,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 |---|---|---|---|
 | [#27](https://github.com/artur-rios/fortuna-ui/issues/27) | ✅ | UC-26 — Manage the Category Tree | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#28](https://github.com/artur-rios/fortuna-ui/issues/28) | ✅ | UC-27 — Manage Tags and Counterparties | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#29](https://github.com/artur-rios/fortuna-ui/issues/29) | ⬜ | UC-28 — Manage Budgets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#29](https://github.com/artur-rios/fortuna-ui/issues/29) | ✅ | UC-28 — Manage Budgets | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#30](https://github.com/artur-rios/fortuna-ui/issues/30) | ⬜ | UC-29 — Manage Goals | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ### M-06 — Ingestion and attachments

@@ -79,6 +79,10 @@ abstract final class Routes {
   /// Recording an installment purchase (`UC-22`).
   static const recordInstallment = '/installments/new';
 
+  /// Budgets and goals (`UC-28`, `UC-29`).
+  static const budgets = '/budgets';
+  static const goals = '/goals';
+
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
