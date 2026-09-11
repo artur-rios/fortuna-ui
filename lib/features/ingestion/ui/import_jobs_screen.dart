@@ -3,8 +3,10 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/routes.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../../session/ui/sign_out_action.dart';
@@ -97,6 +99,18 @@ class _JobCard extends ConsumerWidget {
             if (job.isFinished) ...[
               const SizedBox(height: 12),
               _Outcomes(job: job),
+              const SizedBox(height: 8),
+              // UC-34 step 1: the records behind those counts, reached from
+              // the job that produced them.
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: Key('jobs.records.${job.id}'),
+                  icon: const Icon(Icons.list_alt_outlined, size: 18),
+                  label: const Text('Review the records'),
+                  onPressed: () => context.go(Routes.importRecordsOf(job.id)),
+                ),
+              ),
             ],
 
             // AF-01. The failure and its reason, then a retry.

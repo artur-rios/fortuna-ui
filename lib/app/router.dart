@@ -33,6 +33,7 @@ import '../features/ingestion/ui/connections_screen.dart';
 import '../features/ingestion/ui/data_sources_screen.dart';
 import '../features/ingestion/ui/import_file_screen.dart';
 import '../features/ingestion/ui/import_jobs_screen.dart';
+import '../features/ingestion/ui/imported_records_screen.dart';
 import '../features/labels/ui/labels_screen.dart';
 import '../features/planning/ui/budgets_screen.dart';
 import '../features/planning/ui/goals_screen.dart';
@@ -194,6 +195,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.imports,
         builder: (context, state) => const ImportJobsScreen(),
+      ),
+      GoRoute(
+        path: Routes.importRecords,
+        builder: (context, state) =>
+            ImportedRecordsScreen(jobId: state.pathParameters['id'] ?? ''),
       ),
       GoRoute(
         path: Routes.importFile,

@@ -86,6 +86,12 @@ abstract final class Routes {
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
+
+  /// The raw records one import job took in (`UC-34`).
+  static const importRecords = '$imports/:id/records';
+
+  /// The concrete path for one job's records.
+  static String importRecordsOf(String jobId) => '$imports/$jobId/records';
   static const importFile = '/imports/new';
   static const connections = '/connections';
 
