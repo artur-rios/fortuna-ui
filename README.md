@@ -232,7 +232,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 
 | Issue | Status | Work | Spec |
 |---|---|---|---|
-| [#20](https://github.com/artur-rios/fortuna-ui/issues/20) | ⬜ | UC-19 — Record a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#20](https://github.com/artur-rios/fortuna-ui/issues/20) | ✅ | UC-19 — Record a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#21](https://github.com/artur-rios/fortuna-ui/issues/21) | ⬜ | UC-20 — Update or Delete a Transaction | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#22](https://github.com/artur-rios/fortuna-ui/issues/22) | ⬜ | UC-21 — Record a Transfer | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#23](https://github.com/artur-rios/fortuna-ui/issues/23) | ⬜ | UC-22 — Record an Installment Purchase | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |

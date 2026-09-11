@@ -65,6 +65,10 @@ abstract final class Routes {
   /// The concrete path for one investment.
   static String investmentOf(String id) => '$investments/$id';
 
+  /// Recording and editing money movement (`UC-19`, `UC-20`).
+  static const transactions = '/transactions';
+  static const recordTransaction = '$transactions/new';
+
   static const categories = '/categories';
   static const labels = '/labels';
   static const imports = '/imports';
