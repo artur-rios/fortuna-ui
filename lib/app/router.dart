@@ -37,6 +37,7 @@ import '../features/preferences/ui/settings_screen.dart';
 import '../features/privacy/ui/privacy_screen.dart';
 import '../features/setup/ui/setup_screen.dart';
 import '../features/transactions/ui/record_transaction_screen.dart';
+import '../features/transactions/ui/record_transfer_screen.dart';
 import '../features/transactions/ui/transaction_screen.dart';
 import 'route_guard.dart';
 import 'routes.dart';
@@ -148,6 +149,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.transaction,
         builder: (context, state) =>
             TransactionScreen(transactionId: state.pathParameters['id'] ?? ''),
+      ),
+      GoRoute(
+        path: Routes.recordTransfer,
+        builder: (context, state) => const RecordTransferScreen(),
       ),
       GoRoute(
         path: Routes.categories,
