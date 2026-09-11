@@ -259,7 +259,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | [#32](https://github.com/artur-rios/fortuna-ui/issues/32) | ✅ | UC-31 — Synchronize, Reauthenticate or Revoke a Connection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#33](https://github.com/artur-rios/fortuna-ui/issues/33) | ✅ | UC-32 — Import a File | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#34](https://github.com/artur-rios/fortuna-ui/issues/34) | ✅ | UC-33 — Monitor an Import Job | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
-| [#35](https://github.com/artur-rios/fortuna-ui/issues/35) | ⬜ | UC-34 — Review Imported Records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#35](https://github.com/artur-rios/fortuna-ui/issues/35) | ✅ | UC-34 — Review Imported Records | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#36](https://github.com/artur-rios/fortuna-ui/issues/36) | ⬜ | UC-35 — Manage a Transaction's Attachments | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ### M-07 — Insight and output
