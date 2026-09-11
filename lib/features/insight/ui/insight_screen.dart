@@ -5,6 +5,8 @@
 /// pick, because no control exists for it.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +15,9 @@ import '../../../core/format/supported_locales.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/aggregation_repository.dart';
 import '../state/aggregation_providers.dart';
+import '../state/drill_down_controller.dart';
 import 'aggregation_chart.dart';
+import 'drill_down_view.dart';
 
 class InsightScreen extends ConsumerStatefulWidget {
   const InsightScreen({super.key});
@@ -42,6 +46,23 @@ class _InsightScreenState extends ConsumerState<InsightScreen> {
       displayCurrencyCode: preferences.displayCurrency,
     );
     final aggregation = ref.watch(aggregationProvider(request));
+    final drill = ref.watch(drillDownControllerProvider);
+    final currency = request.displayCurrencyCode;
+
+    // UC-37: while a drill is in progress the chart's own controls are not
+    // shown. They would change the question the path is an answer to, and a
+    // breadcrumb over a chart the user has since re-filtered describes
+    // nothing.
+    if (drill is! AtChart) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Insight')),
+        body: DrillDownView(
+          state: drill,
+          displayCurrencyCode: currency,
+          rootLabel: _request.grouping.label,
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Insight')),
@@ -78,8 +99,22 @@ class _InsightScreenState extends ConsumerState<InsightScreen> {
                   ),
                 ),
               ),
-              data: (value) =>
-                  value.isEmpty ? const _Empty() : _Loaded(aggregation: value),
+              data: (value) => value.isEmpty
+                  ? const _Empty()
+                  : _Loaded(
+                      aggregation: value,
+                      // Step 1: selecting an element starts the descent, and
+                      // what is handed on is the bucket itself.
+                      onSelect: (bucket) => unawaited(
+                        ref
+                            .read(drillDownControllerProvider.notifier)
+                            .descend(
+                              bucket,
+                              dimension: value.grouping.wireName,
+                              displayCurrencyCode: currency,
+                            ),
+                      ),
+                    ),
             ),
           ),
         ],
@@ -198,9 +233,10 @@ class _Empty extends StatelessWidget {
 }
 
 class _Loaded extends StatelessWidget {
-  const _Loaded({required this.aggregation});
+  const _Loaded({required this.aggregation, this.onSelect});
 
   final Aggregation aggregation;
+  final void Function(AggregationBucket)? onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +277,7 @@ class _Loaded extends StatelessWidget {
           ),
         if (aggregation.spansCurrencies) const SizedBox(height: 16),
 
-        AggregationChart(aggregation: aggregation),
+        AggregationChart(aggregation: aggregation, onSelect: onSelect),
       ],
     );
   }
