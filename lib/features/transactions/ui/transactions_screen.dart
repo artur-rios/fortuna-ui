@@ -12,6 +12,8 @@
 /// shown as though it answered the new question.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,6 +26,7 @@ import '../../categories/data/category_repository.dart';
 import '../../categories/state/category_providers.dart';
 import '../../holdings/data/account_repository.dart';
 import '../../holdings/state/account_providers.dart';
+import '../../insight/ui/export_sheet.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/transaction_repository.dart';
 import '../state/transaction_table.dart';
@@ -37,7 +40,32 @@ class TransactionsScreen extends ConsumerWidget {
     final page = ref.watch(transactionPageProvider(view));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Transactions')),
+      appBar: AppBar(
+        title: const Text('Transactions'),
+        actions: [
+          IconButton(
+            key: const Key('transactions.export'),
+            tooltip: 'Export',
+            icon: const Icon(Icons.download_outlined),
+            onPressed: () => unawaited(
+              showExportSheet(
+                context,
+                ref,
+                recordSet: 'transactions',
+                // FR-EX-03: the view's own filters, described as the user
+                // reads them, so step 2 can state what the file will hold.
+                filters: describeFilters(view),
+                // AF-01 is decided here: an empty view has nothing to export,
+                // and the sheet says so instead of offering a button.
+                hasData: switch (page) {
+                  AsyncData(value: final value) => !value.isEmpty,
+                  _ => false,
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('transactions.record'),
         onPressed: () => context.go(Routes.recordTransaction),
