@@ -37,6 +37,7 @@ import '../features/ingestion/ui/imported_records_screen.dart';
 import '../features/insight/ui/insight_screen.dart';
 import '../features/insight/ui/projections_screen.dart';
 import '../features/labels/ui/labels_screen.dart';
+import '../features/lifecycle/ui/deleted_records_screen.dart';
 import '../features/planning/ui/budgets_screen.dart';
 import '../features/planning/ui/goals_screen.dart';
 import '../features/preferences/ui/settings_screen.dart';
@@ -189,6 +190,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.projections,
         builder: (context, state) => const ProjectionsScreen(),
+      ),
+      GoRoute(
+        path: Routes.deleted,
+        builder: (context, state) => const DeletedRecordsScreen(),
       ),
       GoRoute(
         path: Routes.audit,
