@@ -30,6 +30,7 @@ import '../features/holdings/ui/investment_screen.dart';
 import '../features/holdings/ui/investments_screen.dart';
 import '../features/holdings/ui/statement_screen.dart';
 import '../features/ingestion/ui/connections_screen.dart';
+import '../features/ingestion/ui/data_sources_screen.dart';
 import '../features/ingestion/ui/import_file_screen.dart';
 import '../features/ingestion/ui/import_jobs_screen.dart';
 import '../features/labels/ui/labels_screen.dart';
@@ -181,6 +182,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.audit,
         builder: (context, state) => const AuditTrailScreen(),
+      ),
+      GoRoute(
+        path: Routes.dataSources,
+        builder: (context, state) => const DataSourcesScreen(),
       ),
       GoRoute(
         path: Routes.connections,

@@ -88,6 +88,9 @@ abstract final class Routes {
   static const imports = '/imports';
   static const importFile = '/imports/new';
   static const connections = '/connections';
+
+  /// Data sources and connecting an institution (`UC-30`).
+  static const dataSources = '/sources';
   static const audit = '/audit';
 
   // Instance administrator.

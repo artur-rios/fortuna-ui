@@ -255,7 +255,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 
 | Issue | Status | Work | Spec |
 |---|---|---|---|
-| [#31](https://github.com/artur-rios/fortuna-ui/issues/31) | ⬜ | UC-30 — Connect an Institution | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#31](https://github.com/artur-rios/fortuna-ui/issues/31) | ✅ | UC-30 — Connect an Institution | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#32](https://github.com/artur-rios/fortuna-ui/issues/32) | ✅ | UC-31 — Synchronize, Reauthenticate or Revoke a Connection | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#33](https://github.com/artur-rios/fortuna-ui/issues/33) | ✅ | UC-32 — Import a File | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#34](https://github.com/artur-rios/fortuna-ui/issues/34) | ✅ | UC-33 — Monitor an Import Job | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |

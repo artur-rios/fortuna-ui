@@ -58,6 +58,16 @@ class FakeConnections implements ConnectionRepository {
 
   @override
   Future<Result<void>> revoke(String id) async => const Success(null);
+
+  // UC-30 added this to the interface; UC-42 never connects anything.
+  @override
+  Future<Result<Connection>> connect({
+    required String dataSource,
+    required String externalReference,
+  }) async => const Failure(
+    message: 'Not used by these tests.',
+    kind: FailureKind.serverError,
+  );
 }
 
 Consent granted({
