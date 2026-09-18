@@ -115,6 +115,38 @@ selected with `--dart-define=FORTUNA_TRANSPORT=ffi`, and requires the Fortuna co
 present — see the
 [Operations & Infrastructure Document](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) §3.
 
+## Container image (web)
+
+`Dockerfile` builds the web target into a production image: a pinned Flutter SDK (3.47.4 — the
+first 3.47 release is 3.47.2, the earliest Flutter whose Dart satisfies `sdk: ^3.13.2`) compiles
+`build/web`, and `nginxinc/nginx-unprivileged:alpine` serves it as a non-root user on port
+**8080**, with a deep-link fallback to `index.html` and a `/healthz` probe. The server
+configuration is [`docker/nginx.conf`](docker/nginx.conf). It expects TLS to be terminated in front
+of it.
+
+| Build argument | Required | Meaning |
+| --- | --- | --- |
+| `FORTUNA_API_BASE_URL` | No | The default Fortuna instance; empty starts the app at the setup screen |
+| `FORTUNA_GOOGLE_CLIENT_ID` | No | Google OAuth client id; empty hides Google sign-in |
+| `FLUTTER_VERSION` / `FLUTTER_SHA256` | No | Override the SDK; pass both together (checksums are in Flutter's `releases_linux.json`) |
+
+`FORTUNA_TRANSPORT_FFI` and `FORTUNA_DB_PATH` configure desktop offline mode, which the web cannot
+use, so the image does not expose them and always builds with the HTTP transport. The `native/`
+directory is not part of the build context.
+
+```bash
+docker build -t fortuna-ui:web \
+  --build-arg FORTUNA_API_BASE_URL=https://fortuna-api.example.com \
+  --build-arg FORTUNA_GOOGLE_CLIENT_ID=1234567890-abc.apps.googleusercontent.com \
+  .
+docker run --rm -p 8080:8080 fortuna-ui:web
+```
+
+> [!WARNING]
+> The build arguments become `--dart-define` values, which are compiled into the JavaScript bundle
+> and readable by anyone who loads the page. They are public. Never pass a secret as a build
+> argument. Because the values are baked in, each environment needs its own image build.
+
 ## Testing
 
 The suite described in the
