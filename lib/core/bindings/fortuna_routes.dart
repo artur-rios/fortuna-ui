@@ -200,6 +200,11 @@ const coreRoutes = <CoreRoute>[
   ),
   CoreRoute(
     'GET',
+    '/api/recurring-transactions',
+    'fortuna_api_recurring_transactions_get',
+  ),
+  CoreRoute(
+    'GET',
     '/api/recurring-transactions/{id}',
     'fortuna_api_recurring_transactions_by_id_get',
   ),
@@ -225,6 +230,11 @@ const coreRoutes = <CoreRoute>[
     'GET',
     '/api/transactions/{id}',
     'fortuna_api_transactions_by_id_get',
+  ),
+  CoreRoute(
+    'GET',
+    '/api/transactions/{id}/attachments',
+    'fortuna_api_transactions_by_id_attachments_get',
   ),
   CoreRoute('GET', '/api/transfers/{id}', 'fortuna_api_transfers_by_id_get'),
   CoreRoute('POST', '/api/accounts', 'fortuna_api_accounts_post'),
