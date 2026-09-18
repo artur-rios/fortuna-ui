@@ -2226,6 +2226,31 @@ class FortunaBindings {
             )
           >();
 
+  int fortuna_api_recurring_transactions_get(
+    ffi.Pointer<ffi.Char> request_json,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> response_json,
+  ) {
+    return _fortuna_api_recurring_transactions_get(request_json, response_json);
+  }
+
+  late final _fortuna_api_recurring_transactions_getPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Pointer<ffi.Char>>,
+          )
+        >
+      >('fortuna_api_recurring_transactions_get');
+  late final _fortuna_api_recurring_transactions_get =
+      _fortuna_api_recurring_transactions_getPtr
+          .asFunction<
+            int Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>,
+            )
+          >();
+
   int fortuna_api_recurring_transactions_materialize_post(
     ffi.Pointer<ffi.Char> request_json,
     ffi.Pointer<ffi.Pointer<ffi.Char>> response_json,
@@ -2546,6 +2571,34 @@ class FortunaBindings {
       .asFunction<
         int Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Char>>)
       >();
+
+  int fortuna_api_transactions_by_id_attachments_get(
+    ffi.Pointer<ffi.Char> request_json,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> response_json,
+  ) {
+    return _fortuna_api_transactions_by_id_attachments_get(
+      request_json,
+      response_json,
+    );
+  }
+
+  late final _fortuna_api_transactions_by_id_attachments_getPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Pointer<ffi.Char>>,
+          )
+        >
+      >('fortuna_api_transactions_by_id_attachments_get');
+  late final _fortuna_api_transactions_by_id_attachments_get =
+      _fortuna_api_transactions_by_id_attachments_getPtr
+          .asFunction<
+            int Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>,
+            )
+          >();
 
   int fortuna_api_transactions_by_id_attachments_post(
     ffi.Pointer<ffi.Char> request_json,
