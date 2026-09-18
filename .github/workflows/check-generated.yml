@@ -9,9 +9,9 @@ name: Check generated
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 concurrency:
   group: check-generated-${{ github.ref }}
