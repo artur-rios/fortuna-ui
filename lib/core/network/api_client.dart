@@ -18,6 +18,7 @@ import '../result/result.dart';
 import '../session/session.dart';
 import '../session/session_controller.dart';
 import '../storage/token_store.dart';
+import 'date_only_fields.dart';
 import 'ffi_transport.dart';
 
 /// Builds the application's `dio` instance.
@@ -66,6 +67,11 @@ class ApiClientFactory {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+          // Calendar dates in the contract's own shape, on either transport
+          // (see date_only_fields.dart).
+          if (options.data is Map || options.data is List) {
+            options.data = normalizeDateOnlyFields(options.data);
+          }
           handler.next(options);
         },
         onError: (error, handler) {
@@ -96,6 +102,10 @@ Failure<T> failureFromDioException<T>(DioException exception) {
     403 => FailureKind.forbidden,
     404 => FailureKind.notFound,
     409 => FailureKind.conflict,
+    // The offline core's FORTUNA_STATUS_NOT_IMPLEMENTED, and the adapter's own
+    // refusal of a route the core does not export. The API itself never
+    // answers 501, so over HTTP this changes nothing.
+    501 => FailureKind.unavailableOffline,
     null => FailureKind.unreachable,
     _ => FailureKind.serverError,
   };
@@ -115,14 +125,24 @@ Failure<T> failureFromDioException<T>(DioException exception) {
   return Failure<T>(message: message, kind: kind);
 }
 
-/// Reads the message out of the API's `DataOutput` envelope.
+/// Reads the reason out of the API's `DataOutput` envelope.
+///
+/// A refusal's reasons travel in `errors` — that is where both the API and the
+/// offline core put them, and what the envelope's `success` is computed from.
+/// `messages` carries informational text and is only a fallback, for an answer
+/// that failed without stating an error.
 String? _messageFromResponse(Object? data) {
   if (data is! Map) return null;
 
-  final messages = data['messages'];
-  if (messages is List && messages.isNotEmpty) {
-    final joined = messages.whereType<String>().join(' ');
-    if (joined.isNotEmpty) return joined;
+  for (final key in const ['errors', 'messages']) {
+    final entries = data[key];
+    if (entries is List && entries.isNotEmpty) {
+      final joined = entries
+          .whereType<String>()
+          .where((entry) => entry.trim().isNotEmpty)
+          .join(' ');
+      if (joined.isNotEmpty) return joined;
+    }
   }
 
   final message = data['message'];

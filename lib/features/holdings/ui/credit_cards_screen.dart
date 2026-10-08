@@ -13,7 +13,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../data/credit_card_repository.dart';
 import '../state/credit_card_providers.dart';
 import 'credit_card_editor.dart';
@@ -105,6 +107,9 @@ class _CardTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final statementsUnavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.cardStatements),
+    );
 
     return Card(
       key: Key('cards.item.${card.id}'),
@@ -197,11 +202,18 @@ class _CardTile extends ConsumerWidget {
                   ),
                   // UC-16 step 1: the cycles are reached by opening the card,
                   // which is the only place they mean anything.
-                  TextButton.icon(
-                    key: Key('cards.statements.${card.id}'),
-                    icon: const Icon(Icons.receipt_long_outlined, size: 18),
-                    label: const Text('Statements'),
-                    onPressed: () => context.go(Routes.statementsOf(card.id)),
+                  // Offline, the core keeps no billing cycles: the control
+                  // stays where the user expects it, disabled, saying why.
+                  OfflineUnavailableTooltip(
+                    reason: statementsUnavailable,
+                    child: TextButton.icon(
+                      key: Key('cards.statements.${card.id}'),
+                      icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                      label: const Text('Statements'),
+                      onPressed: statementsUnavailable != null
+                          ? null
+                          : () => context.go(Routes.statementsOf(card.id)),
+                    ),
                   ),
                 ],
               ),

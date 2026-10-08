@@ -118,10 +118,12 @@ class LocalSignInController extends Notifier<LocalSignInState> {
         // AF-05 against AF-02. A core that will not answer is not a wrong
         // password, and telling the user to check their secret when the
         // installation itself is broken sends them looking in the wrong place.
-        state =
-            kind == FailureKind.unreachable || kind == FailureKind.serverError
-            ? LocalSignInUnusable(message)
-            : LocalSignInRefused(message);
+        state = switch (kind) {
+          FailureKind.unreachable ||
+          FailureKind.serverError ||
+          FailureKind.unavailableOffline => LocalSignInUnusable(message),
+          _ => LocalSignInRefused(message),
+        };
 
       case Success<String>(:final value):
         final claims = TokenClaims.tryParse(value);

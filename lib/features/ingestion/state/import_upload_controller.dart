@@ -48,10 +48,18 @@ final class ImportUploading extends ImportState {
 /// (`AF-04`) — making the user find it a second time is a needless cruelty.
 @immutable
 final class ImportFailed extends ImportState {
-  const ImportFailed({required this.upload, required this.reason});
+  const ImportFailed({
+    required this.upload,
+    required this.reason,
+    this.canRetry = true,
+  });
 
   final PendingUpload upload;
   final String reason;
+
+  /// Whether sending the same file again could succeed. False where the
+  /// offline core does not import files at all: it would refuse identically.
+  final bool canRetry;
 }
 
 /// The API took the file and started a job.
@@ -125,10 +133,14 @@ class ImportUploadController extends Notifier<ImportState> {
         ref.invalidate(importJobsProvider);
         state = ImportStarted(value);
 
-      case Failure<String>(:final message):
+      case Failure<String>(:final message, :final kind):
         // AF-04, AF-05. No partial import is claimed, and the file is kept so
-        // the same one can be sent again.
-        state = ImportFailed(upload: upload, reason: message);
+        // the same one can be sent again — unless nothing could ever take it.
+        state = ImportFailed(
+          upload: upload,
+          reason: message,
+          canRetry: kind != FailureKind.unavailableOffline,
+        );
     }
   }
 

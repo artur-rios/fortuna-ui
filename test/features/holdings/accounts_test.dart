@@ -8,8 +8,10 @@ import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/holdings/data/account_repository.dart';
 import 'package:fortuna_ui/features/holdings/state/account_providers.dart';
+import 'package:fortuna_ui/features/holdings/ui/account_editor.dart';
 import 'package:fortuna_ui/features/holdings/ui/accounts_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
+import 'package:fortuna_ui/features/preferences/state/preferences_controller.dart';
 
 class FakeAccounts implements AccountRepository {
   FakeAccounts({this.onList, this.onBalance, this.onCreate, this.onDelete});
@@ -390,6 +392,73 @@ void main() {
 
       expect(find.byKey(const Key('accounts.balance.a1')), findsOneWidget);
       expect(find.textContaining('8,017.61'), findsOneWidget);
+    });
+  });
+
+  group('AccountEditor', () {
+    Future<void> create(
+      WidgetTester tester,
+      FakeAccounts accounts,
+      String openingBalance,
+    ) async {
+      tester.view.physicalSize = const Size(1000, 2000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            accountRepositoryProvider.overrideWithValue(accounts),
+            currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+            platformLocalesProvider.overrideWithValue(const [
+              Locale('pt', 'BR'),
+            ]),
+          ],
+          child: const MaterialApp(home: Scaffold(body: AccountEditor())),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('accountEditor.name')),
+        'Everyday',
+      );
+      await tester.tap(find.byKey(const Key('accountEditor.currency')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('BRL').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('accountEditor.openingBalance')),
+        openingBalance,
+      );
+      await tester.tap(find.byKey(const Key('accountEditor.save')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('Given an opening balance typed the Brazilian way '
+        'When the account is created in pt-BR '
+        'Then the exact amount it denotes is sent (UC-19 AF-08)', (
+      tester,
+    ) async {
+      final accounts = FakeAccounts();
+
+      await create(tester, accounts, '-1.234,56');
+
+      expect(accounts.created.single['openingBalance'], '-1234.56');
+    });
+
+    testWidgets('Given an opening balance that is not a number '
+        'When the account is created '
+        'Then it is refused in the form and nothing is sent', (tester) async {
+      final accounts = FakeAccounts();
+
+      await create(tester, accounts, '12abc');
+
+      expect(find.byKey(const Key('accountEditor.error')), findsOneWidget);
+      expect(accounts.created, isEmpty);
     });
   });
 }

@@ -1,15 +1,19 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
+import 'package:fortuna_ui/core/format/money_parser.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/holdings/data/credit_card_repository.dart';
 import 'package:fortuna_ui/features/holdings/state/credit_card_providers.dart';
+import 'package:fortuna_ui/features/holdings/ui/credit_card_editor.dart';
 import 'package:fortuna_ui/features/holdings/ui/credit_cards_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
+import 'package:fortuna_ui/features/preferences/state/preferences_controller.dart';
 
 import 'accounts_test.dart' show FakeCurrencies;
 
@@ -102,7 +106,11 @@ ProviderContainer containerWith(FakeCards cards) {
   return container;
 }
 
-Future<void> pumpCards(WidgetTester tester, FakeCards cards) async {
+Future<void> pumpCards(
+  WidgetTester tester,
+  FakeCards cards, {
+  List<Override> extra = const [],
+}) async {
   tester.view.physicalSize = const Size(1000, 2000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -113,6 +121,7 @@ Future<void> pumpCards(WidgetTester tester, FakeCards cards) async {
         creditCardRepositoryProvider.overrideWithValue(cards),
         currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+        ...extra,
       ],
       child: const MaterialApp(home: CreditCardsScreen()),
     ),
@@ -122,28 +131,39 @@ Future<void> pumpCards(WidgetTester tester, FakeCards cards) async {
 
 void main() {
   group('CreditCardRules.isPositiveAmount', () {
+    final enUS = MoneyParser('en_US');
+    final ptBR = MoneyParser('pt_BR');
+
     test('Given an amount greater than zero '
-        'When it is checked '
+        'When it is checked in the locale it is written in '
         'Then it is accepted (UC-15 step 3)', () {
-      for (final amount in ['1', '0.01', '5000.00', ' 1200.50 ', '0,05']) {
+      for (final amount in ['1', '0.01', '5000.00', ' 1200.50 ', '5,000']) {
         expect(
-          CreditCardRules.isPositiveAmount(amount),
+          CreditCardRules.isPositiveAmount(amount, parser: enUS),
           isTrue,
           reason: '"$amount" should be accepted',
         );
       }
+      for (final amount in ['0,05', '5.000', '1.200,50']) {
+        expect(
+          CreditCardRules.isPositiveAmount(amount, parser: ptBR),
+          isTrue,
+          reason: '"$amount" should be accepted in pt-BR',
+        );
+      }
     });
 
-    test('Given zero, nothing, or a negative amount '
+    test('Given zero, nothing, a negative amount or not a number '
         'When it is checked '
         'Then it is rejected (UC-15 AF-01)', () {
-      for (final amount in ['', '   ', '0', '0.00', '0,00', '-1', '-0.01']) {
+      for (final amount in ['', '   ', '0', '0.00', '-1', '-0.01', 'abc1']) {
         expect(
-          CreditCardRules.isPositiveAmount(amount),
+          CreditCardRules.isPositiveAmount(amount, parser: enUS),
           isFalse,
           reason: '"$amount" should be rejected',
         );
       }
+      expect(CreditCardRules.isPositiveAmount('0,00', parser: ptBR), isFalse);
     });
   });
 
@@ -377,6 +397,74 @@ void main() {
 
       expect(find.byKey(const Key('cards.overage.c1')), findsOneWidget);
       expect(find.textContaining('Over the limit by'), findsOneWidget);
+    });
+  });
+
+  group('CreditCardEditor', () {
+    Future<void> pumpEditor(WidgetTester tester, FakeCards cards) async {
+      tester.view.physicalSize = const Size(1000, 2000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            creditCardRepositoryProvider.overrideWithValue(cards),
+            currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+            platformLocalesProvider.overrideWithValue(const [
+              Locale('pt', 'BR'),
+            ]),
+          ],
+          child: const MaterialApp(home: Scaffold(body: CreditCardEditor())),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> fill(WidgetTester tester, String limit) async {
+      await tester.enterText(find.byKey(const Key('cardEditor.name')), 'Card');
+      await tester.tap(find.byKey(const Key('cardEditor.currency')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('BRL').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('cardEditor.limit')), limit);
+      await tester.enterText(
+        find.byKey(const Key('cardEditor.closingDay')),
+        '20',
+      );
+      await tester.enterText(find.byKey(const Key('cardEditor.dueDay')), '28');
+      await tester.tap(find.byKey(const Key('cardEditor.save')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('Given a limit typed the Brazilian way '
+        'When the card is saved in pt-BR '
+        'Then the exact amount it denotes is sent, not five (UC-19 AF-08)', (
+      tester,
+    ) async {
+      final cards = FakeCards();
+
+      await pumpEditor(tester, cards);
+      await fill(tester, '5.000');
+
+      expect(cards.created.single['creditLimit'], '5000');
+    });
+
+    testWidgets('Given a limit that is not a number '
+        'When the card is saved '
+        'Then it is refused in the form and nothing is sent (UC-15 AF-01)', (
+      tester,
+    ) async {
+      final cards = FakeCards();
+
+      await pumpEditor(tester, cards);
+      await fill(tester, '5k');
+
+      expect(find.byKey(const Key('cardEditor.error')), findsOneWidget);
+      expect(cards.created, isEmpty);
     });
   });
 }

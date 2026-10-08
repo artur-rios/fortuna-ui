@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/result/result.dart';
@@ -58,8 +59,9 @@ ProviderContainer containerWith(ReconcilableTransactions fake) {
 
 Future<void> pumpTransaction(
   WidgetTester tester,
-  ReconcilableTransactions fake,
-) async {
+  ReconcilableTransactions fake, {
+  List<Override> extra = const [],
+}) async {
   tester.view.physicalSize = const Size(1000, 2800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -77,6 +79,7 @@ Future<void> pumpTransaction(
         ),
         currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+        ...extra,
       ],
       child: const MaterialApp(home: TransactionScreen(transactionId: 't1')),
     ),

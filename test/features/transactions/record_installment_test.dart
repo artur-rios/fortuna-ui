@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
@@ -101,6 +102,7 @@ Future<void> pumpInstallment(
   FakeInstallments? installments,
   FakeCards? cards,
   FakeCategories? categories,
+  List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(1000, 2600);
   tester.view.devicePixelRatio = 1;
@@ -120,6 +122,7 @@ Future<void> pumpInstallment(
         ),
         currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+        ...extra,
       ],
       child: const MaterialApp(home: RecordInstallmentScreen()),
     ),

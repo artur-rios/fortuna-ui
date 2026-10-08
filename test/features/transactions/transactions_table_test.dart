@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/result/result.dart';
@@ -123,6 +124,7 @@ Future<void> pumpTable(
   WidgetTester tester,
   SearchableTransactions fake, {
   PreferencesStore? preferences,
+  List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(1400, 2000);
   tester.view.devicePixelRatio = 1;
@@ -143,6 +145,7 @@ Future<void> pumpTable(
         preferencesStoreProvider.overrideWithValue(
           preferences ?? InMemoryPreferencesStore(),
         ),
+        ...extra,
       ],
       child: const MaterialApp(home: TransactionsScreen()),
     ),

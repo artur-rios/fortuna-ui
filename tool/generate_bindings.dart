@@ -53,8 +53,8 @@ const routeTablePath = 'lib/core/bindings/fortuna_routes.dart';
 ///
 /// That comment is the only machine-readable link between a request the
 /// application makes and the symbol that serves it offline, so the table is
-/// derived from it rather than written by hand — a hand-written copy of 113
-/// routes is a hand-written copy that goes stale.
+/// derived from it rather than written by hand — a hand-written copy of more
+/// than a hundred routes is a hand-written copy that goes stale.
 final _routePattern = RegExp(
   r'^int\s+(fortuna_[a-z0-9_]+)\s*\([^)]*\)\s*;\s*/\*\s*'
   r'([A-Z]+)\s+(\S+)\s*\*/',
@@ -98,7 +98,7 @@ ${entries.join('\n')}
 ];
 ''');
 
-  stdout.writeln('Wrote \${matches.length} routes to \$routeTablePath.');
+  stdout.writeln('Wrote ${matches.length} routes to $routeTablePath.');
 }
 
 Future<void> _run(String executable, List<String> arguments) async {
