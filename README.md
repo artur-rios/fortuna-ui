@@ -93,17 +93,47 @@ flutter pub get
 
 ### Running
 
-Configuration is supplied at build time, so a run names the instance it talks to:
+Configuration is supplied at build time, so a run names the instance it talks to. Locally that is
+the fortuna-api started from its own repository on `http://localhost:8083`; copy the local
+configuration and pass it to every run:
 
 ```bash
-flutter run -d windows --dart-define=FORTUNA_API_BASE_URL=http://localhost:5000
+cp config/local.json.example config/local.json   # git-ignored
+flutter run -d windows --dart-define-from-file=config/local.json
 ```
 
-Replace `-d windows` with `linux`, `chrome` or your Android device. A run with no
-`FORTUNA_API_BASE_URL` starts at the setup screen instead of failing. Desktop offline mode is
-selected with `--dart-define=FORTUNA_TRANSPORT_FFI=true`, and requires the Fortuna core library to be
-present — see the
+Replace `-d windows` with `linux`, `chrome` or your Android device (an Android emulator reaches the
+machine at `http://10.0.2.2:8083`). The API has no CORS support, so a browser only reaches it on the
+page's own origin, which a local run does not share. Run the web target with the browser's
+same-origin checks off (Flutter starts Chrome with a temporary profile), or work on a desktop target
+instead:
+
+```bash
+flutter run -d chrome --dart-define-from-file=config/local.json --web-browser-flag=--disable-web-security
+```
+
+A run with no `FORTUNA_API_BASE_URL` starts at the setup screen instead of failing. Desktop offline
+mode is selected with `--dart-define=FORTUNA_TRANSPORT_FFI=true`, and requires the Fortuna core
+library to be present — see the
 [Operations & Infrastructure Document](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) §3.
+
+### Environments
+
+The application runs against one Fortuna API per environment. `example.com` stands for the real
+domain:
+
+| Environment | Where | Deployed by | Web UI | `FORTUNA_API_BASE_URL` |
+| --- | --- | --- | --- | --- |
+| `local` | The developer's Windows machine, Docker Desktop | By hand: `flutter run`, or yggdrasil's `scripts/deploy.sh local fortuna-ui …` for the container | `http://127.0.0.1:8082` | `http://localhost:8083`, the local API |
+| `development` | The VPS, on demand (started only when used) | Jenkins, on every push to `develop` | `https://fortuna-dev.example.com` | `https://fortuna-dev.example.com` |
+| `homologation` | The VPS, on demand | Jenkins, on every push of a `release/x.y.z` branch | `https://fortuna-hml.example.com` | `https://fortuna-hml.example.com` |
+| `production` | The VPS, always on | Jenkins, on a green `release/x.y.z → main` pull request | `https://fortuna.example.com` | `https://fortuna.example.com` |
+
+A deployed web build names its own origin as the API address: Traefik serves fortuna-api under the
+UI's host at `/api/`, so the browser never makes a cross-origin call. The API keeps its own host
+(`fortuna-api-dev.example.com`, `fortuna-api-hml.example.com`, `fortuna-api.example.com`) for the
+desktop and Android builds. The repository has no environment files of its own: the deployed build
+arguments live in yggdrasil's, at `/etc/yggdrasil/<environment>/fortuna-ui.env` on the VPS.
 
 ## Container image (web)
 
@@ -126,7 +156,7 @@ directory is not part of the build context.
 
 ```bash
 docker build -t fortuna-ui:web \
-  --build-arg FORTUNA_API_BASE_URL=https://fortuna-api.example.com \
+  --build-arg FORTUNA_API_BASE_URL=https://fortuna.example.com \
   --build-arg FORTUNA_GOOGLE_CLIENT_ID=1234567890-abc.apps.googleusercontent.com \
   .
 docker run --rm -p 8080:8080 fortuna-ui:web

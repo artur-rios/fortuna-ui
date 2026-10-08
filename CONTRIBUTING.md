@@ -121,13 +121,34 @@ Branch Policy check rejects a release branch whose version already has a tag.
 
 ## Releasing
 
+Code travels through three environments on the VPS, each deployed by Jenkins (the four
+environments, and the API address each build names, are in the
+[README](./README.md#environments)):
+
+| Push | Deploys to |
+|---|---|
+| A merge into `develop` | **development**, on demand: if it is stopped, the build is deployed, checked healthy and stopped again. |
+| A `release/x.y.z` branch | **homologation**, on demand the same way. |
+| The pull request `release/x.y.z → main` | **production**, always on. |
+
+Development and homologation are turned on only while they are used. On the VPS, from the
+yggdrasil checkout:
+
+```bash
+scripts/ygg.sh env start homologation   # or development
+scripts/ygg.sh env stop homologation    # when done
+```
+
+Releasing:
+
 1. Because a release branch carries no commits of its own, finalize the changelog on `develop`
    first: in a `feature/` branch, set `version:` in `pubspec.yaml` to `x.y.z+n` with the next
    build number, rename `## [Unreleased]` in [CHANGELOG.md](./CHANGELOG.md) to
    `## [x.y.z] - <yyyy-mm-dd>` above a fresh, empty `## [Unreleased]`, update the links at the
    bottom, and merge it into `develop`.
 2. `git switch develop && git pull && git switch -c release/1.4.0 && git push -u origin release/1.4.0`
-   — Jenkins deploys the branch to **homologation**.
+   — Jenkins deploys the branch to **homologation**. Turn homologation on first to try the release
+   there (`https://fortuna-hml.example.com`, `example.com` standing for the real domain).
 3. Open a pull request `release/1.4.0 → main`.
 4. When every GitHub check on the pull request passes, Jenkins deploys to **production**. On
    success it sets the `deploy/production` status, merges the pull request with a merge commit,
@@ -139,8 +160,9 @@ The **Build** workflow, which builds every target and uploads the artifacts, run
 can be started by hand.
 
 Follow a release in the **yggdrasil console** (`https://yggdrasil.<domain>`, or the Android app).
-The system card shows this application's version, commit, deploy time and health in each
-environment.
+The system card shows development, homologation and production side by side, with this
+application's version, commit, deploy time and health in each; an on-demand environment that is
+turned off shows as **Stopped**.
 
 The repository owner can bypass these rules. That is for emergencies, not for routine work.
 
@@ -150,8 +172,9 @@ Deployment is managed by [yggdrasil](https://github.com/artur-rios/yggdrasil). T
 the application `fortuna-ui` in its `catalog.yaml`, which is what gives it:
 - its Jenkins deploy job
 - its GitHub rulesets and required checks (the catalog's `checks`)
-- its Prometheus scraping
-- its place in the console
+- its health check (`/healthz`) and its place in the console
+
+The web UI serves no metrics, so Prometheus does not scrape it.
 
 If a required check is renamed or added here, update the catalog entry, then run
 `python github/rulesets.py fortuna-ui` in yggdrasil.
