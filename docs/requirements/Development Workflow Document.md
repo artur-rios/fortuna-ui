@@ -28,7 +28,7 @@ flowchart TD
     A2 --> A3["Refine design and plan"]
     A3 --> A4{"Approved?"}
     A4 -->|No| A3
-    A4 -->|Yes| B["Create branch from main<br/>feature/uc-##-use-case-name"]
+    A4 -->|Yes| B["Create branch from develop<br/>feature/uc-##-use-case-name"]
     B --> C["Move issue → In Progress"]
     C --> D["Implement main flow and every AF-xx"]
     D --> D2{"Approved?"}
@@ -45,7 +45,7 @@ flowchart TD
     J --> K["Human review"]
     K --> L{Approved?}
     L -->|Changes requested| I
-    L -->|Yes| M["Human merge to main<br/>delete branch"]
+    L -->|Yes| M["Human merge to develop<br/>delete branch"]
     M --> N["Move issue → Done and close it"]
 ```
 
@@ -83,12 +83,14 @@ Then turn that into a concrete design for this codebase — screens, routes, pro
 validators and widgets; which generated calls each flow makes; and how every alternative flow maps
 to what the user actually sees — and capture it as a written, test-first implementation plan.
 
-### Step 1 — Branch from `main`
+### Step 1 — Branch from `develop`
 
-Every use case is implemented on its own branch, created from an up-to-date `main`:
+Every use case is implemented on its own branch, created from an up-to-date `develop`, the
+integration branch. `main` only ever receives release branches (see
+[Releases](#step-9--releases)):
 
 ```bash
-git switch main
+git switch develop
 git pull
 git switch -c feature/uc-01-configure-the-instance-and-mode
 ```
@@ -151,14 +153,14 @@ Testing stage until the full suite is green.
 
 ### Step 6 — Open a pull request
 
-With everything passing, push the branch and open a pull request into `main`. The description
+With everything passing, push the branch and open a pull request into `develop`. The description
 references the use case and its issue, so the merge closes it.
 
 ### Step 7 — Human review and merge
 
 - The pull request is **reviewed by a human**. Requested changes are addressed on the same branch —
   back to Step 5 whenever code changes, so the suite stays green.
-- Once approved, a human **merges** the pull request.
+- Once approved, a human **merges** the pull request into `develop`.
 - The **branch is deleted** after the merge.
 
 > Review and merge are **human actions**. An agent may prepare and push the pull request, but must
@@ -167,6 +169,13 @@ references the use case and its issue, so the merge closes it.
 ### Step 8 — Close the issue
 
 After the merge, set the issue's status to **Done** and **close** it.
+
+### Step 9 — Releases
+
+A use case is done once it is merged into `develop`; it reaches users in the next release. Releases
+are cut from `develop` as `release/x.y.z` branches, deployed to homologation, and merged into `main`
+by the deployment pipeline, which then tags `vx.y.z`. The branching model, the Branch Policy check
+that enforces it, and the release steps are in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## 5. Two mechanism use cases
 
@@ -214,7 +223,7 @@ Outside an authorized batch run, Step 7 applies as written: a human reviews and 
 
 A use case is done only when **all** of the following hold:
 
-- [ ] Implemented on a `feature/uc-##-use-case-name` branch created from `main`.
+- [ ] Implemented on a `feature/uc-##-use-case-name` branch created from `develop`.
 - [ ] Main flow and every alternative flow from the specification are implemented, each with the
       interface behavior the specification defines for it.
 - [ ] Unit tests cover each provider, repository, validator and formatter — main plus applicable
@@ -222,11 +231,11 @@ A use case is done only when **all** of the following hold:
 - [ ] Widget tests cover each screen the use case adds or changes, including its loading, empty and
       failed states.
 - [ ] Integration tests cover the end-to-end flow where the Testing Specification calls for one.
-- [ ] `flutter analyze` is clean and `flutter test` is green, and line coverage holds at or above
-      the floor.
+- [ ] `flutter analyze` is clean and `flutter test` is green. There is no numeric coverage floor
+      (Testing Specification §7.5).
 - [ ] No monetary value is represented as a `double` anywhere in the change.
 - [ ] Neither the generated API client nor the generated FFI bindings were hand-edited.
-- [ ] A pull request was merged to `main` — reviewed by a human, or merged by an agent under an
+- [ ] A pull request was merged to `develop` — reviewed by a human, or merged by an agent under an
       authorized batch run (§7).
 - [ ] The branch was deleted.
 - [ ] The issue is in **Done** and closed.

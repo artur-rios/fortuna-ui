@@ -12,8 +12,8 @@ owns the domain, the money and the integrations; this application owns the exper
 [![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
 [![Project board](https://img.shields.io/badge/project-Fortuna%20UI-8250df?style=flat-square)](https://github.com/users/artur-rios/projects/14)
 
-> **Status:** specification complete; implementation under way — 26 of the 47 issues are
-> closed. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
+> **Status:** specification complete; implementation under way — 44 of the 47 issues are
+> closed, and UC-04, UC-23 and UC-35 remain. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
 
 ## What it does
 
@@ -35,7 +35,11 @@ owns the domain, the money and the integrations; this application owns the exper
 - **Honors data rights** — consent before anything reaches a third party, a complete export, and
   account erasure.
 - **Runs offline on the desktop** — Windows and Linux installations ship the Fortuna core as a
-  native library and call it in process, with no network and no server.
+  native library and call it in process, with no network and no server. The core does not yet
+  implement everything the API does: file imports, data-set exports, charts, net position and
+  projections, transfers, installment purchases, card statements, budget consumption, goal progress
+  and reconciliation are shown as "Not available offline", with the core's reason, rather than
+  offered and then refused.
 
 ## What it doesn't do
 
@@ -87,20 +91,6 @@ cd fortuna-ui
 flutter pub get
 ```
 
-The generated API client is committed, so a clean clone needs no generation step. Regenerate it only
-after taking a new API contract into `api/fortuna.json`:
-
-```bash
-dart run tool/generate_api_client.dart
-```
-
-The FFI bindings have their own generator, which currently refuses to run and says why: the Fortuna
-core's C header does not exist yet. See [native/README.md](native/README.md).
-
-```bash
-dart run tool/generate_bindings.dart
-```
-
 ### Running
 
 Configuration is supplied at build time, so a run names the instance it talks to:
@@ -111,7 +101,7 @@ flutter run -d windows --dart-define=FORTUNA_API_BASE_URL=http://localhost:5000
 
 Replace `-d windows` with `linux`, `chrome` or your Android device. A run with no
 `FORTUNA_API_BASE_URL` starts at the setup screen instead of failing. Desktop offline mode is
-selected with `--dart-define=FORTUNA_TRANSPORT=ffi`, and requires the Fortuna core library to be
+selected with `--dart-define=FORTUNA_TRANSPORT_FFI=true`, and requires the Fortuna core library to be
 present — see the
 [Operations & Infrastructure Document](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) §3.
 
@@ -146,27 +136,6 @@ docker run --rm -p 8080:8080 fortuna-ui:web
 > The build arguments become `--dart-define` values, which are compiled into the JavaScript bundle
 > and readable by anyone who loads the page. They are public. Never pass a secret as a build
 > argument. Because the values are baked in, each environment needs its own image build.
-
-## Testing
-
-The suite described in the
-[Testing Specification Document](docs/requirements/Testing%20Specification%20Document.md) runs with:
-
-```bash
-flutter analyze
-flutter test
-```
-
-An analyzer failure is a failure. Integration tests live in `integration_test/` and are invoked
-deliberately, so the fast suite stays fast:
-
-```bash
-flutter test integration_test -d windows
-```
-
-The suite covers **unit**, **widget** and **integration** tests. There is no numeric coverage floor:
-the standard is that every use case's main flow and each of its `AF-xx` alternative flows has a test
-that names it. Every use case ships with its tests before its pull request is opened.
 
 ## Roadmap
 
@@ -303,9 +272,15 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | [#39](https://github.com/artur-rios/fortuna-ui/issues/39) | ✅ | UC-38 — View the Net Position, Projections and Obligations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#40](https://github.com/artur-rios/fortuna-ui/issues/40) | ✅ | UC-39 — Export a Data Set | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
+## Changelog
+
+Notable changes in each release are recorded in [CHANGELOG.md](./CHANGELOG.md).
+
 ## Contributing
 
-One use case = one branch = one issue = one pull request. The full process — branch naming, the
-issue status lifecycle, the four approval gates, the testing gate, and the Definition of Done — is
-in the
-[Development Workflow Document](docs/requirements/Development%20Workflow%20Document.md).
+Regenerating the API client and the FFI bindings, running the tests, the delivery workflow, the
+branching model and the release process are described in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Legal
+
+Proprietary. See [LICENSE](LICENSE). Copyright (c) 2026 Artur Rios. All rights reserved.

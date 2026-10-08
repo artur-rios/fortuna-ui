@@ -105,15 +105,16 @@ and CI proves both.
 ```
 fortuna-ui/
 ├── .github/workflows/
-│   ├── ci.yml                       analyze + test on every push and pull request
+│   ├── ci.yml                       format, analyze, boundaries + test on every pull request
 │   ├── build.yml                    per-target artifacts
-│   └── check-generated.yml          regenerate client and bindings; fail on drift
+│   ├── check-generated.yml          regenerate client and bindings; fail on drift
+│   └── branch-policy.yml            enforce the branching model on pull requests
 ├── api/
 │   └── fortuna.json                 the API's OpenAPI document, copied from fortuna-api
 ├── native/
-│   ├── include/fortuna_ffi.h        the core's C header, vendored verbatim
-│   ├── windows/fortuna_ffi.dll      the core library for Windows
-│   └── linux/libfortuna_ffi.so      the core library for Linux
+│   ├── include/fortuna_core.h       the core's C header, vendored verbatim
+│   ├── windows/fortuna_core.dll     the core library for Windows (not committed)
+│   └── linux/libfortuna_core.so     the core library for Linux (not committed)
 ├── packages/
 │   └── fortuna_api_client/          generated: DTOs and retrofit clients
 ├── lib/
@@ -179,7 +180,7 @@ API version.
 dart run tool/generate_bindings.dart
 ```
 
-Runs `ffigen` over `native/include/fortuna_ffi.h`, which is vendored verbatim from the API
+Runs `ffigen` over `native/include/fortuna_core.h`, which is vendored verbatim from the API
 repository, then formats the output. CI diffs the vendored header against the published one, so a
 header change surfaces as a build failure rather than as a runtime crash.
 
@@ -199,7 +200,7 @@ output, which is what makes the drift check meaningful.
 | IR-07 | The application shall provide secure storage and preference wrappers, and the token shall be writable only through the secure one. |
 | IR-08 | The application shall provide one configured HTTP client instance, carrying the bearer-token interceptor, base address and timeouts. |
 | IR-09 | The application shall generate its API client from `api/fortuna.json` by a single command, and shall commit the result unmodified. |
-| IR-10 | The application shall generate its FFI bindings from `native/include/fortuna_ffi.h` by a single command, and shall commit the result unmodified. |
+| IR-10 | The application shall generate its FFI bindings from `native/include/fortuna_core.h` by a single command, and shall commit the result unmodified. |
 | IR-11 | The build shall fail when the vendored C header differs from the version published by the API. |
 | IR-12 | CI shall regenerate both the API client and the bindings and fail on any difference from what is committed. |
 | IR-13 | Static analysis shall fail the build when `dart:ffi` is imported outside the bindings layer. |
@@ -208,7 +209,7 @@ output, which is what makes the drift check meaningful.
 | IR-16 | Configuration shall be supplied at build time by `--dart-define`, with no secret compiled into the artifact. |
 | IR-17 | The application shall emit no log from a release build, and no log at any time shall carry a credential, a token, personal data or a financial figure. |
 | IR-18 | The application shall include no analytics, telemetry, crash reporting or any third-party component that observes use. |
-| IR-19 | CI shall run `flutter analyze` and `flutter test` on every push and pull request, and shall fail on either. |
+| IR-19 | CI shall run `flutter analyze` and `flutter test` on every pull request into, and every push to, `develop` and `main`, and shall fail on either. |
 | IR-20 | CI shall build every target — web, Windows, Linux and Android — and publish the resulting artifacts. |
 | IR-21 | The desktop packages shall include the Flutter application, the Fortuna core native library and the SQLite database file, and shall work with nothing else installed. |
 | IR-22 | The web image shall serve the built application as static files and shall carry no application secret. |
@@ -224,7 +225,7 @@ decides** versus **what the user decides**.
 | --- | --- | --- |
 | API base address | `--dart-define FORTUNA_API_BASE_URL` | The default instance for this build. Absent in a desktop offline build. |
 | Google client identifier | `--dart-define FORTUNA_GOOGLE_CLIENT_ID` | Public by nature; not a secret. Absent where Google sign-in is not offered. |
-| Transport selection | `--dart-define FORTUNA_TRANSPORT` | `http` or `ffi`. Decides which repository implementations are wired. |
+| Transport selection | `--dart-define FORTUNA_TRANSPORT_FFI` | `true` selects the FFI transport; absent or `false`, the HTTP one. Decides which repository implementations are wired. |
 | Database path, offline builds | `--dart-define FORTUNA_DB_PATH`, defaulting beside the executable | So a portable installation keeps its database with itself rather than in a user profile. |
 | Instance address, self-hosted | Stored locally, entered by the user (UC-01) | Overrides the build-time address where present. |
 | Theme, locale, display currency | Stored locally as preferences (UC-13) | Never a token, never a credential. |
@@ -270,7 +271,7 @@ an administrator reads through UC-45 comes from the API's own health surface.
 | **Local** | Development | Points at a locally running API. Debug build, logs enabled, hot reload. |
 | **Staging** | Verifying a build before release | Points at the staging API. Release build, so what is tested is what ships. |
 | **Production** | The published application | Points at the production API. |
-| **Desktop offline** | A self-contained installation | No API address at all; the FFI transport and a local database. Otherwise identical. |
+| **Desktop offline** | A self-contained installation | No API address at all; the FFI transport and a local database. Otherwise identical, except for the operations the core exports but does not implement, which it lists in `fortuna_capabilities` and the application shows as not available offline (`FR-DA-16`). |
 
 **The only difference between local, staging and production is the API address.** No feature is
 enabled in one and not another, no code path branches on environment, and there is no "staging mode"
@@ -287,13 +288,14 @@ the certificate it obtains.
 
 ### 6.1 Continuous integration
 
-Three workflows, mirroring the ones the sibling repositories use:
+Four workflows, mirroring the ones the sibling repositories use:
 
 | Workflow | Runs | Does |
 | --- | --- | --- |
-| `ci.yml` | Every push and pull request | `flutter analyze` and `flutter test`, and fails on either. The gate for merging. |
-| `check-generated.yml` | Every push and pull request | Regenerates the API client and the FFI bindings, diffs the vendored header against the API's published one, and fails on any difference. |
-| `build.yml` | On a tag, and on demand | Builds all four targets and publishes the artifacts. |
+| `ci.yml` | Every pull request into, and push to, `develop` and `main` | Verifies formatting, `flutter analyze`, the boundary rules and `flutter test`, and fails on any of them. The gate for merging. |
+| `check-generated.yml` | Every pull request into, and push to, `develop` and `main` | Regenerates the API client and the FFI bindings, diffs the vendored header against the API's published one, and fails on any difference. |
+| `branch-policy.yml` | Every pull request into `develop` and `main` | Enforces the branching model described in [CONTRIBUTING.md](../../CONTRIBUTING.md#branching-model). |
+| `build.yml` | On a `v*` tag, and on demand | Builds all four targets and publishes the artifacts. |
 
 ### 6.2 Packaging per target
 
@@ -319,15 +321,18 @@ The API is **not** part of this deployment. It runs as its own service, and the 
 directly at the address the build names — so the two are deployed, upgraded and rolled back
 independently.
 
-Because no domain is registered yet, the routing rule and certificate configuration are recorded as
-pending rather than invented here.
+The routing rule and certificate configuration belong to the deployment platform,
+[yggdrasil](https://github.com/artur-rios/yggdrasil) (`stacks/fortuna-ui.proxy.yml`), which reads
+the hostname from its own environment file, so no hostname is recorded here.
 
 ### 6.4 Release
 
-A release is a tag. `build.yml` produces the four artifacts, and the desktop ones are published
-alongside the web image. The application's version comes from `pubspec.yaml`, and the Fortuna core
-library it ships is recorded with it, so that an offline installation's two halves are identifiable
-as a pair.
+A release is cut from `develop` as a `release/x.y.z` branch and merged into `main` by the
+deployment pipeline, which tags it `vx.y.z`; the steps are in
+[CONTRIBUTING.md](../../CONTRIBUTING.md#releasing). The tag starts `build.yml`, which produces the
+four artifacts, and the desktop ones are published alongside the web image. The application's
+version comes from `pubspec.yaml`, and the Fortuna core library it ships is recorded with it, so
+that an offline installation's two halves are identifiable as a pair.
 
 ---
 
