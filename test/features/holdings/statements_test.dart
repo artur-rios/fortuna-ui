@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -191,6 +192,7 @@ Future<void> _pump(
   Widget screen,
   FakeStatements fake, {
   FakeAccounts? accounts,
+  List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(1000, 2400);
   tester.view.devicePixelRatio = 1;
@@ -203,6 +205,7 @@ Future<void> _pump(
         accountRepositoryProvider.overrideWithValue(accounts ?? FakeAccounts()),
         currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+        ...extra,
       ],
       child: MaterialApp(home: screen),
     ),
@@ -210,18 +213,28 @@ Future<void> _pump(
   await tester.pumpAndSettle();
 }
 
-Future<void> pumpStatements(WidgetTester tester, FakeStatements fake) =>
-    _pump(tester, const CardStatementsScreen(creditCardId: 'c1'), fake);
+Future<void> pumpStatements(
+  WidgetTester tester,
+  FakeStatements fake, {
+  List<Override> extra = const [],
+}) => _pump(
+  tester,
+  const CardStatementsScreen(creditCardId: 'c1'),
+  fake,
+  extra: extra,
+);
 
 Future<void> pumpStatement(
   WidgetTester tester,
   FakeStatements fake, {
   FakeAccounts? accounts,
+  List<Override> extra = const [],
 }) => _pump(
   tester,
   const StatementScreen(creditCardId: 'c1', statementId: 's1'),
   fake,
   accounts: accounts,
+  extra: extra,
 );
 
 void main() {

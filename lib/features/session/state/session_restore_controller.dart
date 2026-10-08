@@ -139,6 +139,13 @@ class SessionRestoreController extends Notifier<SessionRestoreState> {
           case FailureKind.notFound:
           case FailureKind.conflict:
             await _discard();
+
+          // The offline core cannot verify a token at all. Retrying would be
+          // refused identically, and keeping the token would stop at this
+          // screen on every start, so it is discarded with the core's reason
+          // and the user signs in again.
+          case FailureKind.unavailableOffline:
+            await _discard(reason: message);
         }
     }
   }

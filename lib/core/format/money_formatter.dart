@@ -35,48 +35,80 @@ class MoneyFormatter {
   final Map<String, int> minorUnitDigits;
 
   /// Formats [money] with its currency symbol, e.g. `R$ 1.234,56` in `pt-BR`
-  /// and `$1,234.56` in `en-US`.
+  /// and `-$1,234.56` in `en-US`.
   String format(Money money) {
     final pattern = NumberFormat.simpleCurrency(
       locale: locale,
       name: money.currencyCode,
     );
-    final symbol = pattern.currencySymbol;
     final digits = _digitsFor(money.currencyCode, pattern.decimalDigits);
-    final number = formatAmount(money, decimalDigits: digits);
+    final rounded = money.amount.round(scale: digits);
+    final negative = rounded < Decimal.zero;
+    final number = _digits(rounded.abs(), digits);
 
-    // Where the symbol precedes the number in this locale, `intl` reports a
-    // pattern beginning with the currency placeholder. Following it keeps
-    // `pt-BR`'s "R$ 1.234,56" and `en-US`'s "$1,234.56" both correct.
-    final symbolFirst = pattern.format(0).trimLeft().startsWith(symbol);
-    final separator = symbol.length > 1 ? ' ' : '';
-    return symbolFirst ? '$symbol$separator$number' : '$number $symbol';
+    // Where the sign, the symbol and the spacing between them and the number
+    // go is locale data: `-$1,234.56` in `en-US`, `-R$ 1.234,56` in `pt-BR`.
+    // It is read from a constant `intl` formats — never from the amount, which
+    // does not pass through `num` — and the exact digits are put where the
+    // constant's digits were.
+    final template = pattern.format(negative ? -1 : 1);
+    final first = template.indexOf(_digit);
+    final last = template.lastIndexOf(_digit);
+    var prefix = template.substring(0, first);
+    var suffix = template.substring(last + 1);
+
+    // A symbol that is a code rather than a sign (`XYZ`, or any currency the
+    // locale has no symbol for) is kept apart from the digits, as CLDR's
+    // currency spacing does; `intl` does not apply that rule itself.
+    if (prefix.isNotEmpty && _letter.hasMatch(prefix[prefix.length - 1])) {
+      prefix = '$prefix ';
+    }
+    if (suffix.isNotEmpty && _letter.hasMatch(suffix[0])) {
+      suffix = ' $suffix';
+    }
+
+    return '$prefix$number$suffix';
   }
 
   /// Formats the amount alone, with no currency symbol — for a column whose
   /// header already names the currency, or a chart axis.
+  ///
+  /// Rounded to the same precision [format] uses: the instance's figure for
+  /// the currency where it has one, unless [decimalDigits] says otherwise.
   String formatAmount(Money money, {int? decimalDigits}) {
     final digits =
         decimalDigits ??
-        (NumberFormat.simpleCurrency(
-              locale: locale,
-              name: money.currencyCode,
-            ).decimalDigits ??
-            2);
+        _digitsFor(
+          money.currencyCode,
+          NumberFormat.simpleCurrency(
+            locale: locale,
+            name: money.currencyCode,
+          ).decimalDigits,
+        );
 
-    final symbols = NumberFormat.decimalPattern(locale).symbols;
     final rounded = money.amount.round(scale: digits);
-    final negative = rounded < Decimal.zero;
-    final fixed = rounded.abs().toStringAsFixed(digits);
+    final body = _digits(rounded.abs(), digits);
+
+    return rounded < Decimal.zero
+        ? '${NumberFormat.decimalPattern(locale).symbols.MINUS_SIGN}$body'
+        : body;
+  }
+
+  /// [amount], which is not negative, with [digits] decimals and the locale's
+  /// grouping and decimal separators.
+  String _digits(Decimal amount, int digits) {
+    final symbols = NumberFormat.decimalPattern(locale).symbols;
+    final fixed = amount.toStringAsFixed(digits);
 
     final parts = fixed.split('.');
     final grouped = _group(parts.first, symbols.GROUP_SEP);
-    final body = parts.length > 1
+    return parts.length > 1
         ? '$grouped${symbols.DECIMAL_SEP}${parts[1]}'
         : grouped;
-
-    return negative ? '${symbols.MINUS_SIGN}$body' : body;
   }
+
+  static final _digit = RegExp(r'\d');
+  static final _letter = RegExp(r'\p{L}', unicode: true);
 
   /// The precision for [currencyCode]: the API's figure where it has one, then
   /// the formatting library's, then two.

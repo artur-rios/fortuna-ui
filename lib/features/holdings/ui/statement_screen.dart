@@ -16,8 +16,10 @@ import 'package:intl/intl.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../core/result/result.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/statement_repository.dart';
 import '../state/account_providers.dart';
@@ -35,6 +37,16 @@ class StatementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.cardStatements),
+    );
+    if (unavailable != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Statement')),
+        body: OfflineUnavailableNotice(reason: unavailable),
+      );
+    }
+
     final statement = ref.watch(statementProvider(statementId));
 
     return Scaffold(
@@ -186,6 +198,21 @@ class _Actions extends ConsumerWidget {
             'This statement is paid and its composition is fixed. '
             'It can no longer be closed or settled.',
           ),
+        ),
+      );
+    }
+
+    // Closing and settling, where the core cannot do them: the reason in
+    // place of controls that could only be refused.
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.statementActions),
+    );
+    if (unavailable != null) {
+      return Card(
+        key: const Key('statement.actionsUnavailable'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: OfflineUnavailableLine(reason: unavailable),
         ),
       );
     }

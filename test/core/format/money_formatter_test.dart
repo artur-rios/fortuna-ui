@@ -78,5 +78,59 @@ void main() {
       expect(formatter.formatAmount(Money.parse('2.345', 'USD')), '2.35');
       expect(formatter.formatAmount(Money.parse('2.344', 'USD')), '2.34');
     });
+
+    test('Given a negative amount '
+        'When it is formatted with its currency '
+        'Then the sign leads, as the locale writes it, not wedged between the '
+        'symbol and the digits', () {
+      expect(
+        MoneyFormatter('en_US').format(Money.parse('-1234.5', 'USD')),
+        r'-$1,234.50',
+      );
+      expect(
+        MoneyFormatter('pt_BR').format(Money.parse('-1234.5', 'BRL')),
+        '-R\$\u00a01.234,50',
+      );
+    });
+
+    test('Given an amount '
+        'When it is formatted with its currency in pt-BR '
+        "Then the locale's own spacing between symbol and number is used", () {
+      expect(
+        MoneyFormatter('pt_BR').format(Money.parse('1234.5', 'BRL')),
+        'R\$\u00a01.234,50',
+      );
+    });
+
+    test('Given a currency the locale has no symbol for '
+        'When it is formatted '
+        'Then its code is kept apart from the digits', () {
+      expect(
+        MoneyFormatter('en_US').format(Money.parse('12', 'XYZ')),
+        'XYZ 12.00',
+      );
+    });
+
+    test('Given a negative amount that rounds to zero '
+        'When it is formatted '
+        'Then no minus sign is shown on a zero', () {
+      expect(
+        MoneyFormatter('en_US').format(Money.parse('-0.001', 'USD')),
+        r'$0.00',
+      );
+    });
+
+    test(
+      "Given the instance's own precision for a currency "
+      'When the amount alone is formatted '
+      'Then it rounds to that precision, as the symbol form does (FR-PS-06)',
+      () {
+        final formatter = MoneyFormatter('en_US', minorUnitDigits: {'USD': 3});
+        final money = Money.parse('1.2345', 'USD');
+
+        expect(formatter.formatAmount(money), '1.235');
+        expect(formatter.format(money), r'$1.235');
+      },
+    );
   });
 }

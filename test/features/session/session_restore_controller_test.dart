@@ -164,6 +164,39 @@ void main() {
       expect(await store.read(), isNotNull);
     });
 
+    test('Given the core does not implement the verification offline '
+        'When the session is restored '
+        "Then the token is discarded with the core's reason and nothing is "
+        'retried, since it would be refused identically every time', () async {
+      final store = InMemoryTokenStore();
+      await store.write(tokenWith(_ownerToken));
+      final repository = FakeSessionRepository(
+        const Failure(
+          message: 'GET /api/me is not available offline.',
+          kind: FailureKind.unavailableOffline,
+        ),
+      );
+      final container = containerWith(
+        tokenStore: store,
+        repository: repository,
+      );
+
+      await container.read(sessionRestoreProvider.notifier).restore();
+
+      expect(
+        container.read(sessionRestoreProvider),
+        isA<SessionRestoreComplete>(),
+      );
+      final session = container.read(sessionProvider);
+      expect(session, isA<SignedOut>());
+      expect(
+        (session as SignedOut).reason,
+        'GET /api/me is not available offline.',
+      );
+      expect(await store.read(), isNull);
+      expect(repository.calls, 1);
+    });
+
     test('Given secure storage is unavailable '
         'When the session is restored '
         'Then it reports so and offers no retry (UC-11 AF-04)', () async {

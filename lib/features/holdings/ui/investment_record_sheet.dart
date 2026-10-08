@@ -7,14 +7,16 @@
 /// overstate what was put in, and the position would then be wrong in a way
 /// nothing on screen could explain.
 ///
-/// Both amounts are held and sent as the string the user typed. Neither is
-/// parsed to a number anywhere on the path (`IR-14`).
+/// Both amounts are read in the user's locale as an exact decimal and sent as
+/// its invariant string. Neither passes through a `double` anywhere on the path
+/// (`IR-14`).
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
 import '../../preferences/state/preferences_controller.dart';
@@ -75,8 +77,11 @@ class _InvestmentRecordSheetState extends ConsumerState<InvestmentRecordSheet> {
   /// Step 3: the two rules the specification states, and no others. Whether a
   /// valuation already exists for this date is `AF-03`, which is the API's to
   /// answer, and whether the currency matches is `AF-05`, likewise.
+  MoneyParser get _parser =>
+      MoneyParser(SupportedLocales.tagOf(ref.read(preferencesProvider).locale));
+
   String? _validate() {
-    if (!InvestmentRules.isPositiveAmount(_amount.text)) {
+    if (!InvestmentRules.isPositiveAmount(_amount.text, parser: _parser)) {
       return _isMovement
           ? 'The amount must be greater than zero.'
           : 'The value must be greater than zero.';
@@ -102,19 +107,21 @@ class _InvestmentRecordSheetState extends ConsumerState<InvestmentRecordSheet> {
     });
 
     final actions = ref.read(investmentActionsProvider);
+    // The exact decimal typed, read in the user's locale (UC-19 AF-08).
+    final amount = _parser.parse(_amount.text)!.toString();
 
     final result = _isMovement
         ? await actions.recordMovement(
             investmentId: widget.investment.id,
             type: _type,
-            // The string as typed, unrounded and unparsed.
-            amount: _amount.text.trim(),
+            // Exact and unrounded, never a number on the wire.
+            amount: amount,
             occurredOn: _date,
             financialAccountId: _accountId,
           )
         : await actions.recordValuation(
             investmentId: widget.investment.id,
-            value: _amount.text.trim(),
+            value: amount,
             valuedOn: _date,
           );
 

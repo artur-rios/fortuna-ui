@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
+import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/lifecycle/data/deleted_record_repository.dart';
@@ -313,6 +314,31 @@ void main() {
 
       expect(find.byKey(const Key('deleted.badge.r1')), findsOneWidget);
       expect(find.text('Deleted transaction'), findsOneWidget);
+    });
+
+    testWidgets('Given a deleted transaction with an amount and a date '
+        'When it is listed '
+        'Then both are formatted for the locale, not shown raw (FR-PS-02)', (
+      tester,
+    ) async {
+      await pumpDeleted(
+        tester,
+        FakeDeletedRecords(
+          onList: () => Success([
+            DeletedRecord(
+              id: 'r1',
+              kind: RecordKind.transaction,
+              label: 'Weekly shop',
+              amount: Money.parse('1234.5', 'BRL'),
+              occurredOn: DateTime(2026, 9, 10),
+            ),
+          ]),
+        ),
+      );
+
+      expect(find.textContaining('1,234.50'), findsOneWidget);
+      expect(find.text('Sep 10, 2026'), findsOneWidget);
+      expect(find.textContaining('1234.5'), findsNothing);
     });
 
     testWidgets('Given a deleted record '

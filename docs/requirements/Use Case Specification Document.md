@@ -173,7 +173,7 @@ graph LR
 | **Description** | Carry every operation to the core over whichever transport this installation was built for, so that no feature above the data layer knows or cares which one it is. A mechanism rather than a screen — it is what every other use case is built on |
 | **Preconditions** | UC-01 has resolved a mode and selected a transport |
 | **Postconditions** | The operation's result is available as a value; nothing has been transmitted anywhere but the API |
-| **Requirements** | FR-DA-04, FR-DA-05, FR-DA-06, FR-DA-07, FR-DA-08, FR-DA-09, FR-DA-10, FR-DA-11, FR-DA-13, FR-DA-15, FR-PR-11, FR-PR-12 |
+| **Requirements** | FR-DA-04, FR-DA-05, FR-DA-06, FR-DA-07, FR-DA-08, FR-DA-09, FR-DA-10, FR-DA-11, FR-DA-13, FR-DA-15, FR-DA-16, FR-PR-11, FR-PR-12 |
 
 **Main Flow**
 
@@ -196,6 +196,7 @@ graph LR
 | AF-05 | The generated client or bindings differ from what regeneration produces | CI fails; neither is hand-edited to reconcile it |
 | AF-06 | Code outside the bindings layer imports `dart:ffi` | Static analysis fails the build |
 | AF-07 | A response carries a field the generated client does not know | The unknown field is ignored rather than crashing the parse; the contract is fixed at the API and regenerated |
+| AF-08 | In desktop offline mode, the core exports the operation but does not implement it, and answers `501` (`FORTUNA_STATUS_NOT_IMPLEMENTED`) | A failure result of kind *unavailable offline* carrying the core's reason, presented without a retry. The core lists every such operation under `notImplemented` in `fortuna_capabilities`, which the system reads once when offline mode starts, so the entry points that depend on one (file imports and import retry, data-set export, charts, net position and projections, transfers, installment purchases, card statements and closing or settling them, budget consumption, goal progress, reconciliation) are shown as not available offline before the user reaches for them (`FR-DA-16`). Over HTTP nothing is unavailable and nothing changes |
 
 ---
 
@@ -1649,7 +1650,7 @@ graph LR
 | Use Case | Requirements |
 | --- | --- |
 | UC-01: Configure the Instance and Mode | FR-CF-01 … FR-CF-08, FR-DA-01, FR-DA-02, FR-DA-03 |
-| UC-02: Reach the Fortuna Core Over the Configured Transport | FR-DA-04 … FR-DA-11, FR-DA-13, FR-DA-15, FR-PR-11, FR-PR-12 |
+| UC-02: Reach the Fortuna Core Over the Configured Transport | FR-DA-04 … FR-DA-11, FR-DA-13, FR-DA-15, FR-DA-16, FR-PR-11, FR-PR-12 |
 | UC-03: Sign In with Credentials | FR-SE-01, FR-SE-23, FR-DA-14 |
 | UC-04: Complete a Two-Factor Challenge | FR-SE-03, FR-SE-04 |
 | UC-05: Sign In with Google | FR-SE-02, FR-SE-22 |

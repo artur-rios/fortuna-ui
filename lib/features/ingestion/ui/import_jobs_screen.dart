@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../../session/ui/sign_out_action.dart';
 import '../data/import_job_repository.dart';
@@ -65,7 +67,13 @@ class _JobCard extends ConsumerWidget {
     final locale = SupportedLocales.tagOf(
       ref.watch(preferencesProvider).locale,
     );
-    final started = DateFormat.yMMMd(locale).add_Hm().format(job.startedAt);
+    final retryUnavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.importRetry),
+    );
+    // The API reports an instant in UTC; the reader's day and hour are local.
+    final started = DateFormat.yMMMd(locale)
+        .add_Hm()
+        .format(job.startedAt.toLocal());
 
     return Card(
       child: Padding(
@@ -113,7 +121,8 @@ class _JobCard extends ConsumerWidget {
               ),
             ],
 
-            // AF-01. The failure and its reason, then a retry.
+            // AF-01. The failure and its reason, then a retry — or, offline,
+            // why there is none.
             if (job.state == JobState.failed) ...[
               const SizedBox(height: 12),
               Text(
@@ -121,13 +130,16 @@ class _JobCard extends ConsumerWidget {
                 style: TextStyle(color: theme.colorScheme.error),
               ),
               const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton.tonal(
-                  onPressed: () => _retry(context, ref),
-                  child: const Text('Retry this import'),
+              if (retryUnavailable != null)
+                OfflineUnavailableLine(reason: retryUnavailable)
+              else
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FilledButton.tonal(
+                    onPressed: () => _retry(context, ref),
+                    child: const Text('Retry this import'),
+                  ),
                 ),
-              ),
             ],
           ],
         ),

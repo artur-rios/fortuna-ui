@@ -47,6 +47,18 @@ class FfiHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
+    // The core takes one JSON document per call. A multipart upload — a file
+    // import — cannot cross that boundary, and turning it into JSON would
+    // throw from inside `dio` and surface as an anonymous transport failure.
+    // Refused here instead, in the envelope, with the reason.
+    if (options.data is FormData) {
+      return _json(
+        501,
+        'File uploads are not available offline: '
+        '${options.method.toUpperCase()} ${options.path}.',
+      );
+    }
+
     try {
       final response = await _dispatcher.call(
         resolved.symbol,
@@ -123,12 +135,14 @@ const _jsonHeaders = {
 };
 
 /// A failure shaped like the API's own envelope, so the repositories read its
-/// reason exactly as they read the API's (`FR-DA-14`).
+/// reason exactly as they read the API's (`FR-DA-14`): the reason in `errors`,
+/// where the API and the core both put a refusal's reason.
 ResponseBody _json(int status, String message) => ResponseBody.fromString(
   jsonEncode({
     'data': null,
+    'messages': const <String>[],
+    'errors': [message],
     'success': false,
-    'messages': [message],
   }),
   status,
   headers: _jsonHeaders,

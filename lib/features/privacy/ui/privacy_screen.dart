@@ -10,8 +10,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/config/instance_config.dart';
+import '../../../core/format/supported_locales.dart';
+import '../../preferences/state/preferences_controller.dart';
 import '../data/consent_repository.dart';
 import '../state/consent_controller.dart';
 import '../state/erasure_controller.dart';
@@ -566,7 +569,7 @@ class _Controller extends StatelessWidget {
   }
 }
 
-class _ConsentTile extends StatelessWidget {
+class _ConsentTile extends ConsumerWidget {
   const _ConsentTile({
     required this.consent,
     required this.onGive,
@@ -578,7 +581,10 @@ class _ConsentTile extends StatelessWidget {
   final VoidCallback onWithdraw;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dates = DateFormat.yMMMd(
+      SupportedLocales.tagOf(ref.watch(preferencesProvider).locale),
+    );
     final theme = Theme.of(context);
 
     return Card(
@@ -597,7 +603,8 @@ class _ConsentTile extends StatelessWidget {
                   'You agreed to version ${c.grantedVersion}, but version '
                       '${c.currentVersion} is now in force.',
                 final c when c.isGranted =>
-                  'Given on ${_date(c.grantedAt!)}, version '
+                  // An instant in UTC from the API; the day is the reader's.
+                  'Given on ${dates.format(c.grantedAt!.toLocal())}, version '
                       '${c.grantedVersion}.',
                 _ => 'Not given.',
               },
@@ -640,10 +647,6 @@ class _ConsentTile extends StatelessWidget {
       ),
     );
   }
-
-  static String _date(DateTime when) =>
-      '${when.year}-${when.month.toString().padLeft(2, '0')}-'
-      '${when.day.toString().padLeft(2, '0')}';
 }
 
 class _Notice extends StatelessWidget {

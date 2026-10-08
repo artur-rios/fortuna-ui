@@ -4,6 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
@@ -136,8 +137,9 @@ ProviderContainer containerWith(FakeAggregations fake) {
 
 Future<void> pumpInsight(
   WidgetTester tester,
-  AggregationRepository fake,
-) async {
+  AggregationRepository fake, {
+  List<Override> extra = const [],
+}) async {
   tester.view.physicalSize = const Size(1200, 2400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -148,6 +150,7 @@ Future<void> pumpInsight(
         aggregationRepositoryProvider.overrideWithValue(fake),
         currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+        ...extra,
       ],
       child: const MaterialApp(home: InsightScreen()),
     ),

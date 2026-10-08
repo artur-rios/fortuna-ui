@@ -21,7 +21,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../state/projection_providers.dart';
 
@@ -37,6 +39,18 @@ class _ProjectionsScreenState extends ConsumerState<ProjectionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Offline, the core computes no position or projection: said once, in
+    // place of three sections that would each fail.
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.projections),
+    );
+    if (unavailable != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Projections')),
+        body: OfflineUnavailableNotice(reason: unavailable),
+      );
+    }
+
     final currency = ref.watch(preferencesProvider).displayCurrency;
     final request = ProjectionRequest(
       horizon: _horizon,
