@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/format/money_parser.dart';
 import '../../../core/result/result.dart';
 import '../../../core/session/session_teardown.dart';
 import '../data/investment_repository.dart';
@@ -84,17 +85,13 @@ final investmentValuationsProvider =
 abstract final class InvestmentRules {
   static bool isPresent(String value) => value.trim().isNotEmpty;
 
-  /// Whether [amount] reads as greater than zero (`UC-18` step 3, `AF-01`).
+  /// Whether [amount] reads, in the user's locale, as greater than zero
+  /// (`UC-18` step 3, `AF-01`).
   ///
-  /// Read as text, never parsed to a number — the same approach
-  /// `CreditCardRules.isPositiveAmount` takes, and for the same reason:
-  /// validating money through a `double` is exactly what `IR-14` forbids.
-  static bool isPositiveAmount(String amount) {
-    final trimmed = amount.trim();
-
-    if (trimmed.isEmpty || trimmed.startsWith('-')) return false;
-    return RegExp('[1-9]').hasMatch(trimmed);
-  }
+  /// Read through [MoneyParser], as every other amount in the application is:
+  /// an exact decimal (`IR-14`), in the chosen locale (`UC-19 AF-08`).
+  static bool isPositiveAmount(String amount, {required MoneyParser parser}) =>
+      parser.isPositive(amount);
 
   /// Whether [date] is on or before [now] (`UC-18` step 3, `AF-02`).
   ///

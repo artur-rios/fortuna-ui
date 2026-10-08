@@ -16,8 +16,10 @@ import 'package:intl/intl.dart';
 import '../../../app/routes.dart';
 import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../core/result/result.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../categories/data/category_repository.dart';
 import '../../categories/state/category_providers.dart';
 import '../../holdings/data/credit_card_repository.dart';
@@ -125,6 +127,17 @@ class _RecordInstallmentScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Offline, the core cannot split a purchase into installments.
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.installmentPurchases),
+    );
+    if (unavailable != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Record an installment purchase')),
+        body: OfflineUnavailableNotice(reason: unavailable),
+      );
+    }
+
     final cards = ref.watch(creditCardsProvider);
     final categories = ref.watch(categoryTreeProvider);
 

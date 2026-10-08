@@ -40,16 +40,21 @@ locally built one into `linux/` or `windows/`. UC-01's probe looks in both
 places, so an installation that carries no library is simply never offered
 offline mode.
 
-## One wrinkle in the published header
+## Routes the core exports but does not implement
 
-cbindgen emits the route-export doc comment containing glob patterns like
-`/api/auth/**`. The `/*` inside `auth/**` opens a nested comment, so clang warns
-three times and ffigen refuses on warnings by default. `ffigen.yaml` therefore
-sets `ignore-source-errors: true`, with the reasoning recorded there.
+Every route the core exports has a symbol and a line in the generated route
+table, but not every one is implemented natively. Those that are not (transfers,
+installment plans, card statements, reports and projections, file imports and
+data-set exports, among others) always answer `FORTUNA_STATUS_NOT_IMPLEMENTED`
+(`501`) with the reason in the envelope's `errors`, and `fortuna_capabilities`
+lists them under `notImplemented` with that reason.
 
-The warnings are about comment lexing only — every declaration parses normally,
-and `test/core/bindings/core_route_test.dart` checks the generated route table
-against the header's own declarations, so a genuinely mis-parsed header would
-fail the suite. Editing the vendored header to silence it is not an option:
-`FR-DA-06` requires it verbatim. The fix belongs to fortuna-api's cbindgen
-output.
+The application reads `fortuna_capabilities` once when offline mode starts
+(`lib/core/network/offline_capabilities.dart`) and shows the affected screens
+and actions as "Not available offline", with the core's reason, instead of
+offering them. A `501` that still arrives is a `FailureKind.unavailableOffline`
+failure: its reason is shown and no retry is offered, because it will fail the
+same way next time.
+
+The header compiles without warnings, so `ffigen.yaml` runs with ffigen's
+default strictness: a header that does not parse cleanly fails generation.

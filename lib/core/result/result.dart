@@ -35,6 +35,12 @@ enum FailureKind {
 
   /// The API answered with a failure of its own.
   serverError,
+
+  /// The operation is not available in desktop offline mode: the in-process
+  /// core exports the route but does not implement it, or does not export it
+  /// at all (`501`). Not retryable — the core answers the same way every
+  /// time — and [Failure.message] carries the core's reason.
+  unavailableOffline,
 }
 
 /// The outcome of an operation: [Success] or [Failure], and nothing else.

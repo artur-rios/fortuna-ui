@@ -16,7 +16,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/goal_repository.dart';
 import '../state/goal_providers.dart';
@@ -114,6 +116,12 @@ class _GoalTile extends ConsumerWidget {
     );
     final dates = DateFormat.yMMMd(locale);
     final progress = goal.progress;
+    // Offline, the core computes no progress. Whatever a stored record carries
+    // is not a figure the core stands behind, so none is shown.
+    final progressUnavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.goalProgress),
+    );
+    final noFigures = goal.hasNoProgress || progressUnavailable != null;
     final elapsed = goal.hasElapsed(now: DateTime.now());
 
     return Card(
@@ -130,7 +138,7 @@ class _GoalTile extends ConsumerWidget {
                   Expanded(
                     child: Text(goal.name, style: theme.textTheme.titleMedium),
                   ),
-                  if (goal.isReached)
+                  if (goal.isReached && progressUnavailable == null)
                     Row(
                       key: Key('goals.reached.${goal.id}'),
                       children: [
@@ -160,7 +168,7 @@ class _GoalTile extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        goal.isReached
+                        goal.isReached && progressUnavailable == null
                             ? 'The date has passed, and the target was met.'
                             : 'The date has passed. This is how far it got.',
                         style: theme.textTheme.bodySmall,
@@ -177,7 +185,12 @@ class _GoalTile extends ConsumerWidget {
               const SizedBox(height: 12),
 
               // AF-03: stated, not filled in with a zero.
-              if (goal.hasNoProgress) ...[
+              if (progressUnavailable != null)
+                OfflineUnavailableLine(
+                  key: Key('goals.noProgress.${goal.id}'),
+                  reason: progressUnavailable,
+                )
+              else if (goal.hasNoProgress)
                 Row(
                   key: Key('goals.noProgress.${goal.id}'),
                   children: [
@@ -196,6 +209,7 @@ class _GoalTile extends ConsumerWidget {
                     ),
                   ],
                 ),
+              if (noFigures) ...[
                 const SizedBox(height: 8),
                 Row(
                   children: [

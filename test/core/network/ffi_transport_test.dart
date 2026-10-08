@@ -217,11 +217,56 @@ void main() {
 
       expect(response.statusCode, 501);
       expect(
-        (response.data!['messages']! as List).first,
+        (response.data!['errors']! as List).first,
         contains('not available offline'),
       );
       expect(dispatcher.symbols, isEmpty);
     });
+
+    test('Given the core answers FORTUNA_STATUS_NOT_IMPLEMENTED '
+        'When a request is made '
+        'Then the 501 and its envelope reach dio unchanged', () async {
+      const body =
+          '{"data":null,"messages":[],"errors":["POST /api/transfers is not '
+          'available offline. Transfers are not implemented by the native '
+          'core."],"success":false}';
+      final dispatcher = FakeDispatcher(
+        answer: const CoreResponse(status: 501, body: body),
+      );
+
+      final response = await offlineDio(dispatcher).post<Map<String, dynamic>>(
+        '/api/transfers',
+        data: const {'amount': '10'},
+        options: Options(validateStatus: (_) => true),
+      );
+
+      expect(dispatcher.symbols, ['fortuna_api_transfers_post']);
+      expect(response.statusCode, 501);
+      expect(response.data, jsonDecode(body));
+    });
+
+    test(
+      'Given a multipart upload, which cannot cross the boundary as JSON '
+      'When it is made offline '
+      'Then it is refused with a reason and the core is never called',
+      () async {
+        final dispatcher = FakeDispatcher();
+
+        final response = await offlineDio(dispatcher)
+            .post<Map<String, dynamic>>(
+              '/api/imports/excel',
+              data: FormData.fromMap({'TargetId': 'abc'}),
+              options: Options(validateStatus: (_) => true),
+            );
+
+        expect(response.statusCode, 501);
+        expect(
+          (response.data!['errors']! as List).first,
+          contains('not available offline'),
+        );
+        expect(dispatcher.symbols, isEmpty);
+      },
+    );
 
     test('Given the core cannot be reached '
         'When a request is made '
@@ -238,7 +283,7 @@ void main() {
 
       expect(response.statusCode, 503);
       expect(
-        (response.data!['messages']! as List).first,
+        (response.data!['errors']! as List).first,
         'The core could not be loaded.',
       );
     });
@@ -252,8 +297,8 @@ void main() {
           answer: const CoreResponse(
             status: 400,
             body:
-                '{"data":null,"success":false,'
-                '"messages":["A transaction needs a category."]}',
+                '{"data":null,"messages":[],'
+                '"errors":["A transaction needs a category."],"success":false}',
           ),
         );
 
@@ -267,7 +312,7 @@ void main() {
         // AF-03: the client believed this valid; the core's answer stands.
         expect(response.statusCode, 400);
         expect(
-          (response.data!['messages']! as List).first,
+          (response.data!['errors']! as List).first,
           'A transaction needs a category.',
         );
       },

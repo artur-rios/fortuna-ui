@@ -51,34 +51,62 @@ class MoneyParser {
       }
     }
 
-    // Grouping separators carry no value — they are punctuation for the eye.
-    // Removed before anything else so `1.234,56` and `1234,56` take the same
-    // path from here.
-    if (groupSeparator.isNotEmpty) {
-      body = body.replaceAll(groupSeparator, '');
-    }
+    // A decimal separator at most once; whatever follows it is the fraction.
+    final pieces = decimalSeparator.isEmpty
+        ? [body]
+        : body.split(decimalSeparator);
+    if (pieces.length > 2) return null;
 
-    // Non-breaking spaces are a grouping separator in some locales, and are
-    // what a paste from a spreadsheet often carries.
-    body = body.replaceAll(' ', '').replaceAll(' ', '');
+    final integer = _integerDigits(pieces.first, groupSeparator);
+    final fraction = pieces.length == 2 ? pieces.last : '';
+    if (integer == null || !_digits.hasMatch(fraction)) return null;
 
-    if (decimalSeparator.isNotEmpty) {
-      body = body.replaceAll(decimalSeparator, '.');
-    }
-
-    // Exactly one optional decimal point, digits on at least one side of it,
-    // and nothing else. Anything the shape does not admit is not a number —
-    // including a second separator, a stray letter or a currency symbol.
-    if (!RegExp(r'^\d+(\.\d+)?$|^\.\d+$|^\d+\.$').hasMatch(body)) return null;
+    // Digits on at least one side of the separator: `12`, `12,` and `,5` are
+    // numbers, a separator on its own is not.
+    if (integer.isEmpty && fraction.isEmpty) return null;
 
     // `Decimal.parse` wants digits on both sides.
-    if (body.startsWith('.')) body = '0$body';
-    if (body.endsWith('.')) body = body.substring(0, body.length - 1);
+    body =
+        '${integer.isEmpty ? '0' : integer}'
+        '${fraction.isEmpty ? '' : '.$fraction'}';
 
     final parsed = Decimal.tryParse(body);
     if (parsed == null) return null;
 
     return negative ? -parsed : parsed;
+  }
+
+  static final _digits = RegExp(r'^\d*$');
+
+  /// Grouping as people write it: the separator, or a space — a plain one or
+  /// the non-breaking ones a paste from a spreadsheet or another application
+  /// often carries.
+  static String _groupingPattern(String groupSeparator) =>
+      '[${RegExp.escape(groupSeparator)}\u0020\u00A0\u202F]';
+
+  /// The integer digits of [text] with its grouping removed, or `null` where
+  /// the grouping is not where the locale puts it.
+  ///
+  /// Grouping carries no value, but it does carry meaning: it only ever
+  /// separates thousands. A separator anywhere else means the text was written
+  /// in another convention — `10.50` typed in `pt-BR`, or `1,5` in `en-US` —
+  /// and reading it anyway silently multiplies the amount by a hundred or ten.
+  /// Such text is refused as unreadable rather than guessed at (`AF-01`).
+  static String? _integerDigits(String text, String groupSeparator) {
+    final groups = text.split(RegExp(_groupingPattern(groupSeparator)));
+    if (groups.length == 1) {
+      return _digits.hasMatch(text) ? text : null;
+    }
+
+    final first = groups.first;
+    if (first.isEmpty || first.length > 3 || !_digits.hasMatch(first)) {
+      return null;
+    }
+    for (final group in groups.skip(1)) {
+      if (group.length != 3 || !_digits.hasMatch(group)) return null;
+    }
+
+    return groups.join();
   }
 
   /// Whether [text] denotes an amount greater than zero (`AF-01`, `FR-MM-03`).
