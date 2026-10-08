@@ -223,7 +223,7 @@ decides** versus **what the user decides**.
 
 | Concern | Mechanism | Notes |
 | --- | --- | --- |
-| API base address | `--dart-define FORTUNA_API_BASE_URL` | The default instance for this build. Absent in a desktop offline build. |
+| API base address | `--dart-define FORTUNA_API_BASE_URL` | The default instance for this build: the web UI's own origin in a deployed web build, the local API (`config/local.json`, via `--dart-define-from-file`) locally — see [section 5](#5-environments). Absent in a desktop offline build. |
 | Google client identifier | `--dart-define FORTUNA_GOOGLE_CLIENT_ID` | Public by nature; not a secret. Absent where Google sign-in is not offered. |
 | Transport selection | `--dart-define FORTUNA_TRANSPORT_FFI` | `true` selects the FFI transport; absent or `false`, the HTTP one. Decides which repository implementations are wired. |
 | Database path, offline builds | `--dart-define FORTUNA_DB_PATH`, defaulting beside the executable | So a portable installation keeps its database with itself rather than in a user profile. |
@@ -266,21 +266,27 @@ an administrator reads through UC-45 comes from the API's own health surface.
 
 ## 5. Environments
 
-| Environment | Purpose | Differences |
-| --- | --- | --- |
-| **Local** | Development | Points at a locally running API. Debug build, logs enabled, hot reload. |
-| **Staging** | Verifying a build before release | Points at the staging API. Release build, so what is tested is what ships. |
-| **Production** | The published application | Points at the production API. |
-| **Desktop offline** | A self-contained installation | No API address at all; the FFI transport and a local database. Otherwise identical, except for the operations the core exports but does not implement, which it lists in `fortuna_capabilities` and the application shows as not available offline (`FR-DA-16`). |
+Local runs on the developer's machine; development, homologation and production share one VPS,
+deployed by [yggdrasil](https://github.com/artur-rios/yggdrasil), each with its own image build and
+its own fortuna-api. `example.com` stands for the real domain, which is not recorded here.
 
-**The only difference between local, staging and production is the API address.** No feature is
-enabled in one and not another, no code path branches on environment, and there is no "staging mode"
-inside the application — which is what keeps staging a genuine rehearsal rather than a different
-program.
+| Environment | Purpose | Where | Web UI host | API address compiled in | Differences |
+| --- | --- | --- | --- | --- | --- |
+| **Local** | Development | The developer's Windows machine, Docker Desktop | `http://127.0.0.1:8082` (the container) or `flutter run` | `http://localhost:8083`, the local API (`config/local.json`) | Debug build, logs enabled, hot reload. The API has no CORS support, so a browser run needs its same-origin checks off; desktop targets need nothing. |
+| **Development** | Integration of what is merged into `develop` | The VPS, on demand (started only when used) | `fortuna-dev.example.com` | `https://fortuna-dev.example.com` | Release build. Deployed on every push to `develop`; stays stopped if it was stopped. |
+| **Homologation** | Verifying a release before it ships | The VPS, on demand | `fortuna-hml.example.com` | `https://fortuna-hml.example.com` | Release build of a `release/x.y.z` branch, so what is tested is what ships. |
+| **Production** | The published application | The VPS, always on | `fortuna.example.com` | `https://fortuna.example.com` | Deployed when the release pull request passes every check. |
+| **Desktop offline** | A self-contained installation | The user's machine | — | None | The FFI transport and a local database. Otherwise identical, except for the operations the core exports but does not implement, which it lists in `fortuna_capabilities` and the application shows as not available offline (`FR-DA-16`). |
 
-**No domain is registered yet.** The web deployment's hostname is therefore not recorded here; it is
-a deferred decision, and the only thing that depends on it is the reverse proxy's routing rule and
-the certificate it obtains.
+**The only difference between local, development, homologation and production is the API
+address.** No feature is enabled in one and not another, no code path branches on environment, and
+there is no "homologation mode" inside the application — which is what keeps homologation a genuine
+rehearsal rather than a different program.
+
+**Host names follow one pattern.** Every environment on the VPS is reached at
+`<host><suffix>.example.com`: `fortuna` for the web UI and `fortuna-api` for the API, with the suffix
+`-dev` in development, `-hml` in homologation and none in production. One wildcard DNS record and
+one wildcard certificate cover them all; the routing rules and the real domain belong to yggdrasil.
 
 ---
 
@@ -313,17 +319,21 @@ copies the installation.
 
 ### 6.3 Web deployment
 
-The web image runs on a **VPS under Docker**, behind **Traefik** as the reverse proxy and TLS
-terminator. Traefik routes to the container and obtains the certificate; the container serves static
+The web image runs on a **VPS under Docker**, once per environment (development, homologation and
+production, each from its own build), behind **Traefik** as the reverse proxy and TLS terminator. Traefik routes to the container and obtains the certificate; the container serves static
 files and holds no configuration of its own beyond the API address compiled into the build.
 
-The API is **not** part of this deployment. It runs as its own service, and the browser reaches it
-directly at the address the build names — so the two are deployed, upgraded and rolled back
-independently.
+The API is **not** part of this deployment. It runs as its own service, deployed, upgraded and
+rolled back independently — but the browser does not reach it at a separate address. A deployed web
+build names its own origin as the API address (`https://<ui host>`), and Traefik routes
+`https://<ui host>/api/…` to the API, whose routes all begin with `/api/`. The browser therefore makes
+only same-origin calls, which matters because the API has no CORS support. The API keeps its own host
+for the desktop and Android builds.
 
-The routing rule and certificate configuration belong to the deployment platform,
-[yggdrasil](https://github.com/artur-rios/yggdrasil) (`stacks/fortuna-ui.proxy.yml`), which reads
-the hostname from its own environment file, so no hostname is recorded here.
+The routing rules and certificate configuration belong to the deployment platform,
+[yggdrasil](https://github.com/artur-rios/yggdrasil) (`stacks/fortuna-ui.proxy.yml` and
+`stacks/fortuna-api.proxy.yml`), which reads the host names and the build arguments from its own
+environment files (`/etc/yggdrasil/<environment>/fortuna-ui.env` on the VPS).
 
 ### 6.4 Release
 

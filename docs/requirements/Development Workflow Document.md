@@ -172,8 +172,8 @@ After the merge, set the issue's status to **Done** and **close** it.
 
 ### Step 9 — Releases
 
-A use case is done once it is merged into `develop`; it reaches users in the next release. Releases
-are cut from `develop` as `release/x.y.z` branches, deployed to homologation, and merged into `main`
+A use case is done once it is merged into `develop`, which deploys it to the development
+environment; it reaches users in the next release. Releases are cut from `develop` as `release/x.y.z` branches, deployed to homologation, and merged into `main`
 by the deployment pipeline, which then tags `vx.y.z`. The branching model, the Branch Policy check
 that enforces it, and the release steps are in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 

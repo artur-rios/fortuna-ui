@@ -36,6 +36,11 @@ No release has been tagged yet. What exists so far:
   that reason, so the user signs in again instead of stopping at the start screen.
 - Requires the Fortuna core with `FORTUNA_STATUS_NOT_IMPLEMENTED` and `fortuna_capabilities.notImplemented`. An
   older core still works; its features are offered as before.
+- The application is deployed to four environments: `local` on Docker Desktop, and `development`, `homologation`
+  and `production` on one VPS (development and homologation on demand). A deployed web build names its own origin
+  (`https://fortuna-dev.example.com`, `fortuna-hml`, `fortuna`) as the API address, since the API is served under it
+  at `/api/`. For local runs, `config/local.json.example` holds the local API address (`http://localhost:8083`), for
+  `--dart-define-from-file`; the copy, `config/local.json`, is git-ignored.
 
 ### Fixed
 
