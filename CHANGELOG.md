@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-No release has been tagged yet. What exists so far:
+## [1.0.0] - 2026-10-12
 
 ### Added
 
@@ -66,4 +66,5 @@ No release has been tagged yet. What exists so far:
 - The bindings generator reports how many routes it wrote, instead of printing the literal
   `${matches.length}`.
 
-[Unreleased]: https://github.com/artur-rios/fortuna-ui/commits/develop
+[Unreleased]: https://github.com/artur-rios/fortuna-ui/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/artur-rios/fortuna-ui/releases/tag/v1.0.0
