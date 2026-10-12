@@ -19,8 +19,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../core/result/result.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/transaction_repository.dart';
 import '../state/transaction_providers.dart';
@@ -304,6 +306,27 @@ class _ReconciliationState extends ConsumerState<_Reconciliation> {
     if (!transaction.canReconcile) return const SizedBox.shrink();
 
     final record = transaction.importedRecord;
+    // Offline, the core creates no imported records to reconcile against: the
+    // state is shown, the action is not, and the reason is.
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.reconciliation),
+    );
+    if (unavailable != null) {
+      return Card(
+        key: const Key('transaction.reconcile'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Not yet reconciled', style: theme.textTheme.titleSmall),
+              const SizedBox(height: 4),
+              OfflineUnavailableLine(reason: unavailable),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Card(
       key: const Key('transaction.reconcile'),

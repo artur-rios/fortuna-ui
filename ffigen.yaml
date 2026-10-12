@@ -26,19 +26,6 @@ headers:
   include-directives:
     - '**fortuna_core.h'
 
-# The published header documents its route exports in a doc comment that names
-# glob patterns like `/api/auth/**`. The `/*` inside `auth/**` is a nested
-# comment opener, so clang warns three times, and ffigen refuses on warnings by
-# default. The warnings are purely about comment lexing — every declaration
-# after them parses normally, and the generated bindings are checked against the
-# header's own function list by tool/generate_bindings.dart.
-#
-# The alternative would be to edit the vendored header, and that is exactly what
-# FR-DA-06 forbids: it is vendored verbatim so CI can diff it against the
-# published one. The defect belongs to fortuna-api's cbindgen output and is
-# fixed there, not here.
-ignore-source-errors: true
-
 preamble: |
   // GENERATED — DO NOT EDIT.
   //

@@ -21,6 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fortuna_api_client/export.dart';
 import 'package:meta/meta.dart';
 
+import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/result/result.dart';
 
@@ -43,6 +44,8 @@ class DeletedRecord {
     required this.kind,
     required this.label,
     this.detail,
+    this.amount,
+    this.occurredOn,
     this.stillUsedBy,
   });
 
@@ -52,8 +55,17 @@ class DeletedRecord {
   /// What the record is called, as the user would recognize it.
   final String label;
 
-  /// A second line — a date, an amount, an institution.
+  /// A second line — an institution, a currency.
   final String? detail;
+
+  /// The record's amount, where it has one. Carried as [Money] rather than
+  /// pre-rendered text so the screen formats it in the user's locale like
+  /// every other figure (`FR-PS-02`, `IR-06`).
+  final Money? amount;
+
+  /// The day the record is dated, where it has one — formatted by the screen,
+  /// for the same reason.
+  final DateTime? occurredOn;
 
   /// How many live records still point at this one, where the API says.
   ///
@@ -171,13 +183,11 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
             label: item.description?.isNotEmpty ?? false
                 ? item.description!
                 : (item.categoryName ?? 'Transaction'),
-            detail: [
-              if (item.amount case final amount?)
-                '${item.currencyCode ?? ''} $amount'.trim(),
-              if (item.occurredOn case final date?)
-                '${date.year}-${date.month.toString().padLeft(2, '0')}-'
-                    '${date.day.toString().padLeft(2, '0')}',
-            ].join(' · '),
+            amount: switch ((item.amount, item.currencyCode)) {
+              (final amount?, final currency?) => Money.parse(amount, currency),
+              _ => null,
+            },
+            occurredOn: item.occurredOn,
           ),
     ];
   }

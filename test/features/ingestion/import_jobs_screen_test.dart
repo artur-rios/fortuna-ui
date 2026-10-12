@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/result/result.dart';
@@ -60,6 +61,7 @@ Future<(FakeJobRepository, ProviderContainer)> pumpJobs(
   /// False while a job is running: an indeterminate progress bar animates for
   /// ever by design, so `pumpAndSettle` would never return.
   bool settle = true,
+  List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(1000, 1600);
   tester.view.devicePixelRatio = 1.0;
@@ -71,6 +73,7 @@ Future<(FakeJobRepository, ProviderContainer)> pumpJobs(
       tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
       preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
       importJobRepositoryProvider.overrideWithValue(repository),
+      ...extra,
     ],
   );
   addTearDown(container.dispose);

@@ -13,7 +13,9 @@ import 'package:intl/intl.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/statement_repository.dart';
 import '../state/statement_providers.dart';
@@ -25,6 +27,17 @@ class CardStatementsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Offline, the core keeps no billing cycles.
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.cardStatements),
+    );
+    if (unavailable != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Statements')),
+        body: OfflineUnavailableNotice(reason: unavailable),
+      );
+    }
+
     final statements = ref.watch(cardStatementsProvider(creditCardId));
 
     return Scaffold(

@@ -6,8 +6,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/format/money_parser.dart';
+import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
 import '../../preferences/state/currency_providers.dart';
+import '../../preferences/state/preferences_controller.dart';
 import '../data/credit_card_repository.dart';
 import '../state/credit_card_providers.dart';
 
@@ -65,12 +68,15 @@ class _CreditCardEditorState extends ConsumerState<CreditCardEditor> {
   /// Step 3 and `AF-01`. Exactly the rules the specification states, and no
   /// more — whether a closing and due day pair makes sense is `AF-02`, which
   /// is the API's to answer.
+  MoneyParser get _parser =>
+      MoneyParser(SupportedLocales.tagOf(ref.read(preferencesProvider).locale));
+
   String? _validate() {
     if (_name.text.trim().isEmpty) return 'Give the card a name.';
     if (_isNew && (_currency == null || _currency!.isEmpty)) {
       return 'Choose the currency this card is billed in.';
     }
-    if (!CreditCardRules.isPositiveAmount(_limit.text)) {
+    if (!CreditCardRules.isPositiveAmount(_limit.text, parser: _parser)) {
       return 'The credit limit must be greater than zero.';
     }
     if (!CreditCardRules.isDayInRange(int.tryParse(_closingDay.text.trim()))) {
@@ -97,13 +103,16 @@ class _CreditCardEditorState extends ConsumerState<CreditCardEditor> {
     final actions = ref.read(creditCardActionsProvider);
     final issuer = _issuer.text.trim();
     final digits = _digits.text.trim();
+    // The exact decimal the user typed, read in their locale and serialized
+    // invariantly — the only form the API accepts (UC-19 AF-08).
+    final limit = _parser.parse(_limit.text)!.toString();
 
     final result = _isNew
         ? await actions.create(
             name: _name.text.trim(),
             currencyCode: _currency!,
-            // The string as typed, unrounded.
-            creditLimit: _limit.text.trim(),
+            // Exact and unrounded, never a number on the wire.
+            creditLimit: limit,
             closingDay: int.parse(_closingDay.text.trim()),
             dueDay: int.parse(_dueDay.text.trim()),
             issuer: issuer.isEmpty ? null : issuer,
@@ -112,7 +121,7 @@ class _CreditCardEditorState extends ConsumerState<CreditCardEditor> {
         : await actions.update(
             id: widget.card!.id,
             name: _name.text.trim(),
-            creditLimit: _limit.text.trim(),
+            creditLimit: limit,
             closingDay: int.parse(_closingDay.text.trim()),
             dueDay: int.parse(_dueDay.text.trim()),
             issuer: issuer.isEmpty ? null : issuer,

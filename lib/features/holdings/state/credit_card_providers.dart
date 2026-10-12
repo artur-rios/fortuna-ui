@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/format/money_parser.dart';
 import '../../../core/result/result.dart';
 import '../../../core/session/session_teardown.dart';
 import '../data/credit_card_repository.dart';
@@ -53,18 +54,15 @@ abstract final class CreditCardRules {
   /// Whether [day] could be a day of a month.
   static bool isDayInRange(int? day) => day != null && day >= 1 && day <= 31;
 
-  /// Whether [limit] reads as an amount greater than zero.
+  /// Whether [limit] reads, in the user's locale, as an amount greater than
+  /// zero.
   ///
-  /// Read as text, never parsed to a number. This is the one validation in the
-  /// application that looks at money, and doing it through a `double` is
-  /// exactly what `IR-14` forbids — so "greater than zero" is asked as "is
-  /// there a digit here that is not a zero, and is it not negative".
-  static bool isPositiveAmount(String limit) {
-    final trimmed = limit.trim();
-
-    if (trimmed.isEmpty || trimmed.startsWith('-')) return false;
-    return RegExp('[1-9]').hasMatch(trimmed);
-  }
+  /// Read through [MoneyParser] — an exact decimal, never a `double` (`IR-14`)
+  /// — and in the chosen locale (`UC-19 AF-08`), so `5.000` typed in `pt-BR`
+  /// is five thousand here exactly as it is everywhere else in the
+  /// application, not five.
+  static bool isPositiveAmount(String limit, {required MoneyParser parser}) =>
+      parser.isPositive(limit);
 }
 
 /// Changes to the card set, re-reading the list after a confirmed change.

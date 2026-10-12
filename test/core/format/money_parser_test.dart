@@ -95,10 +95,43 @@ void main() {
 
     test('Given a separator the locale does not use as a decimal point '
         'When it is parsed in that locale '
-        'Then it is read as the locale would read it, not guessed at', () {
-      // In pt-BR a dot groups, so "1.2" is 12 — not one-point-two. The parser
-      // follows the chosen locale rather than trying to detect intent.
-      expect(ptBR.parse('1.2'), Decimal.parse('12'));
+        'Then it is refused as unreadable, never guessed at', () {
+      // In pt-BR a dot only ever separates thousands, so "1.2" is not a pt-BR
+      // number at all. Reading it as 12 — or "10.50" as 1050 — would silently
+      // multiply what the user meant; refusing it lets them fix it (AF-01).
+      expect(ptBR.parse('1.2'), isNull);
+      expect(ptBR.parse('10.50'), isNull);
+      expect(enUS.parse('1,5'), isNull);
+      expect(enUS.parse('10,50'), isNull);
+    });
+
+    test('Given an amount written in the other convention '
+        'When it is parsed '
+        'Then it is refused rather than read as a different number', () {
+      // Previously "1.234,56" in en-US read as 1.23456, and "1,234.56" in
+      // pt-BR the same: a thousand-fold error that looked like a valid amount.
+      expect(enUS.parse('1.234,56'), isNull);
+      expect(ptBR.parse('1,234.56'), isNull);
+    });
+
+    test('Given grouping in the right places, with any kind of space '
+        'When it is parsed '
+        'Then it is read, and a misplaced space is refused', () {
+      expect(enUS.parse('1\u00a0234.56'), Decimal.parse('1234.56'));
+      expect(ptBR.parse('1\u202f234,56'), Decimal.parse('1234.56'));
+      expect(ptBR.parse('1 234,5'), Decimal.parse('1234.5'));
+      expect(enUS.parse('12 34.56'), isNull);
+      expect(enUS.parse('1,234,56'), isNull);
+    });
+
+    test('Given a separator with digits on only one side '
+        'When it is parsed '
+        'Then it is read, and a separator alone is not a number', () {
+      expect(enUS.parse('.5'), Decimal.parse('0.5'));
+      expect(enUS.parse('12.'), Decimal.parse('12'));
+      expect(ptBR.parse(',5'), Decimal.parse('0.5'));
+      expect(enUS.parse('.'), isNull);
+      expect(enUS.parse('-'), isNull);
     });
 
     test('Given whitespace inside the number '

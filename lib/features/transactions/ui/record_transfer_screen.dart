@@ -15,8 +15,10 @@ import 'package:intl/intl.dart';
 import '../../../app/routes.dart';
 import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../core/result/result.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../holdings/data/account_repository.dart';
 import '../../holdings/state/account_providers.dart';
 import '../../preferences/state/preferences_controller.dart';
@@ -109,6 +111,18 @@ class _RecordTransferScreenState extends ConsumerState<RecordTransferScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Offline, the core cannot create a transfer's paired legs: no form is
+    // offered whose submission could only be refused.
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.transfers),
+    );
+    if (unavailable != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Record a transfer')),
+        body: OfflineUnavailableNotice(reason: unavailable),
+      );
+    }
+
     final accounts = ref.watch(selectableAccountsProvider);
 
     final recorded = _recorded;

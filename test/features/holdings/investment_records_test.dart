@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
+import 'package:fortuna_ui/core/format/money_parser.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/holdings/data/account_repository.dart';
@@ -12,6 +13,8 @@ import 'package:fortuna_ui/features/holdings/state/investment_providers.dart';
 import 'package:fortuna_ui/features/holdings/ui/investment_record_sheet.dart';
 import 'package:fortuna_ui/features/holdings/ui/investment_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
+import 'package:fortuna_ui/features/preferences/state/preferences_controller.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'accounts_test.dart' show FakeAccounts, FakeCurrencies, account;
 import 'investments_test.dart' show FakeInvestments, investment;
@@ -88,6 +91,7 @@ Future<void> pumpInvestment(
   WidgetTester tester,
   RecordingInvestments fake, {
   FakeAccounts? accounts,
+  List<Locale> locales = const [],
 }) async {
   tester.view.physicalSize = const Size(1000, 2600);
   tester.view.devicePixelRatio = 1;
@@ -100,6 +104,7 @@ Future<void> pumpInvestment(
         accountRepositoryProvider.overrideWithValue(accounts ?? FakeAccounts()),
         currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+        platformLocalesProvider.overrideWithValue(locales),
       ],
       child: const MaterialApp(home: InvestmentScreen(investmentId: 'i1')),
     ),
@@ -122,6 +127,9 @@ Future<void> openSheet(WidgetTester tester, RecordKind kind) async {
 }
 
 void main() {
+  // The sheet formats dates in the chosen locale, and pt-BR is exercised here.
+  setUpAll(initializeDateFormatting);
+
   group('MovementType', () {
     test('Given the numbers the contract specifies '
         'When they are mapped '
@@ -134,23 +142,34 @@ void main() {
   });
 
   group('InvestmentRules.isPositiveAmount', () {
+    bool check(MoneyParser parser, String amount) =>
+        InvestmentRules.isPositiveAmount(amount, parser: parser);
+    final enUS = MoneyParser('en_US');
+
     test('Given an amount greater than zero '
         'When it is checked '
         'Then it is accepted, however it is written', () {
-      expect(InvestmentRules.isPositiveAmount('1'), isTrue);
-      expect(InvestmentRules.isPositiveAmount('0.01'), isTrue);
-      expect(InvestmentRules.isPositiveAmount(' 1500.75 '), isTrue);
-      expect(InvestmentRules.isPositiveAmount('1000000'), isTrue);
+      expect(check(enUS, '1'), isTrue);
+      expect(check(enUS, '0.01'), isTrue);
+      expect(check(enUS, ' 1500.75 '), isTrue);
+      expect(check(enUS, '1000000'), isTrue);
     });
 
     test('Given zero, nothing, or a negative amount '
         'When it is checked '
         'Then it is refused (AF-01)', () {
-      expect(InvestmentRules.isPositiveAmount('0'), isFalse);
-      expect(InvestmentRules.isPositiveAmount('0.00'), isFalse);
-      expect(InvestmentRules.isPositiveAmount(''), isFalse);
-      expect(InvestmentRules.isPositiveAmount('   '), isFalse);
-      expect(InvestmentRules.isPositiveAmount('-5.00'), isFalse);
+      expect(check(enUS, '0'), isFalse);
+      expect(check(enUS, '0.00'), isFalse);
+      expect(check(enUS, ''), isFalse);
+      expect(check(enUS, '   '), isFalse);
+      expect(check(enUS, '-5.00'), isFalse);
+    });
+
+    test('Given an amount written in the chosen locale '
+        'When it is checked '
+        'Then it is read as that locale writes it, and text is refused', () {
+      expect(check(MoneyParser('pt_BR'), '1.500,75'), isTrue);
+      expect(check(enUS, '12abc'), isFalse);
     });
   });
 
@@ -437,6 +456,24 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(fake.movements.single['type'], MovementType.withdrawal);
+    });
+
+    testWidgets('Given an amount typed the Brazilian way '
+        'When it is submitted in pt-BR '
+        'Then the exact amount it denotes is sent, not the typed text '
+        '(UC-19 AF-08)', (tester) async {
+      final fake = RecordingInvestments();
+
+      await pumpInvestment(tester, fake, locales: const [Locale('pt', 'BR')]);
+      await openSheet(tester, RecordKind.movement);
+      await tester.enterText(
+        find.byKey(const Key('investmentRecord.amount')),
+        '1.500,75',
+      );
+      await tester.tap(find.byKey(const Key('investmentRecord.submit')));
+      await tester.pumpAndSettle();
+
+      expect(fake.movements.single['amount'], '1500.75');
     });
 
     testWidgets('Given a valid valuation '

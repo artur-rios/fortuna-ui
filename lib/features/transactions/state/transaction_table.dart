@@ -412,11 +412,13 @@ List<ExportFilter> describeFilters(TransactionView view) {
         ),
       );
 
+  // The transaction date is a calendar-date column, which the API reads only
+  // as `yyyy-MM-dd`: a full timestamp is refused as an invalid filter value.
   if (view.from case final from?) {
-    add('occurredOn', 'gte', from.toIso8601String(), 'From ${_day(from)}');
+    add('occurredOn', 'gte', _day(from), 'From ${_day(from)}');
   }
   if (view.to case final to?) {
-    add('occurredOn', 'lte', to.toIso8601String(), 'Up to ${_day(to)}');
+    add('occurredOn', 'lte', _day(to), 'Up to ${_day(to)}');
   }
   if (view.financialAccountId case final id?) {
     add('financialAccountId', 'eq', id, 'One account only');

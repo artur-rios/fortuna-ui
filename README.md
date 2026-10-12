@@ -12,8 +12,8 @@ owns the domain, the money and the integrations; this application owns the exper
 [![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
 [![Project board](https://img.shields.io/badge/project-Fortuna%20UI-8250df?style=flat-square)](https://github.com/users/artur-rios/projects/14)
 
-> **Status:** specification complete; implementation under way — 26 of the 47 issues are
-> closed. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
+> **Status:** specification complete; implementation under way — 44 of the 47 issues are
+> closed, and UC-04, UC-23 and UC-35 remain. The [project board](https://github.com/users/artur-rios/projects/14) is the live view.
 
 ## What it does
 
@@ -35,7 +35,11 @@ owns the domain, the money and the integrations; this application owns the exper
 - **Honors data rights** — consent before anything reaches a third party, a complete export, and
   account erasure.
 - **Runs offline on the desktop** — Windows and Linux installations ship the Fortuna core as a
-  native library and call it in process, with no network and no server.
+  native library and call it in process, with no network and no server. The core does not yet
+  implement everything the API does: file imports, data-set exports, charts, net position and
+  projections, transfers, installment purchases, card statements, budget consumption, goal progress
+  and reconciliation are shown as "Not available offline", with the core's reason, rather than
+  offered and then refused.
 
 ## What it doesn't do
 
@@ -87,54 +91,81 @@ cd fortuna-ui
 flutter pub get
 ```
 
-The generated API client is committed, so a clean clone needs no generation step. Regenerate it only
-after taking a new API contract into `api/fortuna.json`:
-
-```bash
-dart run tool/generate_api_client.dart
-```
-
-The FFI bindings have their own generator, which currently refuses to run and says why: the Fortuna
-core's C header does not exist yet. See [native/README.md](native/README.md).
-
-```bash
-dart run tool/generate_bindings.dart
-```
-
 ### Running
 
-Configuration is supplied at build time, so a run names the instance it talks to:
+Configuration is supplied at build time, so a run names the instance it talks to. Locally that is
+the fortuna-api started from its own repository on `http://localhost:8083`; copy the local
+configuration and pass it to every run:
 
 ```bash
-flutter run -d windows --dart-define=FORTUNA_API_BASE_URL=http://localhost:5000
+cp config/local.json.example config/local.json   # git-ignored
+flutter run -d windows --dart-define-from-file=config/local.json
 ```
 
-Replace `-d windows` with `linux`, `chrome` or your Android device. A run with no
-`FORTUNA_API_BASE_URL` starts at the setup screen instead of failing. Desktop offline mode is
-selected with `--dart-define=FORTUNA_TRANSPORT=ffi`, and requires the Fortuna core library to be
-present — see the
+Replace `-d windows` with `linux`, `chrome` or your Android device (an Android emulator reaches the
+machine at `http://10.0.2.2:8083`). The API has no CORS support, so a browser only reaches it on the
+page's own origin, which a local run does not share. Run the web target with the browser's
+same-origin checks off (Flutter starts Chrome with a temporary profile), or work on a desktop target
+instead:
+
+```bash
+flutter run -d chrome --dart-define-from-file=config/local.json --web-browser-flag=--disable-web-security
+```
+
+A run with no `FORTUNA_API_BASE_URL` starts at the setup screen instead of failing. Desktop offline
+mode is selected with `--dart-define=FORTUNA_TRANSPORT_FFI=true`, and requires the Fortuna core
+library to be present — see the
 [Operations & Infrastructure Document](docs/requirements/Operations%20%26%20Infrastructure%20Document.md) §3.
 
-## Testing
+### Environments
 
-The suite described in the
-[Testing Specification Document](docs/requirements/Testing%20Specification%20Document.md) runs with:
+The application runs against one Fortuna API per environment. `example.com` stands for the real
+domain:
+
+| Environment | Where | Deployed by | Web UI | `FORTUNA_API_BASE_URL` |
+| --- | --- | --- | --- | --- |
+| `local` | The developer's Windows machine, Docker Desktop | By hand: `flutter run`, or yggdrasil's `scripts/deploy.sh local fortuna-ui …` for the container | `http://127.0.0.1:8082` | `http://localhost:8083`, the local API |
+| `development` | The VPS, on demand (started only when used) | Jenkins, on every push to `develop` | `https://fortuna-dev.example.com` | `https://fortuna-dev.example.com` |
+| `homologation` | The VPS, on demand | Jenkins, on every push of a `release/x.y.z` branch | `https://fortuna-hml.example.com` | `https://fortuna-hml.example.com` |
+| `production` | The VPS, always on | Jenkins, on a green `release/x.y.z → main` pull request | `https://fortuna.example.com` | `https://fortuna.example.com` |
+
+A deployed web build names its own origin as the API address: Traefik serves fortuna-api under the
+UI's host at `/api/`, so the browser never makes a cross-origin call. The API keeps its own host
+(`fortuna-api-dev.example.com`, `fortuna-api-hml.example.com`, `fortuna-api.example.com`) for the
+desktop and Android builds. The repository has no environment files of its own: the deployed build
+arguments live in yggdrasil's, at `/etc/yggdrasil/<environment>/fortuna-ui.env` on the VPS.
+
+## Container image (web)
+
+`Dockerfile` builds the web target into a production image: a pinned Flutter SDK (3.47.4 — the
+first 3.47 release is 3.47.2, the earliest Flutter whose Dart satisfies `sdk: ^3.13.2`) compiles
+`build/web`, and `nginxinc/nginx-unprivileged:alpine` serves it as a non-root user on port
+**8080**, with a deep-link fallback to `index.html` and a `/healthz` probe. The server
+configuration is [`docker/nginx.conf`](docker/nginx.conf). It expects TLS to be terminated in front
+of it.
+
+| Build argument | Required | Meaning |
+| --- | --- | --- |
+| `FORTUNA_API_BASE_URL` | No | The default Fortuna instance; empty starts the app at the setup screen |
+| `FORTUNA_GOOGLE_CLIENT_ID` | No | Google OAuth client id; empty hides Google sign-in |
+| `FLUTTER_VERSION` / `FLUTTER_SHA256` | No | Override the SDK; pass both together (checksums are in Flutter's `releases_linux.json`) |
+
+`FORTUNA_TRANSPORT_FFI` and `FORTUNA_DB_PATH` configure desktop offline mode, which the web cannot
+use, so the image does not expose them and always builds with the HTTP transport. The `native/`
+directory is not part of the build context.
 
 ```bash
-flutter analyze
-flutter test
+docker build -t fortuna-ui:web \
+  --build-arg FORTUNA_API_BASE_URL=https://fortuna.example.com \
+  --build-arg FORTUNA_GOOGLE_CLIENT_ID=1234567890-abc.apps.googleusercontent.com \
+  .
+docker run --rm -p 8080:8080 fortuna-ui:web
 ```
 
-An analyzer failure is a failure. Integration tests live in `integration_test/` and are invoked
-deliberately, so the fast suite stays fast:
-
-```bash
-flutter test integration_test -d windows
-```
-
-The suite covers **unit**, **widget** and **integration** tests. There is no numeric coverage floor:
-the standard is that every use case's main flow and each of its `AF-xx` alternative flows has a test
-that names it. Every use case ships with its tests before its pull request is opened.
+> [!WARNING]
+> The build arguments become `--dart-define` values, which are compiled into the JavaScript bundle
+> and readable by anyone who loads the page. They are public. Never pass a secret as a build
+> argument. Because the values are baked in, each environment needs its own image build.
 
 ## Roadmap
 
@@ -271,9 +302,17 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | [#39](https://github.com/artur-rios/fortuna-ui/issues/39) | ✅ | UC-38 — View the Net Position, Projections and Obligations | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#40](https://github.com/artur-rios/fortuna-ui/issues/40) | ✅ | UC-39 — Export a Data Set | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
+## Changelog
+
+Notable changes in each release are recorded in [CHANGELOG.md](./CHANGELOG.md).
+
 ## Contributing
 
-One use case = one branch = one issue = one pull request. The full process — branch naming, the
-issue status lifecycle, the four approval gates, the testing gate, and the Definition of Done — is
-in the
-[Development Workflow Document](docs/requirements/Development%20Workflow%20Document.md).
+Regenerating the API client and the FFI bindings, running the tests, the delivery workflow, the
+branching model and the release process are described in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Legal
+
+This project is licensed under the [Artur Rios Attribution License](LICENSE). It is free and open source: you may view, use, fork, modify, and extend it, provided you credit the author, Artur Rios, with a link to [artur-rios.tech](https://artur-rios.tech) or [github.com/artur-rios](https://github.com/artur-rios).
+
+Copyright (c) 2026 Artur Rios.

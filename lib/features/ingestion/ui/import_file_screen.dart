@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/network/offline_capabilities.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../session/ui/sign_out_action.dart';
 import '../data/import_upload_repository.dart';
 import '../state/import_upload_controller.dart';
@@ -15,14 +17,27 @@ class ImportFileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final appBar = AppBar(
+      title: const Text('Import a file'),
+      actions: const [SignOutAction()],
+    );
+
+    // Offline, the core has no parser: no file is offered for a refusal.
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.fileImport),
+    );
+    if (unavailable != null) {
+      return Scaffold(
+        appBar: appBar,
+        body: OfflineUnavailableNotice(reason: unavailable),
+      );
+    }
+
     final state = ref.watch(importUploadProvider);
     final controller = ref.read(importUploadProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Import a file'),
-        actions: const [SignOutAction()],
-      ),
+      appBar: appBar,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
@@ -129,15 +144,17 @@ class _StateView extends ConsumerWidget {
       ),
 
       // AF-04, AF-05: the reason, and the same file offered again.
-      ImportFailed(:final upload, :final reason) => _Notice(
+      ImportFailed(:final upload, :final reason, :final canRetry) => _Notice(
         icon: Icons.error_outline,
         colour: theme.colorScheme.error,
         title: 'The import did not start',
         body: reason,
-        action: FilledButton(
-          onPressed: () => unawaited(controller.upload()),
-          child: Text('Try ${upload.fileName} again'),
-        ),
+        action: canRetry
+            ? FilledButton(
+                onPressed: () => unawaited(controller.upload()),
+                child: Text('Try ${upload.fileName} again'),
+              )
+            : null,
       ),
 
       ImportStarted() => _Notice(

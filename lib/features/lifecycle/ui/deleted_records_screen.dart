@@ -18,8 +18,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
+import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
+import '../../../shared/widgets/money_text.dart';
+import '../../preferences/state/preferences_controller.dart';
 import '../data/deleted_record_repository.dart';
 import '../state/deleted_record_providers.dart';
 
@@ -240,6 +244,24 @@ class _RecordTileState extends ConsumerState<_RecordTile> {
             ),
             const SizedBox(height: 8),
             Text(record.label, style: theme.textTheme.titleMedium),
+            if (record.amount != null || record.occurredOn != null)
+              Wrap(
+                spacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (record.amount case final amount?)
+                    MoneyText(amount, style: theme.textTheme.bodySmall),
+                  if (record.occurredOn case final date?)
+                    Text(
+                      DateFormat.yMMMd(
+                        SupportedLocales.tagOf(
+                          ref.watch(preferencesProvider).locale,
+                        ),
+                      ).format(date),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                ],
+              ),
             if (record.detail case final detail? when detail.isNotEmpty)
               Text(detail, style: theme.textTheme.bodySmall),
 

@@ -135,7 +135,10 @@ class _EntryTile extends ConsumerWidget {
     final locale = SupportedLocales.tagOf(
       ref.watch(preferencesProvider).locale,
     );
-    final when = DateFormat.yMMMd(locale).add_Hm().format(entry.occurredAt);
+    // The API reports an instant in UTC; the reader's day and hour are local.
+    final when = DateFormat.yMMMd(locale)
+        .add_Hm()
+        .format(entry.occurredAt.toLocal());
 
     final (icon, colour) = switch (entry.result) {
       AuditResult.succeeded => (

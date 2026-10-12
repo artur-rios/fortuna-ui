@@ -23,8 +23,9 @@ import 'package:ffi/ffi.dart';
 import 'core_dispatcher.dart';
 import 'fortuna_bindings.dart';
 
-/// Every routed export shares one signature, so one typed lookup serves all 113
-/// of them rather than a switch over generated methods.
+/// Every routed export shares one signature, so one typed lookup serves every
+/// one of them (and `fortuna_capabilities`) rather than a switch over generated
+/// methods.
 typedef _OperationNative = Int Function(
   Pointer<Char> request,
   Pointer<Pointer<Char>> response,

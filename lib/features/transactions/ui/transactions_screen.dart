@@ -21,7 +21,9 @@ import 'package:intl/intl.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../categories/data/category_repository.dart';
 import '../../categories/state/category_providers.dart';
 import '../../holdings/data/account_repository.dart';
@@ -38,31 +40,42 @@ class TransactionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final view = ref.watch(transactionViewProvider);
     final page = ref.watch(transactionPageProvider(view));
+    final exportUnavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.dataSetExport),
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transactions'),
         actions: [
+          // Offline, the core renders no export file: the control stays,
+          // disabled, and says why.
           IconButton(
             key: const Key('transactions.export'),
-            tooltip: 'Export',
+            tooltip: exportUnavailable == null
+                ? 'Export'
+                : notAvailableOffline(exportUnavailable),
             icon: const Icon(Icons.download_outlined),
-            onPressed: () => unawaited(
-              showExportSheet(
-                context,
-                ref,
-                recordSet: 'transactions',
-                // FR-EX-03: the view's own filters, described as the user
-                // reads them, so step 2 can state what the file will hold.
-                filters: describeFilters(view),
-                // AF-01 is decided here: an empty view has nothing to export,
-                // and the sheet says so instead of offering a button.
-                hasData: switch (page) {
-                  AsyncData(value: final value) => !value.isEmpty,
-                  _ => false,
-                },
-              ),
-            ),
+            onPressed: exportUnavailable != null
+                ? null
+                : () => unawaited(
+                    showExportSheet(
+                      context,
+                      ref,
+                      recordSet: 'transactions',
+                      // FR-EX-03: the view's own filters, described as the
+                      // user reads them, so step 2 can state what the file
+                      // will hold.
+                      filters: describeFilters(view),
+                      // AF-01 is decided here: an empty view has nothing to
+                      // export, and the sheet says so instead of offering a
+                      // button.
+                      hasData: switch (page) {
+                        AsyncData(value: final value) => !value.isEmpty,
+                        _ => false,
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

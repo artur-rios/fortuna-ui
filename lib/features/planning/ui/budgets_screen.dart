@@ -19,7 +19,9 @@ import 'package:intl/intl.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
 import '../../../shared/widgets/money_text.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../categories/state/category_providers.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/budget_repository.dart';
@@ -167,6 +169,12 @@ class _BudgetTile extends ConsumerWidget {
       ref.watch(preferencesProvider).locale,
     );
     final consumption = budget.consumption;
+    // Offline, the core computes no consumption. Whatever a stored record
+    // carries is not a figure the core stands behind, so none is shown.
+    final consumptionUnavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.budgetConsumption),
+    );
+    final noFigures = budget.hasNoConsumption || consumptionUnavailable != null;
 
     return Card(
       key: Key('budgets.item.${budget.id}'),
@@ -198,7 +206,12 @@ class _BudgetTile extends ConsumerWidget {
               const SizedBox(height: 12),
 
               // AF-04: stated, not filled in with a zero.
-              if (budget.hasNoConsumption) ...[
+              if (consumptionUnavailable != null)
+                OfflineUnavailableLine(
+                  key: Key('budgets.noConsumption.${budget.id}'),
+                  reason: consumptionUnavailable,
+                )
+              else if (budget.hasNoConsumption)
                 Row(
                   key: Key('budgets.noConsumption.${budget.id}'),
                   children: [
@@ -217,6 +230,7 @@ class _BudgetTile extends ConsumerWidget {
                     ),
                   ],
                 ),
+              if (noFigures) ...[
                 const SizedBox(height: 8),
                 Row(
                   children: [

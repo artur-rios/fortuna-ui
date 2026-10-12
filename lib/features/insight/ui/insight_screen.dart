@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/format/supported_locales.dart';
+import '../../../core/network/offline_capabilities.dart';
+import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/aggregation_repository.dart';
 import '../state/aggregation_providers.dart';
@@ -37,6 +39,18 @@ class _InsightScreenState extends ConsumerState<InsightScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Offline, the core computes no aggregation: no controls for a chart that
+    // cannot be drawn.
+    final unavailable = ref.watch(
+      offlineUnavailableProvider(OfflineFeature.insight),
+    );
+    if (unavailable != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Insight')),
+        body: OfflineUnavailableNotice(reason: unavailable),
+      );
+    }
+
     final preferences = ref.watch(preferencesProvider);
 
     // The display currency is the user's presentation choice (UC-13). Where

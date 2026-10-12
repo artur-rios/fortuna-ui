@@ -225,6 +225,20 @@ void main() {
       expect(described.single.operator, 'gte');
     });
 
+    test('Given a date range '
+        'When it is described '
+        'Then each bound travels as the calendar date the API reads, not as a '
+        'timestamp it would refuse', () {
+      final described = describeFilters(
+        TransactionView(
+          from: DateTime(2026, 9, 1, 13, 45),
+          to: DateTime(2026, 9, 30),
+        ),
+      );
+
+      expect(described.map((f) => f.value), ['2026-09-01', '2026-09-30']);
+    });
+
     test('Given amount bounds '
         'When they are described '
         'Then they travel as the strings they were typed as', () {

@@ -87,11 +87,11 @@ first review gate.
 
 ## Step 3 — Branch and move the issue to In Progress
 
-Once the plan is approved, create the branch from an up-to-date `main` using the naming pattern
+Once the plan is approved, create the branch from an up-to-date `develop` using the naming pattern
 `feature/uc-##-use-case-name`:
 
 ```bash
-git switch main && git pull
+git switch develop && git pull
 git switch -c feature/uc-01-sign-in-with-credentials
 ```
 
@@ -141,7 +141,7 @@ Report the passing results. **Do not open a pull request yet — stop and ask.**
 
 ## Step 7 — Open the pull request (after approval)
 
-Once approved, push the branch and open a pull request from `feature/uc-##-…` into `main`,
+Once approved, push the branch and open a pull request from `feature/uc-##-…` into `develop`,
 referencing the issue so the merge closes it. Then **hand off to a human** for review and merge.
 Do **not** merge or delete the branch.
 
@@ -176,7 +176,7 @@ issue to **Done** and confirm it is closed.
 
 ## Definition of Done
 
-- [ ] Implemented on a `feature/uc-##-use-case-name` branch created from `main`.
+- [ ] Implemented on a `feature/uc-##-use-case-name` branch created from `develop`.
 - [ ] Main flow and every alternative flow implemented, each with the interface behavior the
       specification defines for it.
 - [ ] Unit tests cover each provider, repository, validator and formatter (main + applicable
@@ -184,11 +184,11 @@ issue to **Done** and confirm it is closed.
 - [ ] Widget tests cover each screen the use case adds or changes, including its error, empty and
       loading states.
 - [ ] Integration tests cover the end-to-end flow where the Testing Specification calls for one.
-- [ ] `flutter analyze` is clean and `flutter test` is green, and line coverage holds at or above
-      the floor.
+- [ ] `flutter analyze` is clean and `flutter test` is green. There is no numeric coverage floor
+      (Testing Specification §7.5).
 - [ ] No monetary value is represented as a `double` anywhere in the change.
 - [ ] The generated API client was not hand-edited.
-- [ ] The pull request was merged to `main` — reviewed by a human, or merged by an agent under an
+- [ ] The pull request was merged to `develop` — reviewed by a human, or merged by an agent under an
       authorized batch run (Step 7.1).
 - [ ] The branch was deleted.
 - [ ] The issue is in **Done** and closed.

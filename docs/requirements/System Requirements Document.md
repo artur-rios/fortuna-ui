@@ -150,6 +150,7 @@ The shape that matters: **features depend on repositories, never on a transport.
 | FR-DA-13 | The system shall not report a write as successful until the API's response confirms it. |
 | FR-DA-14 | The system shall present the API's own reason for a refusal, without substituting, softening or generalizing it. |
 | FR-DA-15 | The system shall treat client-side validation as feedback only, submitting and honoring the API's answer even where the client expected success. |
+| FR-DA-16 | In desktop offline mode, the system shall read once, when the mode starts, which operations the core exports but does not implement, and shall present every entry point that depends on one as not available offline, with the core's reason and without a retry, rather than offering it. A refusal of that kind that still arrives shall be presented the same way. |
 
 ### 3.4 Presentation and Preferences — `PS`
 
@@ -598,7 +599,7 @@ that the audit trail survives without identifying the user.
 | --- | --- | --- |
 | Session and identity | `SE` | FR-SE-01 … FR-SE-23 |
 | Configuration and modes | `CF` | FR-CF-01 … FR-CF-08 |
-| Data access and transport | `DA` | FR-DA-01 … FR-DA-15 |
+| Data access and transport | `DA` | FR-DA-01 … FR-DA-16 |
 | Presentation and preferences | `PS` | FR-PS-01 … FR-PS-13 |
 | Holdings | `HO` | FR-HO-01 … FR-HO-13 |
 | Money movement | `MM` | FR-MM-01 … FR-MM-13 |

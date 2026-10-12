@@ -211,7 +211,12 @@ void main() {
         'When sign-in is attempted '
         'Then the installation is reported unusable rather than the '
         'credentials blamed (UC-07 AF-05)', () async {
-      for (final kind in [FailureKind.unreachable, FailureKind.serverError]) {
+      for (final kind in [
+        FailureKind.unreachable,
+        FailureKind.serverError,
+        // A core that does not implement sign-in is no fault of the secret.
+        FailureKind.unavailableOffline,
+      ]) {
         final container = containerWith(
           FakeLocalAccounts(
             onAuthenticate: (_, _) => Failure(

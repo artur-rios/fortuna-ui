@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
@@ -36,6 +37,7 @@ Future<void> pumpImport(
   WidgetTester tester, {
   PickedFile? Function()? picked,
   Result<String> Function()? uploadResult,
+  List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(1000, 1600);
   tester.view.devicePixelRatio = 1.0;
@@ -53,6 +55,7 @@ Future<void> pumpImport(
       importUploadRepositoryProvider.overrideWithValue(
         _Uploads(uploadResult ?? () => const Success('job-1')),
       ),
+      ...extra,
     ],
   );
   addTearDown(container.dispose);
@@ -149,6 +152,36 @@ void main() {
         find.widgetWithText(FilledButton, 'Try statement.xlsx again'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('Given the core refuses the upload as not available offline '
+        'When it is reported '
+        "Then the core's reason is shown and the file is not offered again", (
+      tester,
+    ) async {
+      await pumpImport(
+        tester,
+        uploadResult: () => const Failure(
+          message:
+              'File uploads are not available offline: POST '
+              '/api/imports/excel.',
+          kind: FailureKind.unavailableOffline,
+        ),
+      );
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Choose file').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Import this file'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('The import did not start'), findsOneWidget);
+      expect(
+        find.text(
+          'File uploads are not available offline: POST /api/imports/excel.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('again'), findsNothing);
     });
 
     testWidgets('Given a successful upload '

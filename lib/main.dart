@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
 import 'core/config/instance_config.dart';
+import 'core/network/offline_capabilities.dart';
 import 'core/session/session_controller.dart';
 import 'core/storage/preferences_store.dart';
 import 'core/storage/token_store.dart';
@@ -32,6 +33,12 @@ Future<void> main() async {
   // The instance has to be resolved before a client can be built against it,
   // which is why UC-01 precedes UC-11 in the start-up order.
   await container.read(instanceConfigProvider.notifier).restore();
+
+  // Offline, ask the core once what it does not implement, so the screens
+  // that depend on it can say so before the user reaches for them. Kept alive
+  // for the process, and re-read only if the instance changes. Online this
+  // resolves at once to "nothing unavailable" and asks nothing.
+  container.listen(coreCapabilitiesProvider, (_, _) {});
 
   runApp(
     UncontrolledProviderScope(

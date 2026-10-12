@@ -12,8 +12,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/format/money_parser.dart';
+import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
 import '../../preferences/state/currency_providers.dart';
+import '../../preferences/state/preferences_controller.dart';
 import '../data/account_repository.dart';
 import '../state/account_providers.dart';
 
@@ -61,12 +64,22 @@ class _AccountEditorState extends ConsumerState<AccountEditor> {
     super.dispose();
   }
 
-  /// Step 3, and `AF-01`. Deliberately only checks presence: what a valid
-  /// amount or a valid name is belongs to the API (`FR-DA-15`).
+  MoneyParser get _parser =>
+      MoneyParser(SupportedLocales.tagOf(ref.read(preferencesProvider).locale));
+
+  /// Step 3, and `AF-01`. Checks presence, and that an opening balance —
+  /// optional, and possibly negative — is a number at all in the user's
+  /// locale. What a valid amount or a valid name is otherwise belongs to the
+  /// API (`FR-DA-15`).
   String? _validate() {
     if (_name.text.trim().isEmpty) return 'Give the account a name.';
     if (_isNew && (_currency == null || _currency!.isEmpty)) {
       return 'Choose the currency this account is held in.';
+    }
+    if (_isNew &&
+        _openingBalance.text.trim().isNotEmpty &&
+        _parser.parse(_openingBalance.text) == null) {
+      return 'That opening balance could not be read. Enter a number.';
     }
     return null;
   }
@@ -91,12 +104,12 @@ class _AccountEditorState extends ConsumerState<AccountEditor> {
             name: _name.text.trim(),
             type: _type,
             currencyCode: _currency!,
-            // The opening balance travels as the string the user typed. It is
-            // never parsed to a number here — the API decides what a valid
-            // amount is, and rounding one on the way out is how BR-05 breaks.
+            // The opening balance travels as the exact decimal the user typed,
+            // read in their locale (UC-19 AF-08) and never through a `double`
+            // or rounded on the way out, which is how BR-05 breaks.
             openingBalance: _openingBalance.text.trim().isEmpty
                 ? '0'
-                : _openingBalance.text.trim(),
+                : _parser.parse(_openingBalance.text)!.toString(),
             institution: institution.isEmpty ? null : institution,
           )
         : await actions.update(

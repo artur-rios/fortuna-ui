@@ -79,7 +79,8 @@ class _ConnectionCard extends ConsumerWidget {
                 _StateChip(state: connection.state),
                 const Spacer(),
                 Text(
-                  'Connected ${DateFormat.yMMMd(locale).format(connection.connectedAt)}',
+                  'Connected '
+                  '${DateFormat.yMMMd(locale).format(connection.connectedAt.toLocal())}',
                   style: theme.textTheme.bodySmall,
                 ),
               ],
