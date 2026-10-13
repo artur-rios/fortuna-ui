@@ -291,6 +291,32 @@ void main() {
         isNull,
       );
     });
+
+    test('Given no session '
+        'When sign-up is requested '
+        'Then it is admitted (UC-47)', () {
+      expect(
+        redirect(
+          instance: _configured,
+          session: const SignedOut(),
+          location: Routes.signUp,
+        ),
+        isNull,
+      );
+    });
+
+    test('Given a signed-in owner '
+        'When sign-up is requested '
+        'Then they are sent home rather than shown the form', () {
+      expect(
+        redirect(
+          instance: _configured,
+          session: _owner,
+          location: Routes.signUp,
+        ),
+        Routes.home,
+      );
+    });
   });
 
   group('homeFor', () {

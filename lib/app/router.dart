@@ -22,6 +22,7 @@ import '../features/administration/ui/instance_health_screen.dart';
 import '../features/audit/ui/audit_trail_screen.dart';
 import '../features/auth/ui/password_recovery_screen.dart';
 import '../features/auth/ui/sign_in_screen.dart';
+import '../features/auth/ui/sign_up_screen.dart';
 import '../features/categories/ui/categories_screen.dart';
 import '../features/holdings/ui/accounts_screen.dart';
 import '../features/holdings/ui/card_statements_screen.dart';
@@ -82,6 +83,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.signIn,
         builder: (context, state) => const SignInScreen(),
+      ),
+      GoRoute(
+        path: Routes.signUp,
+        builder: (context, state) =>
+            SignUpScreen(onSignIn: () => context.go(Routes.signIn)),
       ),
       GoRoute(
         path: Routes.twoFactor,
