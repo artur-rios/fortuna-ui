@@ -98,7 +98,69 @@ Future<Failure<void>> failureOf(Future<void> Function() call) async {
   fail('The call was expected to fail.');
 }
 
+/// A client whose every answer is 401, and a record of each time it reported
+/// the session as rejected.
+({Dio dio, List<void> rejections}) unauthenticatedDio() {
+  final rejections = <void>[];
+  final dio =
+      ApiClientFactory(
+          baseUrl: 'https://fortuna.example',
+          tokenStore: InMemoryTokenStore(),
+          onUnauthenticated: () => rejections.add(null),
+        ).create()
+        ..httpClientAdapter = CapturingHttpAdapter(
+          refusal('Refused.'),
+          status: 401,
+        );
+  return (dio: dio, rejections: rejections);
+}
+
 void main() {
+  group('A 401 and the session (FR-SE-19)', () {
+    for (final path in const [
+      '/api/auth/verify-email',
+      '/api/auth/login',
+      '/api/auth/register',
+    ]) {
+      test('Given the API answers 401 to POST $path '
+          'When the request fails '
+          'Then the session is not reported as rejected', () async {
+        final (:dio, :rejections) = unauthenticatedDio();
+
+        final failure = await failureOf(
+          () => dio.post<void>(path, data: const {}),
+        );
+
+        expect(failure.kind, FailureKind.unauthenticated);
+        expect(rejections, isEmpty);
+      });
+    }
+
+    test('Given the generated client signs in and the API answers 401 '
+        'When the request fails '
+        'Then the session is not reported as rejected', () async {
+      final (:dio, :rejections) = unauthenticatedDio();
+
+      await failureOf(
+        () => AuthClient(dio).postApiAuthLogin(
+          body: const LoginThroughApiCommand(email: 'a@b.c', password: 'x'),
+        ),
+      );
+
+      expect(rejections, isEmpty);
+    });
+
+    test('Given the API answers 401 to an authenticated route '
+        'When the request fails '
+        'Then the session is reported as rejected, once', () async {
+      final (:dio, :rejections) = unauthenticatedDio();
+
+      await failureOf(() => dio.get<void>('/api/accounts'));
+
+      expect(rejections, hasLength(1));
+    });
+  });
+
   group('failureFromDioException', () {
     test('Given the API refuses with its reason in errors '
         'When the failure is read '
