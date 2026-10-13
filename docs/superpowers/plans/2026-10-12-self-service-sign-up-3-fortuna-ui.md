@@ -474,6 +474,20 @@ void main() {
       expect(repository.submitted, isEmpty);
     });
 
+    test('Given an address of 257 characters '
+        'When it is submitted '
+        'Then the email field is refused and nothing is sent', () async {
+      final repository = FakeRegistration();
+
+      final state = await submit(
+        containerWith(repository),
+        email: '${'a' * 245}@example.com', // 245 + 12 = 257
+      );
+
+      expect((state as SignUpInvalid).field, SignUpField.email);
+      expect(repository.submitted, isEmpty);
+    });
+
     test('Given a seven-character password '
         'When it is submitted '
         'Then the password field is refused and nothing is sent', () async {
@@ -629,6 +643,7 @@ final signUpControllerProvider =
 class SignUpController extends Notifier<SignUpState> {
   /// Heimdall's limits (UC-47). Feedback only; the API decides.
   static const maximumNameLength = 200;
+  static const maximumEmailLength = 256;
   static const minimumPasswordLength = 8;
 
   @override
@@ -670,6 +685,13 @@ class SignUpController extends Notifier<SignUpState> {
       );
       return;
     }
+    if (email.trim().length > maximumEmailLength) {
+      state = const SignUpInvalid(
+        SignUpField.email,
+        'Use an email address of $maximumEmailLength characters or fewer.',
+      );
+      return;
+    }
     if (password.length < minimumPasswordLength) {
       state = const SignUpInvalid(
         SignUpField.password,
@@ -700,7 +722,7 @@ class SignUpController extends Notifier<SignUpState> {
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `flutter test test/features/auth/sign_up_controller_test.dart`
-Expected: 11 passed.
+Expected: 12 passed.
 
 - [ ] **Step 5: Commit**
 
@@ -1592,3 +1614,140 @@ gh pr create --repo artur-rios/fortuna-ui --base develop --title "feat: sign-up 
 ```
 
 Pushing and opening the PR are outward-facing: confirm with the user first.
+
+---
+
+## Amendment (2026-10-13): confirmation needs the sign-up password
+
+The Heimdall and fortuna-api branches settled the confirmation contract (spec §4.3a): signing up writes a
+*pending* registration and mails a link; **no account exists until the link is followed with the password
+chosen at sign-up**. `POST /api/auth/verify-email { token, password? }` answers:
+
+| Situation | Status | Message (exact) |
+| --- | --- | --- |
+| plain verification token, or sign-up token + right password | 200 | the API's success message |
+| sign-up token, no password | **422** | `Enter the password you chose when you signed up to finish creating your account.` |
+| sign-up token, wrong password | **401** | `That password does not match the one chosen when signing up.` |
+| bad / expired / used link, or after the 10th wrong password | 400 | the API's generic message |
+
+Two consequences for this repository, found by the fortuna-api final review:
+- `ApiClientFactory`'s `onError` calls `onUnauthenticated` — which ends the session with "Your session
+  expired" — on **every** 401. A wrong confirmation password (and, today, a wrong sign-in password) is a 401
+  from an anonymous route that has nothing to do with the session.
+- `failureFromDioException` maps 400 and 422 to the same `FailureKind.invalidInput`, so a screen cannot tell
+  "needs the password" from "bad link" by kind.
+
+**Execution order:** Tasks 1-5, then **7**, then **8**, then 6 (Task 6's docs also cover Tasks 7-8).
+
+**Amended constraints:**
+- The verify screen still submits a link's token by itself on load (plain verification links keep working
+  unchanged); when the answer is 422 it asks for the password and only an explicit **"Create my account"**
+  button submits it. A wrong password keeps the form and shows the API's message under the field.
+- A 401 from an anonymous auth route never ends the session.
+- Sign-up also refuses an email longer than 256 characters (Task 3, already amended in place).
+
+---
+
+### Task 7: A 401 from an anonymous auth route does not end the session
+
+**Files:**
+- Modify: `lib/core/network/api_client.dart`
+- Test: `test/core/network/api_client_test.dart`
+
+**Interfaces:**
+- Produces: `const anonymousAuthPaths = <String>{ … }` (top-level, documented) and the rule "call `onUnauthenticated` on a 401 only when the request path is not in `anonymousAuthPaths`".
+
+- [ ] **Step 1: Failing tests** — in `api_client_test.dart`, build a `Dio` with `ApiClientFactory(...).create()` (see how the file builds one today) whose adapter answers 401, record `onUnauthenticated` calls, and assert:
+  - `POST /api/auth/verify-email` → 401: **not** called;
+  - `POST /api/auth/login` → 401: **not** called;
+  - `POST /api/auth/register` → 401: not called;
+  - `GET /api/accounts` → 401: called once (the existing behaviour, kept).
+- [ ] **Step 2: Implement**
+
+```dart
+/// Routes a caller reaches without a session (`UC-03`, `UC-04`, `UC-05`, `UC-09`,
+/// `UC-47`). A 401 from one of them is the API refusing what was submitted — a
+/// password, a code, a confirmation — never the API rejecting a session token,
+/// so it must not end the session (`FR-SE-19` is about the latter).
+const anonymousAuthPaths = <String>{
+  '/api/auth/login',
+  '/api/auth/google',
+  '/api/auth/2fa/verify',
+  '/api/auth/2fa/challenge/resend',
+  '/api/auth/password-recovery',
+  '/api/auth/password-reset',
+  '/api/auth/verify-email',
+  '/api/auth/register',
+};
+```
+
+and in `onError`:
+
+```dart
+        onError: (error, handler) {
+          final anonymous = anonymousAuthPaths.contains(error.requestOptions.path);
+          if (error.response?.statusCode == 401 && !anonymous) {
+            onUnauthenticated?.call();
+          }
+          handler.next(error);
+        },
+```
+
+(If `requestOptions.path` is a full URL in this setup, compare `Uri.parse(path).path` — check what the existing tests' adapter sees and use the form that matches.)
+
+- [ ] **Step 3: Run** `flutter test test/core/network/api_client_test.dart test/features/auth` — all pass. **Commit:**
+
+```bash
+git add lib/core/network/api_client.dart test/core/network/api_client_test.dart
+git commit -m "fix: keep the session on anonymous auth 401s" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+---
+
+### Task 8: The verify screen asks for the sign-up password
+
+**Files:**
+- Modify: `lib/features/auth/data/account_recovery_repository.dart`
+- Modify: `lib/features/auth/state/account_recovery_controller.dart`
+- Modify: `lib/features/auth/ui/password_recovery_screen.dart` (`VerifyEmailScreen`)
+- Test: `test/features/auth/account_recovery_test.dart`
+
+**Interfaces:**
+- Consumes: the regenerated `VerifyEmailThroughApiCommand` (Task 1) — it now has an optional `password`.
+- Produces:
+  ```dart
+  sealed class VerifyEmailAnswer { final String message; }
+  final class VerifyEmailConfirmed extends VerifyEmailAnswer;      // 200
+  final class VerifyEmailPasswordNeeded extends VerifyEmailAnswer; // 422
+  final class VerifyEmailPasswordWrong extends VerifyEmailAnswer;  // 401
+  AccountRecoveryRepository.verifyEmail(String token, {String? password}) : Future<Result<VerifyEmailAnswer>>
+  final class RecoveryNeedsPassword extends RecoveryState { final String message; final String? error; }
+  AccountRecoveryController.confirmRegistration({required String token, required String password}) : Future<void>
+  ```
+  Widget keys: `verify.password`, `verify.confirm`, `verify.passwordNeeded`.
+
+- [ ] **Step 1: Failing tests** (extend `FakeRecovery` so `verifyEmail` takes `{String? password}` and returns `Result<VerifyEmailAnswer>`; keep its recording of what was submitted):
+  - controller: a plain token answering `VerifyEmailConfirmed` → `RecoveryDone` (unchanged behaviour);
+  - controller: `VerifyEmailPasswordNeeded` → `RecoveryNeedsPassword(message, error: null)`;
+  - controller: `confirmRegistration` with a wrong password → `RecoveryNeedsPassword(message: <the original prompt>, error: <the API's wrong-password message>)`, and the password was sent;
+  - controller: `confirmRegistration` with an empty password → stays `RecoveryNeedsPassword` with `error: 'Enter your password.'` and nothing is sent;
+  - controller: a 400 failure → `RecoveryRefused` whose reason is the API's message followed by the hint `If this link came from signing up, sign up again — or sign in if you already finished.`;
+  - repository (with an adapter like `registration_repository_test.dart`'s): 200 → `VerifyEmailConfirmed(apiMessage)`; 422 → `Success(VerifyEmailPasswordNeeded(apiError))`; 401 → `Success(VerifyEmailPasswordWrong(apiError))`; 400 → `Failure(invalidInput)`; the request body carries `password` only when one is given;
+  - widget: a token whose answer is `PasswordNeeded` shows the prompt, an obscured `verify.password` field and a `verify.confirm` button **and nothing is submitted a second time by itself**; tapping `verify.confirm` with a password submits `{token, password}` once; a wrong password shows the API's message as the field's `errorText` and keeps the form; success shows `verify.done`; the "Send the verification email again" button is not shown while the password is asked for.
+- [ ] **Step 2: Implement**
+  - Repository: `verifyEmail(String token, {String? password})` sends `VerifyEmailThroughApiCommand(token: token, password: password)`. On success → `Success(VerifyEmailConfirmed(_messageOr(...)))`. In the `DioException` handler: status 422 → `Success(VerifyEmailPasswordNeeded(message))`, 401 → `Success(VerifyEmailPasswordWrong(message))`, where `message` is the API's error (`failureFromDioException(exception).message`); otherwise `failureFromDioException`. Document why 422/401 are *answers* here rather than failures: both mean "the link is good; the password is the question".
+  - Controller: `verifyEmail(token)` maps `VerifyEmailConfirmed` → `RecoveryDone`, `VerifyEmailPasswordNeeded` → `RecoveryNeedsPassword(message)`, `VerifyEmailPasswordWrong` (cannot happen without a password) → `RecoveryNeedsPassword(message)`; `Failure` → `RecoveryRefused('${message} If this link came from signing up, sign up again — or sign in if you already finished.', canRequestAnother: true)`. New `confirmRegistration({token, password})`: empty → `RecoveryNeedsPassword(prompt, error: 'Enter your password.')`; else `RecoveryWorking`, then `verifyEmail(token.trim(), password: password)` (password not trimmed) and map: confirmed → `RecoveryDone`; wrong → `RecoveryNeedsPassword(prompt, error: message)`; needed → `RecoveryNeedsPassword(message)`; failure → as above. Keep the prompt text of the last `RecoveryNeedsPassword` so a wrong password does not replace it. The password is never stored in state.
+  - Screen: when `state is RecoveryNeedsPassword` show `_Notice(key: verify.passwordNeeded, message: state.message, tone: neutral)`, a `TextField(key: verify.password, obscureText: true, errorText: state.error)`, and `FilledButton(key: verify.confirm, child: Text('Create my account'))` calling `confirmRegistration(token: widget.token, password: controller.text)`; disable while busy; clear the field controller in `dispose`. Hide the resend button in this state. `VerifyEmailScreen` becomes stateful about the password field only (it already is a `ConsumerStatefulWidget`).
+  - Update callers/fakes of `verifyEmail` elsewhere (grep).
+- [ ] **Step 3: Run** `flutter test test/features/auth` and `flutter analyze` — clean. **Commit:**
+
+```bash
+git add lib/features/auth test/features/auth
+git commit -m "feat: ask for the sign-up password to confirm" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+---
+
+### Task 6 additions (docs)
+
+Besides Task 6's own items: UC-47 gains the confirmation steps (follow the link → enter the sign-up password → "Create my account"; 422 → asked; 401 → the API's message under the field; 400 → message plus the sign-up hint) and the AF for a 401 from an anonymous route not ending the session; **FR-SE-27** "The system shall ask for the password chosen at sign-up when a confirmation link requires it, and submit it only on the user's explicit action"; **FR-SE-28** "A 401 from an anonymous authentication route shall not end the session". Update FR-SE ranges to 28.
