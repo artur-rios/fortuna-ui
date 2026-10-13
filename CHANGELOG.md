@@ -7,6 +7,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- UC-47: "New to Fortuna? Create an account" on the sign-in screen opens a sign-up screen offering Google, where
+  configured, and a name, email and password form. The account exists only once the emailed link is followed and
+  the password chosen at sign-up is entered again, on an explicit "Create my account".
+
+### Fixed
+
+- A 401 from an anonymous authentication route, such as a wrong sign-in or confirmation password, no longer ends
+  the session with "Your session expired".
+
 ## [1.0.0] - 2026-10-12
 
 ### Added

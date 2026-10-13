@@ -117,6 +117,11 @@ The shape that matters: **features depend on repositories, never on a transport.
 | FR-SE-21 | The system shall clear the token, all cached reference data and all view state on sign-out. |
 | FR-SE-22 | The system shall obtain a Google ID token locally and submit it to the API, and shall reach no other external identity service. |
 | FR-SE-23 | The system shall answer every sign-in rejection with the message the API returned, without distinguishing causes the API chose to make indistinguishable. |
+| FR-SE-24 | The system shall offer account creation from the sign-in screen outside desktop offline mode, with Google and with a name, an email address and a password. |
+| FR-SE-25 | The system shall present the API's answer to a credential sign-up as worded, without distinguishing a new address from a registered one. |
+| FR-SE-26 | The system shall check a credential sign-up against the instance's rules before submitting it — a name of at most 200 characters, a plausible address of at most 256 characters, a password of at least 8 characters — and shall show each refusal under its field. |
+| FR-SE-27 | The system shall ask for the password chosen at sign-up when a confirmation link requires it, and submit it only on the user's explicit action. |
+| FR-SE-28 | A 401 from an anonymous authentication route shall not end the session. |
 
 ### 3.2 Configuration and Modes — `CF`
 
@@ -453,12 +458,13 @@ every route passes the single central guard (`FR-AD-06`).
 | --- | --- | --- | --- |
 | `/setup` | Instance and mode configuration | Anonymous | FR-CF-02 |
 | `/sign-in` | Credential and Google sign-in | Anonymous | FR-SE-01, FR-SE-02 |
+| `/sign-up` | Sign-up with Google or with credentials (UC-47) | Anonymous | FR-SE-24, FR-SE-25, FR-SE-26 |
 | `/sign-in/two-factor` | Two-factor challenge | Challenge held | FR-SE-03 |
 | `/sign-in/local` | Local account sign-in | Anonymous, offline mode | FR-SE-06 |
 | `/sign-in/local/create` | Local account creation | Anonymous, offline mode | FR-SE-05 |
 | `/sign-in/local/recover` | Local account recovery | Anonymous, offline mode | FR-SE-07 |
 | `/password-recovery` | Password recovery and reset | Anonymous | FR-SE-10 |
-| `/verify-email` | Email verification | Anonymous | FR-SE-11 |
+| `/verify-email` | Email verification, and confirmation of a sign-up (UC-47) | Anonymous | FR-SE-11, FR-SE-27 |
 
 ### 5.2 The owner's application
 
@@ -597,7 +603,7 @@ that the audit trail survives without identifying the user.
 
 | Domain area | Code | Requirements |
 | --- | --- | --- |
-| Session and identity | `SE` | FR-SE-01 … FR-SE-23 |
+| Session and identity | `SE` | FR-SE-01 … FR-SE-28 |
 | Configuration and modes | `CF` | FR-CF-01 … FR-CF-08 |
 | Data access and transport | `DA` | FR-DA-01 … FR-DA-16 |
 | Presentation and preferences | `PS` | FR-PS-01 … FR-PS-13 |
@@ -618,7 +624,7 @@ that the audit trail survives without identifying the user.
 
 | Feature | Requirements |
 | --- | --- |
-| F-01 Sign in and session | FR-SE-01 through FR-SE-09, FR-SE-16 through FR-SE-23 |
+| F-01 Sign in and session | FR-SE-01 through FR-SE-09, FR-SE-16 through FR-SE-28 |
 | F-02 Credential and two-factor management | FR-SE-10 through FR-SE-15 |
 | F-03 Instance and mode configuration | FR-CF-01 through FR-CF-08 |
 | F-04 Holdings | FR-HO-01 through FR-HO-05, FR-HO-10 through FR-HO-13 |
