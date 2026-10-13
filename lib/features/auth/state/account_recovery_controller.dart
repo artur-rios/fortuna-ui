@@ -181,10 +181,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
   /// Step 7.
   Future<void> verifyEmail(String token) async {
     if (token.trim().isEmpty) {
-      state = const RecoveryRefused(
-        'This verification link is incomplete. Request a new one.',
-        canRequestAnother: true,
-      );
+      state = _incompleteVerificationLink;
       return;
     }
 
@@ -206,6 +203,11 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     required String token,
     required String password,
   }) async {
+    if (token.trim().isEmpty) {
+      state = _incompleteVerificationLink;
+      return;
+    }
+
     final current = state;
     final prompt = current is RecoveryNeedsPassword
         ? current.message
@@ -225,12 +227,20 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     state = _afterVerification(result, prompt: prompt);
   }
 
+  static const _incompleteVerificationLink = RecoveryRefused(
+    'This verification link is incomplete. Request a new one.',
+    canRequestAnother: true,
+  );
+
   static const _defaultPasswordPrompt =
       'Enter the password you chose when you signed up to finish creating '
       'your account.';
 
-  /// Appended to a refused link, because the same endpoint serves both an
-  /// address change and a sign-up and the API's wording cannot say which.
+  /// Appended to a link the API calls bad, expired or used (a 400), because
+  /// the same endpoint serves both an address change and a sign-up and the
+  /// API's wording cannot say which. Never added to a transient failure: the
+  /// link may be perfectly good, and telling the user to sign up again would
+  /// have them discard it.
   static const _signUpHint =
       'If this link came from signing up, sign up again — or sign in if you '
       'already finished.';
@@ -253,8 +263,16 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
             ? RecoveryNeedsPassword(message)
             : RecoveryNeedsPassword(prompt, error: message),
     },
-    Failure<VerifyEmailAnswer>(:final message) => RecoveryRefused(
-      '$message $_signUpHint',
+    // A transient failure while confirming leaves the link valid, so the form
+    // stays and the user retries. Without a prompt there is no form to keep,
+    // and the failure is shown as it is.
+    Failure<VerifyEmailAnswer>(:final message, :final kind)
+        when prompt != null &&
+            (kind == FailureKind.unreachable ||
+                kind == FailureKind.serverError) =>
+      RecoveryNeedsPassword(prompt, error: message),
+    Failure<VerifyEmailAnswer>(:final message, :final kind) => RecoveryRefused(
+      kind == FailureKind.invalidInput ? '$message $_signUpHint' : message,
       // AF-03: a verification token that is dead can always be replaced.
       canRequestAnother: true,
     ),

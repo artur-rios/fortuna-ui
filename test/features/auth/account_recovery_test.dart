@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -55,6 +56,23 @@ class FakeRecovery implements AccountRecoveryRepository {
   Future<Result<String>> resendVerification() async {
     resends++;
     return onResend?.call() ?? const Success('sent again');
+  }
+}
+
+/// Asks for the password at once, then holds the confirmation until released.
+class _HeldConfirmation extends FakeRecovery {
+  final held = Completer<Result<VerifyEmailAnswer>>();
+
+  @override
+  Future<Result<VerifyEmailAnswer>> verifyEmail(
+    String token, {
+    String? password,
+  }) {
+    if (password == null) {
+      return super.verifyEmail(token, password: password);
+    }
+    verifications.add((token: token, password: password));
+    return held.future;
   }
 }
 
@@ -498,6 +516,112 @@ void main() {
       );
       expect((state as RecoveryRefused).canRequestAnother, isTrue);
     });
+
+    for (final kind in [FailureKind.unreachable, FailureKind.serverError]) {
+      test(
+        'Given the password is asked for '
+        'When confirming fails with $kind '
+        'Then the form stays with the reason, so the user can retry',
+        () async {
+          var attempts = 0;
+          final repository = FakeRecovery(
+            onVerify: (_, password) {
+              if (password == null)
+                return const Success(VerifyEmailPasswordNeeded(prompt));
+              attempts++;
+              return attempts == 1
+                  ? Failure(message: 'Try again in a moment.', kind: kind)
+                  : const Success(
+                      VerifyEmailConfirmed('Your account is ready.'),
+                    );
+            },
+          );
+          final container = containerWith(repository);
+          final controller = container.read(
+            accountRecoveryControllerProvider.notifier,
+          );
+
+          await controller.verifyEmail('tok');
+          await controller.confirmRegistration(token: 'tok', password: 'right');
+
+          final state = container.read(accountRecoveryControllerProvider);
+          expect(state, isA<RecoveryNeedsPassword>());
+          expect((state as RecoveryNeedsPassword).message, prompt);
+          expect(state.error, 'Try again in a moment.');
+
+          await controller.confirmRegistration(token: 'tok', password: 'right');
+
+          expect(
+            container.read(accountRecoveryControllerProvider),
+            isA<RecoveryDone>(),
+          );
+        },
+      );
+    }
+
+    test('Given the initial verification cannot reach the instance '
+        'When the failure is shown '
+        'Then it is the message alone, without the sign-up hint', () async {
+      final container = containerWith(
+        FakeRecovery(
+          onVerify: (_, _) => const Failure(
+            message: 'Could not reach the server.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .verifyEmail('tok');
+
+      expect(
+        container.read(accountRecoveryControllerProvider).message,
+        'Could not reach the server.',
+      );
+    });
+
+    test('Given a failure that is neither a 400 nor transient '
+        'When it is shown '
+        'Then it carries no sign-up hint', () async {
+      final container = containerWith(
+        FakeRecovery(
+          onVerify: (_, _) => const Failure(
+            message: 'Not allowed.',
+            kind: FailureKind.forbidden,
+          ),
+        ),
+      );
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .verifyEmail('tok');
+
+      expect(
+        container.read(accountRecoveryControllerProvider).message,
+        'Not allowed.',
+      );
+    });
+
+    test('Given an empty token '
+        'When the registration is confirmed '
+        'Then it is refused like verifyEmail and nothing is sent', () async {
+      final repository = FakeRecovery(onVerify: needsPassword);
+      final container = containerWith(repository);
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .confirmRegistration(token: '  ', password: 'right');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryRefused>());
+      expect(
+        state.message,
+        'This verification link is incomplete. Request a new one.',
+      );
+      expect((state as RecoveryRefused).canRequestAnother, isTrue);
+      expect(repository.verifications, isEmpty);
+    });
   });
 
   group('HttpAccountRecoveryRepository.verifyEmail', () {
@@ -759,6 +883,35 @@ void main() {
       expect(find.byKey(const Key('verify.confirm')), findsOneWidget);
       expect(find.byKey(const Key('verify.passwordNeeded')), findsOneWidget);
       expect(find.byKey(const Key('verify.resend')), findsNothing);
+    });
+
+    testWidgets('Given the password is being confirmed '
+        'When the answer is pending '
+        'Then the form stays, disabled, rather than vanishing', (tester) async {
+      final repository = _HeldConfirmation();
+      repository.onVerify = (_, _) =>
+          const Success(VerifyEmailPasswordNeeded('Enter your password.'));
+      await pump(tester, repository, const VerifyEmailScreen(token: 'tok'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('verify.password')), 'right');
+      await tester.tap(find.byKey(const Key('verify.confirm')));
+      await tester.pump();
+
+      expect(find.byKey(const Key('verify.passwordNeeded')), findsOneWidget);
+      final field = tester.widget<TextField>(
+        find.byKey(const Key('verify.password')),
+      );
+      expect(field.enabled, isFalse);
+      final button = tester.widget<FilledButton>(
+        find.byKey(const Key('verify.confirm')),
+      );
+      expect(button.onPressed, isNull);
+
+      repository.held.complete(
+        const Success(VerifyEmailConfirmed('Your account is ready.')),
+      );
+      await tester.pumpAndSettle();
     });
 
     testWidgets('Given the screen is reached with no token '
