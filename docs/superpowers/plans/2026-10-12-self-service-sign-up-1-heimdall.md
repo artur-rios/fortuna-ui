@@ -2870,3 +2870,42 @@ All in one dispatch; each item names its finding.
 - [ ] **Verify and commit.** `dotnet test src/ArturRios.Heimdall.sln` (only the known `DataRetentionOptionsTests "0.5"` failure). Commits split sensibly (`feat:`/`fix:`/`test:`/`docs:`), each with the trailer.
 - [ ] **Task 10 review, Important — cap wrong confirmation passwords.** `PendingRegistration.FailedAttempts`; increment on `PasswordIncorrect`; delete the row on the 10th (login's lockout threshold); that attempt still answers `PasswordIncorrect`, later ones `TokenInvalid`. Tests and docs (FR-SR-09, UC-47 AF, Threat Model).
 - [ ] **Task 10 review, Minor —** correct the confirmer's "none is thrown" remark; the no-password functional test omits the field entirely.
+
+---
+
+### Task 12: Charge confirmation guesses atomically (NFR-27)
+
+The Task 11 re-review found that the wrong-password cap is read-modify-write: concurrent guesses read the
+same `FailedAttempts` and write the same `k+1`, so the "ten tries" of FR-SR-09 and TH-31 does not hold under
+parallel requests, against NFR-27 ("every budget shall be charged before the comparison it guards, by the
+same database write"). Mirror `IAtomicWrites.TryReserveLoginAttemptAsync`.
+
+**Files:**
+- Modify: `src/Domain/ArturRios.Heimdall.Domain/Persistence/IAtomicWrites.cs`
+- Modify: `src/Infrastructure/ArturRios.Heimdall.Data/Persistence/AtomicWrites.cs`
+- Modify: `src/Application/ArturRios.Heimdall.Command/Services/PendingRegistrationConfirmer.cs`
+- Modify: any test fake of `IAtomicWrites` (find with `grep -rn ": IAtomicWrites" tests`)
+- Modify tests: `PendingRegistrationConfirmerTests.cs`, `AuthControllerConfirmRegistrationTests.cs`, and the Data/WebApi test that covers `AtomicWrites` if one exists
+- Modify docs: `System Requirements Document.md` (NFR-27's list gains FR-SR-09), `Threat Model Document.md` (TH-31 notes the atomic charge), UC-47 if it describes the counting
+
+**Interfaces:**
+- Produces: `Task<bool> IAtomicWrites.TryChargePendingRegistrationGuessAsync(PendingRegistration pending, int maxGuesses)` — one `ExecuteUpdateAsync` doing `failed_attempts = failed_attempts + 1 WHERE id = @id AND failed_attempts < @maxGuesses`; returns whether a row was charged and, if so, reflects the new count on the tracked entity (as `Accept` does for login).
+
+- [ ] **Step 1: Tests (failing)**
+  - Unit (`PendingRegistrationConfirmerTests`, with the `IAtomicWrites` fake honouring the budget):
+    - the charge happens **before** the comparison — a correct password also charges one guess (assert the fake was called once before `Confirmed`);
+    - when the budget is already spent (fake refuses), the answer is `TokenInvalid`/`Refused`, the row is deleted, and the password is never compared (no person, no hash check — e.g. a wrong *and* a right password both get the same answer);
+    - the 10th charged wrong guess deletes the row and still answers `PasswordIncorrect`; the next attempt answers `TokenInvalid`.
+  - Functional: concurrency — seed a pending row with `FailedAttempts = 0`, fire **12** wrong-password `verify-email` requests concurrently (`Task.WhenAll`; send them from a factory/client whose rate limit is not hit — if the shared per-IP limit (10/min) would refuse some, assert on the database instead of on statuses), then assert the row is gone and that **at most 10** password comparisons were admitted: every response is 401 `ConfirmationPasswordIncorrect`, 400 `TokenInvalid`, or 429 — and the count of 401s is ≤ 10.
+  - If the repo has an `AtomicWritesTests` against PostgreSQL, add one for the new method (charges below the cap; refuses at the cap).
+- [ ] **Step 2: Implement**
+  - `AtomicWrites.TryChargePendingRegistrationGuessAsync` as above (same style as `TryReserveLoginAttemptAsync`, including the `Accept` helper so the tracked entity agrees with the database).
+  - `PendingRegistrationConfirmer`: inject `IAtomicWrites`. After the expiry and password-required checks: `if (!await atomicWrites.TryChargePendingRegistrationGuessAsync(pending, MaxConfirmationGuesses))` → delete the row (ignore a lost delete race — `ConcurrencyMessage` or zero rows — without an Error log) and return `Refused`. Then compare; on a wrong password, if `pending.FailedAttempts >= MaxConfirmationGuesses` delete the row (same race handling); return `PasswordIncorrect`. On a right password, continue to the claim. Remove the read-modify-write `CountWrongPasswordAsync` and its `UpdateAsync`. `MaxConfirmationGuesses = 10` as a named constant with a comment pointing at login's threshold.
+  - A lost delete race (`ConcurrencyMessage`) anywhere in the confirmer is not logged as an Error.
+- [ ] **Step 3: Docs** — NFR-27's list adds FR-SR-09; TH-31's control reads "charged atomically before the comparison (NFR-27)"; UC-47/FR-SR-09 wording consistent ("the 10th wrong password discards it; guesses are charged before they are compared").
+- [ ] **Step 4: Verify and commit** — full `dotnet test src/ArturRios.Heimdall.sln` after the last change (only the known `DataRetentionOptionsTests "0.5"` failure); `python scripts/openapi.py --check` exits 0.
+
+```bash
+git add src tests docs/requirements
+git commit -m "fix: charge confirmation guesses atomically" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
