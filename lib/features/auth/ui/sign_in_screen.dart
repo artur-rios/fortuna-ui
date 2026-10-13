@@ -17,6 +17,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/config/instance_config.dart';
+import '../../../core/session/session.dart';
 import '../data/google_identity.dart';
 import '../state/sign_in_controller.dart';
 
@@ -57,6 +59,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     // AF-04: null where this instance has no Google client configured, and the
     // option is then not offered at all rather than offered and broken.
     final googleAvailable = ref.watch(googleIdentityServiceProvider) != null;
+    final offline =
+        ref.watch(instanceConfigProvider).mode == AppMode.desktopOffline;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -171,6 +175,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   onPressed: () => context.push(Routes.passwordRecovery),
                   child: const Text('Forgotten your password?'),
                 ),
+
+                // UC-47. Offline, the local account has its own creation path
+                // (UC-06) and there is no instance to register with (FR-CF-07).
+                if (!offline)
+                  TextButton(
+                    key: const Key('signIn.signUp'),
+                    onPressed: () => context.push(Routes.signUp),
+                    child: const Text('New to Fortuna? Create an account'),
+                  ),
               ],
             ),
           ),
