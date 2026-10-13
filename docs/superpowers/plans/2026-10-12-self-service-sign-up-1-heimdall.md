@@ -2082,3 +2082,647 @@ gh pr create --repo artur-rios/heimdall-api --base develop --title "feat: self-r
 ```
 
 Pushing and opening the PR are outward-facing: confirm with the user first.
+
+---
+
+## Amendment (2026-10-12): pending registration and final-review fixes
+
+The final review of Tasks 1-6 found that Heimdall's login issues a token whatever `EmailVerified` says,
+so creating an unverified `User` at registration let anyone (a) register an address and sign in a moment
+later to learn whether it was taken, and (b) hold a usable account on someone else's unused address. The
+user chose **pending registration** (spec §3 last row, §4.3, §4.3a, §4.5). Tasks 7-9 implement it and the
+review's other must-fix items.
+
+**Amended constraints (add to Global Constraints):**
+- A free address produces a `PendingRegistration` row and a mailed link — **never a `Person`**. The
+  `Person` is created, already verified, only when `POST /api/auth/verify-email` presents that link's token.
+- Signing in before confirmation must answer exactly as a wrong password does (UC-11 AF-11a: 401,
+  `AuthMessages.InvalidCredentials`).
+- `verify-email`'s wire contract does not change; its existing behaviour for `EmailVerificationToken`s
+  does not change.
+- Every processor/confirmer failure is logged with a fixed message and no address; none is thrown to the
+  dispatcher.
+
+---
+
+### Task 7: Pending registration — entity, migration, processor
+
+**Files:**
+- Create: `src/Domain/ArturRios.Heimdall.Domain/Entities/PendingRegistration.cs`
+- Create: `src/Infrastructure/ArturRios.Heimdall.Data/EntityMaps/PendingRegistrationDbMap.cs`
+- Modify: `src/Infrastructure/ArturRios.Heimdall.Data/Configuration/AppDbContext.cs`
+- Create: migration `AddPendingRegistration` (generated)
+- Create: `src/Application/ArturRios.Heimdall.Command/Services/SingleUseToken.cs`
+- Modify: `src/Application/ArturRios.Heimdall.Command/Services/RegistrationProcessor.cs`
+- Modify: `tests/Application/ArturRios.Heimdall.Command.Tests/RegistrationProcessorTests.cs`
+- Modify: `tests/Presentation/ArturRios.Heimdall.WebApi.Tests/AuthControllerRegisterTests.cs`
+
+**Interfaces:**
+- Produces: `PendingRegistration { long ScopeId; string Name; string Email; byte[] PasswordHash; byte[] Salt; string TokenHash; DateTime ExpiresAt; DateTime CreatedAt; Scope Scope }`; `AppDbContext.PendingRegistrations`; `SingleUseToken.New() : string`;
+  `RegistrationProcessor(IAsyncReadOnlyRepository<Scope,long>, IAsyncReadOnlyRepository<Person,long>, IAsyncReadOnlyRepository<GoogleUser,long>, IAsyncRepository<PendingRegistration,long>, IEmailVerificationSender, IRegistrationAttemptSender, EmailVerificationOptions, ILogger<RegistrationProcessor>)`.
+
+- [ ] **Step 1: Entity, map, context, migration**
+
+`PendingRegistration.cs`:
+
+```csharp
+using System.ComponentModel.DataAnnotations;
+using ArturRios.Data.Relational.Core.Entities;
+
+namespace ArturRios.Heimdall.Domain.Entities;
+
+/// <summary>
+///     A self-registration (UC-47) waiting for its address to be confirmed. Not a person: nothing can
+///     sign in with it, which is what keeps register-then-sign-in from revealing whether an address is
+///     taken. Confirming it through the emailed link (UC-14) creates the verified <c>User</c> and
+///     removes it; an unconfirmed one expires and is purged with the other single-use tokens (NFR-19).
+/// </summary>
+public class PendingRegistration : Entity<long>
+{
+    /// <summary>Foreign key to the scope registered into (internal Id).</summary>
+    public long ScopeId { get; set; }
+
+    [MaxLength(200)]
+    public string Name { get; set; } = string.Empty;
+
+    public string Email { get; set; } = string.Empty;
+
+    /// <summary>The password hash computed on the request path; the plaintext was never stored.</summary>
+    public byte[] PasswordHash { get; set; } = [];
+
+    public byte[] Salt { get; set; } = [];
+
+    /// <summary>SHA-256 of the mailed token, as lowercase hex, through <c>SingleUseTokenHash</c>.</summary>
+    [MaxLength(64)]
+    public string TokenHash { get; set; } = string.Empty;
+
+    public DateTime ExpiresAt { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+
+    public Scope Scope { get; set; } = null!;
+}
+```
+
+`PendingRegistrationDbMap.cs`:
+
+```csharp
+using ArturRios.Heimdall.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace ArturRios.Heimdall.Data.EntityMaps;
+
+internal static class PendingRegistrationDbMap
+{
+    public static void Configure(this EntityTypeBuilder<PendingRegistration> pending)
+    {
+        pending.ToTable("pending_registration");
+
+        // Internal bigint Id only; the caller-facing reference is the mailed token (§4.0).
+        pending.HasKey(x => x.Id);
+
+        pending.Property(x => x.Name).IsRequired();
+        pending.Property(x => x.Email).IsRequired();
+        pending.Property(x => x.PasswordHash).IsRequired();
+        pending.Property(x => x.Salt).IsRequired();
+        pending.Property(x => x.TokenHash).IsRequired();
+        pending.HasIndex(x => x.TokenHash).IsUnique();
+        pending.Property(x => x.ExpiresAt).IsRequired();
+        pending.Property(x => x.CreatedAt).HasDefaultValueSql("now()");
+
+        // A pending registration means nothing once its scope is gone (UC-05 hard delete).
+        pending.HasOne(x => x.Scope)
+            .WithMany()
+            .HasForeignKey(x => x.ScopeId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}
+```
+
+In `AppDbContext`, add `public DbSet<PendingRegistration> PendingRegistrations { get; init; }` after `EmailVerificationTokens`, and `modelBuilder.Entity<PendingRegistration>().Configure();` after the `EmailVerificationToken` line.
+
+Generate the migration exactly as Task 1 did (`dotnet ef migrations add AddPendingRegistration --output-dir Migrations …` with the local environment file's variables exported, Data project as startup if that is what worked). Confirm `Up` creates only `heimdall.pending_registration` with the unique index on `token_hash` and the FK to `scope`, and `Down` drops it.
+
+- [ ] **Step 2: Token helper**
+
+`Services/SingleUseToken.cs`:
+
+```csharp
+using ArturRios.Util.Random;
+
+namespace ArturRios.Heimdall.Command.Services;
+
+/// <summary>
+///     A fresh single-use token: 48 letters and digits from a CSPRNG, URL-safe — the same shape
+///     <see cref="EmailVerificationService" /> and <see cref="PasswordResetService" /> issue. Stored only
+///     through <see cref="SingleUseTokenHash" />.
+/// </summary>
+public static class SingleUseToken
+{
+    public static string New() => CustomRandom.Text(new RandomStringOptions
+    {
+        Length = 48,
+        IncludeLowercase = true,
+        IncludeUppercase = true,
+        IncludeDigits = true,
+        IncludeSpecialCharacters = false
+    });
+}
+```
+
+(Only the processor uses it; the two existing services are not refactored.)
+
+- [ ] **Step 3: Rewrite the processor tests (failing)**
+
+Replace the `Fixture` and the free-address test in `RegistrationProcessorTests.cs`; keep the other tests' intent. The fixture becomes:
+
+```csharp
+    private sealed class RecordingVerificationSender : IEmailVerificationSender
+    {
+        public List<(string Email, string Token)> Sent { get; } = [];
+
+        public Task SendAsync(string email, string token)
+        {
+            Sent.Add((email, token));
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class Fixture
+    {
+        public AsyncFakeRepository<Scope, long> Scopes { get; } = new();
+        public AsyncFakeRepository<Person, long> Persons { get; } = new();
+        public AsyncFakeRepository<GoogleUser, long> GoogleUsers { get; } = new();
+        public AsyncFakeRepository<PendingRegistration, long> Pending { get; } = new();
+        public RecordingVerificationSender Links { get; } = new();
+        public RecordingAttemptSender Attempts { get; } = new();
+        public EmailVerificationOptions Options { get; } = new() { TokenLifetime = TimeSpan.FromHours(24) };
+
+        public RegistrationProcessor Processor() =>
+            new(Scopes, Persons, GoogleUsers, Pending, Links, Attempts, Options,
+                NullLogger<RegistrationProcessor>.Instance);
+
+        // ScopeAsync and UserAsync unchanged.
+    }
+```
+
+(`using Microsoft.Extensions.Logging.Abstractions;`.) Tests:
+
+```csharp
+    [UnitFact]
+    public async Task GivenAFreeAddress_WhenProcessing_ThenAPendingRegistrationIsWrittenAndItsLinkMailed()
+    {
+        var fixture = new Fixture();
+        var scope = await fixture.ScopeAsync();
+        var before = DateTime.UtcNow;
+
+        await fixture.Processor().ProcessAsync(Request(scope));
+
+        Assert.Empty(fixture.Persons.Query().ToList());
+        var pending = Assert.Single(fixture.Pending.Query().ToList());
+        Assert.Equal(scope.Id, pending.ScopeId);
+        Assert.Equal("New Person", pending.Name);
+        Assert.Equal("new@test.local", pending.Email);
+        Assert.Equal(new byte[] { 1, 2, 3 }, pending.PasswordHash);
+        Assert.Equal(new byte[] { 4, 5, 6 }, pending.Salt);
+        Assert.InRange(pending.ExpiresAt, before.AddHours(24), DateTime.UtcNow.AddHours(24));
+        var (email, token) = Assert.Single(fixture.Links.Sent);
+        Assert.Equal("new@test.local", email);
+        Assert.Equal(48, token.Length);
+        Assert.Equal(SingleUseTokenHash.Of(token), pending.TokenHash);
+        Assert.Empty(fixture.Attempts.Sent);
+    }
+
+    [UnitFact]
+    public async Task GivenAnAddressWithOnlyAPendingRegistration_WhenProcessing_ThenASecondPendingRowIsWritten()
+    {
+        var fixture = new Fixture();
+        var scope = await fixture.ScopeAsync();
+
+        await fixture.Processor().ProcessAsync(Request(scope));
+        await fixture.Processor().ProcessAsync(Request(scope));
+
+        Assert.Equal(2, fixture.Pending.Query().Count());
+        Assert.Equal(2, fixture.Links.Sent.Count);
+        Assert.NotEqual(fixture.Links.Sent[0].Token, fixture.Links.Sent[1].Token);
+    }
+
+    [UnitFact]
+    public async Task GivenAnAddressHeldByADeletedGoogleUser_WhenProcessing_ThenNothingIsWrittenOrSent()
+    {
+        // The address stays blocked (FR-GO-07), but a deleted Google holder could not act on a notice.
+        var fixture = new Fixture();
+        var scope = await fixture.ScopeAsync();
+        await fixture.GoogleUsers.CreateAsync(new GoogleUser
+        {
+            PublicId = Guid.NewGuid(), GoogleId = "sub", Email = "new@test.local", ScopeId = scope.Id,
+            IsDeleted = true
+        });
+
+        await fixture.Processor().ProcessAsync(Request(scope));
+
+        Assert.Empty(fixture.Pending.Query().ToList());
+        Assert.Empty(fixture.Links.Sent);
+        Assert.Empty(fixture.Attempts.Sent);
+    }
+```
+
+In every taken / restricted / closed / deleted test, replace assertions on `Verification.Sent` with `Assert.Empty(fixture.Pending.Query().ToList())` and `Assert.Empty(fixture.Links.Sent)`. The "held in another scope" test now expects one pending row and one link (and still one person — the other scope's).
+
+Run: `dotnet test tests/Application/ArturRios.Heimdall.Command.Tests --filter "FullyQualifiedName~RegistrationProcessorTests"` — Expected: build FAILS (constructor mismatch).
+
+- [ ] **Step 4: Rewrite the processor**
+
+Replace the class body of `RegistrationProcessor.cs` (keep and adjust the summary/remarks: the free path now writes a pending row; the unique-violation remark moves to the confirmer):
+
+```csharp
+public class RegistrationProcessor(
+    IAsyncReadOnlyRepository<Scope, long> scopeReader,
+    IAsyncReadOnlyRepository<Person, long> personReader,
+    IAsyncReadOnlyRepository<GoogleUser, long> googleUserReader,
+    IAsyncRepository<PendingRegistration, long> pendingWriter,
+    IEmailVerificationSender linkSender,
+    IRegistrationAttemptSender attemptSender,
+    EmailVerificationOptions options,
+    ILogger<RegistrationProcessor> logger)
+{
+    public async Task ProcessAsync(RegistrationRequest request)
+    {
+        var scope = await scopeReader.Query().FirstOrDefaultAsync(x =>
+            x.PublicId == request.ScopeId && !x.IsDeleted && x.SelfRegistrationEnabled);
+
+        if (scope is null)
+        {
+            return;
+        }
+
+        var email = request.Email.ToLower();
+
+        var holder = await personReader.Query().FirstOrDefaultAsync(person =>
+            !person.IsDeleted && person.Email.ToLower() == email &&
+            person.ScopeMembership != null && person.ScopeMembership.ScopeId == scope.Id);
+
+        if (holder is not null)
+        {
+            // NFR-24: a restricted identity is not mailed, not even to say someone tried.
+            if (holder.ProcessingRestrictedAt is null)
+            {
+                await attemptSender.SendAsync(request.Email, googleAccount: false);
+            }
+
+            return;
+        }
+
+        var googleHolder = await googleUserReader.Query().FirstOrDefaultAsync(googleUser =>
+            googleUser.ScopeId == scope.Id && googleUser.Email.ToLower() == email);
+
+        if (googleHolder is not null)
+        {
+            // The address stays blocked either way (FR-GO-07); a deleted or restricted Google holder
+            // is not told, since it could not act on it — or, if restricted, must not be processed.
+            if (!googleHolder.IsDeleted && googleHolder.ProcessingRestrictedAt is null)
+            {
+                await attemptSender.SendAsync(request.Email, googleAccount: true);
+            }
+
+            return;
+        }
+
+        var token = SingleUseToken.New();
+        var now = DateTime.UtcNow;
+
+        var creation = await pendingWriter.CreateAsync(new PendingRegistration
+        {
+            ScopeId = scope.Id,
+            Name = request.Name,
+            Email = request.Email,
+            PasswordHash = request.PasswordHash,
+            Salt = request.Salt,
+            TokenHash = SingleUseTokenHash.Of(token),
+            ExpiresAt = now.Add(options.TokenLifetime),
+            CreatedAt = now
+        });
+
+        if (!creation.Success)
+        {
+            // No address in the log (NFR-22). The caller has their 202; this line is the only trace.
+            logger.LogError(
+                "A pending registration could not be stored: {Errors}", string.Join(" | ", creation.Errors));
+
+            return;
+        }
+
+        // The same link a verification email carries; UC-14 recognises the token as a pending one.
+        await linkSender.SendAsync(request.Email, token);
+    }
+}
+```
+
+Run the processor tests — Expected: all pass.
+
+- [ ] **Step 5: Update the Task 5 functional tests**
+
+In `AuthControllerRegisterTests.cs`: add a helper `PendingFor(scope, email)` reading `context.PendingRegistrations` by scope id and `Email.ToLower()`. `SettleAsync` now waits until the sentinel's **pending row** exists. Then:
+- free address → one pending row, **no** person (`PersonsWithEmailAsync` empty);
+- taken address → no pending row, still exactly one person, no verification token;
+- same new address twice → two pending rows, no person;
+- short password → no pending row.
+
+Run: `dotnet test tests/Presentation/ArturRios.Heimdall.WebApi.Tests --filter "FullyQualifiedName~AuthControllerRegisterTests"` — Expected: all pass.
+
+- [ ] **Step 6: Unit suite and commit**
+
+Run `dotnet test src/ArturRios.Heimdall.sln --filter "Category=Unit"` (known pre-existing failure: `DataRetentionOptionsTests "0.5"`).
+
+```bash
+git add src tests
+git commit -m "feat: hold registrations pending until confirmed" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+---
+
+### Task 8: Confirming a pending registration, and purging expired ones
+
+**Files:**
+- Create: `src/Application/ArturRios.Heimdall.Command/Services/PendingRegistrationConfirmer.cs`
+- Modify: `src/Application/ArturRios.Heimdall.Command/Handlers/VerifyEmailCommandHandler.cs`
+- Modify: `src/Application/ArturRios.Heimdall.Command/Handlers/PurgeExpiredTokensCommandHandler.cs`, `src/Application/ArturRios.Heimdall.Command/Output/PurgeExpiredTokensCommandOutput.cs`
+- Modify: `src/Presentation/ArturRios.Heimdall.WebApi/Startup.cs`
+- Test: `tests/Application/ArturRios.Heimdall.Command.Tests/PendingRegistrationConfirmerTests.cs`
+- Modify tests: `VerifyEmailCommandHandlerTests.cs`, `PurgeExpiredTokensCommandHandlerTests.cs`
+- Test: `tests/Presentation/ArturRios.Heimdall.WebApi.Tests/AuthControllerConfirmRegistrationTests.cs`
+
+**Interfaces:**
+- Consumes: `PendingRegistration`, `AppDbContext.PendingRegistrations`, `SingleUseToken` (Task 7).
+- Produces:
+  ```csharp
+  public enum PendingRegistrationOutcome { NotFound, Expired, AlreadyClaimed, Refused, Failed, Confirmed }
+  public sealed record PendingRegistrationConfirmation(PendingRegistrationOutcome Outcome, IReadOnlyList<string> Errors);
+  public interface IPendingRegistrationConfirmer { Task<PendingRegistrationConfirmation> ConfirmAsync(string tokenHash, DateTime now); }
+  ```
+  `PurgeExpiredTokensCommandOutput.PendingRegistrationsPurged : int`.
+
+- [ ] **Step 1: Write the confirmer tests (failing)**
+
+`PendingRegistrationConfirmerTests.cs` — fixture with `AsyncFakeRepository<Scope|Person|GoogleUser|PendingRegistration, long>` and `NullLogger`. Cases (each asserts the outcome **and** the persons/pending rows afterwards):
+
+1. `GivenAValidPendingToken_WhenConfirming_ThenAVerifiedUserIsCreatedAndThePendingRowRemoved` — person: `Roles.User`, `EmailVerified == true`, name/email/hash/salt from the pending row, `ScopeId` and `ScopeMembership.ScopeId` = scope; legal basis recorded (`BasisRecordedAt` not null); pending table empty.
+2. `GivenTwoPendingRowsForTheAddress_WhenOneIsConfirmed_ThenTheOtherIsRemovedToo`.
+3. `GivenAnUnknownToken_WhenConfirming_ThenNotFound` (nothing changes).
+4. `GivenAnExpiredPendingToken_WhenConfirming_ThenExpiredAndNoPerson`.
+5. `GivenTheScopeClosedSinceRegistering_WhenConfirming_ThenRefusedAndNoPerson` (and the row is consumed).
+6. `GivenTheAddressTakenSinceRegistering_WhenConfirming_ThenRefusedAndNoSecondPerson` (taken by a live person; and a second case taken by a Google user).
+7. `GivenAUniqueViolationOnCreate_WhenConfirming_ThenRefused` — wrap the person repository in a test decorator implementing `IAsyncRepository<Person, long>` that delegates everything to an `AsyncFakeRepository<Person, long>` except `CreateAsync`, which returns a failed result carrying `RelationalErrors.UniqueViolationMessage`. Build the failed result with the same type `CreateAsync` returns (see the interface definition; the handlers read `.Success` and `.Errors`).
+8. `GivenTheSameTokenTwice_WhenConfirming_ThenTheSecondIsAlreadyClaimed`.
+
+Token setup: `var token = SingleUseToken.New(); … TokenHash = SingleUseTokenHash.Of(token)`; call `ConfirmAsync(SingleUseTokenHash.Of(token), DateTime.UtcNow)`. The pending row's `Scope` navigation must be set in the fake (the fake does not resolve `Include`).
+
+Run the focused tests — Expected: build FAILS.
+
+- [ ] **Step 2: Implement the confirmer**
+
+`Services/PendingRegistrationConfirmer.cs`:
+
+```csharp
+using ArturRios.Data.Relational.Core.Interfaces;
+using ArturRios.Data.Relational.Core.Repositories;
+using ArturRios.Heimdall.Domain.Entities;
+using ArturRios.Heimdall.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+namespace ArturRios.Heimdall.Command.Services;
+
+public enum PendingRegistrationOutcome { NotFound, Expired, AlreadyClaimed, Refused, Failed, Confirmed }
+
+public sealed record PendingRegistrationConfirmation(
+    PendingRegistrationOutcome Outcome, IReadOnlyList<string> Errors)
+{
+    public static PendingRegistrationConfirmation Of(PendingRegistrationOutcome outcome) => new(outcome, []);
+}
+
+/// <summary>
+///     UC-47 confirmation, reached through UC-14 when a presented token names a pending registration
+///     rather than a verification token: creates the verified <c>User</c> the registration described.
+/// </summary>
+public interface IPendingRegistrationConfirmer
+{
+    Task<PendingRegistrationConfirmation> ConfirmAsync(string tokenHash, DateTime now);
+}
+
+/// <remarks>
+///     The row is claimed by deleting it before anything is created, so of two requests carrying one
+///     token only one can create the person. The scope and the address are re-checked because either may
+///     have changed since the registration was queued; the per-scope unique index is the last guard
+///     against two instances confirming one address at once.
+/// </remarks>
+public class PendingRegistrationConfirmer(
+    IAsyncReadOnlyRepository<PendingRegistration, long> pendingReader,
+    IAsyncRepository<PendingRegistration, long> pendingWriter,
+    IAsyncReadOnlyRepository<Person, long> personReader,
+    IAsyncReadOnlyRepository<GoogleUser, long> googleUserReader,
+    IAsyncRepository<Person, long> personWriter,
+    ILogger<PendingRegistrationConfirmer> logger)
+    : IPendingRegistrationConfirmer
+{
+    public async Task<PendingRegistrationConfirmation> ConfirmAsync(string tokenHash, DateTime now)
+    {
+        var pending = await pendingReader.Query()
+            .Include(x => x.Scope)
+            .FirstOrDefaultAsync(x => x.TokenHash == tokenHash);
+
+        if (pending is null)
+        {
+            return PendingRegistrationConfirmation.Of(PendingRegistrationOutcome.NotFound);
+        }
+
+        if (pending.ExpiresAt <= now)
+        {
+            return PendingRegistrationConfirmation.Of(PendingRegistrationOutcome.Expired);
+        }
+
+        var claim = await pendingWriter.DeleteRangeAsync([pending.Id]);
+
+        if (!claim.Success)
+        {
+            logger.LogError("A pending registration could not be claimed: {Errors}", string.Join(" | ", claim.Errors));
+            return new(PendingRegistrationOutcome.Failed, claim.Errors.ToList());
+        }
+
+        if ((claim.Data?.Count() ?? 0) == 0)
+        {
+            return PendingRegistrationConfirmation.Of(PendingRegistrationOutcome.AlreadyClaimed);
+        }
+
+        var scope = pending.Scope;
+
+        if (scope.IsDeleted || !scope.SelfRegistrationEnabled || await AddressTakenAsync(pending))
+        {
+            return PendingRegistrationConfirmation.Of(PendingRegistrationOutcome.Refused);
+        }
+
+        var person = new Person
+        {
+            Name = pending.Name,
+            Email = pending.Email,
+            PasswordHash = pending.PasswordHash,
+            Salt = pending.Salt,
+            RoleId = (long)Roles.User,
+            EmailVerified = true,
+            ScopeMembership = new ScopeUser { ScopeId = scope.Id },
+            ScopeId = scope.Id
+        };
+
+        LegalBasisRecorder.Record(person, scope, now);
+
+        var creation = await personWriter.CreateAsync(person);
+
+        if (!creation.Success)
+        {
+            if (creation.Errors.Contains(RelationalErrors.UniqueViolationMessage))
+            {
+                return PendingRegistrationConfirmation.Of(PendingRegistrationOutcome.Refused);
+            }
+
+            logger.LogError("A confirmed registration could not be stored: {Errors}", string.Join(" | ", creation.Errors));
+            return new(PendingRegistrationOutcome.Failed, creation.Errors.ToList());
+        }
+
+        await RemoveOtherPendingAsync(pending);
+
+        return PendingRegistrationConfirmation.Of(PendingRegistrationOutcome.Confirmed);
+    }
+
+    private async Task<bool> AddressTakenAsync(PendingRegistration pending)
+    {
+        var email = pending.Email.ToLower();
+
+        return await personReader.Query().AnyAsync(person =>
+                   !person.IsDeleted && person.Email.ToLower() == email &&
+                   person.ScopeMembership != null && person.ScopeMembership.ScopeId == pending.ScopeId) ||
+               await googleUserReader.Query().AnyAsync(googleUser =>
+                   googleUser.ScopeId == pending.ScopeId && googleUser.Email.ToLower() == email);
+    }
+
+    private async Task RemoveOtherPendingAsync(PendingRegistration confirmed)
+    {
+        var email = confirmed.Email.ToLower();
+
+        var others = await pendingReader.Query()
+            .Where(x => x.ScopeId == confirmed.ScopeId && x.Email.ToLower() == email)
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        if (others.Count == 0)
+        {
+            return;
+        }
+
+        var removal = await pendingWriter.DeleteRangeAsync(others);
+
+        if (!removal.Success)
+        {
+            // Harmless if it fails: the rows expire and are purged, and confirming one later is refused
+            // because the address is now taken.
+            logger.LogWarning("Superseded pending registrations could not be removed: {Errors}",
+                string.Join(" | ", removal.Errors));
+        }
+    }
+}
+```
+
+Adapt to the real repository API where it differs (e.g. `DeleteRangeAsync`'s parameter type or result shape — `PurgeExpiredTokensCommandHandler` shows how it is called and read). Run the confirmer tests — Expected: all pass.
+
+- [ ] **Step 3: Route UC-14 through it**
+
+`VerifyEmailCommandHandler` gains a constructor parameter `IPendingRegistrationConfirmer pendingRegistrations` (last). Replace the `token is null` branch with:
+
+```csharp
+        // AF-14c — unless the token is a UC-47 pending registration's, in which case following the link
+        // is what creates the account, already verified.
+        if (token is null)
+        {
+            var confirmation = await pendingRegistrations.ConfirmAsync(presented, now);
+
+            return confirmation.Outcome switch
+            {
+                PendingRegistrationOutcome.Confirmed => output
+                    .WithData(new VerifyEmailCommandOutput())
+                    .WithMessage(AuthMessages.EmailVerifiedSuccessfully),
+                PendingRegistrationOutcome.Expired => output.WithError(AuthMessages.TokenExpired),
+                PendingRegistrationOutcome.AlreadyClaimed => output.WithError(AuthMessages.TokenAlreadyUsed),
+                PendingRegistrationOutcome.Failed => output.WithErrors(confirmation.Errors),
+                _ => output.WithError(AuthMessages.TokenInvalid)
+            };
+        }
+```
+
+Update the handler's summary to mention the pending-registration branch. Update `VerifyEmailCommandHandlerTests` to pass a stub confirmer answering `NotFound` (existing tests unchanged in intent), and add two tests: a token unknown to both still answers `TokenInvalid`; a token the stub confirms answers `EmailVerifiedSuccessfully`.
+
+Register in `Startup.cs`, next to the `RegistrationProcessor` registration: `Builder.Services.AddScoped<IPendingRegistrationConfirmer, PendingRegistrationConfirmer>();`
+
+- [ ] **Step 4: Purge expired pending rows**
+
+Add `IAsyncReadOnlyRepository<PendingRegistration, long> pendingRegistrationReader, IAsyncRepository<PendingRegistration, long> pendingRegistrationWriter` to `PurgeExpiredTokensCommandHandler` (before `retention`), a fourth `PurgeAsync` over `ExpiresAt <= cutoff` ordered by `ExpiresAt`, its errors concatenated, and `PendingRegistrationsPurged = pendingRegistrations.Count` on the output (new `int` property with a summary). Update the handler's summary to name pending registrations. Add a test to `PurgeExpiredTokensCommandHandlerTests` (expired-past-grace pending row removed, live one kept) and fix its constructor calls.
+
+- [ ] **Step 5: Functional tests**
+
+`AuthControllerConfirmRegistrationTests.cs` (`[Collection(nameof(FunctionalCollection))]`, `WebApiTest<Program>(EnvironmentType.Local)`, `PostgresFixture db`):
+- Seed an open scope and a `PendingRegistration` with `TokenHash = SingleUseTokenHash.Of(token)`, `PasswordHash = Hash.EncodeWithRandomSalt(Password, out var salt)`, `Salt = salt`, expiry in the future. `POST /api/auth/verify-email { token }` → 200 with `EmailVerifiedSuccessfully`; the person exists, verified; then `POST /api/auth/login { email, password, scopeId }` → 200 with a token.
+- Register a free address through `POST /api/auth/register`, settle (wait for its pending row), then log in with that email and password → **401** with `AuthMessages.InvalidCredentials` — and log in with a seeded *existing* user's address and a wrong password → the same 401 and message. Assert the two responses' status and errors are equal.
+- Expired seeded pending token → 400 `TokenExpired`, no person.
+
+Run: `dotnet test tests/Presentation/ArturRios.Heimdall.WebApi.Tests --filter "FullyQualifiedName~AuthControllerConfirmRegistrationTests|FullyQualifiedName~AuthControllerVerifyEmailTests|FullyQualifiedName~TokenRetentionPurgeTests|FullyQualifiedName~AuthControllerRegisterTests"` — Expected: all pass.
+
+- [ ] **Step 6: Unit suite and commit**
+
+```bash
+git add src tests
+git commit -m "feat: confirm pending registrations via email" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+---
+
+### Task 9: Final-review fixes and documentation
+
+**Files:**
+- Modify: `tests/Application/ArturRios.Heimdall.Command.Tests/SetSelfRegistrationCommandHandlerTests.cs`
+- Create: `tests/Presentation/ArturRios.Heimdall.WebApi.Tests/AuthControllerRegisterRoutingTests.cs` (unit, reflection)
+- Modify: `tests/Presentation/ArturRios.Heimdall.WebApi.Tests/AuthControllerRegisterTests.cs`
+- Modify: `src/Presentation/ArturRios.Heimdall.WebApi/Controllers/ScopeController.cs`, `src/Domain/ArturRios.Heimdall.Domain/Entities/Scope.cs`
+- Modify: `src/Presentation/ArturRios.Heimdall.WebApi/Email/MailgunEmailVerificationSender.cs`
+- Modify: `docs/requirements/Use Case Specification Document.md`, `System Requirements Document.md`, `Threat Model Document.md`, `Data Retention Schedule Document.md`, `docs/openapi/heimdall.json` (regenerated), `CHANGELOG.md`
+
+- [ ] **Step 1: Tests the spec listed and the review found missing**
+
+- `SetSelfRegistrationCommandHandlerTests`: `GivenAnOwningScopeAdmin_WhenEnabling_ThenFlagIsOn` — `ActingRole = (int)Roles.ScopeAdmin`, ownership checker allowing.
+- `AuthControllerRegisterRoutingTests` (`[UnitFact]`): reflect on `AuthController.Register` — it carries `[AllowAnonymous]`, `[HttpPost("register")]` and `[EnableRateLimiting]` whose `PolicyName == Startup.AuthEndpointRateLimitPolicy`.
+- `AuthControllerRegisterTests`: the no-echo test asserts `HttpStatusCode.Accepted` before the echo assertion; add `GivenADeletedScope_WhenRegistering_ThenForbidden`.
+
+- [ ] **Step 2: Small fixes**
+
+- `ScopeController.SetSelfRegistration` summary: replace `<see cref="SetGoogleSignIn" />` with prose — "Same actors and refusals as the Google Sign-In toggle (UC-24)." — so the published OpenAPI summary carries no raw cref.
+- `Scope.cs`: remove the double blank line after `SelfRegistrationEnabled`.
+- `MailgunEmailVerificationSender`: one body serves both a new person's verification and a pending registration's confirmation; add a final paragraph to both variants: "If you did not ask for this, ignore this email — nothing is created until the link is followed."
+
+- [ ] **Step 3: Documentation**
+
+- UC-47 (Use Case Specification): main flow steps 5-6 become "write a pending registration and mail its link"; add steps 7-8 "the person follows the link (UC-14); the system creates the `User`, verified, and removes the address's pending registrations"; postconditions: "a pending registration exists and its link was sent, or the holder was told — no `User` exists until the link is followed"; update the mermaid diagram; add AF-47e (link expired → UC-14 AF-14a), AF-47f (scope closed or address taken before the link is followed → UC-14 AF-14c), AF-47g (signing in before confirming → UC-11 AF-11a, identical to a wrong password). UC-14: add a note that a token may name a pending registration, and that following it creates the account.
+- FR-SR-05: unchanged. Add **FR-SR-07** "No account shall exist for a self-registered address until the link mailed to it is followed; the account is then created with its address verified" and **FR-SR-08** "Pending registrations shall expire with the email-verification token lifetime and be purged with the other single-use tokens". Update the traceability ranges to FR-SR-08. Add `PENDING_REGISTRATION` to the ER diagram (scope FK, token hash, expiry).
+- Threat Model, TB-1: new threats with mitigations — register-then-sign-in enumeration (mitigated: no account until confirmed, AF-11a), address squatting (mitigated: needs the inbox), attempt-notice flooding of a holder (per-IP limit only, as UC-12), verification mail to third-party addresses (per-IP limit; email says ignoring creates nothing), queue flooding (bounded 1024, drops silently — accepted, as UC-12), and the residual risk that a person following a link they never requested gets an account whose password the registrant chose (accepted; mitigated by the email's wording). Follow the document's existing threat-table format and numbering.
+- Data Retention Schedule: a row for pending registrations — name, email, password hash; retained until confirmed or until token expiry plus the single-use grace period; purged by the token retention pass.
+- `python scripts/openapi.py` (the controller summary changed); `--check` exits 0.
+- CHANGELOG `Unreleased` entry: amend the UC-47 line to say accounts are created when the emailed link is followed.
+
+- [ ] **Step 4: Verify and commit**
+
+Run: `dotnet test src/ArturRios.Heimdall.sln` (Docker running; only the known `DataRetentionOptionsTests "0.5"` failure allowed).
+
+```bash
+git add src tests docs/requirements docs/openapi/heimdall.json CHANGELOG.md
+git commit -m "docs: document pending registration (uc-47)" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+(Split into a `test:`/`fix:` commit and a `docs:` commit if that reads better.)

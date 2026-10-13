@@ -21,7 +21,8 @@ of the three services.
 3. The sign-up screen accepts name, email and password and, on success, tells the user to check their
    email and then sign in.
 4. Whether an address is already registered cannot be learned from the sign-up response — not from its
-   status, its body, or its timing.
+   status, its body, or its timing — nor from signing in afterwards. No account exists, and so nothing can
+   sign in, until the holder of the address follows the emailed link.
 5. An instance that has not opened registration refuses it plainly.
 
 ### Out of scope
@@ -53,6 +54,7 @@ of the three services.
 | Response to a sign-up | Always `202` with one fixed message; no session | Immediate sign-in: forces a distinguishable "already registered" answer |
 | Default for the new flag | `false` — existing scopes stay closed | `true`: silently opens every existing scope |
 | A closed scope | `403` with a plain message | Disguising it as `202`: it reveals nothing about any address, and a user waiting for an email that will never come is worse |
+| When the account comes into existence | When the emailed link is followed: registration writes a *pending* row, confirmation creates a verified `User` (amended 2026-10-12 after the final review of the Heimdall branch) | Creating an unverified `User` at registration: Heimdall's login issues a token regardless of `EmailVerified`, so register-then-sign-in revealed whether an address was taken, and anyone could hold a usable account on someone else's unused address. Refusing unverified sign-in instead: touches UC-11, and leaves the real owner of a squatted address holding an account with the squatter's password |
 
 ## 4. heimdall-api
 
@@ -100,13 +102,34 @@ does identical work for every address.
 
 **Processor** (`RegistrationProcessor`, run by `RegistrationDispatcher`) — after the response:
 
-- **Address free:** create the person with `Roles.User`, `EmailVerified = false` and the queued hash and
-  salt, then send the verification email through `IEmailVerificationService.IssueAndSendAsync` — the same
-  call `CreateUserCommandHandler` makes. A unique-violation race (two registrations of one address) is
-  treated as *address taken*.
-- **Address taken** (password person or Google user in this scope): create nothing; send the new
-  *registration-attempt* email to the existing owner.
-- Failures are logged, as `PasswordRecoveryProcessor` does; the caller already has their answer.
+- **Address free:** write a `PendingRegistration` (scope, name, email, the queued hash and salt, the
+  SHA-256 of a fresh 48-character token, an expiry of `EmailVerificationOptions.TokenLifetime`) and mail the
+  token through `IEmailVerificationSender` — the same link a verification email carries. **No `Person` is
+  created**, so signing in before confirming answers exactly as a wrong password does (UC-11 AF-11a).
+  Several pending rows may exist for one address; each is independent until one is confirmed.
+- **Address taken** (live password person or Google user in this scope): create nothing; send the new
+  *registration-attempt* email to the existing owner — unless the holder's processing is restricted, or the
+  Google holder is logically deleted (it could not sign in to act on the notice).
+- Failures are logged with fixed, address-free messages; the caller already has their answer.
+
+### 4.3a Confirming
+
+`POST /api/auth/verify-email` (UC-14) is unchanged on the wire. When the presented token matches no
+`EmailVerificationToken`, the handler looks for a `PendingRegistration` with that token hash:
+
+1. None → `TokenInvalid` (as today). Expired → `TokenExpired`.
+2. Claim it by deleting the row; if another request already deleted it → `TokenAlreadyUsed`.
+3. The scope must still exist and be open, and the address must still be free (live person or Google user
+   in the scope) → otherwise `TokenInvalid`.
+4. Create the `User`: `Roles.User`, **`EmailVerified = true`**, the pending hash and salt, membership,
+   legal basis (NFR-23). A unique violation (two instances confirming one address) → `TokenInvalid`.
+5. Delete every other pending row for that scope and address, then answer `EmailVerifiedSuccessfully`.
+
+Expired pending rows are removed by the existing `PurgeExpiredTokens` pass, with the same grace period.
+
+Residual risk, documented in the Threat Model: someone who registers another person's free address chooses
+the password; if that person follows a link they never asked for, the account they create has a password
+they do not know. The email says plainly that ignoring it creates nothing.
 
 **Registration-attempt email.** New template. Says someone tried to create an account with this address
 on this instance; if it was them, sign in — with password reset if they have a password, or with Google if
@@ -128,10 +151,12 @@ the response may not.
 
 - Handler: scope missing, deleted, closed → 403 and nothing queued; open scope → 202 and exactly one
   request queued, carrying a hash and no plaintext; identical response for any address.
-- Processor: address free (person created, `User` role, unverified, verification email sent); taken by a
-  password person; taken by a Google user (registration-attempt email, no person created); email case and
-  whitespace variants count as taken; unique-violation race treated as taken; send failure logged, not
-  thrown.
+- Processor: address free (pending row written with a token hash and expiry, link mailed, no person
+  created); taken by a password person; taken by a Google user (registration-attempt email, nothing written);
+  email case variants count as taken; persistence failure logged, not thrown.
+- Confirmation: valid pending token creates a verified `User` and clears the address's other pending rows;
+  unknown, expired, already-claimed tokens; scope closed or address taken in the meantime; unique-violation
+  race; signing in before confirmation answers 401 like a wrong password, and after it succeeds.
 - Validator: each field's boundary (name 200/201, password 7/8, malformed email, missing scope).
 - Toggle: SystemAdmin, owning ScopeAdmin, non-owning ScopeAdmin refused, `Enabled` missing refused.
 - WebApi: anonymous access, the status table above, the rate-limit policy is applied.
