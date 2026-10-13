@@ -658,8 +658,9 @@ void main() {
           var attempts = 0;
           final repository = FakeRecovery(
             onVerify: (_, password) {
-              if (password == null)
+              if (password == null) {
                 return const Success(VerifyEmailPasswordNeeded(prompt));
+              }
               attempts++;
               return attempts == 1
                   ? Failure(message: 'Try again in a moment.', kind: kind)
