@@ -37,6 +37,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   var _obscured = true;
 
   @override
+  void initState() {
+    super.initState();
+    // Both controllers outlive this screen, and a provider cannot be changed
+    // while the tree is building. So, once the first frame is out, every visit
+    // starts empty: no sign-in complaint left behind by another screen, and no
+    // acceptance left over from the last request.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(signInControllerProvider.notifier).reset();
+      ref.invalidate(signUpControllerProvider);
+    });
+  }
+
+  @override
   void dispose() {
     _name.clear();
     _email.clear();
@@ -59,7 +73,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     );
   }
 
-  void _reset(String _) => ref.read(signUpControllerProvider.notifier).reset();
+  void _reset(String _) {
+    ref.read(signUpControllerProvider.notifier).reset();
+    ref.read(signInControllerProvider.notifier).reset();
+  }
+
+  /// Leaves for sign-in without carrying a Google failure over to it.
+  void _goToSignIn() {
+    ref.read(signInControllerProvider.notifier).reset();
+    widget.onSignIn?.call();
+  }
 
   String? _errorFor(SignUpState state, SignUpField field) =>
       state is SignUpInvalid && state.field == field ? state.reason : null;
@@ -70,6 +93,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final google = ref.watch(signInControllerProvider);
     final googleAvailable = ref.watch(googleIdentityServiceProvider) != null;
     final busy = state.isBusy || google.isBusy;
+    final googleMessage = googleAvailable ? google.message : null;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -94,7 +118,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   const SizedBox(height: 16),
                   FilledButton(
                     key: const Key('signUp.done'),
-                    onPressed: widget.onSignIn,
+                    onPressed: _goToSignIn,
                     child: const Text('Back to sign in'),
                   ),
                 ] else ...[
@@ -187,7 +211,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     const SizedBox(height: 16),
                     _Panel(message: reason, isError: true, onRetry: _submit),
                   ],
-                  if (google.message case final message?) ...[
+                  // Only Google's own failures are this screen's to show; a
+                  // refused password on the sign-in screen is not.
+                  if (googleMessage case final message?) ...[
                     const SizedBox(height: 16),
                     _Panel(message: message, isError: true),
                   ],
@@ -195,7 +221,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   const SizedBox(height: 8),
                   TextButton(
                     key: const Key('signUp.signIn'),
-                    onPressed: widget.onSignIn,
+                    onPressed: _goToSignIn,
                     child: const Text('Already have an account? Sign in'),
                   ),
                 ],

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
 import 'package:fortuna_ui/core/config/app_config.dart';
@@ -13,6 +14,7 @@ import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/auth/data/credentials_repository.dart';
 import 'package:fortuna_ui/features/auth/data/google_identity.dart';
 import 'package:fortuna_ui/features/auth/data/registration_repository.dart';
+import 'package:fortuna_ui/features/auth/state/sign_in_controller.dart';
 import 'package:fortuna_ui/features/auth/ui/sign_up_screen.dart';
 
 import 'google_sign_in_test.dart' show FakeGoogle;
@@ -72,6 +74,8 @@ Future<void> fillForm(
 }
 
 void main() {
+  sharedStateTests();
+
   group('SignUpScreen', () {
     testWidgets('Given the screen is shown '
         'When it settles '
@@ -249,6 +253,137 @@ void main() {
       await tester.tap(find.byKey(const Key('signUp.signIn')));
 
       expect(backToSignIn, 1);
+    });
+  });
+}
+
+/// The overrides a sign-up screen needs, for tests that keep one container
+/// across several screens.
+List<Override> _overridesFor({
+  required RegistrationRepository registration,
+  GoogleIdentityService? google,
+  FakeCredentials? credentials,
+}) => [
+  appConfigProvider.overrideWithValue(
+    AppConfig(
+      apiBaseUrl: 'https://fortuna.example',
+      googleClientId: google == null ? '' : 'client-id',
+      transport: Transport.http,
+      databasePath: '',
+    ),
+  ),
+  preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+  coreLibraryProbeProvider.overrideWithValue(
+    const FixedCoreLibraryProbe(CoreLibraryAvailability.absent),
+  ),
+  tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+  registrationRepositoryProvider.overrideWithValue(registration),
+  credentialsRepositoryProvider.overrideWithValue(
+    credentials ??
+        FakeCredentials(
+          (_, _) =>
+              Success(SignInGranted(token: tokenFor(), emailVerified: true)),
+        ),
+  ),
+  if (google != null) googleIdentityServiceProvider.overrideWithValue(google),
+];
+
+Future<void> pumpIn(
+  WidgetTester tester,
+  ProviderContainer container,
+  Widget home,
+) async {
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(home: home),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+void sharedStateTests() {
+  group('SignUpScreen and the controllers it shares', () {
+    testWidgets('Given a refused sign-in left in the sign-in controller '
+        'When the sign-up screen is opened '
+        'Then that sign-in error is not shown on it', (tester) async {
+      const reason = 'Those credentials were not accepted.';
+      final container = ProviderContainer(
+        overrides: _overridesFor(
+          registration: FakeRegistration(),
+          credentials: FakeCredentials(
+            (_, _) => const Failure(
+              message: reason,
+              kind: FailureKind.unauthenticated,
+            ),
+          ),
+        ),
+      );
+      addTearDown(container.dispose);
+      await container
+          .read(signInControllerProvider.notifier)
+          .submit(email: 'a@example.com', password: 'a-long-secret');
+      expect(container.read(signInControllerProvider), isA<SignInRefused>());
+
+      await pumpIn(tester, container, const SignUpScreen());
+
+      expect(find.text(reason), findsNothing);
+      expect(container.read(signInControllerProvider).message, isNull);
+    });
+
+    testWidgets('Given Google is configured and its exchange fails '
+        'When the user goes back to sign in '
+        'Then the failure is not carried over to the sign-in screen', (
+      tester,
+    ) async {
+      const reason = 'Google is not available right now.';
+      final container = ProviderContainer(
+        overrides: _overridesFor(
+          registration: FakeRegistration(),
+          google: FakeGoogle(const GoogleIdentityUnavailable(reason)),
+        ),
+      );
+      addTearDown(container.dispose);
+      var backToSignIn = 0;
+      await pumpIn(
+        tester,
+        container,
+        SignUpScreen(onSignIn: () => backToSignIn++),
+      );
+
+      await tester.tap(find.byKey(const Key('signUp.google')));
+      await tester.pumpAndSettle();
+      expect(find.text(reason), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('signUp.signIn')));
+
+      expect(backToSignIn, 1);
+      expect(container.read(signInControllerProvider).message, isNull);
+    });
+
+    testWidgets('Given an accepted sign-up '
+        'When the sign-up screen is opened again '
+        'Then it shows the empty form, not the old acceptance', (tester) async {
+      final container = ProviderContainer(
+        overrides: _overridesFor(
+          registration: FakeRegistration(
+            () => const Success('Check your email.'),
+          ),
+        ),
+      );
+      addTearDown(container.dispose);
+      await pumpIn(tester, container, SignUpScreen(onSignIn: () {}));
+      await fillForm(tester);
+      await tester.tap(find.byKey(const Key('signUp.submit')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('signUp.done')), findsOneWidget);
+
+      await pumpIn(tester, container, const SizedBox());
+      await pumpIn(tester, container, SignUpScreen(onSignIn: () {}));
+
+      expect(find.byKey(const Key('signUp.done')), findsNothing);
+      expect(find.byKey(const Key('signUp.name')), findsOneWidget);
+      expect(find.text('Check your email.'), findsNothing);
     });
   });
 }
