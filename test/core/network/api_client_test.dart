@@ -117,11 +117,7 @@ Future<Failure<void>> failureOf(Future<void> Function() call) async {
 
 void main() {
   group('A 401 and the session (FR-SE-19)', () {
-    for (final path in const [
-      '/api/auth/verify-email',
-      '/api/auth/login',
-      '/api/auth/register',
-    ]) {
+    for (final path in anonymousAuthPaths) {
       test('Given the API answers 401 to POST $path '
           'When the request fails '
           'Then the session is not reported as rejected', () async {
@@ -135,6 +131,23 @@ void main() {
         expect(rejections, isEmpty);
       });
     }
+
+    test('Given the API answers 401 to POST /api/auth/resend-verification '
+        'When the request fails '
+        'Then the session is reported as rejected, because that call needs '
+        'one', () async {
+      expect(
+        anonymousAuthPaths,
+        isNot(contains('/api/auth/resend-verification')),
+      );
+      final (:dio, :rejections) = unauthenticatedDio();
+
+      await failureOf(
+        () => dio.post<void>('/api/auth/resend-verification', data: const {}),
+      );
+
+      expect(rejections, hasLength(1));
+    });
 
     test('Given the generated client signs in and the API answers 401 '
         'When the request fails '
