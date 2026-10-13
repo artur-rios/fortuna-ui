@@ -149,6 +149,7 @@ class SignUpController extends Notifier<SignUpState> {
     final result = await ref
         .read(registrationRepositoryProvider)
         .register(name: trimmedName, email: email.trim(), password: password);
+    if (!ref.mounted) return;
 
     state = switch (result) {
       Success(:final value) => SignUpAccepted(value),

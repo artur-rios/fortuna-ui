@@ -124,6 +124,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .requestPasswordRecovery(email.trim());
+    if (!ref.mounted) return;
 
     state = switch (result) {
       // AF-02 lives here, in what is *not* written: nothing looks at whether
@@ -164,6 +165,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .resetPassword(token: token.trim(), newPassword: newPassword);
+    if (!ref.mounted) return;
 
     state = switch (result) {
       Success<String>(:final value) => RecoveryDone(value),
@@ -190,6 +192,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .verifyEmail(token.trim());
+    if (!ref.mounted) return;
 
     state = _afterVerification(result, prompt: null);
   }
@@ -223,6 +226,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .verifyEmail(token.trim(), password: password);
+    if (!ref.mounted) return;
 
     state = _afterVerification(result, prompt: prompt);
   }
@@ -295,6 +299,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .resendVerification();
+    if (!ref.mounted) return;
 
     state = switch (result) {
       Success<String>(:final value) => RecoveryDone(value),

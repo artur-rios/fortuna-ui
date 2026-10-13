@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/result/result.dart';
@@ -180,6 +182,51 @@ void main() {
       });
     }
 
+    test('Given a request is pending '
+        'When the provider is disposed and the answer arrives '
+        'Then nothing is written to it and nothing throws', () async {
+      final answer = Completer<Result<String>>();
+      final container = ProviderContainer(
+        overrides: [
+          registrationRepositoryProvider.overrideWithValue(
+            _HeldRegistration(answer.future),
+          ),
+        ],
+      );
+      final pending = container
+          .read(signUpControllerProvider.notifier)
+          .submit(
+            name: 'New Person',
+            email: 'new@example.com',
+            password: 'a-long-secret',
+          );
+      await Future<void>.delayed(Duration.zero);
+      expect(container.read(signUpControllerProvider), isA<SignUpSubmitting>());
+
+      container.dispose();
+      answer.complete(const Success('Check your email.'));
+
+      await expectLater(pending, completes);
+    });
+
+    test('Given a 256-character address and an 8-character password '
+        'When they are submitted '
+        'Then both are accepted and sent', () async {
+      final repository = FakeRegistration();
+      final email = '${'a' * 244}@example.com'; // 244 + 12 = 256
+
+      final state = await submit(
+        containerWith(repository),
+        email: email,
+        password: '12345678',
+      );
+
+      expect(state, isA<SignUpAccepted>());
+      expect(email.length, 256);
+      expect(repository.submitted.single.email, email);
+      expect(repository.submitted.single.password, '12345678');
+    });
+
     test('Given a refusal on screen '
         'When the user edits a field '
         'Then the message clears', () async {
@@ -191,4 +238,18 @@ void main() {
       expect(container.read(signUpControllerProvider), isA<SignUpReady>());
     });
   });
+}
+
+/// Holds its answer until the test releases it.
+class _HeldRegistration implements RegistrationRepository {
+  _HeldRegistration(this.answer);
+
+  final Future<Result<String>> answer;
+
+  @override
+  Future<Result<String>> register({
+    required String name,
+    required String email,
+    required String password,
+  }) => answer;
 }

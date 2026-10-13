@@ -59,6 +59,33 @@ class FakeRecovery implements AccountRecoveryRepository {
   }
 }
 
+/// Holds every answer until the test releases it.
+class _HeldRecovery implements AccountRecoveryRepository {
+  final request = Completer<Result<String>>();
+  final reset = Completer<Result<String>>();
+  final verify = Completer<Result<VerifyEmailAnswer>>();
+  final resend = Completer<Result<String>>();
+
+  @override
+  Future<Result<String>> requestPasswordRecovery(String email) =>
+      request.future;
+
+  @override
+  Future<Result<String>> resetPassword({
+    required String token,
+    required String newPassword,
+  }) => reset.future;
+
+  @override
+  Future<Result<VerifyEmailAnswer>> verifyEmail(
+    String token, {
+    String? password,
+  }) => verify.future;
+
+  @override
+  Future<Result<String>> resendVerification() => resend.future;
+}
+
 /// Asks for the password at once, then holds the confirmation until released.
 class _HeldConfirmation extends FakeRecovery {
   final held = Completer<Result<VerifyEmailAnswer>>();
@@ -382,6 +409,69 @@ void main() {
         expect(state.message, 'Wait a minute before asking again.');
       }
     });
+  });
+
+  group('a provider disposed while an answer is pending', () {
+    final operations =
+        <
+          String,
+          (
+            Future<void> Function(AccountRecoveryController),
+            void Function(_HeldRecovery),
+          )
+        >{
+          'requestPasswordRecovery': (
+            (c) => c.requestPasswordRecovery('a@b.co'),
+            (r) => r.request.complete(const Success('sent')),
+          ),
+          'resetPassword': (
+            (c) => c.resetPassword(
+              token: 'tok',
+              newPassword: 'x',
+              confirmation: 'x',
+            ),
+            (r) => r.reset.complete(const Success('reset')),
+          ),
+          'verifyEmail': (
+            (c) => c.verifyEmail('tok'),
+            (r) => r.verify.complete(
+              const Success(VerifyEmailConfirmed('verified')),
+            ),
+          ),
+          'confirmRegistration': (
+            (c) => c.confirmRegistration(token: 'tok', password: 'pw'),
+            (r) => r.verify.complete(
+              const Success(VerifyEmailConfirmed('verified')),
+            ),
+          ),
+          'resendVerification': (
+            (c) => c.resendVerification(),
+            (r) => r.resend.complete(const Success('sent')),
+          ),
+        };
+
+    for (final MapEntry(:key, :value) in operations.entries) {
+      test('Given $key is pending '
+          'When the provider is disposed and the answer arrives '
+          'Then nothing is written to it and nothing throws', () async {
+        final (start, release) = value;
+        final repository = _HeldRecovery();
+        final container = ProviderContainer(
+          overrides: [
+            accountRecoveryRepositoryProvider.overrideWithValue(repository),
+          ],
+        );
+        final pending = start(
+          container.read(accountRecoveryControllerProvider.notifier),
+        );
+        await Future<void>.delayed(Duration.zero);
+
+        container.dispose();
+        release(repository);
+
+        await expectLater(pending, completes);
+      });
+    }
   });
 
   group('verifyEmail for a sign-up link', () {
