@@ -11,7 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - UC-47: "New to Fortuna? Create an account" on the sign-in screen opens a sign-up screen offering Google, where
   configured, and a name, email and password form. The account exists only once the emailed link is followed and
-  the password chosen at sign-up is entered again, on an explicit "Create my account".
+  the password chosen at sign-up is entered again, on an explicit "Create my account"; the verification screen then
+  offers "Sign in", and a link that is bad, expired or used offers "Sign in" and "Sign up again". A network or server
+  failure while confirming keeps the password form so the user can retry.
 
 ### Fixed
 

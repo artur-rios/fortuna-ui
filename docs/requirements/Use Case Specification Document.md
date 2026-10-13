@@ -1668,7 +1668,7 @@ graph LR
 6. The user opens the emailed link, which routes to `/verify-email?token=…`.
 7. The system submits the token by itself on load.
 8. The API answers that the sign-up token needs the password chosen at sign-up (422). The system asks for that password and submits it only when the user taps "Create my account".
-9. The API accepts the password and creates the account. The system presents the API's message, and the user signs in (UC-03).
+9. The API accepts the password and creates the account. The system presents the API's message and offers a "Sign in" action, which routes to sign-in (UC-03).
 
 **Alternative Flows**
 
@@ -1681,9 +1681,10 @@ graph LR
 | AF-05 | The user chooses Google, where Google sign-in is configured | UC-05 runs unchanged: a first Google sign-in creates the account. Where it is not configured the option is not offered |
 | AF-06 | Desktop offline mode | The link to sign-up is not offered; UC-06 creates the local account |
 | AF-07 | The confirmation password is wrong (401) | The API's message is shown under the password field and the form stays; the user may try again |
-| AF-08 | The link is bad, expired or already used, or the wrong-password allowance is spent (400) | The system presents the API's message, followed by "If this link came from signing up, sign up again — or sign in if you already finished." |
-| AF-09 | The link is a plain email verification link rather than a sign-up link | The token alone is accepted, no password is asked for, and the API's message is presented (UC-09) |
+| AF-08 | The link is bad, expired or already used, or the wrong-password allowance is spent (400) | The system presents the API's message, followed by "If this link came from signing up, sign up again — or sign in if you already finished." The hint is shown only for this case, never for a transient failure (AF-11). The system offers "Sign in" and "Sign up again"; no resend is offered, since resending needs a session |
+| AF-09 | The link is a plain email verification link rather than a sign-up link | The token alone is accepted, no password is asked for, the API's message is presented and a "Sign in" action is offered (UC-09) |
 | AF-10 | An anonymous authentication route answers 401, such as a wrong confirmation password or a wrong sign-in password | The session is not ended and no "session expired" notice is shown; the answer is presented on the screen concerned |
+| AF-11 | The instance cannot be reached, answers with a server error or rate-limits the request while the password is being confirmed | The link is still good, so the password form stays with the reason shown under the field, without the sign-up hint, and the user retries with a tap on "Create my account"; nothing is resubmitted by itself. The same failure on the first, automatic submission of the token is presented as worded, with no hint |
 
 ---
 
