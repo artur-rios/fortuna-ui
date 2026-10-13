@@ -25,6 +25,7 @@ class RecurringTransactionOutput {
     this.financialAccountId,
     this.frequency,
     this.id,
+    this.isDeleted,
     this.lastMaterializedOn,
     this.nextOccurrences,
     this.startsOn,
@@ -47,6 +48,7 @@ class RecurringTransactionOutput {
   final String? financialAccountId;
   final RecurrenceFrequency? frequency;
   final String? id;
+  final bool? isDeleted;
   final DateTime? lastMaterializedOn;
   final List<DateTime>? nextOccurrences;
   final DateTime? startsOn;

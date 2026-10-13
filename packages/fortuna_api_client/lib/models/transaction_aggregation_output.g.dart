@@ -21,6 +21,11 @@ TransactionAggregationOutput _$TransactionAggregationOutputFromJson(
   from: json['from'] == null ? null : DateTime.parse(json['from'] as String),
   granularity: json['granularity'] as String?,
   isFullyConverted: json['isFullyConverted'] as bool?,
+  missingRates: (json['missingRates'] as List<dynamic>?)
+      ?.map(
+        (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
   to: json['to'] == null ? null : DateTime.parse(json['to'] as String),
 );
 
@@ -33,5 +38,6 @@ Map<String, dynamic> _$TransactionAggregationOutputToJson(
   'from': instance.from?.toIso8601String(),
   'granularity': instance.granularity,
   'isFullyConverted': instance.isFullyConverted,
+  'missingRates': instance.missingRates,
   'to': instance.to?.toIso8601String(),
 };

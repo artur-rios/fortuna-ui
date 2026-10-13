@@ -10,12 +10,22 @@ part 'goal_list_output.g.dart';
 
 @JsonSerializable()
 class GoalListOutput {
-  const GoalListOutput({this.goals});
+  const GoalListOutput({
+    this.goals,
+    this.pageNumber,
+    this.pageSize,
+    this.totalItems,
+    this.totalPages,
+  });
 
   factory GoalListOutput.fromJson(Map<String, Object?> json) =>
       _$GoalListOutputFromJson(json);
 
   final List<GoalOutput>? goals;
+  final int? pageNumber;
+  final int? pageSize;
+  final int? totalItems;
+  final int? totalPages;
 
   Map<String, Object?> toJson() => _$GoalListOutputToJson(this);
 }

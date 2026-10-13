@@ -11,6 +11,12 @@ TableReportOutput _$TableReportOutputFromJson(Map<String, dynamic> json) =>
       columns: (json['columns'] as List<dynamic>?)
           ?.map((e) => TableColumnOutput.fromJson(e as Map<String, dynamic>))
           .toList(),
+      missingRates: (json['missingRates'] as List<dynamic>?)
+          ?.map(
+            (e) =>
+                MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
       pageNumber: (json['pageNumber'] as num?)?.toInt(),
       pageSize: (json['pageSize'] as num?)?.toInt(),
       recordSet: json['recordSet'] as String?,
@@ -26,6 +32,7 @@ TableReportOutput _$TableReportOutputFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$TableReportOutputToJson(TableReportOutput instance) =>
     <String, dynamic>{
       'columns': instance.columns,
+      'missingRates': instance.missingRates,
       'pageNumber': instance.pageNumber,
       'pageSize': instance.pageSize,
       'recordSet': instance.recordSet,

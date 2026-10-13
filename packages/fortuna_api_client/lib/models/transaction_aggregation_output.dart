@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'missing_exchange_rate_output.dart';
 import 'transaction_aggregation_bucket_output.dart';
 
 part 'transaction_aggregation_output.g.dart';
@@ -17,6 +18,7 @@ class TransactionAggregationOutput {
     this.from,
     this.granularity,
     this.isFullyConverted,
+    this.missingRates,
     this.to,
   });
 
@@ -29,6 +31,7 @@ class TransactionAggregationOutput {
   final DateTime? from;
   final String? granularity;
   final bool? isFullyConverted;
+  final List<MissingExchangeRateOutput>? missingRates;
   final DateTime? to;
 
   Map<String, Object?> toJson() => _$TransactionAggregationOutputToJson(this);

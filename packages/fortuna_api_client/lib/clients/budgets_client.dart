@@ -21,6 +21,8 @@ abstract class BudgetsClient {
   @GET('/api/budgets')
   Future<BudgetListOutputDataOutput> getApiBudgets({
     @Query('includeDeleted') bool? includeDeleted = false,
+    @Query('pageNumber') int? pageNumber = 1,
+    @Query('pageSize') int? pageSize = 100,
   });
 
   @POST('/api/budgets')

@@ -10,12 +10,22 @@ part 'tag_list_output.g.dart';
 
 @JsonSerializable()
 class TagListOutput {
-  const TagListOutput({this.tags});
+  const TagListOutput({
+    this.pageNumber,
+    this.pageSize,
+    this.tags,
+    this.totalItems,
+    this.totalPages,
+  });
 
   factory TagListOutput.fromJson(Map<String, Object?> json) =>
       _$TagListOutputFromJson(json);
 
+  final int? pageNumber;
+  final int? pageSize;
   final List<TagOutput>? tags;
+  final int? totalItems;
+  final int? totalPages;
 
   Map<String, Object?> toJson() => _$TagListOutputToJson(this);
 }

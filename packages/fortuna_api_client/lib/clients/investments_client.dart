@@ -33,6 +33,7 @@ abstract class InvestmentsClient {
     @Query('CurrencyCode') String? currencyCode,
     @Query('DisplayCurrencyCode') String? displayCurrencyCode,
     @Query('FigureDate') DateTime? figureDate,
+    @Query('IncludeDeleted') bool? includeDeleted,
     @Query('SortBy') String? sortBy,
     @Query('Descending') bool? descending,
     @Query('PageNumber') int? pageNumber,

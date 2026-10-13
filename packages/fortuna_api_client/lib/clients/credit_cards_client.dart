@@ -26,6 +26,7 @@ abstract class CreditCardsClient {
     @Query('Name') String? name,
     @Query('Issuer') String? issuer,
     @Query('CurrencyCode') String? currencyCode,
+    @Query('IncludeDeleted') bool? includeDeleted,
     @Query('SortBy') String? sortBy,
     @Query('Descending') bool? descending,
     @Query('PageNumber') int? pageNumber,

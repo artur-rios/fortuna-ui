@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'missing_exchange_rate_output.dart';
 import 'transaction_currency_total_output.dart';
 
 part 'transaction_totals_output.g.dart';
@@ -16,6 +17,8 @@ class TransactionTotalsOutput {
     this.displayEarning,
     this.displayExpense,
     this.displayNet,
+    this.isFullyConverted,
+    this.missingRates,
   });
 
   factory TransactionTotalsOutput.fromJson(Map<String, Object?> json) =>
@@ -26,6 +29,8 @@ class TransactionTotalsOutput {
   final String? displayEarning;
   final String? displayExpense;
   final String? displayNet;
+  final bool? isFullyConverted;
+  final List<MissingExchangeRateOutput>? missingRates;
 
   Map<String, Object?> toJson() => _$TransactionTotalsOutputToJson(this);
 }
