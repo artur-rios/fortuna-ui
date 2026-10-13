@@ -122,7 +122,9 @@ no `EmailVerificationToken`, the handler looks for a `PendingRegistration` with 
 2. **The password chosen at sign-up must be presented** (amended 2026-10-13 after the second final review):
    absent → **`422`** *"Enter the password you chose when you signed up to finish creating your account."*;
    not matching the pending hash → **`401`** *"That password does not match the one chosen when signing
-   up."* Neither consumes the row. So following a link — by a mail scanner, by mistake, or the wrong one of
+   up."* Neither consumes the row — except that the 10th wrong password discards it, matching login's
+   lockout threshold, so a leaked link cannot be used to guess the registrant's password at leisure. So
+   following a link — by a mail scanner, by mistake, or the wrong one of
    two identical emails — creates nothing unless the person also knows the registrant's password, which
    closes the squatting path where the registrant could sign in to an account the address's owner
    confirmed.
