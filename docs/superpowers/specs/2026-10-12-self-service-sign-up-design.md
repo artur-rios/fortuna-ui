@@ -183,7 +183,11 @@ the response may not.
 onward, mirroring `FR-ID-18` (proxy with the configured scope identifier).
 
 - **Command:** `RegisterThroughApiCommand { Name, Email, Password }` in `HeimdallAuthCommands.cs`.
-- **Output:** `RegisterThroughApiCommandOutput { Message }` in `HeimdallAuthCommandOutputs.cs`.
+- **Output:** `RegisterThroughApiCommandOutput` in `HeimdallAuthCommandOutputs.cs` — empty, with the message
+  carried in the `DataOutput` envelope's `messages`, as every other proxied auth route does (as built).
+- **Heimdall's field messages are not forwarded:** a 400 from Heimdall becomes Fortuna's generic
+  `RequestRejected`; Fortuna's own validator, which mirrors Heimdall's rules, supplies the field messages
+  (as built).
 - **Validator:** in `HeimdallAuthCommandValidators.cs`, the same rules as Heimdall's — rejecting early
   saves a round trip, but Heimdall stays authoritative.
 - **Gateway:** `IHeimdallAuthGateway.RegisterAsync(name, email, password, scopeId)` posting
