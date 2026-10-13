@@ -2726,3 +2726,145 @@ git commit -m "docs: document pending registration (uc-47)" -m "Co-Authored-By: 
 ```
 
 (Split into a `test:`/`fix:` commit and a `docs:` commit if that reads better.)
+
+---
+
+## Amendment 2 (2026-10-13): password at confirmation, and the second final review's fixes
+
+The second final review (41edb73..ebc4e09) found that confirmation created the account with the
+*registrant's* password whenever the link was opened — by a mail scanner (fortuna-ui's verify screen
+auto-submits), by mistake, or as the wrong one of two identical emails — so a squatter could still sign in to
+an account the address's owner confirmed. The user chose: **confirmation requires the password chosen at
+sign-up** (spec §4.3a steps 2 and the paragraphs after step 6).
+
+**Amended constraints:**
+- `POST /api/auth/verify-email` gains an optional `password` body field, read only for pending tokens.
+- Pending token without a password → **422** with exactly `"Enter the password you chose when you signed up to finish creating your account."`; with a wrong one → **401** with exactly `"That password does not match the one chosen when signing up."`. Neither consumes the pending row. Both checks happen after the expiry check and before the claim.
+- Plain `EmailVerificationToken` verification is unchanged and ignores `password`.
+- The UC-06/UC-15 verification email keeps its original wording; the registration link has its own email.
+
+---
+
+### Task 10: Confirmation requires the sign-up password
+
+**Files:**
+- Modify: `src/Application/ArturRios.Heimdall.Command/Input/VerifyEmailCommand.cs`
+- Modify: `src/Application/ArturRios.Heimdall.Command/Services/PendingRegistrationConfirmer.cs`
+- Modify: `src/Application/ArturRios.Heimdall.Command/Handlers/VerifyEmailCommandHandler.cs`
+- Modify: `src/Application/ArturRios.Heimdall.Shared/Messages/AuthMessages.cs`, `AuthMessageMap.cs`
+- Modify tests: `PendingRegistrationConfirmerTests.cs`, `VerifyEmailCommandHandlerTests.cs`, `AuthControllerConfirmRegistrationTests.cs`
+
+**Interfaces:**
+- Produces: `VerifyEmailCommand.Password : string?`; `IPendingRegistrationConfirmer.ConfirmAsync(string tokenHash, string? password, DateTime now)`; outcomes `PasswordRequired`, `PasswordIncorrect` added to `PendingRegistrationOutcome`; `AuthMessages.ConfirmationPasswordRequired` (→ 422), `AuthMessages.ConfirmationPasswordIncorrect` (→ 401).
+
+- [ ] **Step 1: Failing tests**
+
+`PendingRegistrationConfirmerTests` — existing success-path tests now pass the sign-up password (seed the pending row's hash with `await PasswordHashGate.Shared.EncodeWithRandomSaltAsync(Password)`, keeping the returned salt). New tests:
+1. `GivenNoPassword_WhenConfirming_ThenPasswordRequiredAndTheRowIsKept` — outcome `PasswordRequired`; pending row still present; no person.
+2. `GivenAWrongPassword_WhenConfirming_ThenPasswordIncorrectAndTheRowIsKept` — outcome `PasswordIncorrect`; row still present; no person; and a second call with the right password then succeeds (`Confirmed`).
+3. `GivenAnExpiredTokenAndNoPassword_WhenConfirming_ThenExpired` — expiry is reported before the password is asked for.
+
+`VerifyEmailCommandHandlerTests` — the stub confirmer records the password it received; a plain verification token with a `Password` set still verifies as before (the stub is never called); `PasswordRequired` maps to `ConfirmationPasswordRequired`, `PasswordIncorrect` to `ConfirmationPasswordIncorrect`.
+
+`AuthControllerConfirmRegistrationTests` — seeded pending row:
+- `{ token }` → 422 with `ConfirmationPasswordRequired`, row kept, no person;
+- `{ token, password: "wrong" }` → 401 with `ConfirmationPasswordIncorrect`, row kept;
+- `{ token, password: Password }` → 200, person verified, then login succeeds (adapt the existing success test).
+
+Run the focused tests — Expected: FAIL (signature / missing outcomes).
+
+- [ ] **Step 2: Implement**
+
+`VerifyEmailCommand`: add
+
+```csharp
+    /// <summary>
+    ///     The password chosen at sign-up, required only when <see cref="Token" /> belongs to a UC-47
+    ///     pending registration (spec §4.3a) and ignored for an ordinary verification token.
+    /// </summary>
+    public string? Password { get; set; }
+```
+
+`AuthMessages`:
+
+```csharp
+    /// <summary>UC-47 confirmation — a pending registration's link needs the password chosen at sign-up.</summary>
+    public const string ConfirmationPasswordRequired =
+        "Enter the password you chose when you signed up to finish creating your account.";
+
+    /// <summary>UC-47 confirmation — the password does not match the pending registration's.</summary>
+    public const string ConfirmationPasswordIncorrect =
+        "That password does not match the one chosen when signing up.";
+```
+
+`AuthMessageMap`: `[AuthMessages.ConfirmationPasswordRequired] = HttpStatusCodes.UnprocessableEntity`, `[AuthMessages.ConfirmationPasswordIncorrect] = HttpStatusCodes.Unauthorized`, each with a one-line comment.
+
+`PendingRegistrationConfirmer.ConfirmAsync(string tokenHash, string? password, DateTime now)` — after the expiry check and before the claim:
+
+```csharp
+        // Following the link is not enough: a scanner, a mistaken click or the wrong one of two identical
+        // emails would otherwise create an account whose password the registrant chose (spec §4.3a, 2).
+        if (string.IsNullOrEmpty(password))
+        {
+            return PendingRegistrationConfirmation.Of(PendingRegistrationOutcome.PasswordRequired);
+        }
+
+        if (!await PasswordHashGate.Shared.TextMatchesAsync(password, pending.PasswordHash, pending.Salt))
+        {
+            return PendingRegistrationConfirmation.Of(PendingRegistrationOutcome.PasswordIncorrect);
+        }
+```
+
+Add the two enum members. In `VerifyEmailCommandHandler`, pass `command.Password` and map:
+
+```csharp
+                PendingRegistrationOutcome.PasswordRequired => output.WithError(AuthMessages.ConfirmationPasswordRequired),
+                PendingRegistrationOutcome.PasswordIncorrect => output.WithError(AuthMessages.ConfirmationPasswordIncorrect),
+```
+
+Update the handler's and confirmer's doc comments, and the `AuthController.VerifyEmail` remarks (the two new answers, and that `password` is read only for pending registrations).
+
+- [ ] **Step 3: Run tests, commit**
+
+Focused unit + functional (`PendingRegistrationConfirmerTests`, `VerifyEmailCommandHandlerTests`, `AuthControllerConfirmRegistrationTests`, `AuthControllerVerifyEmailTests`), then `--filter "Category=Unit"`.
+
+```bash
+git add src tests
+git commit -m "feat: require the sign-up password to confirm" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+---
+
+### Task 11: Second final review — fix wave
+
+All in one dispatch; each item names its finding.
+
+**Files:** `RegistrationProcessor.cs`, new `IRegistrationLinkSender.cs` (Command/Services), new `LoggingRegistrationLinkSender.cs` and `MailgunRegistrationLinkSender.cs` (WebApi/Email), `MailgunEmailVerificationSender.cs`, `Startup.cs`, `PendingRegistration.cs`, `PendingRegistrationDbMap.cs`, new migration, `PersonFieldRules.cs`, tests, `docs/requirements/*`, `docs/openapi/heimdall.json`, `CHANGELOG.md`.
+
+- [ ] **I2 — the registration link gets its own email; restore the verification email.**
+  - `IRegistrationLinkSender { Task SendAsync(string email, string token); }` in Command/Services, with `LoggingRegistrationLinkSender` (logs `LogSafeEmail.Reference(email)` and the token, like `LoggingEmailVerificationSender`) and `MailgunRegistrationLinkSender : MailgunSender` (subject `"Finish creating your account"`; body built with `EmailDeliveryOptions.BuildLink(options.VerificationUrl, token)` and the same link/no-link variants as `MailgunEmailVerificationSender`):
+    ```
+    Someone asked to create an account with this address.
+
+    To finish, open this link and enter the password you chose when you signed up: {link}
+    (or, without a link: Use this token, with the password you chose when you signed up: {token})
+
+    If you did not ask for this, ignore this email. No account is created unless the link is used with that password.
+    ```
+  - Register both in `AddEmailSenders()` beside the attempt senders. `RegistrationProcessor` depends on `IRegistrationLinkSender` instead of `IEmailVerificationSender`.
+  - `MailgunEmailVerificationSender`: remove the "If you did not ask for this…" paragraph Task 9 added, restoring the original two bodies exactly.
+- [ ] **I3 — test the processor's persistence-failure path.** A pending-repository double whose `CreateAsync` returns a failed result (the pattern `PendingRegistrationConfirmerTests` uses for its unique-violation double) plus the `RecordingLogger<T>` there: assert one Error-level entry, the entry text does not contain the email, no link sent, no exception.
+- [ ] **Minor 1 — bound the email at 256.** `PersonFieldRules.PersonEmail` adds `.MaximumLength(256).WithMessage(PersonMessages.EmailTooLong)` (new message `"Email must be at most 256 characters."`, mapped to 400 in `PersonMessageMap` and `AuthMessageMap`); `PendingRegistrationDbMap` adds `HasMaxLength(256)` on `Email` (and `HasMaxLength(200)` on `Name` if not already applied); generate migration `BoundPendingRegistrationEmail`. Add validator tests for 256 accepted / 257 refused.
+- [ ] **Minor 3 — the attempt notice goes to the holder's stored address** (`holder.Email` / `googleHolder.Email`), with the existing tests' expectations updated.
+- [ ] **Minor 4 — make the `AlreadyClaimed` unit test deterministic**: seed the same id and token hash into both fakes and assert the ids match; rename to describe a row claimed by a concurrent request.
+- [ ] **Minor 8 — fix the `WaitForPendingAsync` doc comment** (it polls; it does not register a sentinel).
+- [ ] **Minor 10 — replace the vacuous `ToString` assertion** in `RegisterCommandHandlerTests` with a check that the queued hash verifies against the password: `Assert.True(await PasswordHashGate.Shared.TextMatchesAsync(Password, queued.PasswordHash, queued.Salt))`.
+- [ ] **Docs (Minor 2, 7, and Task 10's contract).**
+  - UC-14 note and UC-47 steps/AFs: confirmation needs the sign-up password (422 without, 401 wrong, neither consumes the link); a re-click after the account exists answers AF-14c "invalid token", not AF-14b.
+  - FR-SR-09: "Confirming a self-registration shall require the password chosen at sign-up; a missing or wrong password shall not consume the pending registration." Update traceability ranges.
+  - SRD §5.4 verify-email row mentions pending confirmation and the optional `password`. ER `PENDING_REGISTRATION` gains `Salt` and `CreatedAt`.
+  - Threat Model: TH-26 / TH-30 rewritten — the remaining squatting risk is closed by requiring the registrant's password at confirmation; scanners and mistaken clicks create nothing. TH-29: a full queue drops every registrant's request until it drains. TH-27: "many source IP addresses".
+  - AF-47b / FR-SR-05: a logically deleted Google holder is not notified.
+  - Data Retention: "four tables"; the pending row keeps the salt.
+  - Regenerate `docs/openapi/heimdall.json`; `--check` exits 0. CHANGELOG `Unreleased`: confirmation requires the sign-up password.
+- [ ] **Verify and commit.** `dotnet test src/ArturRios.Heimdall.sln` (only the known `DataRetentionOptionsTests "0.5"` failure). Commits split sensibly (`feat:`/`fix:`/`test:`/`docs:`), each with the trailer.

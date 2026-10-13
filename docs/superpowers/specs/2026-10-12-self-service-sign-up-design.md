@@ -114,22 +114,35 @@ does identical work for every address.
 
 ### 4.3a Confirming
 
-`POST /api/auth/verify-email` (UC-14) is unchanged on the wire. When the presented token matches no
-`EmailVerificationToken`, the handler looks for a `PendingRegistration` with that token hash:
+`POST /api/auth/verify-email` (UC-14) gains one optional body field, `password`, read only for pending
+registrations; its behaviour for `EmailVerificationToken`s is unchanged. When the presented token matches
+no `EmailVerificationToken`, the handler looks for a `PendingRegistration` with that token hash:
 
 1. None → `TokenInvalid` (as today). Expired → `TokenExpired`.
-2. Claim it by deleting the row; if another request already deleted it → `TokenAlreadyUsed`.
-3. The scope must still exist and be open, and the address must still be free (live person or Google user
+2. **The password chosen at sign-up must be presented** (amended 2026-10-13 after the second final review):
+   absent → **`422`** *"Enter the password you chose when you signed up to finish creating your account."*;
+   not matching the pending hash → **`401`** *"That password does not match the one chosen when signing
+   up."* Neither consumes the row. So following a link — by a mail scanner, by mistake, or the wrong one of
+   two identical emails — creates nothing unless the person also knows the registrant's password, which
+   closes the squatting path where the registrant could sign in to an account the address's owner
+   confirmed.
+3. Claim it by deleting the row; if another request already deleted it → `TokenAlreadyUsed`.
+4. The scope must still exist and be open, and the address must still be free (live person or Google user
    in the scope) → otherwise `TokenInvalid`.
-4. Create the `User`: `Roles.User`, **`EmailVerified = true`**, the pending hash and salt, membership,
+5. Create the `User`: `Roles.User`, **`EmailVerified = true`**, the pending hash and salt, membership,
    legal basis (NFR-23). A unique violation (two instances confirming one address) → `TokenInvalid`.
-5. Delete every other pending row for that scope and address, then answer `EmailVerifiedSuccessfully`.
+6. Delete every other pending row for that scope and address, then answer `EmailVerifiedSuccessfully`.
 
 Expired pending rows are removed by the existing `PurgeExpiredTokens` pass, with the same grace period.
 
-Residual risk, documented in the Threat Model: someone who registers another person's free address chooses
-the password; if that person follows a link they never asked for, the account they create has a password
-they do not know. The email says plainly that ignoring it creates nothing.
+**The confirmation email is its own message** (`IRegistrationLinkSender`), not the UC-06/UC-15
+verification email: it says an account was asked for, that finishing needs the link *and* the password
+chosen at sign-up, and that ignoring it creates nothing. The UC-06/UC-15 verification email keeps its
+original wording.
+
+**fortuna-api** forwards the optional `password` and maps Heimdall's `422` and `401` on verify-email to its
+own `422` and `401` with the same two messages. **fortuna-ui**'s verify-email screen, on that `422`, asks for
+the password with an explicit "Create my account" button rather than resubmitting by itself.
 
 **Registration-attempt email.** New template. Says someone tried to create an account with this address
 on this instance; if it was them, sign in — with password reset if they have a password, or with Google if
@@ -154,7 +167,8 @@ the response may not.
 - Processor: address free (pending row written with a token hash and expiry, link mailed, no person
   created); taken by a password person; taken by a Google user (registration-attempt email, nothing written);
   email case variants count as taken; persistence failure logged, not thrown.
-- Confirmation: valid pending token creates a verified `User` and clears the address's other pending rows;
+- Confirmation: missing password → 422 and wrong password → 401, neither consuming the row; valid pending
+  token with the right password creates a verified `User` and clears the address's other pending rows;
   unknown, expired, already-claimed tokens; scope closed or address taken in the meantime; unique-violation
   race; signing in before confirmation answers 401 like a wrong password, and after it succeeds.
 - Validator: each field's boundary (name 200/201, password 7/8, malformed email, missing scope).
