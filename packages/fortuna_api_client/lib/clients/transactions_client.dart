@@ -9,6 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../models/attach_document_command_output_data_output.dart';
+import '../models/attachment_output_paginated_output.dart';
 import '../models/reconcile_transaction_command.dart';
 import '../models/reconcile_transaction_command_output_data_output.dart';
 import '../models/record_transaction_command.dart';
@@ -69,6 +70,14 @@ abstract class TransactionsClient {
   Future<UpdateTransactionCommandOutputDataOutput> putApiTransactionsId({
     @Path('id') required String id,
     @Body() UpdateTransactionCommand? body,
+  });
+
+  @GET('/api/transactions/{id}/attachments')
+  Future<AttachmentOutputPaginatedOutput> getApiTransactionsIdAttachments({
+    @Path('id') required String id,
+    @Query('IncludeDeleted') bool? includeDeleted,
+    @Query('PageNumber') int? pageNumber,
+    @Query('PageSize') int? pageSize,
   });
 
   @MultiPart()

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
 import 'package:fortuna_ui/core/config/app_config.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -10,6 +11,7 @@ import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/auth/data/credentials_repository.dart';
 import 'package:fortuna_ui/features/auth/ui/sign_in_screen.dart';
+import 'package:go_router/go_router.dart';
 
 import 'sign_in_controller_test.dart' show FakeCredentials, tokenFor;
 
@@ -211,6 +213,88 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(fields.map((c) => c.text), everyElement(isEmpty));
+    });
+  });
+
+  group('SignInScreen sign-up link', () {
+    testWidgets('Given a connected installation '
+        'When "Create an account" is tapped '
+        'Then the sign-up route is opened (UC-47)', (tester) async {
+      final router = GoRouter(
+        initialLocation: Routes.signIn,
+        routes: [
+          GoRoute(
+            path: Routes.signIn,
+            builder: (context, state) => const SignInScreen(),
+          ),
+          GoRoute(
+            path: Routes.signUp,
+            builder: (context, state) => const Text('sign-up route'),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appConfigProvider.overrideWithValue(
+              const AppConfig(
+                apiBaseUrl: 'https://fortuna.example',
+                googleClientId: '',
+                transport: Transport.http,
+                databasePath: '',
+              ),
+            ),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+            coreLibraryProbeProvider.overrideWithValue(
+              const FixedCoreLibraryProbe(CoreLibraryAvailability.absent),
+            ),
+            tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('signIn.signUp')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('sign-up route'), findsOneWidget);
+    });
+
+    testWidgets('Given desktop offline mode '
+        'When sign-in is shown '
+        'Then no sign-up link is offered (FR-CF-07)', (tester) async {
+      // An FFI build whose core loads starts in AppMode.desktopOffline.
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appConfigProvider.overrideWithValue(
+              const AppConfig(
+                apiBaseUrl: '',
+                googleClientId: '',
+                transport: Transport.ffi,
+                databasePath: 'fortuna.db',
+              ),
+            ),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+            coreLibraryProbeProvider.overrideWithValue(
+              const FixedCoreLibraryProbe(CoreLibraryAvailability.available),
+            ),
+            tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+          ],
+          child: const MaterialApp(home: SignInScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('signIn.recover')), findsOneWidget);
+      expect(find.byKey(const Key('signIn.signUp')), findsNothing);
     });
   });
 }

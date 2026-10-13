@@ -217,6 +217,43 @@ class _TransactionsClient implements TransactionsClient {
   }
 
   @override
+  Future<AttachmentOutputPaginatedOutput> getApiTransactionsIdAttachments({
+    required String id,
+    bool? includeDeleted,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'IncludeDeleted': includeDeleted,
+      r'PageNumber': pageNumber,
+      r'PageSize': pageSize,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<AttachmentOutputPaginatedOutput>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/transactions/${id}/attachments',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late AttachmentOutputPaginatedOutput _value;
+    try {
+      _value = AttachmentOutputPaginatedOutput.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<AttachDocumentCommandOutputDataOutput>
   postApiTransactionsIdAttachments({required String id, File? file}) async {
     final _extra = <String, dynamic>{};

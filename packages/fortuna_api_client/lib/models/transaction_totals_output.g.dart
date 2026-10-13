@@ -19,6 +19,12 @@ TransactionTotalsOutput _$TransactionTotalsOutputFromJson(
   displayEarning: json['displayEarning'] as String?,
   displayExpense: json['displayExpense'] as String?,
   displayNet: json['displayNet'] as String?,
+  isFullyConverted: json['isFullyConverted'] as bool?,
+  missingRates: (json['missingRates'] as List<dynamic>?)
+      ?.map(
+        (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
 );
 
 Map<String, dynamic> _$TransactionTotalsOutputToJson(
@@ -29,4 +35,6 @@ Map<String, dynamic> _$TransactionTotalsOutputToJson(
   'displayEarning': instance.displayEarning,
   'displayExpense': instance.displayExpense,
   'displayNet': instance.displayNet,
+  'isFullyConverted': instance.isFullyConverted,
+  'missingRates': instance.missingRates,
 };

@@ -22,6 +22,7 @@ import '../features/administration/ui/instance_health_screen.dart';
 import '../features/audit/ui/audit_trail_screen.dart';
 import '../features/auth/ui/password_recovery_screen.dart';
 import '../features/auth/ui/sign_in_screen.dart';
+import '../features/auth/ui/sign_up_screen.dart';
 import '../features/categories/ui/categories_screen.dart';
 import '../features/holdings/ui/accounts_screen.dart';
 import '../features/holdings/ui/card_statements_screen.dart';
@@ -84,6 +85,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SignInScreen(),
       ),
       GoRoute(
+        path: Routes.signUp,
+        builder: (context, state) =>
+            SignUpScreen(onSignIn: () => context.go(Routes.signIn)),
+      ),
+      GoRoute(
         path: Routes.twoFactor,
         builder: (context, state) => const PlaceholderScreen(
           title: 'Two-factor challenge',
@@ -110,6 +116,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.verifyEmail,
         builder: (context, state) => VerifyEmailScreen(
           token: state.uri.queryParameters[Routes.tokenParameter] ?? '',
+          onSignIn: () => context.go(Routes.signIn),
+          onSignUp: () => context.go(Routes.signUp),
         ),
       ),
       GoRoute(

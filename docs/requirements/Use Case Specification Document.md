@@ -17,7 +17,7 @@ otherwise be:
   alternative flow below says "the system presents the refusal", it means exactly that — not a
   message this application composed.
 
-A third convention is worth stating once rather than repeating in forty-six alternative flow tables:
+A third convention is worth stating once rather than repeating in forty-seven alternative flow tables:
 **any use case can lose its session**. A token rejected mid-flow ends the session and returns the
 user to sign-in without replaying the interrupted action (`FR-SE-19`, `FR-SE-20`). It is enumerated
 only where it interacts with the flow in some particular way.
@@ -53,6 +53,7 @@ graph LR
         UC03[UC-03: Sign in with credentials]
         UC04[UC-04: Complete a two-factor challenge]
         UC05[UC-05: Sign in with Google]
+        UC47[UC-47: Sign up]
         UC06[UC-06: Create a local account]
         UC07[UC-07: Sign in to a local account]
         UC08[UC-08: Recover a local account]
@@ -1645,6 +1646,48 @@ graph LR
 
 ---
 
+### UC-47: Sign Up
+
+| Field | Value |
+| --- | --- |
+| **ID** | UC-47 |
+| **Name** | Sign Up |
+| **Actors** | Account Owner, Google Sign-In, Fortuna API |
+| **Description** | Create an account from the sign-in screen, with Google or with a name, an email address and a password. A credential sign-up creates no account until the emailed link is followed and the password chosen at sign-up is entered again |
+| **Preconditions** | The instance is configured and reachable; the mode is connected or self-hosted |
+| **Postconditions** | With Google: a session is held and the account exists (UC-05). With credentials: the instance has accepted the request and no account exists yet; once the emailed link is followed and the password confirmed, the account exists and the user signs in (UC-03) |
+| **Requirements** | FR-SE-02, FR-SE-24, FR-SE-25, FR-SE-26, FR-SE-27, FR-SE-28 |
+
+**Main Flow**
+
+1. The user chooses "New to Fortuna? Create an account" on the sign-in screen, which opens the sign-up screen.
+2. The user enters a name, an email address and a password, and submits.
+3. The system checks the input against the instance's rules: a name of at most 200 characters, a plausible address of at most 256 characters, and a password of at least 8 characters.
+4. The system submits the input to the API.
+5. The API accepts the request. The system replaces the form with the API's message and a "Back to sign in" action. No account exists yet.
+6. The user opens the emailed link, which routes to `/verify-email?token=…`.
+7. The system submits the token by itself on load.
+8. The API answers that the sign-up token needs the password chosen at sign-up (422). The system asks for that password and submits it only when the user taps "Create my account".
+9. The API accepts the password and creates the account. The system presents the API's message and offers a "Sign in" action, which routes to sign-in (UC-03).
+
+**Alternative Flows**
+
+| ID | Condition | Outcome |
+| --- | --- | --- |
+| AF-01 | A field is empty, the name is longer than 200 characters, the address is implausible or longer than 256, or the password is shorter than 8 characters | Rejected in the form, under the field concerned; nothing is submitted |
+| AF-02 | The address already has an account | The same answer as a new address, shown as worded; the account's holder is emailed by the instance |
+| AF-03 | The API refuses the sign-up, for example because the instance does not accept new accounts | The system presents the API's reason as worded |
+| AF-04 | The instance or its identity service cannot be reached | The system presents the reason and offers a retry, which resubmits what is in the form; nothing is resubmitted without the user's action |
+| AF-05 | The user chooses Google, where Google sign-in is configured | UC-05 runs unchanged: a first Google sign-in creates the account. Where it is not configured the option is not offered |
+| AF-06 | Desktop offline mode | The link to sign-up is not offered; UC-06 creates the local account |
+| AF-07 | The confirmation password is wrong (401) | The API's message is shown under the password field and the form stays; the user may try again |
+| AF-08 | The link is bad, expired or already used, or the wrong-password allowance is spent (400) | The system presents the API's message, followed by "If this link came from signing up, sign up again — or sign in if you already finished." The hint is shown only for this case, never for a transient failure (AF-11). The system offers "Sign in" and "Sign up again"; no resend is offered, since resending needs a session |
+| AF-09 | The link is a plain email verification link rather than a sign-up link | The token alone is accepted, no password is asked for, the API's message is presented and a "Sign in" action is offered (UC-09) |
+| AF-10 | An anonymous authentication route answers 401, such as a wrong confirmation password or a wrong sign-in password | The session is not ended and no "session expired" notice is shown; the answer is presented on the screen concerned |
+| AF-11 | The instance cannot be reached, answers with a server error or rate-limits the request while the password is being confirmed | The link is still good, so the password form stays with the reason shown under the field, without the sign-up hint, and the user retries with a tap on "Create my account"; nothing is resubmitted by itself. The same failure on the first, automatic submission of the token is presented as worded, with no hint |
+
+---
+
 ## 3. Use Case — Requirements Traceability
 
 | Use Case | Requirements |
@@ -1695,6 +1738,7 @@ graph LR
 | UC-44: Erase the Account | FR-PR-07, FR-PR-08 |
 | UC-45: View Instance Health | FR-AD-01 … FR-AD-04 |
 | UC-46: Guard a Route by Session and Role | FR-AD-05, FR-AD-06, FR-AD-07 |
+| UC-47: Sign Up | FR-SE-02, FR-SE-24 … FR-SE-28 |
 
 Every functional requirement in System Requirements §3 appears at least once above.
 

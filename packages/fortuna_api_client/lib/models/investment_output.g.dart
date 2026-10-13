@@ -21,6 +21,7 @@ InvestmentOutput _$InvestmentOutputFromJson(Map<String, dynamic> json) =>
       investmentType: json['investmentType'] == null
           ? null
           : InvestmentType.fromJson((json['investmentType'] as num).toInt()),
+      isDeleted: json['isDeleted'] as bool?,
       isIndependentlyValued: json['isIndependentlyValued'] as bool?,
       latestValuationDate: json['latestValuationDate'] == null
           ? null
@@ -50,6 +51,7 @@ Map<String, dynamic> _$InvestmentOutputToJson(InvestmentOutput instance) =>
       'institution': instance.institution,
       'instrument': instance.instrument,
       'investmentType': _$InvestmentTypeEnumMap[instance.investmentType],
+      'isDeleted': instance.isDeleted,
       'isIndependentlyValued': instance.isIndependentlyValued,
       'latestValuationDate': instance.latestValuationDate?.toIso8601String(),
       'latestValuationValue': instance.latestValuationValue,

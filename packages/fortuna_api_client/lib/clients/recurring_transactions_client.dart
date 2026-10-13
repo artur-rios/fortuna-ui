@@ -11,6 +11,7 @@ import '../models/materialize_recurring_transactions_command.dart';
 import '../models/materialize_recurring_transactions_command_output_data_output.dart';
 import '../models/recurring_transaction_lifecycle_command_output_data_output.dart';
 import '../models/recurring_transaction_output_data_output.dart';
+import '../models/recurring_transaction_output_paginated_output.dart';
 import '../models/update_recurring_transaction_command.dart';
 import '../models/update_recurring_transaction_command_output_data_output.dart';
 
@@ -20,6 +21,17 @@ part 'recurring_transactions_client.g.dart';
 abstract class RecurringTransactionsClient {
   factory RecurringTransactionsClient(Dio dio, {String? baseUrl}) =
       _RecurringTransactionsClient;
+
+  @GET('/api/recurring-transactions')
+  Future<RecurringTransactionOutputPaginatedOutput>
+  getApiRecurringTransactions({
+    @Query('Active') bool? active,
+    @Query('IncludeDeleted') bool? includeDeleted,
+    @Query('SortBy') String? sortBy,
+    @Query('Descending') bool? descending,
+    @Query('PageNumber') int? pageNumber,
+    @Query('PageSize') int? pageSize,
+  });
 
   @POST('/api/recurring-transactions')
   Future<DefineRecurringTransactionCommandOutputDataOutput>

@@ -10,12 +10,22 @@ part 'counterparty_list_output.g.dart';
 
 @JsonSerializable()
 class CounterpartyListOutput {
-  const CounterpartyListOutput({this.counterparties});
+  const CounterpartyListOutput({
+    this.counterparties,
+    this.pageNumber,
+    this.pageSize,
+    this.totalItems,
+    this.totalPages,
+  });
 
   factory CounterpartyListOutput.fromJson(Map<String, Object?> json) =>
       _$CounterpartyListOutputFromJson(json);
 
   final List<CounterpartyOutput>? counterparties;
+  final int? pageNumber;
+  final int? pageSize;
+  final int? totalItems;
+  final int? totalPages;
 
   Map<String, Object?> toJson() => _$CounterpartyListOutputToJson(this);
 }

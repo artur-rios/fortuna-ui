@@ -7,6 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'cash_flow_period_output.dart';
 import 'cash_flow_periodicity.dart';
 import 'cash_flow_rate_output.dart';
+import 'missing_exchange_rate_output.dart';
 
 part 'cash_flow_projection_output.g.dart';
 
@@ -17,6 +18,8 @@ class CashFlowProjectionOutput {
     this.displayCurrencyCode,
     this.estimateOmittedReason,
     this.flatReason,
+    this.isFullyConverted,
+    this.missingRates,
     this.periodicity,
     this.periods,
     this.rates,
@@ -31,6 +34,8 @@ class CashFlowProjectionOutput {
   final String? displayCurrencyCode;
   final String? estimateOmittedReason;
   final String? flatReason;
+  final bool? isFullyConverted;
+  final List<MissingExchangeRateOutput>? missingRates;
   final CashFlowPeriodicity? periodicity;
   final List<CashFlowPeriodOutput>? periods;
   final List<CashFlowRateOutput>? rates;

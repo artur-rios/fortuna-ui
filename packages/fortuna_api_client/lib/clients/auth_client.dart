@@ -19,8 +19,12 @@ import '../models/login_through_api_command.dart';
 import '../models/login_through_api_command_output_data_output.dart';
 import '../models/regenerate_recovery_codes_through_api_command.dart';
 import '../models/regenerate_recovery_codes_through_api_command_output_data_output.dart';
+import '../models/register_through_api_command.dart';
+import '../models/register_through_api_command_output_data_output.dart';
 import '../models/request_password_recovery_through_api_command.dart';
 import '../models/request_password_recovery_through_api_command_output_data_output.dart';
+import '../models/resend_two_factor_challenge_code_through_api_command.dart';
+import '../models/resend_two_factor_challenge_code_through_api_command_output_data_output.dart';
 import '../models/resend_verification_through_api_command_output_data_output.dart';
 import '../models/reset_password_through_api_command.dart';
 import '../models/reset_password_through_api_command_output_data_output.dart';
@@ -37,6 +41,12 @@ abstract class AuthClient {
 
   @GET('/api/auth/2fa')
   Future<GetTwoFactorStatusThroughApiCommandOutputDataOutput> getApiAuth2fa();
+
+  @POST('/api/auth/2fa/challenge/resend')
+  Future<ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput>
+  postApiAuth2faChallengeResend({
+    @Body() ResendTwoFactorChallengeCodeThroughApiCommand? body,
+  });
 
   @POST('/api/auth/2fa/confirm')
   Future<ConfirmTwoFactorThroughApiCommandOutputDataOutput>
@@ -83,6 +93,11 @@ abstract class AuthClient {
   @POST('/api/auth/password-reset')
   Future<ResetPasswordThroughApiCommandOutputDataOutput>
   postApiAuthPasswordReset({@Body() ResetPasswordThroughApiCommand? body});
+
+  @POST('/api/auth/register')
+  Future<RegisterThroughApiCommandOutputDataOutput> postApiAuthRegister({
+    @Body() RegisterThroughApiCommand? body,
+  });
 
   @POST('/api/auth/resend-verification')
   Future<ResendVerificationThroughApiCommandOutputDataOutput>

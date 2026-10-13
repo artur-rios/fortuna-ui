@@ -16,6 +16,7 @@ class CreditCardOutput {
     this.currencyCode,
     this.dueDay,
     this.id,
+    this.isDeleted,
     this.issuer,
     this.lastFourDigits,
     this.name,
@@ -34,6 +35,7 @@ class CreditCardOutput {
   final String? currencyCode;
   final int? dueDay;
   final String? id;
+  final bool? isDeleted;
   final String? issuer;
   final String? lastFourDigits;
   final String? name;

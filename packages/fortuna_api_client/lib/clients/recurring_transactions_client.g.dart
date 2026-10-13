@@ -21,6 +21,51 @@ class _RecurringTransactionsClient implements RecurringTransactionsClient {
   final ParseErrorLogger? errorLogger;
 
   @override
+  Future<RecurringTransactionOutputPaginatedOutput>
+  getApiRecurringTransactions({
+    bool? active,
+    bool? includeDeleted,
+    String? sortBy,
+    bool? descending,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'Active': active,
+      r'IncludeDeleted': includeDeleted,
+      r'SortBy': sortBy,
+      r'Descending': descending,
+      r'PageNumber': pageNumber,
+      r'PageSize': pageSize,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<RecurringTransactionOutputPaginatedOutput>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/recurring-transactions',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late RecurringTransactionOutputPaginatedOutput _value;
+    try {
+      _value = RecurringTransactionOutputPaginatedOutput.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<DefineRecurringTransactionCommandOutputDataOutput>
   postApiRecurringTransactions({
     DefineRecurringTransactionCommand? body,

@@ -10,12 +10,22 @@ part 'budget_list_output.g.dart';
 
 @JsonSerializable()
 class BudgetListOutput {
-  const BudgetListOutput({this.budgets});
+  const BudgetListOutput({
+    this.budgets,
+    this.pageNumber,
+    this.pageSize,
+    this.totalItems,
+    this.totalPages,
+  });
 
   factory BudgetListOutput.fromJson(Map<String, Object?> json) =>
       _$BudgetListOutputFromJson(json);
 
   final List<BudgetOutput>? budgets;
+  final int? pageNumber;
+  final int? pageSize;
+  final int? totalItems;
+  final int? totalPages;
 
   Map<String, Object?> toJson() => _$BudgetListOutputToJson(this);
 }

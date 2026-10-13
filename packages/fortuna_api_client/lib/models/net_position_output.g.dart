@@ -19,6 +19,12 @@ NetPositionOutput _$NetPositionOutputFromJson(Map<String, dynamic> json) =>
           .toList(),
       displayCurrencyCode: json['displayCurrencyCode'] as String?,
       isFullyConverted: json['isFullyConverted'] as bool?,
+      missingRates: (json['missingRates'] as List<dynamic>?)
+          ?.map(
+            (e) =>
+                MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
       total: json['total'] as String?,
     );
 
@@ -28,5 +34,6 @@ Map<String, dynamic> _$NetPositionOutputToJson(NetPositionOutput instance) =>
       'currencyGroups': instance.currencyGroups,
       'displayCurrencyCode': instance.displayCurrencyCode,
       'isFullyConverted': instance.isFullyConverted,
+      'missingRates': instance.missingRates,
       'total': instance.total,
     };

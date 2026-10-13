@@ -8,8 +8,11 @@ part of 'verify_email_through_api_command.dart';
 
 VerifyEmailThroughApiCommand _$VerifyEmailThroughApiCommandFromJson(
   Map<String, dynamic> json,
-) => VerifyEmailThroughApiCommand(token: json['token'] as String?);
+) => VerifyEmailThroughApiCommand(
+  password: json['password'] as String?,
+  token: json['token'] as String?,
+);
 
 Map<String, dynamic> _$VerifyEmailThroughApiCommandToJson(
   VerifyEmailThroughApiCommand instance,
-) => <String, dynamic>{'token': instance.token};
+) => <String, dynamic>{'password': instance.password, 'token': instance.token};

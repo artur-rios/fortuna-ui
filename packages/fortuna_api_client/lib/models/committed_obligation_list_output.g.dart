@@ -17,6 +17,11 @@ CommittedObligationListOutput _$CommittedObligationListOutputFromJson(
         (e) => CommittedObligationOutput.fromJson(e as Map<String, dynamic>),
       )
       .toList(),
+  missingRates: (json['missingRates'] as List<dynamic>?)
+      ?.map(
+        (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
   periods: (json['periods'] as List<dynamic>?)
       ?.map(
         (e) =>
@@ -42,6 +47,7 @@ Map<String, dynamic> _$CommittedObligationListOutputToJson(
   'displayCurrencyCode': instance.displayCurrencyCode,
   'isFullyConverted': instance.isFullyConverted,
   'items': instance.items,
+  'missingRates': instance.missingRates,
   'periods': instance.periods,
   'rates': instance.rates,
   'through': instance.through?.toIso8601String(),

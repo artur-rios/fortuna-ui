@@ -248,6 +248,7 @@ it, and made both drift checks real — see [native/README.md](native/README.md)
 | [#45](https://github.com/artur-rios/fortuna-ui/issues/45) | ✅ | UC-44 — Erase the Account | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#46](https://github.com/artur-rios/fortuna-ui/issues/46) | ✅ | UC-45 — View Instance Health | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 | [#47](https://github.com/artur-rios/fortuna-ui/issues/47) | ✅ | UC-46 — Guard a Route by Session and Role | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
+| [#108](https://github.com/artur-rios/fortuna-ui/issues/108) | ✅ | UC-47 — Sign Up | [Use Case Specification](docs/requirements/Use%20Case%20Specification%20Document.md) |
 
 ### M-03 — Holdings
 

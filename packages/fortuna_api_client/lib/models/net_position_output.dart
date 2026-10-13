@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'missing_exchange_rate_output.dart';
 import 'net_position_currency_output.dart';
 
 part 'net_position_output.g.dart';
@@ -15,6 +16,7 @@ class NetPositionOutput {
     this.currencyGroups,
     this.displayCurrencyCode,
     this.isFullyConverted,
+    this.missingRates,
     this.total,
   });
 
@@ -25,6 +27,7 @@ class NetPositionOutput {
   final List<NetPositionCurrencyOutput>? currencyGroups;
   final String? displayCurrencyCode;
   final bool? isFullyConverted;
+  final List<MissingExchangeRateOutput>? missingRates;
   final String? total;
 
   Map<String, Object?> toJson() => _$NetPositionOutputToJson(this);
