@@ -914,6 +914,62 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('Given the account was confirmed '
+        'When the screen is done '
+        'Then "Sign in" is offered, calls back, and no resend is', (
+      tester,
+    ) async {
+      var signedIn = 0;
+      await pump(
+        tester,
+        FakeRecovery(
+          onVerify: (_, _) =>
+              const Success(VerifyEmailConfirmed('Address verified.')),
+        ),
+        VerifyEmailScreen(token: 'tok', onSignIn: () => signedIn++),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('verify.signIn')), findsOneWidget);
+      expect(find.byKey(const Key('verify.signUp')), findsNothing);
+      expect(find.byKey(const Key('verify.resend')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('verify.signIn')));
+
+      expect(signedIn, 1);
+    });
+
+    testWidgets('Given a link the API refuses '
+        'When the screen shows why '
+        'Then "Sign in" and "Sign up again" are offered, and no resend', (
+      tester,
+    ) async {
+      var signedIn = 0;
+      var signedUp = 0;
+      await pump(
+        tester,
+        FakeRecovery(
+          onVerify: (_, _) => const Failure(
+            message: 'That link is no longer valid.',
+            kind: FailureKind.invalidInput,
+          ),
+        ),
+        VerifyEmailScreen(
+          token: 'tok',
+          onSignIn: () => signedIn++,
+          onSignUp: () => signedUp++,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('verify.resend')), findsNothing);
+      await tester.tap(find.byKey(const Key('verify.signIn')));
+      await tester.tap(find.byKey(const Key('verify.signUp')));
+
+      expect(signedIn, 1);
+      expect(signedUp, 1);
+    });
+
     testWidgets('Given the screen is reached with no token '
         'When it opens '
         'Then nothing is verified and only a resend is offered', (

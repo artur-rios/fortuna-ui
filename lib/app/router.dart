@@ -116,6 +116,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.verifyEmail,
         builder: (context, state) => VerifyEmailScreen(
           token: state.uri.queryParameters[Routes.tokenParameter] ?? '',
+          onSignIn: () => context.go(Routes.signIn),
+          onSignUp: () => context.go(Routes.signUp),
         ),
       ),
       GoRoute(

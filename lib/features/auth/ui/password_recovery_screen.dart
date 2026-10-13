@@ -215,11 +215,24 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
 
 /// Step 7: verify an address, and ask for the message again.
 class VerifyEmailScreen extends ConsumerStatefulWidget {
-  const VerifyEmailScreen({this.token = '', super.key});
+  const VerifyEmailScreen({
+    this.token = '',
+    this.onSignIn,
+    this.onSignUp,
+    super.key,
+  });
 
-  /// From the verification link. Empty means the screen was reached directly,
-  /// in which case the only thing on offer is asking for a new message.
+  /// From the verification link. Empty means the screen was reached directly
+  /// (from the sign-in screen's resend action), in which case the only thing
+  /// on offer is asking for a new message.
   final String token;
+
+  /// Leaves for sign-in: the way forward once the account is confirmed, and
+  /// the way out when the link is refused.
+  final VoidCallback? onSignIn;
+
+  /// Leaves for sign-up, for a link that is bad, expired or used.
+  final VoidCallback? onSignUp;
 
   @override
   ConsumerState<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
@@ -311,12 +324,21 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           ),
         ],
 
-        if (state is RecoveryDone)
+        if (state is RecoveryDone) ...[
           _Notice(
             key: const Key('verify.done'),
             message: state.confirmation,
             tone: _Tone.neutral,
           ),
+          // The account exists and this screen is signed out, so the only way
+          // forward is to sign in; without it the user is left on a notice.
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('verify.signIn'),
+            onPressed: widget.onSignIn,
+            child: const Text('Sign in'),
+          ),
+        ],
 
         // AF-06. A rate limit is an answer, not a failure, and it reads as one.
         if (state is RecoveryRateLimited)
@@ -326,10 +348,30 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
             tone: _Tone.neutral,
           ),
 
-        if (state is RecoveryRefused)
+        if (state is RecoveryRefused) ...[
           _Notice(message: state.reason, tone: _Tone.error),
+          // A link that came with a token has nowhere else to go. Resending
+          // needs a session, which this anonymous screen does not have.
+          if (widget.token.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            FilledButton(
+              key: const Key('verify.signIn'),
+              onPressed: widget.onSignIn,
+              child: const Text('Sign in'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              key: const Key('verify.signUp'),
+              onPressed: widget.onSignUp,
+              child: const Text('Sign up again'),
+            ),
+          ],
+        ],
 
-        if (!asking) ...[
+        // Only for the screen reached without a link (the sign-in screen's
+        // "Resend the verification email"). With a token, the link is the
+        // subject, and a resend cannot work: it needs a session.
+        if (!asking && widget.token.isEmpty) ...[
           const SizedBox(height: 16),
           OutlinedButton(
             key: const Key('verify.resend'),
