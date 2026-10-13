@@ -766,3 +766,53 @@ gh pr create --repo artur-rios/fortuna-api --base develop --title "feat: registe
 ```
 
 Pushing and opening the PR are outward-facing: confirm with the user first.
+
+---
+
+## Amendment (2026-10-13): confirmation needs the sign-up password
+
+Heimdall's final design (spec §4.3a, as amended): self-registration never creates a `Person` directly. A free
+address gets a pending registration and a mailed link; following the link means
+`POST /api/auth/verify-email { token, password }`, and the **password chosen at sign-up is required**:
+missing → Heimdall **422** `"Enter the password you chose when you signed up to finish creating your account."`;
+wrong → Heimdall **401** `"That password does not match the one chosen when signing up."`; the 10th wrong
+password discards the registration (later attempts answer 400 like any invalid token). A plain
+verification token ignores `password`. fortuna-api today forwards only `token` and turns every verify-email
+failure into one generic `RequestRejected`, so the UI could never learn it must ask for the password.
+
+**Amended constraints (add to Global Constraints):**
+- fortuna-api's `POST /api/auth/verify-email` accepts an optional `password` and forwards it; it is never logged, echoed or stored.
+- Heimdall 422 on verify-email → fortuna-api **422** with exactly `"Enter the password you chose when you signed up to finish creating your account."`; Heimdall 401 on verify-email → fortuna-api **401** with exactly `"That password does not match the one chosen when signing up."`. Other verify-email outcomes are unchanged.
+- The 422 mapping is per-route (like Task 1's `forbidden`), so no other route can produce the new outcome.
+
+### Task 5: Forward the confirmation password on verify-email
+
+**Files:**
+- Modify: `src/Application/ArturRios.Fortuna.Shared/Security/IHeimdallAuthGateway.cs`, `src/Infrastructure/ArturRios.Fortuna.Integration/Security/HeimdallAuthGateway.cs`
+- Modify: `src/Application/ArturRios.Fortuna.Command/Input/HeimdallAuthCommands.cs`, `Handlers/HeimdallAuthCommandHandlers.cs`, `HeimdallAuthMessages.cs`
+- Modify: `src/Presentation/ArturRios.Fortuna.WebApi/Controllers/AuthController.cs`
+- Modify (stubs + tests): `HeimdallAuthCommandHandlerTests.cs`, `HeimdallCredentialCommandHandlerTests.cs`, `HeimdallAuthProxyTests.cs`, `HeimdallAuthGatewayTests.cs`
+- Modify: `docs/openapi/fortuna.json` (regenerated), `docs/requirements/*` (UC-81, FR-ID-48), `CHANGELOG.md`
+
+**Interfaces:**
+- Produces: `HeimdallAuthOutcome.PasswordRequired = 7`; `IHeimdallAuthGateway.VerifyEmailAsync(string token, string? password, CancellationToken)`; `VerifyEmailThroughApiCommand.Password : string?`; `HeimdallAuthMessages.ConfirmationPasswordRequired`, `ConfirmationPasswordIncorrect`.
+
+- [ ] **Step 1: Failing tests**
+  - Gateway: `VerifyEmailAsync("t", "pw", …)` posts `{"token":"t","password":"pw"}` to `/api/auth/verify-email`; Heimdall 422 → `PasswordRequired`; 401 → `Rejected`; 400 → `InvalidRequest`; the password never appears in the gateway log on a 500. A 422 on **another** route (e.g. password reset) still maps to `Unavailable`.
+  - Handler: `PasswordRequired` → error `ConfirmationPasswordRequired`; `Rejected` → `ConfirmationPasswordIncorrect`; `InvalidRequest` → `RequestRejected` (unchanged); success unchanged; the stub records the password passed through (and `null` when the request has none).
+  - Proxy: `{ token, password }` → gateway receives the password; stub `PasswordRequired` → 422 with the message; `Rejected` → 401 with the message; body never echoes the password.
+- [ ] **Step 2: Implement**
+  - `HeimdallAuthOutcome.PasswordRequired = 7` with a summary ("Heimdall needs the sign-up password to confirm a pending registration; only `VerifyEmailAsync` produces it").
+  - Gateway: `SendAsync` gains `HeimdallAuthOutcome unprocessable = HeimdallAuthOutcome.Unavailable` used for `HttpStatusCode.UnprocessableEntity`; `VerifyEmailAsync(token, password, ct)` posts `new { token, password }` with `unprocessable: HeimdallAuthOutcome.PasswordRequired`.
+  - `VerifyEmailThroughApiCommand.Password : string?` with a doc comment (read only for a sign-up confirmation link).
+  - Messages (exact): `ConfirmationPasswordRequired = "Enter the password you chose when you signed up to finish creating your account."`, `ConfirmationPasswordIncorrect = "That password does not match the one chosen when signing up."`.
+  - `VerifyEmailThroughApiCommandHandler`: `Succeeded` → as today; `PasswordRequired` → `ConfirmationPasswordRequired`; `Rejected` → `ConfirmationPasswordIncorrect` (Heimdall's verify-email answers 401 only for a wrong sign-up password); otherwise `Failure(outcome, RequestRejected)`.
+  - `AuthController.Statuses`: `[ConfirmationPasswordRequired] = 422`, `[ConfirmationPasswordIncorrect] = 401`.
+  - Update every `IHeimdallAuthGateway` stub's `VerifyEmailAsync` signature.
+- [ ] **Step 3: Docs** — UC-81 gains the confirmation flow (follow the link → verify-email with the sign-up password; 422 / 401 / 10th-wrong discard); **FR-ID-48** "The system shall forward the optional sign-up password on email verification and shall answer Heimdall's password-required and password-incorrect outcomes with 422 and 401 and their messages"; update FR ranges; the verify-email endpoint row mentions the optional `password`. Regenerate `docs/openapi/fortuna.json` (`python3 scripts/openapi.py`, then `--check`). CHANGELOG.
+- [ ] **Step 4: Verify and commit** — `dotnet test src/ArturRios.Fortuna.sln -m:1`.
+
+```bash
+git add src tests docs CHANGELOG.md
+git commit -m "feat: forward the sign-up password on verify" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
