@@ -15,6 +15,7 @@ import 'package:fortuna_ui/features/auth/data/credentials_repository.dart';
 import 'package:fortuna_ui/features/auth/data/google_identity.dart';
 import 'package:fortuna_ui/features/auth/data/registration_repository.dart';
 import 'package:fortuna_ui/features/auth/state/sign_in_controller.dart';
+import 'package:fortuna_ui/features/auth/state/sign_up_controller.dart';
 import 'package:fortuna_ui/features/auth/ui/sign_up_screen.dart';
 
 import 'google_sign_in_test.dart' show FakeGoogle;
@@ -212,6 +213,46 @@ void main() {
       expect(registration.calls, 1);
       pending.complete(const Success('Check your email.'));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('Given the request was accepted '
+        'When the form is shown again '
+        'Then name, address and password are no longer in the fields', (
+      tester,
+    ) async {
+      await pumpSignUp(tester, registration: FakeRegistration());
+      await fillForm(tester);
+      await tester.tap(find.byKey(const Key('signUp.submit')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('signUp.done')), findsOneWidget);
+
+      // The form is hidden while accepted; resetting brings the same fields
+      // back.
+      ProviderScope.containerOf(tester.element(find.byType(SignUpScreen)))
+          .invalidate(signUpControllerProvider);
+      await tester.pumpAndSettle();
+
+      for (final key in ['name', 'email', 'password']) {
+        final field = tester.widget<TextField>(find.byKey(Key('signUp.$key')));
+        expect(field.controller!.text, isEmpty, reason: key);
+      }
+    });
+
+    testWidgets('Given the fields hold what was typed '
+        'When the screen is replaced '
+        'Then they are cleared', (tester) async {
+      await pumpSignUp(tester, registration: FakeRegistration());
+      await fillForm(tester);
+      final controllers = [
+        for (final key in ['name', 'email', 'password'])
+          tester.widget<TextField>(find.byKey(Key('signUp.$key'))).controller!,
+      ];
+      expect(controllers.map((c) => c.text), everyElement(isNotEmpty));
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
+
+      expect(controllers.map((c) => c.text), everyElement(isEmpty));
     });
 
     testWidgets('Given Google is configured '

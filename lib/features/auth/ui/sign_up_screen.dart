@@ -90,6 +90,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(signUpControllerProvider);
+    // The request is made and the form is hidden; nothing typed into it,
+    // the password above all, needs to outlive that.
+    ref.listen(signUpControllerProvider, (_, next) {
+      if (next is SignUpAccepted) {
+        _name.clear();
+        _email.clear();
+        _password.clear();
+      }
+    });
     final google = ref.watch(signInControllerProvider);
     final googleAvailable = ref.watch(googleIdentityServiceProvider) != null;
     final busy = state.isBusy || google.isBusy;
