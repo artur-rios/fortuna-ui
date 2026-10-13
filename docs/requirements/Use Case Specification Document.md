@@ -1677,7 +1677,7 @@ graph LR
 | AF-01 | A field is empty, the name is longer than 200 characters, the address is implausible or longer than 256, or the password is shorter than 8 characters | Rejected in the form, under the field concerned; nothing is submitted |
 | AF-02 | The address already has an account | The same answer as a new address, shown as worded; the account's holder is emailed by the instance |
 | AF-03 | The API refuses the sign-up, for example because the instance does not accept new accounts | The system presents the API's reason as worded |
-| AF-04 | The instance or its identity service cannot be reached | The system presents the reason and offers a retry; the password is retyped, never replayed |
+| AF-04 | The instance or its identity service cannot be reached | The system presents the reason and offers a retry, which resubmits what is in the form; nothing is resubmitted without the user's action |
 | AF-05 | The user chooses Google, where Google sign-in is configured | UC-05 runs unchanged: a first Google sign-in creates the account. Where it is not configured the option is not offered |
 | AF-06 | Desktop offline mode | The link to sign-up is not offered; UC-06 creates the local account |
 | AF-07 | The confirmation password is wrong (401) | The API's message is shown under the password field and the form stays; the user may try again |
