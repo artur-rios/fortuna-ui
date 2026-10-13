@@ -456,6 +456,48 @@ void main() {
       expect(repository.verifications.last, (token: 'tok', password: ' nope '));
     });
 
+    test('Given a wrong password is on screen '
+        'When the user edits the field '
+        'Then the error clears and the prompt stays', () async {
+      final container = containerWith(
+        FakeRecovery(
+          onVerify: (_, password) => password == null
+              ? const Success(VerifyEmailPasswordNeeded(prompt))
+              : const Success(VerifyEmailPasswordWrong(wrong)),
+        ),
+      );
+      final controller = container.read(
+        accountRecoveryControllerProvider.notifier,
+      );
+      await controller.verifyEmail('tok');
+      await controller.confirmRegistration(token: 'tok', password: 'nope');
+
+      controller.clearConfirmationError();
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryNeedsPassword>());
+      expect((state as RecoveryNeedsPassword).message, prompt);
+      expect(state.error, isNull);
+    });
+
+    test('Given the screen is not asking for a password '
+        'When the user edits a field '
+        'Then the state is left alone', () async {
+      final container = containerWith(FakeRecovery());
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .verifyEmail('tok');
+
+      container
+          .read(accountRecoveryControllerProvider.notifier)
+          .clearConfirmationError();
+
+      expect(
+        container.read(accountRecoveryControllerProvider),
+        isA<RecoveryDone>(),
+      );
+    });
+
     test('Given the password is asked for '
         'When the right one is confirmed '
         'Then the account is done', () async {
@@ -968,6 +1010,131 @@ void main() {
 
       expect(signedIn, 1);
       expect(signedUp, 1);
+    });
+
+    group('the password field', () {
+      const wrong = 'That password does not match.';
+
+      FakeRecovery asking() => FakeRecovery(
+        onVerify: (_, password) => password == null
+            ? const Success(VerifyEmailPasswordNeeded('Enter your password.'))
+            : const Success(VerifyEmailPasswordWrong(wrong)),
+      );
+
+      FocusNode focusOfPassword(WidgetTester tester) => tester
+          .widget<EditableText>(
+            find.descendant(
+              of: find.byKey(const Key('verify.password')),
+              matching: find.byType(EditableText),
+            ),
+          )
+          .focusNode;
+
+      testWidgets('Given a wrong password was confirmed '
+          'When the form comes back '
+          'Then the field has focus with its text selected', (tester) async {
+        await pump(tester, asking(), const VerifyEmailScreen(token: 'tok'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key('verify.password')),
+          'nope',
+        );
+        // Moving away is what a tap on the button does.
+        focusOfPassword(tester).unfocus();
+        await tester.pump();
+        expect(focusOfPassword(tester).hasFocus, isFalse);
+
+        await tester.tap(find.byKey(const Key('verify.confirm')));
+        await tester.pumpAndSettle();
+
+        expect(focusOfPassword(tester).hasFocus, isTrue);
+        final field = tester.widget<TextField>(
+          find.byKey(const Key('verify.password')),
+        );
+        expect(
+          field.controller!.selection,
+          const TextSelection(baseOffset: 0, extentOffset: 4),
+        );
+      });
+
+      testWidgets('Given a wrong password is shown '
+          'When the user edits the field '
+          'Then its error clears', (tester) async {
+        await pump(tester, asking(), const VerifyEmailScreen(token: 'tok'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key('verify.password')),
+          'nope',
+        );
+        await tester.tap(find.byKey(const Key('verify.confirm')));
+        await tester.pumpAndSettle();
+        TextField field() =>
+            tester.widget<TextField>(find.byKey(const Key('verify.password')));
+        expect(field().decoration!.errorText, wrong);
+
+        await tester.enterText(
+          find.byKey(const Key('verify.password')),
+          'nope2',
+        );
+        await tester.pump();
+
+        expect(field().decoration!.errorText, isNull);
+        expect(find.byKey(const Key('verify.passwordNeeded')), findsOneWidget);
+      });
+
+      testWidgets('Given the password field '
+          'When the reveal toggle is tapped '
+          'Then the text is shown, and hidden again on a second tap', (
+        tester,
+      ) async {
+        await pump(tester, asking(), const VerifyEmailScreen(token: 'tok'));
+        await tester.pumpAndSettle();
+        bool obscured() => tester
+            .widget<TextField>(find.byKey(const Key('verify.password')))
+            .obscureText;
+        expect(obscured(), isTrue);
+
+        await tester.tap(find.byKey(const Key('verify.reveal')));
+        await tester.pump();
+        expect(obscured(), isFalse);
+
+        await tester.tap(find.byKey(const Key('verify.reveal')));
+        await tester.pump();
+        expect(obscured(), isTrue);
+      });
+
+      testWidgets('Given the account was created '
+          'When the form is shown again '
+          'Then the password is no longer in the field', (tester) async {
+        final repository = FakeRecovery(
+          onVerify: (_, password) => password == null
+              ? const Success(VerifyEmailPasswordNeeded('Enter your password.'))
+              : const Success(VerifyEmailConfirmed('Your account is ready.')),
+        );
+        await pump(tester, repository, const VerifyEmailScreen(token: 'tok'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key('verify.password')),
+          'right',
+        );
+        await tester.tap(find.byKey(const Key('verify.confirm')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('verify.done')), findsOneWidget);
+
+        // The field is gone while done; asking again brings the same one back.
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(VerifyEmailScreen)),
+        );
+        await container
+            .read(accountRecoveryControllerProvider.notifier)
+            .verifyEmail('tok');
+        await tester.pumpAndSettle();
+
+        final field = tester.widget<TextField>(
+          find.byKey(const Key('verify.password')),
+        );
+        expect(field.controller!.text, isEmpty);
+      });
     });
 
     testWidgets('Given the screen is reached with no token '

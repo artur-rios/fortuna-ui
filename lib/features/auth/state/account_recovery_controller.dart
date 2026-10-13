@@ -227,6 +227,16 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     state = _afterVerification(result, prompt: prompt);
   }
 
+  /// Drops the verdict on the last password tried, keeping the question, once
+  /// the user starts typing another: the complaint is about what they
+  /// changed.
+  void clearConfirmationError() {
+    final current = state;
+    if (current is RecoveryNeedsPassword && current.error != null) {
+      state = RecoveryNeedsPassword(current.message);
+    }
+  }
+
   static const _incompleteVerificationLink = RecoveryRefused(
     'This verification link is incomplete. Request a new one.',
     canRequestAnother: true,

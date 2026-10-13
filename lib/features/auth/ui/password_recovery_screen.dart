@@ -240,6 +240,8 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
 
 class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   final _password = TextEditingController();
+  final _passwordFocus = FocusNode();
+  var _obscured = true;
 
   /// The question being asked, kept while the answer is in flight so the form
   /// stays on screen (disabled) instead of vanishing and coming back.
@@ -249,7 +251,28 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   void dispose() {
     _password.clear();
     _password.dispose();
+    _passwordFocus.dispose();
     super.dispose();
+  }
+
+  void _onStateChanged(RecoveryState? _, RecoveryState next) {
+    // The password has done its job; do not keep it for the life of the screen.
+    if (next is RecoveryDone) _password.clear();
+
+    // A refused password leaves the field disabled for the round trip and
+    // unfocused after it. Put the cursor back, with the attempt selected so the
+    // next keystroke replaces it. After the frame, because the field is still
+    // disabled while this state is being delivered.
+    if (next is RecoveryNeedsPassword && next.error != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _passwordFocus.requestFocus();
+        _password.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _password.text.length,
+        );
+      });
+    }
   }
 
   void _confirm() {
@@ -278,6 +301,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(accountRecoveryControllerProvider);
+    ref.listen(accountRecoveryControllerProvider, _onStateChanged);
 
     if (state is RecoveryNeedsPassword) {
       _prompt = state.message;
@@ -304,14 +328,28 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           TextField(
             key: const Key('verify.password'),
             controller: _password,
+            focusNode: _passwordFocus,
             autofocus: true,
             enabled: !state.isBusy,
-            obscureText: true,
+            obscureText: _obscured,
             decoration: InputDecoration(
               labelText: 'Password',
               border: const OutlineInputBorder(),
               errorText: state is RecoveryNeedsPassword ? state.error : null,
+              suffixIcon: IconButton(
+                key: const Key('verify.reveal'),
+                onPressed: () => setState(() => _obscured = !_obscured),
+                icon: Icon(
+                  _obscured
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+                tooltip: _obscured ? 'Show password' : 'Hide password',
+              ),
             ),
+            onChanged: (_) => ref
+                .read(accountRecoveryControllerProvider.notifier)
+                .clearConfirmationError(),
             onSubmitted: (_) => state.isBusy ? null : _confirm(),
           ),
           const SizedBox(height: 16),
