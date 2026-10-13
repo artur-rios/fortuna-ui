@@ -2868,3 +2868,5 @@ All in one dispatch; each item names its finding.
   - Data Retention: "four tables"; the pending row keeps the salt.
   - Regenerate `docs/openapi/heimdall.json`; `--check` exits 0. CHANGELOG `Unreleased`: confirmation requires the sign-up password.
 - [ ] **Verify and commit.** `dotnet test src/ArturRios.Heimdall.sln` (only the known `DataRetentionOptionsTests "0.5"` failure). Commits split sensibly (`feat:`/`fix:`/`test:`/`docs:`), each with the trailer.
+- [ ] **Task 10 review, Important — cap wrong confirmation passwords.** `PendingRegistration.FailedAttempts`; increment on `PasswordIncorrect`; delete the row on the 10th (login's lockout threshold); that attempt still answers `PasswordIncorrect`, later ones `TokenInvalid`. Tests and docs (FR-SR-09, UC-47 AF, Threat Model).
+- [ ] **Task 10 review, Minor —** correct the confirmer's "none is thrown" remark; the no-password functional test omits the field entirely.
