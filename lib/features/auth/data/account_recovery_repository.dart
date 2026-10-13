@@ -9,9 +9,41 @@ library;
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fortuna_api_client/export.dart';
+import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/result/result.dart';
+
+/// What the API said about a verification link, when the link itself was good.
+///
+/// A link from a sign-up (rather than from an existing account's address
+/// change) creates the account only once the password chosen at sign-up is
+/// repeated, so "the link is good" has three answers, not one.
+@immutable
+sealed class VerifyEmailAnswer {
+  const VerifyEmailAnswer(this.message);
+
+  /// The API's own wording.
+  final String message;
+}
+
+/// `200`: verified, or the account was created.
+@immutable
+final class VerifyEmailConfirmed extends VerifyEmailAnswer {
+  const VerifyEmailConfirmed(super.message);
+}
+
+/// `422`: a sign-up link, sent without the password it requires.
+@immutable
+final class VerifyEmailPasswordNeeded extends VerifyEmailAnswer {
+  const VerifyEmailPasswordNeeded(super.message);
+}
+
+/// `401`: a sign-up link, sent with a password that is not the chosen one.
+@immutable
+final class VerifyEmailPasswordWrong extends VerifyEmailAnswer {
+  const VerifyEmailPasswordWrong(super.message);
+}
 
 abstract interface class AccountRecoveryRepository {
   /// Asks for a password-reset message (`UC-09` steps 1-3).
@@ -24,7 +56,13 @@ abstract interface class AccountRecoveryRepository {
   });
 
   /// Verifies an address with the token from its message (`UC-09` step 7).
-  Future<Result<String>> verifyEmail(String token);
+  ///
+  /// A token that came from signing up also needs the [password] chosen
+  /// there; without it the answer is [VerifyEmailPasswordNeeded].
+  Future<Result<VerifyEmailAnswer>> verifyEmail(
+    String token, {
+    String? password,
+  });
 
   /// Asks for the verification message again.
   ///
@@ -94,17 +132,35 @@ class HttpAccountRecoveryRepository implements AccountRecoveryRepository {
   }
 
   @override
-  Future<Result<String>> verifyEmail(String token) async {
+  Future<Result<VerifyEmailAnswer>> verifyEmail(
+    String token, {
+    String? password,
+  }) async {
     try {
       final response = await _client.postApiAuthVerifyEmail(
-        body: VerifyEmailThroughApiCommand(token: token),
+        body: VerifyEmailThroughApiCommand(token: token, password: password),
       );
 
       return Success(
-        _messageOr(response.messages, 'Your email address is verified.'),
+        VerifyEmailConfirmed(
+          _messageOr(response.messages, 'Your email address is verified.'),
+        ),
       );
     } on DioException catch (exception) {
-      return failureFromDioException<String>(exception);
+      final status = exception.response?.statusCode;
+      final failure = failureFromDioException<VerifyEmailAnswer>(exception);
+
+      // 422 and 401 are answers here, not failures. Both mean the link is
+      // good and the password is the question: 422 "you did not give one",
+      // 401 "that is not the one you chose". Reading them as failures would
+      // fold both into invalidInput/unauthenticated and lose the difference
+      // between "ask" and "ask again". A 400 — a bad, expired or used link, or
+      // the tenth wrong password — stays a failure.
+      return switch (status) {
+        422 => Success(VerifyEmailPasswordNeeded(failure.message)),
+        401 => Success(VerifyEmailPasswordWrong(failure.message)),
+        _ => failure,
+      };
     }
   }
 

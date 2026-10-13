@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_api_client/export.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/features/auth/data/account_recovery_repository.dart';
 import 'package:fortuna_ui/features/auth/state/account_recovery_controller.dart';
@@ -11,12 +16,13 @@ class FakeRecovery implements AccountRecoveryRepository {
 
   Result<String> Function(String email)? onRequest;
   Result<String> Function(String token, String newPassword)? onReset;
-  Result<String> Function(String token)? onVerify;
+  Result<VerifyEmailAnswer> Function(String token, String? password)? onVerify;
   Result<String> Function()? onResend;
 
   final List<String> requested = [];
   final List<({String token, String password})> resets = [];
   final List<String> verified = [];
+  final List<({String token, String? password})> verifications = [];
   int resends = 0;
 
   @override
@@ -35,9 +41,14 @@ class FakeRecovery implements AccountRecoveryRepository {
   }
 
   @override
-  Future<Result<String>> verifyEmail(String token) async {
+  Future<Result<VerifyEmailAnswer>> verifyEmail(
+    String token, {
+    String? password,
+  }) async {
     verified.add(token);
-    return onVerify?.call(token) ?? const Success('verified');
+    verifications.add((token: token, password: password));
+    return onVerify?.call(token, password) ??
+        const Success(VerifyEmailConfirmed('verified'));
   }
 
   @override
@@ -46,6 +57,42 @@ class FakeRecovery implements AccountRecoveryRepository {
     return onResend?.call() ?? const Success('sent again');
   }
 }
+
+/// Answers from memory and remembers what it was sent.
+class _Adapter implements HttpClientAdapter {
+  _Adapter(this.status, this.body);
+
+  final int status;
+  final String body;
+  RequestOptions? request;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    request = options;
+    return ResponseBody.fromString(
+      body,
+      status,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+HttpAccountRecoveryRepository _repository(_Adapter adapter) =>
+    HttpAccountRecoveryRepository(
+      AuthClient(
+        Dio(BaseOptions(baseUrl: 'https://fortuna.example'))
+          ..httpClientAdapter = adapter,
+      ),
+    );
 
 ProviderContainer containerWith(FakeRecovery repository) {
   final container = ProviderContainer(
@@ -253,7 +300,10 @@ void main() {
         'When it is submitted '
         "Then the API's outcome is reported (UC-09 step 7)", () async {
       final container = containerWith(
-        FakeRecovery(onVerify: (_) => const Success('Address verified.')),
+        FakeRecovery(
+          onVerify: (_, _) =>
+              const Success(VerifyEmailConfirmed('Address verified.')),
+        ),
       );
 
       await container
@@ -271,7 +321,7 @@ void main() {
         'Then a new message can be requested (UC-09 AF-03)', () async {
       final container = containerWith(
         FakeRecovery(
-          onVerify: (_) => const Failure(
+          onVerify: (_, _) => const Failure(
             message: 'That verification link has expired.',
             kind: FailureKind.notFound,
           ),
@@ -313,6 +363,243 @@ void main() {
         );
         expect(state.message, 'Wait a minute before asking again.');
       }
+    });
+  });
+
+  group('verifyEmail for a sign-up link', () {
+    const prompt =
+        'Enter the password you chose when you signed up to finish creating '
+        'your account.';
+    const wrong =
+        'That password does not match the one chosen when signing up.';
+
+    Result<VerifyEmailAnswer> needsPassword(String token, String? password) =>
+        password == null
+        ? const Success(VerifyEmailPasswordNeeded(prompt))
+        : const Success(VerifyEmailConfirmed('Your account is ready.'));
+
+    test('Given a plain verification token '
+        'When the API confirms '
+        'Then the screen is done', () async {
+      final container = containerWith(
+        FakeRecovery(
+          onVerify: (_, _) =>
+              const Success(VerifyEmailConfirmed('Address verified.')),
+        ),
+      );
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .verifyEmail('tok');
+
+      expect(
+        container.read(accountRecoveryControllerProvider),
+        isA<RecoveryDone>(),
+      );
+    });
+
+    test('Given a sign-up token sent without a password '
+        'When the API asks for it '
+        'Then the password is asked for, with no error yet', () async {
+      final container = containerWith(FakeRecovery(onVerify: needsPassword));
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .verifyEmail('tok');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryNeedsPassword>());
+      expect((state as RecoveryNeedsPassword).message, prompt);
+      expect(state.error, isNull);
+    });
+
+    test('Given the password is asked for '
+        'When a wrong one is confirmed '
+        'Then it was sent, and the prompt stays with the API reason as the '
+        'error', () async {
+      final repository = FakeRecovery(
+        onVerify: (_, password) => password == null
+            ? const Success(VerifyEmailPasswordNeeded(prompt))
+            : const Success(VerifyEmailPasswordWrong(wrong)),
+      );
+      final container = containerWith(repository);
+      final controller = container.read(
+        accountRecoveryControllerProvider.notifier,
+      );
+
+      await controller.verifyEmail('tok');
+      await controller.confirmRegistration(token: 'tok', password: ' nope ');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryNeedsPassword>());
+      expect((state as RecoveryNeedsPassword).message, prompt);
+      expect(state.error, wrong);
+      // Not trimmed: a password is exactly what was typed.
+      expect(repository.verifications.last, (token: 'tok', password: ' nope '));
+    });
+
+    test('Given the password is asked for '
+        'When the right one is confirmed '
+        'Then the account is done', () async {
+      final container = containerWith(FakeRecovery(onVerify: needsPassword));
+      final controller = container.read(
+        accountRecoveryControllerProvider.notifier,
+      );
+
+      await controller.verifyEmail('tok');
+      await controller.confirmRegistration(token: 'tok', password: 'right');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryDone>());
+      expect(state.message, 'Your account is ready.');
+    });
+
+    test('Given the password is asked for '
+        'When an empty one is confirmed '
+        'Then the form says so and nothing is sent', () async {
+      final repository = FakeRecovery(onVerify: needsPassword);
+      final container = containerWith(repository);
+      final controller = container.read(
+        accountRecoveryControllerProvider.notifier,
+      );
+
+      await controller.verifyEmail('tok');
+      await controller.confirmRegistration(token: 'tok', password: '');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryNeedsPassword>());
+      expect((state as RecoveryNeedsPassword).message, prompt);
+      expect(state.error, 'Enter your password.');
+      expect(repository.verifications, hasLength(1));
+    });
+
+    test('Given a link the API rejects as bad '
+        'When it answers 400 '
+        'Then the reason carries the sign-up hint', () async {
+      final container = containerWith(
+        FakeRecovery(
+          onVerify: (_, _) => const Failure(
+            message: 'That link is no longer valid.',
+            kind: FailureKind.invalidInput,
+          ),
+        ),
+      );
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .verifyEmail('tok');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryRefused>());
+      expect(
+        state.message,
+        'That link is no longer valid. If this link came from signing up, '
+        'sign up again — or sign in if you already finished.',
+      );
+      expect((state as RecoveryRefused).canRequestAnother, isTrue);
+    });
+  });
+
+  group('HttpAccountRecoveryRepository.verifyEmail', () {
+    Map<String, Object?> envelope({
+      required bool success,
+      List<String> messages = const [],
+      List<String> errors = const [],
+    }) => {
+      'success': success,
+      'data': <String, Object?>{},
+      'messages': messages,
+      'errors': errors,
+    };
+
+    test('Given the API accepts '
+        'When verifying a plain token '
+        'Then it is confirmed with the API message and no password is '
+        'sent', () async {
+      final adapter = _Adapter(
+        200,
+        jsonEncode(envelope(success: true, messages: ['Verified.'])),
+      );
+
+      final result = await _repository(adapter).verifyEmail('tok');
+
+      expect(result, isA<Success<VerifyEmailAnswer>>());
+      final answer = (result as Success<VerifyEmailAnswer>).value;
+      expect(answer, isA<VerifyEmailConfirmed>());
+      expect(answer.message, 'Verified.');
+      expect(adapter.request!.path, endsWith('/api/auth/verify-email'));
+      final sent = jsonDecode(jsonEncode(adapter.request!.data)) as Map;
+      expect(sent['token'], 'tok');
+      // The generated command writes an unset password as an explicit null,
+      // which the API reads the same as an absent one.
+      expect(sent['password'], isNull);
+    });
+
+    test('Given the API accepts '
+        'When a password is given '
+        'Then the request carries it', () async {
+      final adapter = _Adapter(
+        200,
+        jsonEncode(envelope(success: true, messages: ['Created.'])),
+      );
+
+      await _repository(adapter).verifyEmail('tok', password: 'secret');
+
+      final sent = jsonDecode(jsonEncode(adapter.request!.data)) as Map;
+      expect(sent['token'], 'tok');
+      expect(sent['password'], 'secret');
+    });
+
+    test('Given a sign-up token without a password '
+        'When the API answers 422 '
+        'Then the password is needed, as an answer', () async {
+      final adapter = _Adapter(
+        422,
+        jsonEncode(envelope(success: false, errors: ['Enter it.'])),
+      );
+
+      final result = await _repository(adapter).verifyEmail('tok');
+
+      expect(result, isA<Success<VerifyEmailAnswer>>());
+      final answer = (result as Success<VerifyEmailAnswer>).value;
+      expect(answer, isA<VerifyEmailPasswordNeeded>());
+      expect(answer.message, 'Enter it.');
+    });
+
+    test('Given a sign-up token with the wrong password '
+        'When the API answers 401 '
+        'Then the password is wrong, as an answer', () async {
+      final adapter = _Adapter(
+        401,
+        jsonEncode(envelope(success: false, errors: ['Does not match.'])),
+      );
+
+      final result = await _repository(adapter)
+          .verifyEmail('tok', password: 'nope');
+
+      expect(result, isA<Success<VerifyEmailAnswer>>());
+      final answer = (result as Success<VerifyEmailAnswer>).value;
+      expect(answer, isA<VerifyEmailPasswordWrong>());
+      expect(answer.message, 'Does not match.');
+    });
+
+    test('Given a bad, expired or used link '
+        'When the API answers 400 '
+        'Then it is a failure', () async {
+      final adapter = _Adapter(
+        400,
+        jsonEncode(envelope(success: false, errors: ['Bad link.'])),
+      );
+
+      final result = await _repository(adapter).verifyEmail('tok');
+
+      expect(
+        result,
+        const Failure<VerifyEmailAnswer>(
+          message: 'Bad link.',
+          kind: FailureKind.invalidInput,
+        ),
+      );
     });
   });
 
@@ -393,13 +680,85 @@ void main() {
       tester,
     ) async {
       final repository = FakeRecovery(
-        onVerify: (_) => const Success('Address verified.'),
+        onVerify: (_, _) =>
+            const Success(VerifyEmailConfirmed('Address verified.')),
       );
       await pump(tester, repository, const VerifyEmailScreen(token: 'tok'));
       await tester.pumpAndSettle();
 
       expect(repository.verified, ['tok']);
       expect(find.text('Address verified.'), findsOneWidget);
+    });
+
+    testWidgets('Given a sign-up link '
+        'When the API asks for the password '
+        'Then the form is shown and nothing is submitted a second time by '
+        'itself', (tester) async {
+      final repository = FakeRecovery(
+        onVerify: (_, _) =>
+            const Success(VerifyEmailPasswordNeeded('Enter your password.')),
+      );
+      await pump(tester, repository, const VerifyEmailScreen(token: 'tok'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('verify.passwordNeeded')), findsOneWidget);
+      expect(find.byKey(const Key('verify.confirm')), findsOneWidget);
+      final field = tester.widget<TextField>(
+        find.byKey(const Key('verify.password')),
+      );
+      expect(field.obscureText, isTrue);
+      expect(find.byKey(const Key('verify.resend')), findsNothing);
+      expect(repository.verifications, hasLength(1));
+      expect(repository.verifications.single.password, isNull);
+    });
+
+    testWidgets('Given the password form is shown '
+        'When the right password is confirmed '
+        'Then {token, password} is submitted once and the account is '
+        'done', (tester) async {
+      final repository = FakeRecovery(
+        onVerify: (_, password) => password == null
+            ? const Success(VerifyEmailPasswordNeeded('Enter your password.'))
+            : const Success(VerifyEmailConfirmed('Your account is ready.')),
+      );
+      await pump(tester, repository, const VerifyEmailScreen(token: 'tok'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('verify.password')), 'right');
+      await tester.tap(find.byKey(const Key('verify.confirm')));
+      await tester.pumpAndSettle();
+
+      expect(repository.verifications, hasLength(2));
+      expect(repository.verifications.last, (token: 'tok', password: 'right'));
+      expect(find.byKey(const Key('verify.done')), findsOneWidget);
+      expect(find.text('Your account is ready.'), findsOneWidget);
+    });
+
+    testWidgets('Given the password form is shown '
+        'When a wrong password is confirmed '
+        "Then the API's message is the field's error and the form stays", (
+      tester,
+    ) async {
+      const wrong = 'That password does not match.';
+      final repository = FakeRecovery(
+        onVerify: (_, password) => password == null
+            ? const Success(VerifyEmailPasswordNeeded('Enter your password.'))
+            : const Success(VerifyEmailPasswordWrong(wrong)),
+      );
+      await pump(tester, repository, const VerifyEmailScreen(token: 'tok'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('verify.password')), 'nope');
+      await tester.tap(find.byKey(const Key('verify.confirm')));
+      await tester.pumpAndSettle();
+
+      final field = tester.widget<TextField>(
+        find.byKey(const Key('verify.password')),
+      );
+      expect(field.decoration!.errorText, wrong);
+      expect(find.byKey(const Key('verify.confirm')), findsOneWidget);
+      expect(find.byKey(const Key('verify.passwordNeeded')), findsOneWidget);
+      expect(find.byKey(const Key('verify.resend')), findsNothing);
     });
 
     testWidgets('Given the screen is reached with no token '

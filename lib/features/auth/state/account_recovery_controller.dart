@@ -32,6 +32,7 @@ sealed class RecoveryState {
     RecoveryRefused(:final reason) => reason,
     RecoveryRateLimited(:final reason) => reason,
     RecoveryDone(:final confirmation) => confirmation,
+    RecoveryNeedsPassword(:final message) => message,
     RecoveryIdle() || RecoveryWorking() => null,
   };
 }
@@ -79,6 +80,18 @@ final class RecoveryDone extends RecoveryState {
   const RecoveryDone(this.confirmation);
 
   final String confirmation;
+}
+
+/// A sign-up link is good, and the password chosen at sign-up is wanted before
+/// the account is created. [message] is the question; [error] is the API's
+/// verdict on the last password tried, if any.
+@immutable
+final class RecoveryNeedsPassword extends RecoveryState {
+  const RecoveryNeedsPassword(this.message, {this.error});
+
+  @override
+  final String message;
+  final String? error;
 }
 
 final accountRecoveryControllerProvider =
@@ -181,15 +194,71 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
         .read(accountRecoveryRepositoryProvider)
         .verifyEmail(token.trim());
 
-    state = switch (result) {
-      Success<String>(:final value) => RecoveryDone(value),
-      Failure<String>(:final message) => RecoveryRefused(
-        message,
-        // AF-03: a verification token that is dead can always be replaced.
-        canRequestAnother: true,
-      ),
-    };
+    state = _afterVerification(result, prompt: null);
   }
+
+  /// Finishes a sign-up: the link is good, and the password chosen when
+  /// signing up is the last thing standing between it and an account.
+  ///
+  /// The password is passed through and never stored; only the prompt and the
+  /// API's verdict on the last attempt are kept in state.
+  Future<void> confirmRegistration({
+    required String token,
+    required String password,
+  }) async {
+    final current = state;
+    final prompt = current is RecoveryNeedsPassword
+        ? current.message
+        : _defaultPasswordPrompt;
+
+    if (password.isEmpty) {
+      state = RecoveryNeedsPassword(prompt, error: 'Enter your password.');
+      return;
+    }
+
+    state = const RecoveryWorking();
+
+    final result = await ref
+        .read(accountRecoveryRepositoryProvider)
+        .verifyEmail(token.trim(), password: password);
+
+    state = _afterVerification(result, prompt: prompt);
+  }
+
+  static const _defaultPasswordPrompt =
+      'Enter the password you chose when you signed up to finish creating '
+      'your account.';
+
+  /// Appended to a refused link, because the same endpoint serves both an
+  /// address change and a sign-up and the API's wording cannot say which.
+  static const _signUpHint =
+      'If this link came from signing up, sign up again — or sign in if you '
+      'already finished.';
+
+  /// [prompt] is the question already on screen, kept when the answer is a
+  /// wrong password so that a retry does not replace it.
+  RecoveryState _afterVerification(
+    Result<VerifyEmailAnswer> result, {
+    required String? prompt,
+  }) => switch (result) {
+    Success<VerifyEmailAnswer>(:final value) => switch (value) {
+      VerifyEmailConfirmed(:final message) => RecoveryDone(message),
+      VerifyEmailPasswordNeeded(:final message) => RecoveryNeedsPassword(
+        message,
+      ),
+      // Without a password in the request the API cannot say "wrong"; if it
+      // does anyway, asking again is still the right response.
+      VerifyEmailPasswordWrong(:final message) =>
+        prompt == null
+            ? RecoveryNeedsPassword(message)
+            : RecoveryNeedsPassword(prompt, error: message),
+    },
+    Failure<VerifyEmailAnswer>(:final message) => RecoveryRefused(
+      '$message $_signUpHint',
+      // AF-03: a verification token that is dead can always be replaced.
+      canRequestAnother: true,
+    ),
+  };
 
   /// Asks for the verification message again.
   Future<void> resendVerification() async {

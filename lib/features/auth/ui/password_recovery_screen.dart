@@ -226,6 +226,27 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
 }
 
 class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
+  final _password = TextEditingController();
+
+  /// The question being asked, kept while the answer is in flight so the form
+  /// stays on screen (disabled) instead of vanishing and coming back.
+  String? _prompt;
+
+  @override
+  void dispose() {
+    _password.clear();
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _confirm() {
+    unawaited(
+      ref
+          .read(accountRecoveryControllerProvider.notifier)
+          .confirmRegistration(token: widget.token, password: _password.text),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -245,10 +266,50 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(accountRecoveryControllerProvider);
 
+    if (state is RecoveryNeedsPassword) {
+      _prompt = state.message;
+    } else if (!state.isBusy) {
+      _prompt = null;
+    }
+    final prompt = _prompt;
+    final asking = prompt != null;
+
     return _Frame(
       title: 'Verify your email address',
       children: [
-        if (state.isBusy) const Center(child: _Spinner()),
+        if (state.isBusy && !asking) const Center(child: _Spinner()),
+
+        // A sign-up link: the account is created only on an explicit tap, so
+        // nothing here submits by itself.
+        if (asking) ...[
+          _Notice(
+            key: const Key('verify.passwordNeeded'),
+            message: prompt,
+            tone: _Tone.neutral,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            key: const Key('verify.password'),
+            controller: _password,
+            autofocus: true,
+            enabled: !state.isBusy,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: const OutlineInputBorder(),
+              errorText: state is RecoveryNeedsPassword ? state.error : null,
+            ),
+            onSubmitted: (_) => state.isBusy ? null : _confirm(),
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('verify.confirm'),
+            onPressed: state.isBusy ? null : _confirm,
+            child: state.isBusy
+                ? const _Spinner()
+                : const Text('Create my account'),
+          ),
+        ],
 
         if (state is RecoveryDone)
           _Notice(
@@ -268,18 +329,20 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
         if (state is RecoveryRefused)
           _Notice(message: state.reason, tone: _Tone.error),
 
-        const SizedBox(height: 16),
-        OutlinedButton(
-          key: const Key('verify.resend'),
-          onPressed: state.isBusy
-              ? null
-              : () => unawaited(
-                  ref
-                      .read(accountRecoveryControllerProvider.notifier)
-                      .resendVerification(),
-                ),
-          child: const Text('Send the verification email again'),
-        ),
+        if (!asking) ...[
+          const SizedBox(height: 16),
+          OutlinedButton(
+            key: const Key('verify.resend'),
+            onPressed: state.isBusy
+                ? null
+                : () => unawaited(
+                    ref
+                        .read(accountRecoveryControllerProvider.notifier)
+                        .resendVerification(),
+                  ),
+            child: const Text('Send the verification email again'),
+          ),
+        ],
       ],
     );
   }
