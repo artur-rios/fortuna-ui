@@ -52,7 +52,7 @@ class HttpRegistrationRepository implements RegistrationRepository {
 
       return Success(
         message.isEmpty
-            ? 'If this address can be registered, we have sent it an email. '
+            ? "If this address can be registered, we've sent it an email. "
                   'Follow it, then sign in.'
             : message,
       );

@@ -73,6 +73,34 @@ void main() {
       expect(sent['password'], 'a-long-secret');
     });
 
+    test('Given the API accepts with no message '
+        'When registering '
+        "Then the API's own wording is the fallback", () async {
+      final adapter = _Adapter(
+        202,
+        jsonEncode({
+          'success': true,
+          'data': <String, Object?>{},
+          'messages': <String>[],
+          'errors': <String>[],
+        }),
+      );
+
+      final result = await _repository(adapter).register(
+        name: 'New Person',
+        email: 'new@example.com',
+        password: 'a-long-secret',
+      );
+
+      expect(
+        result,
+        const Success(
+          "If this address can be registered, we've sent it an email. "
+          'Follow it, then sign in.',
+        ),
+      );
+    });
+
     test('Given the scope is closed '
         'When registering '
         'Then the API reason is returned as forbidden', () async {
