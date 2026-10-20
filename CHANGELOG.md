@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-20
+
 ### Added
 
 - UC-47: "New to Fortuna? Create an account" on the sign-in screen opens a sign-up screen offering Google, where
@@ -82,5 +84,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The bindings generator reports how many routes it wrote, instead of printing the literal
   `${matches.length}`.
 
-[Unreleased]: https://github.com/artur-rios/fortuna-ui/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/artur-rios/fortuna-ui/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/artur-rios/fortuna-ui/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/artur-rios/fortuna-ui/releases/tag/v1.0.0
