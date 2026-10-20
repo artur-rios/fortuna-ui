@@ -106,6 +106,95 @@
         },
         "type": "object"
       },
+      "AttachmentOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "contentType": {
+            "nullable": true,
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fileName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "sizeInBytes": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "transactionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AttachmentOutputPaginatedOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/AttachmentOutput"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "pageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "totalItems": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "AuditEntryOutput": {
         "additionalProperties": false,
         "properties": {
@@ -601,6 +690,23 @@
             },
             "nullable": true,
             "type": "array"
+          },
+          "pageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalItems": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -824,6 +930,16 @@
           "flatReason": {
             "nullable": true,
             "type": "string"
+          },
+          "isFullyConverted": {
+            "type": "boolean"
+          },
+          "missingRates": {
+            "items": {
+              "$ref": "#/components/schemas/MissingExchangeRateOutput"
+            },
+            "nullable": true,
+            "type": "array"
           },
           "periodicity": {
             "$ref": "#/components/schemas/CashFlowPeriodicity"
@@ -1180,6 +1296,13 @@
           "items": {
             "items": {
               "$ref": "#/components/schemas/CommittedObligationOutput"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "missingRates": {
+            "items": {
+              "$ref": "#/components/schemas/MissingExchangeRateOutput"
             },
             "nullable": true,
             "type": "array"
@@ -1594,6 +1717,13 @@
           "isFullyConverted": {
             "type": "boolean"
           },
+          "missingRates": {
+            "items": {
+              "$ref": "#/components/schemas/MissingExchangeRateOutput"
+            },
+            "nullable": true,
+            "type": "array"
+          },
           "total": {
             "format": "decimal",
             "nullable": true,
@@ -1794,6 +1924,23 @@
             },
             "nullable": true,
             "type": "array"
+          },
+          "pageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalItems": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -2608,6 +2755,9 @@
           "id": {
             "format": "uuid",
             "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
           },
           "issuer": {
             "nullable": true,
@@ -3932,6 +4082,23 @@
             },
             "nullable": true,
             "type": "array"
+          },
+          "pageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalItems": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -5194,6 +5361,9 @@
           "investmentType": {
             "$ref": "#/components/schemas/InvestmentType"
           },
+          "isDeleted": {
+            "type": "boolean"
+          },
           "isIndependentlyValued": {
             "type": "boolean"
           },
@@ -5647,6 +5817,20 @@
         },
         "type": "object"
       },
+      "MissingExchangeRateOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "baseCurrencyCode": {
+            "nullable": true,
+            "type": "string"
+          },
+          "quoteCurrencyCode": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "NetPositionCurrencyOutput": {
         "additionalProperties": false,
         "properties": {
@@ -5722,6 +5906,13 @@
           "isFullyConverted": {
             "type": "boolean"
           },
+          "missingRates": {
+            "items": {
+              "$ref": "#/components/schemas/MissingExchangeRateOutput"
+            },
+            "nullable": true,
+            "type": "array"
+          },
           "total": {
             "format": "decimal",
             "nullable": true,
@@ -5765,9 +5956,7 @@
       "ObjectDataOutput": {
         "additionalProperties": false,
         "properties": {
-          "data": {
-            "nullable": true
-          },
+          "data": {},
           "errors": {
             "items": {
               "type": "string"
@@ -7291,6 +7480,9 @@
             "format": "uuid",
             "type": "string"
           },
+          "isDeleted": {
+            "type": "boolean"
+          },
           "lastMaterializedOn": {
             "format": "date",
             "nullable": true,
@@ -7342,6 +7534,58 @@
           "timestamp": {
             "format": "date-time",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RecurringTransactionOutputPaginatedOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/RecurringTransactionOutput"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "pageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "totalItems": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -7436,6 +7680,59 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/RegenerateRecoveryCodesThroughApiCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RegisterThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "password": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RegisterThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "RegisterThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RegisterThroughApiCommandOutput"
           },
           "errors": {
             "items": {
@@ -7641,6 +7938,51 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/RequestPersonalDataExportCommandOutput"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
+          "success": {
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResendTwoFactorChallengeCodeThroughApiCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "challengeToken": {
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResendTwoFactorChallengeCodeThroughApiCommandOutput": {
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ResendTwoFactorChallengeCodeThroughApiCommandOutput"
           },
           "errors": {
             "items": {
@@ -8314,6 +8656,13 @@
             "nullable": true,
             "type": "array"
           },
+          "missingRates": {
+            "items": {
+              "$ref": "#/components/schemas/MissingExchangeRateOutput"
+            },
+            "nullable": true,
+            "type": "array"
+          },
           "pageNumber": {
             "format": "int32",
             "type": "integer"
@@ -8529,12 +8878,29 @@
       "TagListOutput": {
         "additionalProperties": false,
         "properties": {
+          "pageNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
           "tags": {
             "items": {
               "$ref": "#/components/schemas/TagOutput"
             },
             "nullable": true,
             "type": "array"
+          },
+          "totalItems": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalPages": {
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -8712,6 +9078,13 @@
           },
           "isFullyConverted": {
             "type": "boolean"
+          },
+          "missingRates": {
+            "items": {
+              "$ref": "#/components/schemas/MissingExchangeRateOutput"
+            },
+            "nullable": true,
+            "type": "array"
           },
           "to": {
             "format": "date",
@@ -9376,6 +9749,16 @@
             "nullable": true,
             "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
             "type": "string"
+          },
+          "isFullyConverted": {
+            "type": "boolean"
+          },
+          "missingRates": {
+            "items": {
+              "$ref": "#/components/schemas/MissingExchangeRateOutput"
+            },
+            "nullable": true,
+            "type": "array"
           }
         },
         "type": "object"
@@ -10469,6 +10852,10 @@
       "VerifyEmailThroughApiCommand": {
         "additionalProperties": false,
         "properties": {
+          "password": {
+            "nullable": true,
+            "type": "string"
+          },
           "token": {
             "nullable": true,
             "type": "string"
@@ -11277,6 +11664,54 @@
         ]
       }
     },
+    "/api/auth/2fa/challenge/resend": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendTwoFactorChallengeCodeThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendTwoFactorChallengeCodeThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendTwoFactorChallengeCodeThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/api/auth/2fa/confirm": {
       "post": {
         "requestBody": {
@@ -11738,6 +12173,114 @@
         ]
       }
     },
+    "/api/auth/register": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterThroughApiCommand"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterThroughApiCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterThroughApiCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Accepted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/api/auth/resend-verification": {
       "post": {
         "responses": {
@@ -11808,6 +12351,86 @@
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -11824,6 +12447,24 @@
             "schema": {
               "default": false,
               "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageNumber",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "type": "integer"
             }
           }
         ],
@@ -12803,6 +13444,24 @@
               "default": false,
               "type": "boolean"
             }
+          },
+          {
+            "in": "query",
+            "name": "pageNumber",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -13096,6 +13755,13 @@
             "name": "CurrencyCode",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "IncludeDeleted",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -13871,6 +14537,24 @@
             "schema": {
               "default": false,
               "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageNumber",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "type": "integer"
             }
           }
         ],
@@ -14727,6 +15411,13 @@
             "schema": {
               "format": "date",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "IncludeDeleted",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -15893,6 +16584,79 @@
       }
     },
     "/api/recurring-transactions": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "Active",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "IncludeDeleted",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "SortBy",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "Descending",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "PageNumber",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "PageSize",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecurringTransactionOutputPaginatedOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecurringTransactionOutputPaginatedOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecurringTransactionOutputPaginatedOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "RecurringTransactions"
+        ]
+      },
       "post": {
         "requestBody": {
           "content": {
@@ -16606,6 +17370,24 @@
               "default": false,
               "type": "boolean"
             }
+          },
+          {
+            "in": "query",
+            "name": "pageNumber",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -17139,6 +17921,67 @@
       }
     },
     "/api/transactions/{id}/attachments": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "IncludeDeleted",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "PageNumber",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "PageSize",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttachmentOutputPaginatedOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttachmentOutputPaginatedOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttachmentOutputPaginatedOutput"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Transactions"
+        ]
+      },
       "post": {
         "parameters": [
           {

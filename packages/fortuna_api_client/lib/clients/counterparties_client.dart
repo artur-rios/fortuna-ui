@@ -23,6 +23,8 @@ abstract class CounterpartiesClient {
   @GET('/api/counterparties')
   Future<CounterpartyListOutputDataOutput> getApiCounterparties({
     @Query('includeDeleted') bool? includeDeleted = false,
+    @Query('pageNumber') int? pageNumber = 1,
+    @Query('pageSize') int? pageSize = 100,
   });
 
   @POST('/api/counterparties')

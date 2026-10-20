@@ -7,6 +7,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-20
+
+### Added
+
+- UC-47: "New to Fortuna? Create an account" on the sign-in screen opens a sign-up screen offering Google, where
+  configured, and a name, email and password form. The account exists only once the emailed link is followed and
+  the password chosen at sign-up is entered again, on an explicit "Create my account"; the verification screen then
+  offers "Sign in", and a link that is bad, expired or used offers "Sign in" and "Sign up again". A network or server
+  failure while confirming keeps the password form so the user can retry.
+
+### Fixed
+
+- The password-reset and verify-email pages, opened with a token in their address, send no Referer, so the token
+  never travels in the Referer of the requests those pages make. Every other page keeps
+  strict-origin-when-cross-origin.
+- A 401 from an anonymous authentication route, such as a wrong sign-in or confirmation password, no longer ends
+  the session with "Your session expired".
+
 ## [1.0.0] - 2026-10-12
 
 ### Added
@@ -66,5 +84,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The bindings generator reports how many routes it wrote, instead of printing the literal
   `${matches.length}`.
 
-[Unreleased]: https://github.com/artur-rios/fortuna-ui/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/artur-rios/fortuna-ui/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/artur-rios/fortuna-ui/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/artur-rios/fortuna-ui/releases/tag/v1.0.0

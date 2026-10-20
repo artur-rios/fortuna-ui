@@ -12,6 +12,10 @@ abstract final class Routes {
   static const setup = '/setup';
   static const signIn = '/sign-in';
 
+  /// Creating an account with a name, an address and a password, or with
+  /// Google (`UC-47`). Anonymous for the obvious reason.
+  static const signUp = '/sign-up';
+
   /// The second-factor challenge (`UC-04`). Anonymous because a challenge
   /// grants nothing — until it is satisfied the application is signed out
   /// (`BR-19`).
@@ -127,6 +131,7 @@ abstract final class Routes {
   static const Set<String> anonymous = {
     setup,
     signIn,
+    signUp,
     twoFactor,
     passwordRecovery,
     passwordReset,

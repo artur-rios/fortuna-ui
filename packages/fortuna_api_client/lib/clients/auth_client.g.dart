@@ -54,6 +54,46 @@ class _AuthClient implements AuthClient {
   }
 
   @override
+  Future<ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput>
+  postApiAuth2faChallengeResend({
+    ResendTwoFactorChallengeCodeThroughApiCommand? body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body?.toJson() ?? <String, dynamic>{});
+    final _options =
+        _setStreamType<
+          ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput
+        >(
+          Options(method: 'POST', headers: _headers, extra: _extra)
+              .compose(
+                _dio.options,
+                '/api/auth/2fa/challenge/resend',
+                queryParameters: queryParameters,
+                data: _data,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput _value;
+    try {
+      _value =
+          ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput.fromJson(
+            _result.data!,
+          );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<ConfirmTwoFactorThroughApiCommandOutputDataOutput>
   postApiAuth2faConfirm({ConfirmTwoFactorThroughApiCommand? body}) async {
     final _extra = <String, dynamic>{};
@@ -399,6 +439,39 @@ class _AuthClient implements AuthClient {
     late ResetPasswordThroughApiCommandOutputDataOutput _value;
     try {
       _value = ResetPasswordThroughApiCommandOutputDataOutput.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<RegisterThroughApiCommandOutputDataOutput> postApiAuthRegister({
+    RegisterThroughApiCommand? body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body?.toJson() ?? <String, dynamic>{});
+    final _options = _setStreamType<RegisterThroughApiCommandOutputDataOutput>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/auth/register',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late RegisterThroughApiCommandOutputDataOutput _value;
+    try {
+      _value = RegisterThroughApiCommandOutputDataOutput.fromJson(
         _result.data!,
       );
     } on Object catch (e, s) {

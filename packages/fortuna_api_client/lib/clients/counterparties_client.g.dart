@@ -23,10 +23,14 @@ class _CounterpartiesClient implements CounterpartiesClient {
   @override
   Future<CounterpartyListOutputDataOutput> getApiCounterparties({
     bool? includeDeleted = false,
+    int? pageNumber = 1,
+    int? pageSize = 100,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'includeDeleted': includeDeleted,
+      r'pageNumber': pageNumber,
+      r'pageSize': pageSize,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};

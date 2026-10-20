@@ -19,6 +19,11 @@ ConvertFigureQueryOutput _$ConvertFigureQueryOutputFromJson(
       )
       .toList(),
   isFullyConverted: json['isFullyConverted'] as bool?,
+  missingRates: (json['missingRates'] as List<dynamic>?)
+      ?.map(
+        (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
   total: json['total'] as String?,
 );
 
@@ -29,5 +34,6 @@ Map<String, dynamic> _$ConvertFigureQueryOutputToJson(
   'figureDate': instance.figureDate?.toIso8601String(),
   'groups': instance.groups,
   'isFullyConverted': instance.isFullyConverted,
+  'missingRates': instance.missingRates,
   'total': instance.total,
 };

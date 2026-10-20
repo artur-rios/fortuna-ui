@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'missing_exchange_rate_output.dart';
 import 'table_column_output.dart';
 import 'table_total_output.dart';
 
@@ -13,6 +14,7 @@ part 'table_report_output.g.dart';
 class TableReportOutput {
   const TableReportOutput({
     this.columns,
+    this.missingRates,
     this.pageNumber,
     this.pageSize,
     this.recordSet,
@@ -25,6 +27,7 @@ class TableReportOutput {
       _$TableReportOutputFromJson(json);
 
   final List<TableColumnOutput>? columns;
+  final List<MissingExchangeRateOutput>? missingRates;
   final int? pageNumber;
   final int? pageSize;
   final String? recordSet;

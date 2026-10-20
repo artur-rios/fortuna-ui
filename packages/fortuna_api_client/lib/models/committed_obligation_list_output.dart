@@ -7,6 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'committed_obligation_output.dart';
 import 'committed_obligation_period_output.dart';
 import 'committed_obligation_rate_output.dart';
+import 'missing_exchange_rate_output.dart';
 
 part 'committed_obligation_list_output.g.dart';
 
@@ -17,6 +18,7 @@ class CommittedObligationListOutput {
     this.displayCurrencyCode,
     this.isFullyConverted,
     this.items,
+    this.missingRates,
     this.periods,
     this.rates,
     this.through,
@@ -30,6 +32,7 @@ class CommittedObligationListOutput {
   final String? displayCurrencyCode;
   final bool? isFullyConverted;
   final List<CommittedObligationOutput>? items;
+  final List<MissingExchangeRateOutput>? missingRates;
   final List<CommittedObligationPeriodOutput>? periods;
   final List<CommittedObligationRateOutput>? rates;
   final DateTime? through;

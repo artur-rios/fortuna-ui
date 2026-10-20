@@ -21,6 +21,8 @@ abstract class GoalsClient {
   @GET('/api/goals')
   Future<GoalListOutputDataOutput> getApiGoals({
     @Query('includeDeleted') bool? includeDeleted = false,
+    @Query('pageNumber') int? pageNumber = 1,
+    @Query('pageSize') int? pageSize = 100,
   });
 
   @POST('/api/goals')

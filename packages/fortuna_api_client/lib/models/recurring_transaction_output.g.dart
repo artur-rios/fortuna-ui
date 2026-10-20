@@ -30,6 +30,7 @@ RecurringTransactionOutput _$RecurringTransactionOutputFromJson(
       ? null
       : RecurrenceFrequency.fromJson((json['frequency'] as num).toInt()),
   id: json['id'] as String?,
+  isDeleted: json['isDeleted'] as bool?,
   lastMaterializedOn: json['lastMaterializedOn'] == null
       ? null
       : DateTime.parse(json['lastMaterializedOn'] as String),
@@ -60,6 +61,7 @@ Map<String, dynamic> _$RecurringTransactionOutputToJson(
   'financialAccountId': instance.financialAccountId,
   'frequency': _$RecurrenceFrequencyEnumMap[instance.frequency],
   'id': instance.id,
+  'isDeleted': instance.isDeleted,
   'lastMaterializedOn': instance.lastMaterializedOn?.toIso8601String(),
   'nextOccurrences': instance.nextOccurrences
       ?.map((e) => e.toIso8601String())

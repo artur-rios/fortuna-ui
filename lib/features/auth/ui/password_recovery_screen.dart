@@ -215,17 +215,74 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
 
 /// Step 7: verify an address, and ask for the message again.
 class VerifyEmailScreen extends ConsumerStatefulWidget {
-  const VerifyEmailScreen({this.token = '', super.key});
+  const VerifyEmailScreen({
+    this.token = '',
+    this.onSignIn,
+    this.onSignUp,
+    super.key,
+  });
 
-  /// From the verification link. Empty means the screen was reached directly,
-  /// in which case the only thing on offer is asking for a new message.
+  /// From the verification link. Empty means the screen was reached directly
+  /// (from the sign-in screen's resend action), in which case the only thing
+  /// on offer is asking for a new message.
   final String token;
+
+  /// Leaves for sign-in: the way forward once the account is confirmed, and
+  /// the way out when the link is refused.
+  final VoidCallback? onSignIn;
+
+  /// Leaves for sign-up, for a link that is bad, expired or used.
+  final VoidCallback? onSignUp;
 
   @override
   ConsumerState<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
 }
 
 class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
+  final _password = TextEditingController();
+  final _passwordFocus = FocusNode();
+  var _obscured = true;
+
+  /// The question being asked, kept while the answer is in flight so the form
+  /// stays on screen (disabled) instead of vanishing and coming back.
+  String? _prompt;
+
+  @override
+  void dispose() {
+    _password.clear();
+    _password.dispose();
+    _passwordFocus.dispose();
+    super.dispose();
+  }
+
+  void _onStateChanged(RecoveryState? _, RecoveryState next) {
+    // The password has done its job; do not keep it for the life of the screen.
+    if (next is RecoveryDone) _password.clear();
+
+    // A refused password leaves the field disabled for the round trip and
+    // unfocused after it. Put the cursor back, with the attempt selected so the
+    // next keystroke replaces it. After the frame, because the field is still
+    // disabled while this state is being delivered.
+    if (next is RecoveryNeedsPassword && next.error != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _passwordFocus.requestFocus();
+        _password.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _password.text.length,
+        );
+      });
+    }
+  }
+
+  void _confirm() {
+    unawaited(
+      ref
+          .read(accountRecoveryControllerProvider.notifier)
+          .confirmRegistration(token: widget.token, password: _password.text),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -244,18 +301,82 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(accountRecoveryControllerProvider);
+    ref.listen(accountRecoveryControllerProvider, _onStateChanged);
+
+    if (state is RecoveryNeedsPassword) {
+      _prompt = state.message;
+    } else if (!state.isBusy) {
+      _prompt = null;
+    }
+    final prompt = _prompt;
+    final asking = prompt != null;
 
     return _Frame(
       title: 'Verify your email address',
       children: [
-        if (state.isBusy) const Center(child: _Spinner()),
+        if (state.isBusy && !asking) const Center(child: _Spinner()),
 
-        if (state is RecoveryDone)
+        // A sign-up link: the account is created only on an explicit tap, so
+        // nothing here submits by itself.
+        if (asking) ...[
+          _Notice(
+            key: const Key('verify.passwordNeeded'),
+            message: prompt,
+            tone: _Tone.neutral,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            key: const Key('verify.password'),
+            controller: _password,
+            focusNode: _passwordFocus,
+            autofocus: true,
+            enabled: !state.isBusy,
+            obscureText: _obscured,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: const OutlineInputBorder(),
+              errorText: state is RecoveryNeedsPassword ? state.error : null,
+              suffixIcon: IconButton(
+                key: const Key('verify.reveal'),
+                onPressed: () => setState(() => _obscured = !_obscured),
+                icon: Icon(
+                  _obscured
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+                tooltip: _obscured ? 'Show password' : 'Hide password',
+              ),
+            ),
+            onChanged: (_) => ref
+                .read(accountRecoveryControllerProvider.notifier)
+                .clearConfirmationError(),
+            onSubmitted: (_) => state.isBusy ? null : _confirm(),
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('verify.confirm'),
+            onPressed: state.isBusy ? null : _confirm,
+            child: state.isBusy
+                ? const _Spinner()
+                : const Text('Create my account'),
+          ),
+        ],
+
+        if (state is RecoveryDone) ...[
           _Notice(
             key: const Key('verify.done'),
             message: state.confirmation,
             tone: _Tone.neutral,
           ),
+          // The account exists and this screen is signed out, so the only way
+          // forward is to sign in; without it the user is left on a notice.
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('verify.signIn'),
+            onPressed: widget.onSignIn,
+            child: const Text('Sign in'),
+          ),
+        ],
 
         // AF-06. A rate limit is an answer, not a failure, and it reads as one.
         if (state is RecoveryRateLimited)
@@ -265,21 +386,43 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
             tone: _Tone.neutral,
           ),
 
-        if (state is RecoveryRefused)
+        if (state is RecoveryRefused) ...[
           _Notice(message: state.reason, tone: _Tone.error),
+          // A link that came with a token has nowhere else to go. Resending
+          // needs a session, which this anonymous screen does not have.
+          if (widget.token.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            FilledButton(
+              key: const Key('verify.signIn'),
+              onPressed: widget.onSignIn,
+              child: const Text('Sign in'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              key: const Key('verify.signUp'),
+              onPressed: widget.onSignUp,
+              child: const Text('Sign up again'),
+            ),
+          ],
+        ],
 
-        const SizedBox(height: 16),
-        OutlinedButton(
-          key: const Key('verify.resend'),
-          onPressed: state.isBusy
-              ? null
-              : () => unawaited(
-                  ref
-                      .read(accountRecoveryControllerProvider.notifier)
-                      .resendVerification(),
-                ),
-          child: const Text('Send the verification email again'),
-        ),
+        // Only for the screen reached without a link (the sign-in screen's
+        // "Resend the verification email"). With a token, the link is the
+        // subject, and a resend cannot work: it needs a session.
+        if (!asking && widget.token.isEmpty) ...[
+          const SizedBox(height: 16),
+          OutlinedButton(
+            key: const Key('verify.resend'),
+            onPressed: state.isBusy
+                ? null
+                : () => unawaited(
+                    ref
+                        .read(accountRecoveryControllerProvider.notifier)
+                        .resendVerification(),
+                  ),
+            child: const Text('Send the verification email again'),
+          ),
+        ],
       ],
     );
   }

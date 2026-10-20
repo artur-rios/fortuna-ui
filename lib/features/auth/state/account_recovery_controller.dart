@@ -32,6 +32,7 @@ sealed class RecoveryState {
     RecoveryRefused(:final reason) => reason,
     RecoveryRateLimited(:final reason) => reason,
     RecoveryDone(:final confirmation) => confirmation,
+    RecoveryNeedsPassword(:final message) => message,
     RecoveryIdle() || RecoveryWorking() => null,
   };
 }
@@ -81,6 +82,18 @@ final class RecoveryDone extends RecoveryState {
   final String confirmation;
 }
 
+/// A sign-up link is good, and the password chosen at sign-up is wanted before
+/// the account is created. [message] is the question; [error] is the API's
+/// verdict on the last password tried, if any.
+@immutable
+final class RecoveryNeedsPassword extends RecoveryState {
+  const RecoveryNeedsPassword(this.message, {this.error});
+
+  @override
+  final String message;
+  final String? error;
+}
+
 final accountRecoveryControllerProvider =
     NotifierProvider<AccountRecoveryController, RecoveryState>(
       AccountRecoveryController.new,
@@ -111,6 +124,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .requestPasswordRecovery(email.trim());
+    if (!ref.mounted) return;
 
     state = switch (result) {
       // AF-02 lives here, in what is *not* written: nothing looks at whether
@@ -151,6 +165,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .resetPassword(token: token.trim(), newPassword: newPassword);
+    if (!ref.mounted) return;
 
     state = switch (result) {
       Success<String>(:final value) => RecoveryDone(value),
@@ -168,10 +183,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
   /// Step 7.
   Future<void> verifyEmail(String token) async {
     if (token.trim().isEmpty) {
-      state = const RecoveryRefused(
-        'This verification link is incomplete. Request a new one.',
-        canRequestAnother: true,
-      );
+      state = _incompleteVerificationLink;
       return;
     }
 
@@ -180,16 +192,105 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .verifyEmail(token.trim());
+    if (!ref.mounted) return;
 
-    state = switch (result) {
-      Success<String>(:final value) => RecoveryDone(value),
-      Failure<String>(:final message) => RecoveryRefused(
-        message,
-        // AF-03: a verification token that is dead can always be replaced.
-        canRequestAnother: true,
-      ),
-    };
+    state = _afterVerification(result, prompt: null);
   }
+
+  /// Finishes a sign-up: the link is good, and the password chosen when
+  /// signing up is the last thing standing between it and an account.
+  ///
+  /// The password is passed through and never stored; only the prompt and the
+  /// API's verdict on the last attempt are kept in state.
+  Future<void> confirmRegistration({
+    required String token,
+    required String password,
+  }) async {
+    if (token.trim().isEmpty) {
+      state = _incompleteVerificationLink;
+      return;
+    }
+
+    final current = state;
+    final prompt = current is RecoveryNeedsPassword
+        ? current.message
+        : _defaultPasswordPrompt;
+
+    if (password.isEmpty) {
+      state = RecoveryNeedsPassword(prompt, error: 'Enter your password.');
+      return;
+    }
+
+    state = const RecoveryWorking();
+
+    final result = await ref
+        .read(accountRecoveryRepositoryProvider)
+        .verifyEmail(token.trim(), password: password);
+    if (!ref.mounted) return;
+
+    state = _afterVerification(result, prompt: prompt);
+  }
+
+  /// Drops the verdict on the last password tried, keeping the question, once
+  /// the user starts typing another: the complaint is about what they
+  /// changed.
+  void clearConfirmationError() {
+    final current = state;
+    if (current is RecoveryNeedsPassword && current.error != null) {
+      state = RecoveryNeedsPassword(current.message);
+    }
+  }
+
+  static const _incompleteVerificationLink = RecoveryRefused(
+    'This verification link is incomplete. Request a new one.',
+    canRequestAnother: true,
+  );
+
+  static const _defaultPasswordPrompt =
+      'Enter the password you chose when you signed up to finish creating '
+      'your account.';
+
+  /// Appended to a link the API calls bad, expired or used (a 400), because
+  /// the same endpoint serves both an address change and a sign-up and the
+  /// API's wording cannot say which. Never added to a transient failure: the
+  /// link may be perfectly good, and telling the user to sign up again would
+  /// have them discard it.
+  static const _signUpHint =
+      'If this link came from signing up, sign up again — or sign in if you '
+      'already finished.';
+
+  /// [prompt] is the question already on screen, kept when the answer is a
+  /// wrong password so that a retry does not replace it.
+  RecoveryState _afterVerification(
+    Result<VerifyEmailAnswer> result, {
+    required String? prompt,
+  }) => switch (result) {
+    Success<VerifyEmailAnswer>(:final value) => switch (value) {
+      VerifyEmailConfirmed(:final message) => RecoveryDone(message),
+      VerifyEmailPasswordNeeded(:final message) => RecoveryNeedsPassword(
+        message,
+      ),
+      // Without a password in the request the API cannot say "wrong"; if it
+      // does anyway, asking again is still the right response.
+      VerifyEmailPasswordWrong(:final message) =>
+        prompt == null
+            ? RecoveryNeedsPassword(message)
+            : RecoveryNeedsPassword(prompt, error: message),
+    },
+    // A transient failure while confirming leaves the link valid, so the form
+    // stays and the user retries. Without a prompt there is no form to keep,
+    // and the failure is shown as it is.
+    Failure<VerifyEmailAnswer>(:final message, :final kind)
+        when prompt != null &&
+            (kind == FailureKind.unreachable ||
+                kind == FailureKind.serverError) =>
+      RecoveryNeedsPassword(prompt, error: message),
+    Failure<VerifyEmailAnswer>(:final message, :final kind) => RecoveryRefused(
+      kind == FailureKind.invalidInput ? '$message $_signUpHint' : message,
+      // AF-03: a verification token that is dead can always be replaced.
+      canRequestAnother: true,
+    ),
+  };
 
   /// Asks for the verification message again.
   Future<void> resendVerification() async {
@@ -198,6 +299,7 @@ class AccountRecoveryController extends Notifier<RecoveryState> {
     final result = await ref
         .read(accountRecoveryRepositoryProvider)
         .resendVerification();
+    if (!ref.mounted) return;
 
     state = switch (result) {
       Success<String>(:final value) => RecoveryDone(value),

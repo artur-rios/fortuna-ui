@@ -21,6 +21,7 @@ class InvestmentOutput {
     this.institution,
     this.instrument,
     this.investmentType,
+    this.isDeleted,
     this.isIndependentlyValued,
     this.latestValuationDate,
     this.latestValuationValue,
@@ -43,6 +44,7 @@ class InvestmentOutput {
   final String? institution;
   final String? instrument;
   final InvestmentType? investmentType;
+  final bool? isDeleted;
   final bool? isIndependentlyValued;
   final DateTime? latestValuationDate;
   final String? latestValuationValue;

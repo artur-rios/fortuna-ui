@@ -21,6 +21,24 @@ import '../storage/token_store.dart';
 import 'date_only_fields.dart';
 import 'ffi_transport.dart';
 
+/// Routes a caller reaches without a session (`UC-03`, `UC-04`, `UC-05`, `UC-09`,
+/// `UC-47`). A 401 from one of them is the API refusing what was submitted — a
+/// password, a code, a confirmation — never the API rejecting a session token,
+/// so it must not end the session (`FR-SE-19` is about the latter).
+///
+/// Matched against `RequestOptions.path`, which is the route as the generated
+/// clients write it (`/api/auth/login`), relative to the base address.
+const anonymousAuthPaths = <String>{
+  '/api/auth/login',
+  '/api/auth/google',
+  '/api/auth/2fa/verify',
+  '/api/auth/2fa/challenge/resend',
+  '/api/auth/password-recovery',
+  '/api/auth/password-reset',
+  '/api/auth/verify-email',
+  '/api/auth/register',
+};
+
 /// Builds the application's `dio` instance.
 class ApiClientFactory {
   const ApiClientFactory({
@@ -75,7 +93,10 @@ class ApiClientFactory {
           handler.next(options);
         },
         onError: (error, handler) {
-          if (error.response?.statusCode == 401) {
+          final anonymous = anonymousAuthPaths.contains(
+            error.requestOptions.path,
+          );
+          if (error.response?.statusCode == 401 && !anonymous) {
             onUnauthenticated?.call();
           }
           handler.next(error);

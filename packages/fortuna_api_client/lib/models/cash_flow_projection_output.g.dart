@@ -13,6 +13,12 @@ CashFlowProjectionOutput _$CashFlowProjectionOutputFromJson(
   displayCurrencyCode: json['displayCurrencyCode'] as String?,
   estimateOmittedReason: json['estimateOmittedReason'] as String?,
   flatReason: json['flatReason'] as String?,
+  isFullyConverted: json['isFullyConverted'] as bool?,
+  missingRates: (json['missingRates'] as List<dynamic>?)
+      ?.map(
+        (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
   periodicity: json['periodicity'] == null
       ? null
       : CashFlowPeriodicity.fromJson((json['periodicity'] as num).toInt()),
@@ -35,6 +41,8 @@ Map<String, dynamic> _$CashFlowProjectionOutputToJson(
   'displayCurrencyCode': instance.displayCurrencyCode,
   'estimateOmittedReason': instance.estimateOmittedReason,
   'flatReason': instance.flatReason,
+  'isFullyConverted': instance.isFullyConverted,
+  'missingRates': instance.missingRates,
   'periodicity': _$CashFlowPeriodicityEnumMap[instance.periodicity],
   'periods': instance.periods,
   'rates': instance.rates,

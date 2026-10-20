@@ -8,11 +8,12 @@ part 'verify_email_through_api_command.g.dart';
 
 @JsonSerializable()
 class VerifyEmailThroughApiCommand {
-  const VerifyEmailThroughApiCommand({this.token});
+  const VerifyEmailThroughApiCommand({this.password, this.token});
 
   factory VerifyEmailThroughApiCommand.fromJson(Map<String, Object?> json) =>
       _$VerifyEmailThroughApiCommandFromJson(json);
 
+  final String? password;
   final String? token;
 
   Map<String, Object?> toJson() => _$VerifyEmailThroughApiCommandToJson(this);

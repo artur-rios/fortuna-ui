@@ -5,6 +5,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'converted_currency_group_output.dart';
+import 'missing_exchange_rate_output.dart';
 
 part 'convert_figure_query_output.g.dart';
 
@@ -15,6 +16,7 @@ class ConvertFigureQueryOutput {
     this.figureDate,
     this.groups,
     this.isFullyConverted,
+    this.missingRates,
     this.total,
   });
 
@@ -25,6 +27,7 @@ class ConvertFigureQueryOutput {
   final DateTime? figureDate;
   final List<ConvertedCurrencyGroupOutput>? groups;
   final bool? isFullyConverted;
+  final List<MissingExchangeRateOutput>? missingRates;
   final String? total;
 
   Map<String, Object?> toJson() => _$ConvertFigureQueryOutputToJson(this);

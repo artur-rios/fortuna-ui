@@ -146,7 +146,7 @@ exception, and only far enough to obtain a token it immediately hands over.
 
 | ID | Feature | Description |
 | --- | --- | --- |
-| **F-01** | Sign in and session | Sign in with credentials or Google, complete a two-factor challenge, sign in to a desktop local account and recover one, sign out. Sign-up is the first Google sign-in. |
+| **F-01** | Sign in and session | Sign in with credentials or Google, complete a two-factor challenge, sign in to a desktop local account and recover one, sign out. Sign up with Google — a first Google sign-in — or with a name, an email address and a password. |
 | **F-02** | Credential and two-factor management | Recover a password, verify an address, and enable, confirm, disable or re-key two-factor authentication. |
 | **F-03** | Instance and mode configuration | Choose which instance to talk to, and run in connected, self-hosted or desktop offline mode. |
 | **F-04** | Holdings | Create, view, update and delete financial accounts, credit cards and investments; see balances and positions. |
