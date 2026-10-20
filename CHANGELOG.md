@@ -17,6 +17,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- The password-reset and verify-email pages, opened with a token in their address, send no Referer, so the token
+  never travels in the Referer of the requests those pages make. Every other page keeps
+  strict-origin-when-cross-origin.
 - A 401 from an anonymous authentication route, such as a wrong sign-in or confirmation password, no longer ends
   the session with "Your session expired".
 
