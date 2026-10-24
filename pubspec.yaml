@@ -76,7 +76,7 @@ dev_dependencies:
   json_serializable: ^6.14.1
   retrofit_generator: ^10.2.11
   swagger_parser: ^1.45.0
-  ffigen: ^22.0.0
+  ffigen: ^23.0.0
   integration_test:
     sdk: flutter
 
