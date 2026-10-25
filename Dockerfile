@@ -17,7 +17,7 @@
 # past 3.44.0. The archive is x64-only, and the output is platform-independent
 # static files, so this stage always runs as amd64.
 # ---------------------------------------------------------------------------
-FROM --platform=linux/amd64 debian:trixie-slim AS build
+FROM --platform=linux/amd64 debian:13.7-slim@sha256:62bd423aeee912639ca8ee681c2b762cb3e25137e0a92b20be455898a9f034ad AS build
 
 # pubspec.yaml requires Dart ^3.13.2, which first ships in Flutter 3.47.2, so
 # the 3.44.x line cannot build this app. Keep FLUTTER_VERSION and FLUTTER_SHA256
@@ -26,7 +26,7 @@ FROM --platform=linux/amd64 debian:trixie-slim AS build
 # archive's checksum from
 # https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json;
 # override it together with FLUTTER_VERSION, or pass it empty to skip the check.
-# renovate: datasource=github-tags depName=flutter/flutter
+# renovate: datasource=github-tags depName=flutter/flutter versioning=regex:^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
 ARG FLUTTER_VERSION=3.47.4
 ARG FLUTTER_SHA256=5b45f0ceda99b9bebdc873e7e69f6450aeb4c30f454b505e2e62fc9255a907d3
 
@@ -79,7 +79,7 @@ RUN flutter build web --release --no-web-resources-cdn       --dart-define=FORTU
 # ---------------------------------------------------------------------------
 # Runtime stage: static files behind unprivileged nginx on port 8080.
 # ---------------------------------------------------------------------------
-FROM nginxinc/nginx-unprivileged:alpine
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine3.24@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /home/flutter/app/build/web /usr/share/nginx/html
