@@ -6,6 +6,8 @@
 #
 # ffigen parses the header with libclang. GitHub's runner image carried it; the Flutter image does not, so
 # clang and libclang-dev are installed with apt when this runs as root, as it does on the CI agent.
+# That libclang comes from the image's distribution at run time (not pinned), so a drift reported right after
+# an image bump may be a different libclang parsing the header, not a hand-edited binding.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 

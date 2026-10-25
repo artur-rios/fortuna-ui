@@ -182,5 +182,5 @@ the application `fortuna-ui` in its `catalog.yaml`, which is what gives it:
 
 The web UI serves no metrics, so Prometheus does not scrape it.
 
-If a required check is renamed or added here, update the catalog entry, then run
-`python github/rulesets.py fortuna-ui` in yggdrasil.
+If a required check is renamed or added here, update the catalog entry, then apply the branch rules
+with yggdrasil's `scripts/rules.py`.

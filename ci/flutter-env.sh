@@ -15,7 +15,7 @@
 #
 # FLUTTER_SDK_DIR reuses an unpacked SDK between runs (default: a directory under $TMPDIR).
 
-# renovate: datasource=github-tags depName=flutter/flutter
+# renovate: datasource=github-tags depName=flutter/flutter versioning=regex:^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
 FLUTTER_VERSION=3.47.4
 FLUTTER_SHA256=5b45f0ceda99b9bebdc873e7e69f6450aeb4c30f454b505e2e62fc9255a907d3
 

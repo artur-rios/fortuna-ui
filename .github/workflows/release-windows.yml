@@ -20,6 +20,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  # Renovate does not track this one. Keep it equal to FLUTTER_VERSION in ci/flutter-env.sh and to the
+  # ARG FLUTTER_VERSION of the Dockerfile, and bump the three together.
   FLUTTER_VERSION: 3.47.4
 
 jobs:
@@ -49,7 +51,7 @@ jobs:
           $version = $env:TAG.TrimStart('v')
           New-Item -ItemType Directory -Force dist | Out-Null
           Compress-Archive -Path 'build/windows/x64/runner/Release/*' -DestinationPath "dist/fortuna-ui-windows-x64-$version.zip"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: fortuna-ui-windows
           path: dist/*.zip

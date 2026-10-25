@@ -3,20 +3,25 @@
 # vendored at native/include/fortuna_core.h and the one fortuna-api publishes must be identical. Run from
 # anywhere; it works from the repository's root.
 #
-# The API is cloned (shallow, its default branch, as the workflow's checkout did) from FORTUNA_API_URL,
-# default: GitHub's read-only mirror of fortuna-api, which is public. FORTUNA_API_DIR names a checkout that
-# already exists and is used instead, without cloning (for a run by hand).
+# The API is cloned (shallow) from FORTUNA_API_URL, default: GitHub's read-only mirror of fortuna-api, which
+# is public. FORTUNA_API_REF names the branch to compare with. It is explicit on purpose: the old workflow
+# followed the repository's default branch, and the default branch of the git server is not the same one
+# the mirror had, so following it would silently change what the header is compared with. The vendored
+# header is taken from fortuna-api's develop (that is where the API publishes changes first), so develop is
+# the default. FORTUNA_API_DIR names a checkout that already exists and is used instead, without cloning
+# (for a run by hand).
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 VENDORED=native/include/fortuna_core.h
 FORTUNA_API_URL=${FORTUNA_API_URL:-https://github.com/artur-rios/fortuna-api.git}
+FORTUNA_API_REF="${FORTUNA_API_REF:-develop}"
 
 api_dir=${FORTUNA_API_DIR:-}
 if [ -z "$api_dir" ]; then
   api_dir=$(mktemp -d)
   trap 'rm -rf "$api_dir"' EXIT
-  git clone --quiet --depth 1 "$FORTUNA_API_URL" "$api_dir"
+  git clone --quiet --depth 1 --branch "$FORTUNA_API_REF" "$FORTUNA_API_URL" "$api_dir"
 fi
 
 PUBLISHED=$(find "$api_dir" -name 'fortuna_core.h' -not -path '*/.git/*' -print -quit)
