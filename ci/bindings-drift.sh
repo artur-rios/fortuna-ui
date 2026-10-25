@@ -3,8 +3,20 @@
 # route table are both derived from the vendored header, so regenerating them must be a no-op on a clean
 # tree. A difference means somebody edited generated code by hand, which is exactly what BR-36 forbids. Run
 # from anywhere; it works from the repository's root, which must be a git checkout.
+#
+# ffigen parses the header with libclang. GitHub's runner image carried it; the Flutter image does not, so
+# clang and libclang-dev are installed with apt when this runs as root, as it does on the CI agent.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+if ! command -v clang >/dev/null 2>&1 || [ -z "$(ls /usr/lib/llvm-*/lib/libclang.so 2>/dev/null)" ]; then
+  if [ "$(id -u)" -ne 0 ]; then
+    echo "ci/bindings-drift.sh: clang and libclang-dev must be installed (ffigen needs libclang), and this is not run as root" >&2
+    exit 1
+  fi
+  apt-get update
+  apt-get install -y --no-install-recommends clang libclang-dev
+fi
 
 # shellcheck source=ci/flutter-env.sh
 source ci/flutter-env.sh

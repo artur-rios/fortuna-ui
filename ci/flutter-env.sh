@@ -27,7 +27,7 @@ if [ ! -x "$FLUTTER_SDK_DIR/bin/flutter" ]; then
   curl --fail --silent --show-error --location --retry 3 -o "$_flutter_work/flutter.tar.xz" \
     "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
   echo "$FLUTTER_SHA256  $_flutter_work/flutter.tar.xz" | sha256sum -c -
-  tar -xJf "$_flutter_work/flutter.tar.xz" -C "$_flutter_work"
+  tar -xJf "$_flutter_work/flutter.tar.xz" --no-same-owner -C "$_flutter_work"
   mkdir -p "$(dirname "$FLUTTER_SDK_DIR")"
   rm -rf "$FLUTTER_SDK_DIR"
   mv "$_flutter_work/flutter" "$FLUTTER_SDK_DIR"
