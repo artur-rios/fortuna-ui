@@ -7,6 +7,8 @@ Flutter application that runs on the web, Windows, Linux and Android from one co
 and writes everything through the [Fortuna API](https://github.com/artur-rios/fortuna-api). The API
 owns the domain, the money and the integrations; this application owns the experience.
 
+This repository lives at <https://git.techcraftsmen.net/artur-rios/fortuna-ui>. GitHub is a read-only mirror.
+
 [![Open issues](https://img.shields.io/github/issues/artur-rios/fortuna-ui?style=flat-square&label=open)](https://github.com/artur-rios/fortuna-ui/issues)
 [![Closed issues](https://img.shields.io/github/issues-closed-raw/artur-rios/fortuna-ui?style=flat-square&label=closed)](https://github.com/artur-rios/fortuna-ui/issues?q=is%3Aissue+is%3Aclosed)
 [![Milestones](https://img.shields.io/github/milestones/all/artur-rios/fortuna-ui?style=flat-square&label=milestones)](https://github.com/artur-rios/fortuna-ui/milestones)
@@ -86,7 +88,7 @@ here, is in the
 [Technology Stack Document](docs/requirements/Technology%20Stack%20Document.md) §1.1.
 
 ```bash
-git clone https://github.com/artur-rios/fortuna-ui.git
+git clone https://git.techcraftsmen.net/artur-rios/fortuna-ui.git
 cd fortuna-ui
 flutter pub get
 ```
