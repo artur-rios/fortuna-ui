@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app talks to the Fortuna API, so release builds need the network too: without this a
+         release APK cannot reach it (debug and profile builds declare it in their own manifests). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="fortuna_ui"
         android:name="${applicationName}"
