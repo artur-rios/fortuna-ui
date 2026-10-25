@@ -41,6 +41,12 @@ swagger_parser.yaml
 config/local.json
 *.log
 
+# The pipeline: checks, release build, their data
+ci
+dist
+yggdrasil.yml
+renovate.json
+
 # The image recipe itself
 Dockerfile
 .dockerignore

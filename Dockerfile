@@ -20,11 +20,13 @@
 FROM --platform=linux/amd64 debian:trixie-slim AS build
 
 # pubspec.yaml requires Dart ^3.13.2, which first ships in Flutter 3.47.2, so
-# the 3.44.x line cannot build this app; 3.47.4 is the current stable release,
-# which is what CI's `channel: stable` resolves to. FLUTTER_SHA256 is the
+# the 3.44.x line cannot build this app. Keep FLUTTER_VERSION and FLUTTER_SHA256
+# in step with ci/flutter-env.sh (and FLUTTER_VERSION in
+# .github/workflows/release-windows.yml). FLUTTER_SHA256 is the
 # archive's checksum from
 # https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json;
 # override it together with FLUTTER_VERSION, or pass it empty to skip the check.
+# renovate: datasource=github-tags depName=flutter/flutter
 ARG FLUTTER_VERSION=3.47.4
 ARG FLUTTER_SHA256=5b45f0ceda99b9bebdc873e7e69f6450aeb4c30f454b505e2e62fc9255a907d3
 
@@ -40,7 +42,7 @@ ENV CI=true \
     PUB_CACHE=/home/flutter/.pub-cache \
     PATH=/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:$PATH
 
-RUN curl -fsSL -o /tmp/flutter.tar.xz \
+RUN curl --fail --silent --show-error --location --retry 3 -o /tmp/flutter.tar.xz \
       "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" \
  && if [ -n "$FLUTTER_SHA256" ]; then echo "$FLUTTER_SHA256  /tmp/flutter.tar.xz" | sha256sum -c -; fi \
  && tar -xJf /tmp/flutter.tar.xz -C /opt \

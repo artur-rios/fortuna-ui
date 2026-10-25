@@ -49,3 +49,6 @@ app.*.map.json
 
 # Local build configuration supplied with --dart-define-from-file
 /config/local.json
+
+# Release files (ci/release-build.sh)
+/dist/
