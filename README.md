@@ -1,5 +1,11 @@
 # Fortuna UI
 
+> [!NOTE]
+> This is the real, open-source code of fortuna-ui. Its home is Forgejo, at
+> https://git.techcraftsmen.net/artur-rios/fortuna-ui; the copy on GitHub is a read-only mirror, for viewing only, and
+> its issues and pull requests are not followed. If you want to contribute, email me at
+> arturdev@duck.com.
+
 Fortuna is a personal finance system that tracks a person's whole financial life — bank accounts,
 credit cards, investments, expenses and earnings — in one place, and turns that history into tabular
 views, charts and forward-looking projections. **This repository is the front end only:** a single
