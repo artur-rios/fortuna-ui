@@ -11,8 +11,8 @@
 ///      difference there would fail CI's drift check for no real reason.
 ///
 /// The pipeline is deterministic: running it twice over an unchanged document
-/// produces byte-identical output, which is what makes the drift check in
-/// `.github/workflows/check-generated.yml` meaningful.
+/// produces byte-identical output, which is what makes the
+/// `api-client-drift` check (`ci/api-client-drift.sh`) meaningful.
 library;
 
 import 'dart:io';

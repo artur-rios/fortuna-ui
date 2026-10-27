@@ -1,5 +1,8 @@
 # Contributing
 
+This repository lives at <https://git.techcraftsmen.net/artur-rios/fortuna-ui>. GitHub is a read-only mirror:
+open pull requests on the git server, not on GitHub.
+
 One use case = one branch = one issue = one pull request. The full process — branch naming, the
 issue status lifecycle, the four approval gates, the testing gate, and the Definition of Done — is
 in the
@@ -13,7 +16,7 @@ whichever platform you are building. The version policy, and why no number is pi
 [Technology Stack Document](docs/requirements/Technology%20Stack%20Document.md) §1.1.
 
 ```bash
-git clone https://github.com/artur-rios/fortuna-ui.git
+git clone https://git.techcraftsmen.net/artur-rios/fortuna-ui.git
 cd fortuna-ui
 flutter pub get
 ```
@@ -35,9 +38,9 @@ absent. See [native/README.md](native/README.md).
 dart run tool/generate_bindings.dart
 ```
 
-Never hand-edit the generated code. The **Check generated** workflow regenerates the API client and
-the bindings and fails on any difference from what is committed, and fails when the vendored header
-differs from the one `fortuna-api` publishes.
+Never hand-edit the generated code. The `api-client-drift` and `bindings-drift` checks, run by Jenkins, regenerate the API client and
+the bindings and fail on any difference from what is committed, and the `header-drift` check fails
+when the vendored header differs from the one `fortuna-api` publishes.
 
 ## Testing
 
@@ -84,8 +87,8 @@ Names are lowercase: letters, digits, `.`, `_` and `-`. A `release/` branch is a
 `develop` and carries no commits of its own: a fix for a release lands on `develop` through a
 `fix/` branch and a new release branch is cut.
 
-The **Branch Policy** workflow checks all of this on every pull request and is a required check
-on `develop` and `main`.
+The `branch-policy` check, run by Jenkins, checks all of this on every pull request and is a required
+check on `develop` and `main`.
 
 ## Commits and the changelog
 
@@ -117,7 +120,7 @@ and the Android package's version name and code; the build number `n` only ever 
 Android refuses to install a package over one with a higher number. The release branch `release/x.y.z` names the release:
 Jenkins takes the number from the branch name, tags the deployed image `x.y.z-<short sha>` (the
 version the yggdrasil console shows) and creates the tag `vx.y.z` when the release merges. The
-Branch Policy check rejects a release branch whose version already has a tag.
+`branch-policy` check rejects a release branch whose version already has a tag.
 
 ## Releasing
 
@@ -150,14 +153,17 @@ Releasing:
    — Jenkins deploys the branch to **homologation**. Turn homologation on first to try the release
    there (`https://fortuna-hml.example.com`, `example.com` standing for the real domain).
 3. Open a pull request `release/1.4.0 → main`.
-4. When every GitHub check on the pull request passes, Jenkins deploys to **production**. On
+4. When every check on the pull request passes, Jenkins deploys to **production**. On
    success it sets the `deploy/production` status, merges the pull request with a merge commit,
-   creates the tag and GitHub release `v1.4.0`, and deletes the release branch.
+   creates the tag `v1.4.0`, builds the release files (web, Android and Linux from Jenkins,
+   Windows from the `Release Windows` workflow on the GitHub copy), publishes the release
+   `v1.4.0`, and deletes the release branch.
 5. If the production deploy fails, Jenkins rolls back to the previous image and the pull request
    stays open. Fix on `develop`, then cut a new release.
 
-The **Build** workflow, which builds every target and uploads the artifacts, runs on `v*` tags and
-can be started by hand.
+The release files come from `ci/release-build.sh` (web, Android and Linux, on the release agent)
+and the `Release Windows` workflow (`release-windows.yml`, dispatched on the tag and runnable by
+hand on the GitHub copy); there is no longer a build on every `v*` tag push.
 
 Follow a release in the **yggdrasil console** (`https://yggdrasil.<domain>`, or the Android app).
 The system card shows development, homologation and production side by side, with this
@@ -171,10 +177,10 @@ The repository owner can bypass these rules. That is for emergencies, not for ro
 Deployment is managed by [yggdrasil](https://github.com/artur-rios/yggdrasil). This repository is
 the application `fortuna-ui` in its `catalog.yaml`, which is what gives it:
 - its Jenkins deploy job
-- its GitHub rulesets and required checks (the catalog's `checks`)
+- its branch rules and required checks (the catalog's `checks`)
 - its health check (`/healthz`) and its place in the console
 
 The web UI serves no metrics, so Prometheus does not scrape it.
 
-If a required check is renamed or added here, update the catalog entry, then run
-`python github/rulesets.py fortuna-ui` in yggdrasil.
+If a required check is renamed or added here, update the catalog entry, then apply the branch rules
+with yggdrasil's `scripts/rules.py`.
