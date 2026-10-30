@@ -86,7 +86,7 @@ here, is in the
 [Technology Stack Document](docs/requirements/Technology%20Stack%20Document.md) §1.1.
 
 ```bash
-git clone https://github.com/artur-rios/fortuna-ui.git
+git clone https://git.techcraftsmen.net/artur-rios/fortuna-ui.git
 cd fortuna-ui
 flutter pub get
 ```
@@ -311,6 +311,9 @@ Notable changes in each release are recorded in [CHANGELOG.md](./CHANGELOG.md).
 
 Regenerating the API client and the FFI bindings, running the tests, the delivery workflow, the
 branching model and the release process are described in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+The GitHub repository is a read-only mirror for the real, open-source code of fortuna-ui. Its home is Forgejo, at
+https://git.techcraftsmen.net/artur-rios/fortuna-ui. If you want to contribute, e-mail me at arturdev@duck.com.
 
 ## Legal
 

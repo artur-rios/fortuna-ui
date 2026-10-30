@@ -104,11 +104,10 @@ and CI proves both.
 
 ```
 fortuna-ui/
+├── ci/                              the scripts Jenkins runs for each check and the release build
+├── yggdrasil.yml                    the checks and the release files, read by Jenkins
 ├── .github/workflows/
-│   ├── ci.yml                       format, analyze, boundaries + test on every pull request
-│   ├── build.yml                    per-target artifacts
-│   ├── check-generated.yml          regenerate client and bindings; fail on drift
-│   └── branch-policy.yml            enforce the branching model on pull requests
+│   └── release-windows.yml          the Windows build of a release, dispatched on its tag
 ├── api/
 │   └── fortuna.json                 the API's OpenAPI document, copied from fortuna-api
 ├── native/
@@ -294,14 +293,20 @@ one wildcard certificate cover them all; the routing rules and the real domain b
 
 ### 6.1 Continuous integration
 
-Four workflows, mirroring the ones the sibling repositories use:
+Jenkins runs these checks (`yggdrasil.yml`, scripts under `ci/`) on every pull request into, and push to,
+`develop` and `main`:
 
-| Workflow | Runs | Does |
-| --- | --- | --- |
-| `ci.yml` | Every pull request into, and push to, `develop` and `main` | Verifies formatting, `flutter analyze`, the boundary rules and `flutter test`, and fails on any of them. The gate for merging. |
-| `check-generated.yml` | Every pull request into, and push to, `develop` and `main` | Regenerates the API client and the FFI bindings, diffs the vendored header against the API's published one, and fails on any difference. |
-| `branch-policy.yml` | Every pull request into `develop` and `main` | Enforces the branching model described in [CONTRIBUTING.md](../../CONTRIBUTING.md#branching-model). |
-| `build.yml` | On a `v*` tag, and on demand | Builds all four targets and publishes the artifacts. |
+| Check | Does |
+| --- | --- |
+| `analyze-and-test` | Verifies formatting, `flutter analyze`, the boundary rules and `flutter test`, and fails on any of them. The gate for merging. |
+| `api-client-drift` | Regenerates the API client and diffs it against what is committed. |
+| `header-drift` | Diffs the vendored header against the API's published one. |
+| `bindings-drift` | Regenerates the FFI bindings and diffs them against what is committed. |
+| `branch-policy` | Enforces the branching model described in [CONTRIBUTING.md](../../CONTRIBUTING.md#branching-model). |
+
+The release files are built by the pipeline when a release is merged: `ci/release-build.sh` on the release
+agent (web, Android and Linux) and the `Release Windows` workflow (`release-windows.yml`, dispatched on the
+tag, on the GitHub copy) for Windows.
 
 ### 6.2 Packaging per target
 
@@ -339,8 +344,8 @@ environment files (`/etc/yggdrasil/<environment>/fortuna-ui.env` on the VPS).
 
 A release is cut from `develop` as a `release/x.y.z` branch and merged into `main` by the
 deployment pipeline, which tags it `vx.y.z`; the steps are in
-[CONTRIBUTING.md](../../CONTRIBUTING.md#releasing). The tag starts `build.yml`, which produces the
-four artifacts, and the desktop ones are published alongside the web image. The application's
+[CONTRIBUTING.md](../../CONTRIBUTING.md#releasing). On the tag the pipeline builds the release files (`ci/release-build.sh`, and the Windows
+build in `release-windows.yml`) and publishes them with the release; the web image is the deployed one. The application's
 version comes from `pubspec.yaml`, and the Fortuna core library it ships is recorded with it, so
 that an offline installation's two halves are identifiable as a pair.
 
