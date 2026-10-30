@@ -1,19 +1,11 @@
 # Fortuna UI
 
-> [!NOTE]
-> This is the real, open-source code of fortuna-ui. Its home is Forgejo, at
-> https://git.techcraftsmen.net/artur-rios/fortuna-ui; the copy on GitHub is a read-only mirror, for viewing only, and
-> its issues and pull requests are not followed. If you want to contribute, email me at
-> arturdev@duck.com.
-
 Fortuna is a personal finance system that tracks a person's whole financial life — bank accounts,
 credit cards, investments, expenses and earnings — in one place, and turns that history into tabular
 views, charts and forward-looking projections. **This repository is the front end only:** a single
 Flutter application that runs on the web, Windows, Linux and Android from one code base, and reads
 and writes everything through the [Fortuna API](https://github.com/artur-rios/fortuna-api). The API
 owns the domain, the money and the integrations; this application owns the experience.
-
-This repository lives at <https://git.techcraftsmen.net/artur-rios/fortuna-ui>. GitHub is a read-only mirror.
 
 [![Open issues](https://img.shields.io/github/issues/artur-rios/fortuna-ui?style=flat-square&label=open)](https://github.com/artur-rios/fortuna-ui/issues)
 [![Closed issues](https://img.shields.io/github/issues-closed-raw/artur-rios/fortuna-ui?style=flat-square&label=closed)](https://github.com/artur-rios/fortuna-ui/issues?q=is%3Aissue+is%3Aclosed)
@@ -319,6 +311,9 @@ Notable changes in each release are recorded in [CHANGELOG.md](./CHANGELOG.md).
 
 Regenerating the API client and the FFI bindings, running the tests, the delivery workflow, the
 branching model and the release process are described in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+The GitHub repository is a read-only mirror for the real, open-source code of fortuna-ui. Its home is Forgejo, at
+https://git.techcraftsmen.net/artur-rios/fortuna-ui. If you want to contribute, e-mail me at arturdev@duck.com.
 
 ## Legal
 
