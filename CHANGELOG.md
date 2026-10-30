@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-30
+
 ### Fixed
 
 - The Android release build can reach the API: its manifest now declares the INTERNET permission, which only
@@ -89,6 +91,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - The bindings generator reports how many routes it wrote, instead of printing the literal
   `${matches.length}`.
 
-[Unreleased]: https://github.com/artur-rios/fortuna-ui/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/artur-rios/fortuna-ui/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/artur-rios/fortuna-ui/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/artur-rios/fortuna-ui/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/artur-rios/fortuna-ui/releases/tag/v1.0.0
