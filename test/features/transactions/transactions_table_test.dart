@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +13,7 @@ import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/transactions/data/transaction_repository.dart';
 import 'package:fortuna_ui/features/transactions/state/transaction_table.dart';
 import 'package:fortuna_ui/features/transactions/ui/transactions_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart'
     show FakeAccounts, FakeCurrencies, account;

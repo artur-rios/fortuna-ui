@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/app/routes.dart';
@@ -12,6 +11,7 @@ import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/auth/data/credentials_repository.dart';
 import 'package:fortuna_ui/features/auth/ui/sign_in_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'sign_in_controller_test.dart' show FakeCredentials, tokenFor;
 

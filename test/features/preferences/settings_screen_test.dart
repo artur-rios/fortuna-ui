@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -9,6 +8,7 @@ import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/preferences/state/preferences_controller.dart';
 import 'package:fortuna_ui/features/preferences/ui/settings_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 class _Currencies implements CurrencyRepository {
   _Currencies(this._result);

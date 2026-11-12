@@ -15,7 +15,7 @@
 library;
 
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../shared/widgets/money_text.dart';
 import '../data/aggregation_repository.dart';

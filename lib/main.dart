@@ -7,8 +7,8 @@
 /// screen holding financial data is built.
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'app/app.dart';
 import 'core/config/instance_config.dart';

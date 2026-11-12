@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
@@ -9,6 +8,7 @@ import 'package:fortuna_ui/core/session/session.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/setup/data/instance_probe.dart';
 import 'package:fortuna_ui/features/setup/ui/setup_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeProbe implements InstanceProbe {
   FakeProbe(this.answer);

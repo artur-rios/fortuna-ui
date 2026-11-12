@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +8,7 @@ import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/ingestion/data/import_job_repository.dart';
 import 'package:fortuna_ui/features/ingestion/ui/import_jobs_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeJobRepository implements ImportJobRepository {
   FakeJobRepository(this.next);

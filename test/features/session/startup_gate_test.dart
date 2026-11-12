@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/app_config.dart';
@@ -8,6 +7,7 @@ import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/session/data/session_repository.dart';
 import 'package:fortuna_ui/features/session/ui/startup_gate.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../core/session/token_claims_test.dart' show tokenWith;
 

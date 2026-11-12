@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
@@ -11,6 +10,7 @@ import 'package:fortuna_ui/features/ingestion/data/connection_repository.dart';
 import 'package:fortuna_ui/features/privacy/data/consent_repository.dart';
 import 'package:fortuna_ui/features/privacy/state/consent_controller.dart';
 import 'package:fortuna_ui/features/privacy/ui/privacy_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeConsents implements ConsentRepository {
   FakeConsents({this.onList, this.onGrant, this.onWithdraw});

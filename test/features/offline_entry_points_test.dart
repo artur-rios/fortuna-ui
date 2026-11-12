@@ -5,7 +5,6 @@
 /// exactly what it was, because over HTTP nothing is unavailable.
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +13,7 @@ import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/features/holdings/data/statement_repository.dart';
 import 'package:fortuna_ui/features/ingestion/data/import_job_repository.dart';
 import 'package:fortuna_ui/shared/widgets/offline_unavailable.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../core/network/offline_capabilities_test.dart'
     show

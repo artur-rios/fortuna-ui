@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:decimal/decimal.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +15,7 @@ import 'package:fortuna_ui/features/insight/ui/aggregation_chart.dart';
 import 'package:fortuna_ui/features/insight/ui/insight_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/transactions/data/transaction_repository.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart' show FakeCurrencies;
 

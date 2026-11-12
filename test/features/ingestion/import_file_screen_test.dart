@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +9,7 @@ import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/ingestion/data/file_picker_service.dart';
 import 'package:fortuna_ui/features/ingestion/data/import_upload_repository.dart';
 import 'package:fortuna_ui/features/ingestion/ui/import_file_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 class _Picker implements FilePickerService {
   _Picker(this.next);

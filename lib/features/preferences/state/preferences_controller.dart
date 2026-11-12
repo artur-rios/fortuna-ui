@@ -8,8 +8,8 @@ library;
 
 import 'dart:ui' show Locale;
 
-import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:meta/meta.dart';
 
 import '../../../core/config/instance_config.dart';

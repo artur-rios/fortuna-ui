@@ -1,12 +1,12 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/supported_locales.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/preferences/state/preferences_controller.dart';
+import 'package:material_ui/material_ui.dart' show ThemeMode;
 
 /// A store that refuses every write, for `AF-05`.
 class UnwritablePreferencesStore implements PreferencesStore {

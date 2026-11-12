@@ -5,7 +5,7 @@
 /// light one usually does not.
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 abstract final class FortunaTheme {
   /// The single seed both schemes are derived from.
