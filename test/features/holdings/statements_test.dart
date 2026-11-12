@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:decimal/decimal.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +18,7 @@ import 'package:fortuna_ui/features/holdings/ui/credit_cards_screen.dart';
 import 'package:fortuna_ui/features/holdings/ui/statement_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'accounts_test.dart' show FakeAccounts, FakeCurrencies, account;
 

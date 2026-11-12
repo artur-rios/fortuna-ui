@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -11,6 +10,7 @@ import 'package:fortuna_ui/features/ingestion/data/import_job_repository.dart';
 import 'package:fortuna_ui/features/ingestion/state/connection_providers.dart';
 import 'package:fortuna_ui/features/ingestion/state/import_job_providers.dart';
 import 'package:fortuna_ui/features/ingestion/ui/connections_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeConnections implements ConnectionRepository {
   FakeConnections(this.connections);

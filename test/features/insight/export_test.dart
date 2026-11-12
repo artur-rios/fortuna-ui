@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -12,6 +11,7 @@ import 'package:fortuna_ui/features/insight/state/export_controller.dart';
 import 'package:fortuna_ui/features/insight/ui/export_sheet.dart';
 import 'package:fortuna_ui/features/transactions/data/transaction_repository.dart';
 import 'package:fortuna_ui/features/transactions/state/transaction_table.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeExports implements ExportRepository {
   FakeExports({this.onRequest, this.onRead, this.onDownload});

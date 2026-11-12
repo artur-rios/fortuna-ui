@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
@@ -13,6 +12,7 @@ import 'package:fortuna_ui/features/auth/data/credentials_repository.dart';
 import 'package:fortuna_ui/features/auth/data/google_identity.dart';
 import 'package:fortuna_ui/features/auth/state/sign_in_controller.dart';
 import 'package:fortuna_ui/features/auth/ui/sign_in_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'sign_in_controller_test.dart' show FakeCredentials, tokenFor;
 

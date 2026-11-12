@@ -1,8 +1,8 @@
 /// The category tree (UC-26).
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../session/ui/sign_out_action.dart';
 import '../data/category_repository.dart';

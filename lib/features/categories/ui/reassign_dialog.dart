@@ -1,8 +1,8 @@
 /// Moving a category's transactions elsewhere (UC-26 step 5, AF-03, AF-04).
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../data/category_repository.dart';
 import '../state/category_providers.dart';

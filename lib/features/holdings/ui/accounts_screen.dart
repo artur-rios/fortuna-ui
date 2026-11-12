@@ -8,8 +8,8 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../shared/widgets/money_text.dart';
 import '../data/account_repository.dart';

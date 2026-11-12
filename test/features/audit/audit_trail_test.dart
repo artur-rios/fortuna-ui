@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_api_client/export.dart' show AuditOutcome;
@@ -13,6 +12,7 @@ import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/audit/data/audit_repository.dart';
 import 'package:fortuna_ui/features/audit/ui/audit_trail_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeAudit implements AuditRepository {
   FakeAudit(this.next);

@@ -6,7 +6,7 @@
 /// teach the user that trying again is the fix.
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The heading every such explanation carries.
 const notAvailableOfflineTitle = 'Not available offline';

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -11,6 +10,7 @@ import 'package:fortuna_ui/features/ingestion/data/data_source_repository.dart';
 import 'package:fortuna_ui/features/ingestion/state/data_source_providers.dart';
 import 'package:fortuna_ui/features/ingestion/ui/data_sources_screen.dart';
 import 'package:fortuna_ui/features/privacy/data/consent_repository.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeDataSources implements DataSourceRepository {
   FakeDataSources({this.onList});

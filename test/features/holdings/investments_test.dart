@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:decimal/decimal.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -13,6 +12,7 @@ import 'package:fortuna_ui/features/holdings/state/investment_providers.dart';
 import 'package:fortuna_ui/features/holdings/ui/investment_screen.dart';
 import 'package:fortuna_ui/features/holdings/ui/investments_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'accounts_test.dart' show FakeCurrencies;
 

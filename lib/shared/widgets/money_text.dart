@@ -7,8 +7,8 @@
 /// so instead of being converted here.
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../core/format/money.dart';
 import '../../core/format/money_formatter.dart';

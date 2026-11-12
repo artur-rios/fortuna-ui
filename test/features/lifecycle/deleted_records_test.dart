@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -10,6 +9,7 @@ import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/lifecycle/data/deleted_record_repository.dart';
 import 'package:fortuna_ui/features/lifecycle/state/deleted_record_providers.dart';
 import 'package:fortuna_ui/features/lifecycle/ui/deleted_records_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeDeletedRecords implements DeletedRecordRepository {
   FakeDeletedRecords({this.onList, this.onRestore, this.onPurge});

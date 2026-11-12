@@ -3,8 +3,8 @@
 /// the real one.
 library;
 
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../features/session/ui/sign_out_action.dart';
 import 'routes.dart';

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -17,6 +16,7 @@ import 'package:fortuna_ui/features/auth/data/registration_repository.dart';
 import 'package:fortuna_ui/features/auth/state/sign_in_controller.dart';
 import 'package:fortuna_ui/features/auth/state/sign_up_controller.dart';
 import 'package:fortuna_ui/features/auth/ui/sign_up_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'google_sign_in_test.dart' show FakeGoogle;
 import 'sign_in_controller_test.dart' show FakeCredentials, tokenFor;

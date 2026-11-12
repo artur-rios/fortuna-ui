@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/session/session.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/session/ui/sign_out_action.dart';
+import 'package:material_ui/material_ui.dart';
 
 class _UnclearableStore implements TokenStore {
   String? _token = 'a-token';

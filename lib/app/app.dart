@@ -1,9 +1,13 @@
 /// The application widget: theme, localization, and the router.
 library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+// Only the widgets delegate: the Material and Cupertino ones come from
+// material_ui and cupertino_ui (Flutter 3.50 deprecates these copies).
+import 'package:flutter_localizations/flutter_localizations.dart'
+    show GlobalWidgetsLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../core/format/supported_locales.dart';
 import '../features/preferences/state/preferences_controller.dart';

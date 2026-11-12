@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
@@ -12,6 +11,7 @@ import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/auth/data/local_account_repository.dart';
 import 'package:fortuna_ui/features/auth/state/local_recovery_controller.dart';
 import 'package:fortuna_ui/features/auth/ui/local_recovery_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'sign_in_controller_test.dart' show tokenFor;
 

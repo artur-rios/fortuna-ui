@@ -1,8 +1,8 @@
 /// Creating and editing a category (UC-26 steps 2–5, AF-01, AF-02).
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../data/category_repository.dart';
 import '../state/category_providers.dart';

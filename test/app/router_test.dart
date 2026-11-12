@@ -5,7 +5,6 @@
 /// rather than once at sign-in.
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/app/router.dart';
@@ -20,6 +19,7 @@ import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/administration/data/health_repository.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 class _Health implements HealthRepository {
   @override

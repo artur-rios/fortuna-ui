@@ -1,5 +1,4 @@
 import 'package:decimal/decimal.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -12,6 +11,7 @@ import 'package:fortuna_ui/features/holdings/ui/account_editor.dart';
 import 'package:fortuna_ui/features/holdings/ui/accounts_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/preferences/state/preferences_controller.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FakeAccounts implements AccountRepository {
   FakeAccounts({this.onList, this.onBalance, this.onCreate, this.onDelete});
