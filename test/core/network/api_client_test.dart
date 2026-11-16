@@ -370,6 +370,43 @@ void main() {
       expect(failure.kind, FailureKind.serverError);
     });
 
+    test('Given a download the API refuses with its envelope '
+        'When the failure is read '
+        "Then the API's reason is read out of the bytes (FR-DA-14, UC-43 "
+        'AF-02)', () async {
+      final dio = httpDio(
+        CapturingHttpAdapter(refusal('The archive has expired.'), status: 404),
+      );
+
+      final failure = await failureOf(
+        () => dio.get<List<int>>(
+          '/api/me/data-export/j1',
+          options: Options(responseType: ResponseType.bytes),
+        ),
+      );
+
+      expect(failure.message, 'The archive has expired.');
+      expect(failure.kind, FailureKind.notFound);
+    });
+
+    test('Given a download refused with a body that is not JSON '
+        'When the failure is read '
+        'Then a plain sentence is shown rather than the bytes', () async {
+      final dio = httpDio(
+        CapturingHttpAdapter('<html>502</html>', status: 502),
+      );
+
+      final failure = await failureOf(
+        () => dio.get<List<int>>(
+          '/api/exports/e1',
+          options: Options(responseType: ResponseType.bytes),
+        ),
+      );
+
+      expect(failure.message, 'The request could not be completed.');
+      expect(failure.kind, FailureKind.serverError);
+    });
+
     test('Given a failure that states no reason anywhere '
         'When the failure is read '
         'Then a plain sentence is shown rather than nothing', () async {
@@ -388,6 +425,37 @@ void main() {
 
       expect(failure.message, 'The request could not be completed.');
       expect(failure.kind, FailureKind.serverError);
+    });
+  });
+
+  group('An answer with no body', () {
+    test(
+      'Given the API answers 204 to a call that expects its envelope '
+      'When the call is made '
+      'Then it reads as an envelope with no data rather than throwing',
+      () async {
+        final dio = httpDio(CapturingHttpAdapter('', status: 204));
+
+        final output = await GoalsClient(dio).putApiGoalsId(
+          id: 'g1',
+          body: const UpdateGoalCommand(name: 'New laptop'),
+        );
+
+        expect(output.data, isNull);
+      },
+    );
+
+    test('Given an empty download '
+        'When it is fetched as bytes '
+        'Then it stays empty bytes, not an envelope', () async {
+      final dio = httpDio(CapturingHttpAdapter(''));
+
+      final response = await dio.get<List<int>>(
+        '/api/exports/e1',
+        options: Options(responseType: ResponseType.bytes),
+      );
+
+      expect(response.data, isEmpty);
     });
   });
 

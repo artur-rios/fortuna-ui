@@ -800,6 +800,50 @@ void main() {
       expect(find.byType(AlertDialog), findsNothing);
     });
 
+    testWidgets('Given the API refused for want of a consent the client '
+        'thought it held '
+        'When the disclosure is reviewed and agreed to '
+        "Then the API's current version is recorded and the connection is "
+        'tried again (AF-03)', (tester) async {
+      var attempts = 0;
+      final connections = ConnectableConnections(
+        onConnect: () => ++attempts == 1
+            ? const Failure(
+                message: 'No current consent for external processing.',
+                kind: FailureKind.forbidden,
+              )
+            : Success(connection(externalReference: 'A Bank')),
+      );
+      final consents = FakeConsents(
+        consents: [
+          consent(version: 'v2', grantedVersion: 'v2', isCurrent: true),
+        ],
+      );
+      await pumpSources(tester, connections: connections, consents: consents);
+      await tester.tap(find.byKey(const Key('sources.connect.pluggy')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('sources.connect.reference')),
+        'A Bank',
+      );
+      await tester.tap(find.byKey(const Key('sources.connect.submit')));
+      await tester.pumpAndSettle();
+      consents.consents = [
+        consent(version: 'v3', grantedVersion: 'v2', isCurrent: false),
+      ];
+
+      await tester.tap(find.byKey(const Key('sources.consentMissing.review')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('sources.disclosure.agree')));
+      await tester.pumpAndSettle();
+
+      expect(consents.granted, [
+        {'purpose': externalProcessingPurpose, 'version': 'v3'},
+      ]);
+      expect(connections.connected, hasLength(2));
+      expect(find.byKey(const Key('sources.connected')), findsOneWidget);
+    });
+
     testWidgets('Given the API refused for want of a consent '
         'When the disclosure is reviewed and declined '
         'Then nothing is sent again and the refusal stays (AF-03, AF-01)', (

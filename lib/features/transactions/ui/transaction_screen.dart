@@ -490,11 +490,3 @@ class _Field extends StatelessWidget {
     ),
   );
 }
-
-/// A failure that the detail screen reports without losing the record.
-void showTransactionFailure(BuildContext context, Result<void> result) {
-  if (result case Failure(:final message)) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-}

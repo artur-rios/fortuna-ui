@@ -102,6 +102,10 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
             targetAmount: amount,
             currencyCode: widget.goal!.targetAmount.currencyCode,
             targetDate: _targetDate!,
+            // The editor does not change what the goal draws on, and an
+            // update that named nothing would unlink it all.
+            accountIds: widget.goal!.accountIds,
+            investmentIds: widget.goal!.investmentIds,
           );
 
     if (!mounted) return;

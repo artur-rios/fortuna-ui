@@ -949,6 +949,43 @@ void main() {
       expect(repository.enabled.single, ticked);
     });
 
+    testWidgets('Given two-factor is off and both methods are ticked '
+        'When the instance refuses the setup '
+        'Then the refusal is shown and the boxes are as the user left them', (
+      tester,
+    ) async {
+      await pumpScreen(
+        tester,
+        FakeTwoFactor(
+          onEnable: (_) => const Failure(
+            message: 'Email codes are not configured on this instance.',
+            kind: FailureKind.conflict,
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(const Key('twoFactor.method.email')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('twoFactor.enable')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Email codes are not configured on this instance.'),
+        findsOneWidget,
+      );
+      for (final method in TwoFactorMethod.values) {
+        expect(
+          tester
+              .widget<CheckboxListTile>(
+                find.byKey(Key('twoFactor.method.${method.wireName}')),
+              )
+              .value,
+          isTrue,
+          reason: method.wireName,
+        );
+      }
+    });
+
     testWidgets('Given the status cannot be read '
         'When the screen settles '
         'Then the reason is shown with a retry that reads it again', (

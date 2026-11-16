@@ -7,6 +7,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- A transaction's tags are shown, and kept when the transaction is edited: they were read as nothing, so saving
+  an edit could remove them.
+- A refused download (an export or the personal data archive that has expired, or a format the instance does not
+  produce) shows the API's reason instead of "The request could not be completed."
+- When connecting an institution is refused for want of a consent, "Review the disclosure" can be agreed to: it
+  re-reads the consents, records the version the instance now asks about and tries the connection again. Agreeing
+  always stopped at "did not say which version" before.
+- A committed obligation the instance converted, but without naming the currency it converted into, shows its own
+  amount in its own currency rather than the converted number labelled with the original currency.
+- Editing a goal keeps the accounts and investments it draws on: the update named none, and the API replaces a
+  goal's links with what an update names.
+- A success answered with no body (a 204) no longer fails with an unhandled error where the screen expected the
+  instance's answer; it is treated as an answer with nothing in it.
+- When the instance refuses to set up two-factor authentication, the methods stay ticked as the user left them
+  instead of going back to the authenticator app alone.
+
 ## [1.1.1] - 2026-10-30
 
 ### Fixed

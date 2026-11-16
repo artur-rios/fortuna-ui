@@ -16,8 +16,13 @@ class AuditFilterController extends Notifier<AuditFilter> {
   @override
   AuditFilter build() => const AuditFilter();
 
-  void setPeriod({DateTime? from, DateTime? to}) =>
-      state = state.copyWith(from: from, to: to);
+  /// Sets the whole period: a bound left out is no bound, not the old one.
+  void setPeriod({DateTime? from, DateTime? to}) => state = state.copyWith(
+    from: from,
+    to: to,
+    clearFrom: from == null,
+    clearTo: to == null,
+  );
 
   void setOperation(String? operation) => state = operation == null
       ? state.copyWith(clearOperation: true)

@@ -92,6 +92,19 @@ class ApiClientFactory {
           }
           handler.next(options);
         },
+        onResponse: (response, handler) {
+          // A success with no body (a 204, or a 200 with nothing in it) to a
+          // call that reads the API's envelope: the generated client would
+          // fail on the missing map with a TypeError no repository catches.
+          // It reads instead as an envelope with no data, which every
+          // repository already answers.
+          final body = response.data;
+          if (response.requestOptions.responseType == ResponseType.json &&
+              (body == null || body == '')) {
+            response.data = <String, Object?>{};
+          }
+          handler.next(response);
+        },
         onError: (error, handler) {
           final anonymous = anonymousAuthPaths.contains(
             error.requestOptions.path,
@@ -152,7 +165,8 @@ Failure<T> failureFromDioException<T>(DioException exception) {
 /// offline core put them, and what the envelope's `success` is computed from.
 /// `messages` carries informational text and is only a fallback, for an answer
 /// that failed without stating an error.
-String? _messageFromResponse(Object? data) {
+String? _messageFromResponse(Object? body) {
+  final data = _decodedBody(body);
   if (data is! Map) return null;
 
   for (final key in const ['errors', 'messages']) {
@@ -168,6 +182,26 @@ String? _messageFromResponse(Object? data) {
 
   final message = data['message'];
   return message is String && message.isNotEmpty ? message : null;
+}
+
+/// The body of a failed answer as JSON, where it arrived undecoded.
+///
+/// A download asks for `ResponseType.bytes`, and `dio` hands a refusal's body
+/// back the same way, so the envelope with the API's reason is still bytes
+/// here. Anything that is not JSON is no reason to show.
+Object? _decodedBody(Object? body) {
+  final text = switch (body) {
+    final List<int> bytes => utf8.decode(bytes, allowMalformed: true),
+    final String text => text,
+    _ => null,
+  };
+  if (text == null) return body;
+
+  try {
+    return jsonDecode(text);
+  } on FormatException {
+    return null;
+  }
 }
 
 /// The core dispatcher, in desktop offline mode only (`UC-02`).

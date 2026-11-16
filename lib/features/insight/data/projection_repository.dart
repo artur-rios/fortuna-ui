@@ -350,14 +350,18 @@ class HttpProjectionRepository implements ProjectionRepository {
               CommittedObligation(
                 id: item.id ?? '',
                 kind: ObligationKind.from(item.kind),
-                // Scheduled, not recorded — marked on the value itself.
-                amount: Money.parse(
-                  item.displayAmount ?? item.amount ?? '0',
-                  (item.displayAmount != null ? displayCurrency : null) ??
-                      item.currencyCode ??
-                      '',
-                  isProjected: true,
-                ),
+                // Scheduled, not recorded — marked on the value itself. A
+                // converted amount is only shown with the currency it was
+                // converted into; without one it is the item's own (BR-07).
+                amount: switch ((item.displayAmount, displayCurrency)) {
+                  (final String converted, final String currency) =>
+                    Money.parse(converted, currency, isProjected: true),
+                  _ => Money.parse(
+                    item.amount ?? '0',
+                    item.currencyCode ?? '',
+                    isProjected: true,
+                  ),
+                },
                 dueDate: item.dueDate ?? DateTime.now(),
                 isOverdue: item.isOverdue ?? false,
                 daysOverdue: item.daysOverdue ?? 0,

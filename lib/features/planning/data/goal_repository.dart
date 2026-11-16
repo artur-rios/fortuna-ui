@@ -73,6 +73,8 @@ class Goal {
     required this.targetDate,
     required this.accountNames,
     required this.investmentNames,
+    this.accountIds = const [],
+    this.investmentIds = const [],
     this.progress,
   });
 
@@ -87,6 +89,11 @@ class Goal {
   /// What the goal draws on, named for display.
   final List<String> accountNames;
   final List<String> investmentNames;
+
+  /// What the goal draws on, by id: sent back with every update, because the
+  /// API replaces the links with whatever an update names.
+  final List<String> accountIds;
+  final List<String> investmentIds;
 
   final GoalProgress? progress;
 
@@ -264,6 +271,15 @@ class HttpGoalRepository implements GoalRepository {
         for (final investment
             in output.investments ?? const <GoalResourceOutput>[])
           investment.name ?? '',
+      ],
+      accountIds: [
+        for (final account in output.accounts ?? const <GoalResourceOutput>[])
+          ?account.id,
+      ],
+      investmentIds: [
+        for (final investment
+            in output.investments ?? const <GoalResourceOutput>[])
+          ?investment.id,
       ],
       progress: progress == null
           ? null

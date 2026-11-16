@@ -185,6 +185,22 @@ void main() {
       expect(transaction.tags, isEmpty);
     });
 
+    test('Given the API stored the transaction with tags '
+        'When it is recorded '
+        'Then the tags that come back are their names', () async {
+      final stub = ApiStub.data({
+        'id': 't1',
+        'tags': [
+          {'id': 'g1', 'name': 'food'},
+          {'id': 'g2', 'name': 'weekly'},
+        ],
+      }, status: 201);
+
+      final transaction = (await recordGroceries(stub)).valueOrNull!;
+
+      expect(transaction.tags, ['food', 'weekly']);
+    });
+
     test('Given a confirmation with every optional field missing '
         'When a transaction is recorded '
         'Then the gaps read as empty rather than failing', () async {
@@ -327,6 +343,24 @@ void main() {
 
       expect(transaction.holdingName, 'Gold');
     });
+
+    test(
+      'Given a transaction the API stores with tags '
+      'When it is read '
+      'Then the tags are their names, so an edit keeps them (UC-20 step 1)',
+      () async {
+        final transaction = await readOne({
+          ...transactionOutput(),
+          'tags': [
+            {'id': 'g1', 'name': 'food'},
+            {'id': 'g2', 'name': 'weekly'},
+            {'id': 'g3', 'name': null},
+          ],
+        });
+
+        expect(transaction.tags, ['food', 'weekly']);
+      },
+    );
 
     test('Given each direction the API reports '
         'When a transaction is read '
