@@ -11,6 +11,10 @@ import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
 import '../../../core/time/clock.dart';
+import '../../holdings/data/account_repository.dart';
+import '../../holdings/data/investment_repository.dart';
+import '../../holdings/state/account_providers.dart';
+import '../../holdings/state/investment_providers.dart';
 import '../../preferences/state/currency_providers.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/goal_repository.dart';
@@ -43,6 +47,10 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
   late DateTime? _targetDate = widget.goal?.targetDate;
   late String? _currency = widget.goal?.targetAmount.currencyCode;
 
+  /// What the goal tracks: its progress is what these hold (step 2).
+  late final _accountIds = <String>{...?widget.goal?.accountIds};
+  late final _investmentIds = <String>{...?widget.goal?.investmentIds};
+
   String? _error;
   var _busy = false;
 
@@ -66,6 +74,7 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
       name: _name.text,
       amountText: _amount.text,
       targetDate: _targetDate,
+      holdingCount: _accountIds.length + _investmentIds.length,
       now: ref.now(),
       isReadableAmount: (text) => parser.parse(text) != null,
       isPositiveAmount: parser.isPositive,
@@ -96,6 +105,8 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
             targetAmount: amount,
             currencyCode: _currency!,
             targetDate: _targetDate!,
+            accountIds: _accountIds.toList(),
+            investmentIds: _investmentIds.toList(),
           )
         : await actions.update(
             id: widget.goal!.id,
@@ -103,10 +114,10 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
             targetAmount: amount,
             currencyCode: widget.goal!.targetAmount.currencyCode,
             targetDate: _targetDate!,
-            // The editor does not change what the goal draws on, and an
-            // update that named nothing would unlink it all.
-            accountIds: widget.goal!.accountIds,
-            investmentIds: widget.goal!.investmentIds,
+            // Every link, kept or changed: the API replaces the goal's links
+            // with what an update names.
+            accountIds: _accountIds.toList(),
+            investmentIds: _investmentIds.toList(),
           );
 
     if (!mounted) return;
@@ -140,6 +151,10 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
           _busy = false;
         });
     }
+  }
+
+  static void _toggle(Set<String> chosen, String id) {
+    if (!chosen.remove(id)) chosen.add(id);
   }
 
   Future<void> _pickTargetDate() async {
@@ -237,6 +252,20 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
               ),
               onPressed: _busy ? null : () => unawaited(_pickTargetDate()),
             ),
+            const SizedBox(height: 16),
+
+            Text('Tracks', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            _Holdings(
+              accounts: ref.watch(selectableAccountsProvider),
+              investments: ref.watch(investmentsProvider),
+              accountIds: _accountIds,
+              investmentIds: _investmentIds,
+              enabled: !_busy,
+              onToggleAccount: (id) => setState(() => _toggle(_accountIds, id)),
+              onToggleInvestment: (id) =>
+                  setState(() => _toggle(_investmentIds, id)),
+            ),
 
             if (_error case final message?) ...[
               const SizedBox(height: 16),
@@ -269,6 +298,81 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
           onPressed: _busy ? null : () => unawaited(_save()),
           child: Text(_isNew ? 'Create' : 'Save'),
         ),
+      ],
+    );
+  }
+}
+
+/// The accounts and investments a goal can track (step 2, `AF-07`, `AF-08`).
+///
+/// Only live ones are offered: a deleted account holds nothing a goal could
+/// count, and the investments list already leaves deleted ones out.
+class _Holdings extends StatelessWidget {
+  const _Holdings({
+    required this.accounts,
+    required this.investments,
+    required this.accountIds,
+    required this.investmentIds,
+    required this.enabled,
+    required this.onToggleAccount,
+    required this.onToggleInvestment,
+  });
+
+  final AsyncValue<List<FinancialAccount>> accounts;
+  final AsyncValue<List<Investment>> investments;
+  final Set<String> accountIds;
+  final Set<String> investmentIds;
+  final bool enabled;
+  final void Function(String id) onToggleAccount;
+  final void Function(String id) onToggleInvestment;
+
+  @override
+  Widget build(BuildContext context) {
+    final failure = accounts.error ?? investments.error;
+    if (failure != null) {
+      return Text(
+        'The accounts and investments could not be read: $failure',
+        key: const Key('goalEditor.holdingsFailed'),
+      );
+    }
+
+    final (accountList, investmentList) = (accounts.value, investments.value);
+    if (accountList == null || investmentList == null) {
+      return const LinearProgressIndicator();
+    }
+
+    // AF-08: a goal is measured by what is held somewhere, so with nothing
+    // held there is nothing to offer, and the editor says where to start.
+    if (accountList.isEmpty && investmentList.isEmpty) {
+      return const Text(
+        'There is no account or investment to track yet. Add one under '
+        'Accounts or Investments first.',
+        key: Key('goalEditor.noHoldings'),
+      );
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final account in accountList)
+          FilterChip(
+            key: Key('goalEditor.account.${account.id}'),
+            avatar: const Icon(Icons.account_balance_outlined, size: 18),
+            label: Text(account.name),
+            selected: accountIds.contains(account.id),
+            onSelected: enabled ? (_) => onToggleAccount(account.id) : null,
+          ),
+        for (final investment in investmentList)
+          FilterChip(
+            key: Key('goalEditor.investment.${investment.id}'),
+            avatar: const Icon(Icons.trending_up, size: 18),
+            label: Text(investment.instrument),
+            selected: investmentIds.contains(investment.id),
+            onSelected: enabled
+                ? (_) => onToggleInvestment(investment.id)
+                : null,
+          ),
       ],
     );
   }

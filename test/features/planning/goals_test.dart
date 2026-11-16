@@ -11,13 +11,17 @@ import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session_teardown.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/core/time/clock.dart';
+import 'package:fortuna_ui/features/holdings/data/account_repository.dart';
+import 'package:fortuna_ui/features/holdings/data/investment_repository.dart';
 import 'package:fortuna_ui/features/planning/data/goal_repository.dart';
 import 'package:fortuna_ui/features/planning/state/goal_providers.dart';
 import 'package:fortuna_ui/features/planning/ui/goals_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../holdings/accounts_test.dart' show FakeCurrencies;
+import '../holdings/accounts_test.dart'
+    show FakeAccounts, FakeCurrencies, account;
+import '../holdings/investments_test.dart' show FakeInvestments, investment;
 
 class FakeGoals implements GoalRepository {
   FakeGoals({this.onList, this.onCreate, this.onUpdate, this.onDelete});
@@ -55,6 +59,8 @@ class FakeGoals implements GoalRepository {
       'targetAmount': targetAmount,
       'currencyCode': currencyCode,
       'targetDate': targetDate,
+      'accountIds': accountIds,
+      'investmentIds': investmentIds,
     });
     return onCreate?.call() ?? const Success(null);
   }
@@ -157,6 +163,8 @@ Future<void> pumpGoals(
   WidgetTester tester,
   FakeGoals fake, {
   CurrencyRepository? currencies,
+  AccountRepository? accounts,
+  InvestmentRepository? investments,
   List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(1000, 2400);
@@ -169,6 +177,13 @@ Future<void> pumpGoals(
         goalRepositoryProvider.overrideWithValue(fake),
         currencyRepositoryProvider.overrideWithValue(
           currencies ?? FakeCurrencies(),
+        ),
+        // One of each to choose from, unless a test says otherwise.
+        accountRepositoryProvider.overrideWithValue(
+          accounts ?? FakeAccounts(onList: () => Success([account()])),
+        ),
+        investmentRepositoryProvider.overrideWithValue(
+          investments ?? FakeInvestments(onList: () => Success([investment()])),
         ),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
         ...extra,
@@ -282,10 +297,12 @@ void main() {
       String name = 'New laptop',
       String amountText = '5000.00',
       DateTime? targetDate,
+      int holdingCount = 1,
     }) => GoalRules.validate(
       name: name,
       amountText: amountText,
       targetDate: targetDate ?? DateTime(2026, 12),
+      holdingCount: holdingCount,
       now: now,
       isReadableAmount: (text) => parser.parse(text) != null,
       isPositiveAmount: parser.isPositive,
@@ -343,12 +360,20 @@ void main() {
           name: 'New laptop',
           amountText: '5000.00',
           targetDate: null,
+          holdingCount: 1,
           now: now,
           isReadableAmount: (text) => parser.parse(text) != null,
           isPositiveAmount: parser.isPositive,
         ),
         GoalProblem.missingTargetDate,
       );
+    });
+
+    test('Given no account or investment to track '
+        'When it is validated '
+        'Then it is refused, since there is nothing to measure progress '
+        'by (AF-07)', () {
+      expect(validate(holdingCount: 0), GoalProblem.missingHoldings);
     });
 
     test('Given every problem '
@@ -849,6 +874,9 @@ void main() {
       await tester.tap(find.text('BRL').last);
       await tester.pumpAndSettle();
       await chooseTargetDate(tester);
+      await tester.tap(find.byKey(const Key('goalEditor.account.a1')));
+      await tester.tap(find.byKey(const Key('goalEditor.investment.i1')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('goalEditor.save')));
       await tester.pumpAndSettle();
 
@@ -856,6 +884,94 @@ void main() {
       expect(fake.created.single['name'], 'New laptop');
       expect(fake.created.single['currencyCode'], 'BRL');
       expect(fake.created.single['targetDate'], DateTime(2099, 3));
+      expect(fake.created.single['accountIds'], ['a1']);
+      expect(fake.created.single['investmentIds'], ['i1']);
+    });
+
+    testWidgets('Given a new goal with no account or investment chosen '
+        'When it is submitted '
+        'Then it is refused in the form and nothing is sent (AF-07)', (
+      tester,
+    ) async {
+      final fake = FakeGoals(onList: () => const Success([]));
+
+      await pumpGoals(tester, fake);
+      await openEditor(tester);
+      await tester.enterText(
+        find.byKey(const Key('goalEditor.name')),
+        'New laptop',
+      );
+      await tester.enterText(
+        find.byKey(const Key('goalEditor.amount')),
+        '5000.00',
+      );
+      await tester.tap(find.byKey(const Key('goalEditor.currency')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('BRL').last);
+      await tester.pumpAndSettle();
+      await chooseTargetDate(tester);
+      await tester.tap(find.byKey(const Key('goalEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(find.text(GoalProblem.missingHoldings.message), findsOneWidget);
+      expect(fake.created, isEmpty);
+    });
+
+    testWidgets('Given no account or investment exists '
+        'When a new goal is started '
+        'Then the editor says one is needed first (AF-08)', (tester) async {
+      await pumpGoals(
+        tester,
+        FakeGoals(onList: () => const Success([])),
+        accounts: FakeAccounts(onList: () => const Success([])),
+        investments: FakeInvestments(onList: () => const Success([])),
+      );
+      await openEditor(tester);
+
+      expect(find.byKey(const Key('goalEditor.noHoldings')), findsOneWidget);
+    });
+
+    testWidgets('Given a deleted account '
+        'When a new goal is started '
+        'Then it is not offered to track', (tester) async {
+      await pumpGoals(
+        tester,
+        FakeGoals(onList: () => const Success([])),
+        accounts: FakeAccounts(
+          onList: () => Success([
+            account(),
+            account(id: 'a2', name: 'Closed', isDeleted: true),
+          ]),
+        ),
+      );
+      await openEditor(tester);
+
+      expect(find.byKey(const Key('goalEditor.account.a1')), findsOneWidget);
+      expect(find.byKey(const Key('goalEditor.account.a2')), findsNothing);
+    });
+
+    testWidgets('Given the accounts cannot be read '
+        'When a new goal is started '
+        'Then the editor says so instead of offering nothing to choose', (
+      tester,
+    ) async {
+      await pumpGoals(
+        tester,
+        FakeGoals(onList: () => const Success([])),
+        accounts: FakeAccounts(
+          onList: () => const Failure(
+            message: 'Accounts could not be read.',
+            kind: FailureKind.serverError,
+          ),
+        ),
+      );
+      await openEditor(tester);
+
+      expect(
+        find.byKey(const Key('goalEditor.holdingsFailed')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('goalEditor.noHoldings')), findsNothing);
     });
 
     testWidgets('Given an existing goal '
@@ -898,6 +1014,8 @@ void main() {
       await tester.tap(find.text('BRL').last);
       await tester.pumpAndSettle();
       await chooseTargetDate(tester);
+      await tester.tap(find.byKey(const Key('goalEditor.account.a1')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('goalEditor.save')));
       await tester.pumpAndSettle();
 
@@ -923,6 +1041,8 @@ void main() {
         '5000.00',
       );
       await chooseTargetDate(tester);
+      await tester.tap(find.byKey(const Key('goalEditor.account.a1')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('goalEditor.save')));
       await tester.pumpAndSettle();
 
@@ -960,7 +1080,9 @@ void main() {
         'Then the update keeps its id, currency and date and the editor '
         'closes', (tester) async {
       final fake = FakeGoals(
-        onList: () => Success([goal(targetDate: DateTime(2099, 6, 30))]),
+        onList: () => Success([
+          goal(targetDate: DateTime(2099, 6, 30), accountIds: ['a1']),
+        ]),
       );
 
       await pumpGoals(tester, fake);
@@ -984,7 +1106,7 @@ void main() {
         'targetAmount': '6000',
         'currencyCode': 'BRL',
         'targetDate': DateTime(2099, 6, 30),
-        'accountIds': const <String>[],
+        'accountIds': ['a1'],
         'investmentIds': const <String>[],
       });
       expect(find.byType(AlertDialog), findsNothing);
@@ -1017,6 +1139,28 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(fake.updated.single['accountIds'], ['a1']);
+      expect(fake.updated.single['investmentIds'], ['i1']);
+    });
+
+    testWidgets('Given an existing goal tracking an account '
+        'When an investment is added, the account dropped and it is saved '
+        'Then the update names only the investment', (tester) async {
+      final fake = FakeGoals(
+        onList: () => Success([
+          goal(targetDate: DateTime(2099, 6, 30), accountIds: ['a1']),
+        ]),
+      );
+
+      await pumpGoals(tester, fake);
+      await tester.tap(find.byKey(const Key('goals.item.g1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('goalEditor.investment.i1')));
+      await tester.tap(find.byKey(const Key('goalEditor.account.a1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('goalEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(fake.updated.single['accountIds'], isEmpty);
       expect(fake.updated.single['investmentIds'], ['i1']);
     });
 

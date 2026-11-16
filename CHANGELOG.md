@@ -7,7 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- The goal editor asks which accounts and investments a goal tracks, and refuses a goal that tracks neither, as
+  the instance does. A goal could not be created before: the instance requires at least one, and the editor
+  offered none. An existing goal's links can be changed the same way (UC-29).
+
 ### Fixed
+
+- A goal that tracks only accounts, or only investments, sends an empty list for the other instead of nothing,
+  which the instance could not count.
 
 - A transaction's tags are shown, and kept when the transaction is edited: they were read as nothing, so saving
   an edit could remove them.
