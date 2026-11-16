@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
 import 'package:fortuna_ui/core/config/app_config.dart';
@@ -84,6 +85,56 @@ void main() {
         expect(config.isResolved, isTrue);
       },
     );
+
+    test('Given a resolved instance '
+        'When only one of its fields is replaced '
+        'Then the others are kept, the core library included', () {
+      const config = InstanceConfig(
+        address: 'https://fortuna.example',
+        mode: AppMode.connected,
+        coreLibrary: CoreLibraryAvailability.failedToLoad,
+      );
+
+      final moved = config.copyWith(address: 'https://mine.example');
+      final remoded = config.copyWith(mode: AppMode.selfHosted);
+
+      expect(
+        (moved.address, moved.mode, moved.coreLibrary),
+        (
+          'https://mine.example',
+          AppMode.connected,
+          CoreLibraryAvailability.failedToLoad,
+        ),
+      );
+      expect(
+        (remoded.address, remoded.mode, remoded.coreLibrary),
+        (
+          'https://fortuna.example',
+          AppMode.selfHosted,
+          CoreLibraryAvailability.failedToLoad,
+        ),
+      );
+    });
+  });
+
+  group('preferencesStoreProvider', () {
+    test('Given a start-up that forgot to supply the platform store '
+        'When the store is asked for '
+        'Then it fails loudly rather than silently storing nothing', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      expect(
+        () => container.read(preferencesStoreProvider),
+        throwsA(
+          isA<Object>().having(
+            (error) => error.toString(),
+            'error',
+            contains('preferencesStoreProvider must be overridden'),
+          ),
+        ),
+      );
+    });
   });
 
   group('AppConfig', () {

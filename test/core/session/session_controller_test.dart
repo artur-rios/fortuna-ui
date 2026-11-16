@@ -39,6 +39,75 @@ ProviderContainer containerWith(TokenStore store, [SessionTeardown? teardown]) {
 }
 
 void main() {
+  group('SessionController.restore', () {
+    test(
+      'Given no stored token, or an empty one '
+      'When the session is restored '
+      'Then it stays signed out and the API is not asked (UC-11 AF-01)',
+      () async {
+        for (final token in [null, '']) {
+          final store = InMemoryTokenStore();
+          if (token != null) await store.write(token);
+          final asked = <String>[];
+          final container = containerWith(store);
+
+          await container
+              .read(sessionProvider.notifier)
+              .restore(
+                verify: (token) async {
+                  asked.add(token);
+                  return _session;
+                },
+              );
+
+          expect(container.read(sessionProvider), isA<SignedOut>());
+          expect(asked, isEmpty);
+        }
+      },
+    );
+
+    test(
+      'Given a stored token the API still accepts '
+      'When the session is restored '
+      'Then the session the API vouched for is granted (UC-11 main flow)',
+      () async {
+        final store = InMemoryTokenStore();
+        await store.write('a-token');
+        final asked = <String>[];
+        final container = containerWith(store);
+
+        await container
+            .read(sessionProvider.notifier)
+            .restore(
+              verify: (token) async {
+                asked.add(token);
+                return _session;
+              },
+            );
+
+        expect(asked, ['a-token']);
+        expect(container.read(sessionProvider), _session);
+        expect(await store.read(), 'a-token');
+      },
+    );
+
+    test('Given a stored token the API no longer accepts '
+        'When the session is restored '
+        'Then the token is discarded and the user is signed out, never '
+        'admitted on the token alone (UC-11 AF-02)', () async {
+      final store = InMemoryTokenStore();
+      await store.write('a-stale-token');
+      final container = containerWith(store);
+
+      await container
+          .read(sessionProvider.notifier)
+          .restore(verify: (_) async => null);
+
+      expect(container.read(sessionProvider), isA<SignedOut>());
+      expect(await store.read(), isNull);
+    });
+  });
+
   group('SessionController.signOut', () {
     test('Given a session '
         'When the user signs out '
