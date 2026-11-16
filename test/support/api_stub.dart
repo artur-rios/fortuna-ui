@@ -89,10 +89,13 @@ ResponseBody paginated(
   List<Object?> items, {
   required int pageNumber,
   required int totalPages,
+  int pageSize = 100,
+  int? totalItems,
 }) => json(200, {
   ...envelope(items),
   'pageNumber': pageNumber,
-  'pageSize': 100,
+  'pageSize': pageSize,
+  'totalItems': ?totalItems,
   'totalPages': totalPages,
 });
 

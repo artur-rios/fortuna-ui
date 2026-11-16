@@ -91,4 +91,50 @@ void main() {
       await expectLater(read, throwsStateError);
     });
   });
+
+  group('PagedList', () {
+    test('Given the middle page of three '
+        'When it is asked where it stands '
+        'Then there is a page either side', () {
+      const page = PagedList(
+        items: ['b'],
+        pageNumber: 2,
+        totalItems: 3,
+        totalPages: 3,
+      );
+
+      expect(page.hasPrevious, isTrue);
+      expect(page.hasNext, isTrue);
+      expect(page.isEmpty, isFalse);
+    });
+
+    test('Given the last page '
+        'When it is asked where it stands '
+        'Then there is no next page', () {
+      const page = PagedList(
+        items: ['c'],
+        pageNumber: 3,
+        totalItems: 3,
+        totalPages: 3,
+      );
+
+      expect(page.hasPrevious, isTrue);
+      expect(page.hasNext, isFalse);
+    });
+
+    test('Given a page with nothing on it '
+        'When it is asked where it stands '
+        'Then it is empty, with no page either side', () {
+      const page = PagedList<String>(
+        items: [],
+        pageNumber: 1,
+        totalItems: 0,
+        totalPages: 0,
+      );
+
+      expect(page.isEmpty, isTrue);
+      expect(page.hasPrevious, isFalse);
+      expect(page.hasNext, isFalse);
+    });
+  });
 }

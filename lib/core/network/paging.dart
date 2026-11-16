@@ -4,7 +4,13 @@
 /// instance caps it at `FORTUNA_PAGE_SIZE_MAX`, 100 unless configured lower.
 /// A screen that presents a whole list — the tags, the accounts, the deleted
 /// records — therefore reads every page, or it silently shows only the first.
+///
+/// A list that grows without bound — the audit trail, the import jobs — is
+/// shown a page at a time instead, as [PagedList], the way the transaction
+/// grid is (UC-25).
 library;
+
+import 'package:meta/meta.dart';
 
 /// One page of a list, as the API answered it.
 ///
@@ -40,4 +46,32 @@ Future<List<T>> readEveryPage<T>(
   }
 
   return items;
+}
+
+/// How many records a browsed page holds, as in the transaction grid.
+const browsePageSize = 25;
+
+/// One page of a list that is browsed a page at a time (UC-25).
+@immutable
+class PagedList<T> {
+  const PagedList({
+    required this.items,
+    required this.pageNumber,
+    required this.totalItems,
+    required this.totalPages,
+  });
+
+  final List<T> items;
+
+  /// The page the API answered with, which is not always the page asked for:
+  /// asked for a page past the last, the API answers with the last
+  /// (`UC-25 AF-05`).
+  final int pageNumber;
+
+  final int totalItems;
+  final int totalPages;
+
+  bool get isEmpty => items.isEmpty;
+  bool get hasPrevious => pageNumber > 1;
+  bool get hasNext => pageNumber < totalPages;
 }
