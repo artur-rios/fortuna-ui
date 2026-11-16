@@ -1225,6 +1225,7 @@ graph LR
 | AF-04 | The session ends while the job runs | The job continues at the API; on signing in again the user finds it |
 | AF-05 | The API supplies no progress figure | The job is shown as running without a fabricated percentage |
 | AF-06 | The job does not exist, or belongs to another user | Presented as not found |
+| AF-07 | The jobs fill more than one page | They are listed newest first, a page at a time, paged as UC-25 pages records; a synchronization still running is found wherever it sits, so UC-31 AF-06 does not depend on the page shown |
 
 ---
 
@@ -1474,7 +1475,7 @@ graph LR
 1. The user opens the audit trail.
 2. The system requests the entries for the user's own records.
 3. The user filters by period and by kind of action.
-4. The system displays the entries as the API returned them, in reverse chronological order.
+4. The system displays the entries as the API returned them, in reverse chronological order, a page at a time, paged as UC-25 pages records.
 
 **Alternative Flows**
 
@@ -1484,6 +1485,7 @@ graph LR
 | AF-02 | The request fails | A failed state with the reason and a retry |
 | AF-03 | The user attempts to edit or delete an entry | Neither is offered; the trail is append-only and the system says so |
 | AF-04 | An entry refers to a record since removed | The entry is shown with what it recorded, without pretending the record still exists |
+| AF-05 | The filters change while a later page is shown | The trail returns to the first page; a page past the last shows the last, as in UC-25 AF-05 |
 
 ---
 
