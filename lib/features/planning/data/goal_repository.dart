@@ -211,8 +211,10 @@ class HttpGoalRepository implements GoalRepository {
           targetAmount: targetAmount,
           currencyCode: currencyCode,
           targetDate: targetDate,
-          accountIds: accountIds.isEmpty ? null : accountIds,
-          investmentIds: investmentIds.isEmpty ? null : investmentIds,
+          // Empty lists, never null: the API counts both, and a null list
+          // is a failure on its side rather than a refusal it can explain.
+          accountIds: accountIds,
+          investmentIds: investmentIds,
         ),
       );
       return const Success(null);
@@ -239,8 +241,10 @@ class HttpGoalRepository implements GoalRepository {
           targetAmount: targetAmount,
           currencyCode: currencyCode,
           targetDate: targetDate,
-          accountIds: accountIds.isEmpty ? null : accountIds,
-          investmentIds: investmentIds.isEmpty ? null : investmentIds,
+          // Empty lists, never null: the API counts both, and a null list
+          // is a failure on its side rather than a refusal it can explain.
+          accountIds: accountIds,
+          investmentIds: investmentIds,
         ),
       );
       return const Success(null);

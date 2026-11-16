@@ -46,6 +46,10 @@ enum GoalProblem {
 
   missingName,
   missingTargetDate,
+
+  /// `AF-07`: progress is measured by what the chosen accounts and
+  /// investments hold, so a goal tracking neither has nothing to measure.
+  missingHoldings,
 }
 
 extension GoalProblemMessage on GoalProblem {
@@ -58,6 +62,9 @@ extension GoalProblemMessage on GoalProblem {
           'not something already past.',
     GoalProblem.missingName => 'Give the goal a name.',
     GoalProblem.missingTargetDate => 'Choose the date to reach it by.',
+    GoalProblem.missingHoldings =>
+      'Choose at least one account or investment. Progress is what they '
+          'hold.',
   };
 }
 
@@ -67,6 +74,7 @@ abstract final class GoalRules {
     required String name,
     required String amountText,
     required DateTime? targetDate,
+    required int holdingCount,
     required DateTime now,
     required bool Function(String) isPositiveAmount,
     required bool Function(String) isReadableAmount,
@@ -79,6 +87,8 @@ abstract final class GoalRules {
     if (!isInFuture(targetDate, now: now)) {
       return GoalProblem.targetDateNotInFuture;
     }
+
+    if (holdingCount < 1) return GoalProblem.missingHoldings;
 
     return null;
   }

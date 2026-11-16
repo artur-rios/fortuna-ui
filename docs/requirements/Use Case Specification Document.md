@@ -1073,9 +1073,9 @@ graph LR
 **Main Flow**
 
 1. The system lists the user's goals with their progress as the API computes it.
-2. The user defines a goal with a target amount and a target date.
-3. The system validates that the amount is greater than zero and the date is in the future.
-4. The system submits the goal.
+2. The user defines a goal with a target amount, a target date, and the accounts and investments it tracks, chosen from their live ones.
+3. The system validates that the amount is greater than zero, the date is in the future, and at least one account or investment is chosen.
+4. The system submits the goal, naming every account and investment it tracks.
 5. The system displays progress as the API reports it.
 
 **Alternative Flows**
@@ -1088,6 +1088,9 @@ graph LR
 | AF-04 | The target date passes | The goal is shown as elapsed, with the progress it reached — not silently removed |
 | AF-05 | The goal does not exist, or belongs to another user | Presented as not found |
 | AF-06 | No goals exist | An empty state offering creation |
+| AF-07 | No account or investment is chosen | Rejected in the form; progress is what they hold, so a goal tracking neither has nothing to measure |
+| AF-08 | The user has no live account or investment | The editor says so and points to where one is created, instead of offering a choice of nothing |
+| AF-09 | The user changes what an existing goal tracks | The update names the new set in full: the API replaces a goal's links with what an update names |
 
 ---
 

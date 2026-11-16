@@ -222,7 +222,7 @@ The shape that matters: **features depend on repositories, never on a transport.
 | FR-OR-05 | The system shall let a user create, view, update and delete counterparties. |
 | FR-OR-06 | The system shall let a user define, view, update and delete a budget for a category over a period. |
 | FR-OR-07 | The system shall display budget consumption as the API computes it. |
-| FR-OR-08 | The system shall let a user define, view, update and delete a goal with a target amount and a future target date. |
+| FR-OR-08 | The system shall let a user define, view, update and delete a goal with a target amount, a future target date, and at least one account or investment whose holdings it tracks. |
 | FR-OR-09 | The system shall display goal progress as the API computes it. |
 
 ### 3.8 Ingestion — `IN`
