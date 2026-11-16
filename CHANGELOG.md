@@ -13,6 +13,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   the instance does. A goal could not be created before: the instance requires at least one, and the editor
   offered none. An existing goal's links can be changed the same way (UC-29).
 
+### Changed
+
+- The audit trail and the import jobs are shown a page at a time, newest first, with a pager under the list, as
+  the transactions are. Both only grow, so each visit no longer reads all of them. Changing the audit trail's
+  filters starts again at the first page. Whether a connection already has a synchronization running is still
+  answered from every running job, not only those on the page shown.
+
 ### Fixed
 
 - A goal that tracks only accounts, or only investments, sends an empty list for the other instead of nothing,

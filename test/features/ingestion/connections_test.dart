@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
+import 'package:fortuna_ui/core/network/paging.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/session/session_teardown.dart';
@@ -72,7 +73,20 @@ class FakeJobs implements ImportJobRepository {
   List<ImportJob> jobs;
 
   @override
-  Future<Result<List<ImportJob>>> list() async => Success(jobs);
+  Future<Result<PagedList<ImportJob>>> page(int pageNumber) async => Success(
+    PagedList(
+      items: jobs,
+      pageNumber: pageNumber,
+      totalItems: jobs.length,
+      totalPages: jobs.isEmpty ? 0 : 1,
+    ),
+  );
+
+  @override
+  Future<Result<List<ImportJob>>> unfinished() async => Success([
+    for (final job in jobs)
+      if (!job.isFinished) job,
+  ]);
 
   @override
   Future<Result<ImportJob>> read(String id) async =>
@@ -103,7 +117,7 @@ ImportJob runningJobFor(String connectionId) => ImportJob(
   connectionId: connectionId,
 );
 
-/// Waits for the jobs stream to emit its first value.
+/// Waits for the unfinished jobs stream to emit its first value.
 ///
 /// `StreamProvider.future` waits for the stream to *complete*, and a polling
 /// stream never does — so this listens and waits for the first value instead.
@@ -111,7 +125,7 @@ ImportJob runningJobFor(String connectionId) => ImportJob(
 /// gave a loaded machine a quarter of a second before the test failed.
 Future<void> awaitJobs(ProviderContainer container) {
   final first = Completer<void>();
-  container.listen(importJobsProvider, (_, next) {
+  container.listen(unfinishedJobsProvider, (_, next) {
     if (next.value != null && !first.isCompleted) first.complete();
   }, fireImmediately: true);
 

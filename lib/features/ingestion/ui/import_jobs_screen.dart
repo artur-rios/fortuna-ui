@@ -10,6 +10,7 @@ import '../../../app/routes.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/network/offline_capabilities.dart';
 import '../../../shared/widgets/offline_unavailable.dart';
+import '../../../shared/widgets/page_bar.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../../session/ui/sign_out_action.dart';
 import '../data/import_job_repository.dart';
@@ -34,6 +35,18 @@ class ImportJobsScreen extends ConsumerWidget {
           const SignOutAction(),
         ],
       ),
+      // A bar under the list, as in the transaction grid, once there is a
+      // page to step through.
+      bottomNavigationBar: switch (jobs) {
+        AsyncData(:final value) when !value.isEmpty => PageBar(
+          page: value,
+          keyPrefix: 'jobs',
+          singular: 'job',
+          plural: 'jobs',
+          onGoTo: ref.read(importJobsPageProvider.notifier).goToPage,
+        ),
+        _ => null,
+      },
       body: jobs.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => _Failed(
@@ -42,14 +55,15 @@ class ImportJobsScreen extends ConsumerWidget {
               : 'The imports could not be loaded.',
           onRetry: () => ref.invalidate(importJobsProvider),
         ),
-        data: (data) => data.isEmpty
+        data: (page) => page.isEmpty
             ? const _Empty()
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: data.length,
+                itemCount: page.items.length,
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 12),
-                itemBuilder: (context, index) => _JobCard(job: data[index]),
+                itemBuilder: (context, index) =>
+                    _JobCard(job: page.items[index]),
               ),
       ),
     );

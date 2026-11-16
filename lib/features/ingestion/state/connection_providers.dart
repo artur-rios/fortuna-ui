@@ -45,7 +45,7 @@ final runningSyncProvider = Provider.family<ImportJob?, String>((
   ref,
   connectionId,
 ) {
-  final jobs = ref.watch(importJobsProvider).value ?? const <ImportJob>[];
+  final jobs = ref.watch(unfinishedJobsProvider).value ?? const <ImportJob>[];
 
   for (final job in jobs) {
     if (job.connectionId == connectionId && !job.isFinished) return job;
@@ -116,6 +116,7 @@ class ConnectionActions {
       Success<String?>(:final value) => () {
         _ref
           ..invalidate(importJobsProvider)
+          ..invalidate(unfinishedJobsProvider)
           ..invalidate(connectionsProvider);
         return SyncStarted(value);
       }(),

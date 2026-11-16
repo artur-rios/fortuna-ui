@@ -82,7 +82,18 @@ class ImportJob {
 }
 
 abstract interface class ImportJobRepository {
-  Future<Result<List<ImportJob>>> list();
+  /// One page of the user's jobs, newest first.
+  ///
+  /// Jobs accumulate with every import and synchronization, so they are read
+  /// a page at a time, the way the transaction grid is (UC-25).
+  Future<Result<PagedList<ImportJob>>> page(int pageNumber);
+
+  /// Every job still pending or running, wherever it sits in the full list.
+  ///
+  /// What `UC-31 AF-06` needs: whether a connection already has a
+  /// synchronization going cannot depend on which page that job is on.
+  Future<Result<List<ImportJob>>> unfinished();
+
   Future<Result<ImportJob>> read(String id);
 
   /// Starts a fresh job from a failed one (`AF-03`).
@@ -101,18 +112,56 @@ class HttpImportJobRepository implements ImportJobRepository {
   final Clock _clock;
 
   @override
-  Future<Result<List<ImportJob>>> list() async {
+  Future<Result<PagedList<ImportJob>>> page(int pageNumber) async {
     try {
-      final jobs = await readEveryPage((pageNumber, pageSize) async {
-        final page = await _client.getApiImportJobs(
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-        );
-        return (
-          items: page.data ?? const <ImportJobOutput>[],
-          totalPages: page.totalPages,
-        );
-      });
+      final page = await _client.getApiImportJobs(
+        // Newest first, asked for rather than left to the API's default.
+        sortBy: 'CreatedAt',
+        descending: true,
+        pageNumber: pageNumber,
+        pageSize: browsePageSize,
+      );
+      final jobs = [
+        for (final job in page.data ?? const <ImportJobOutput>[]) _from(job),
+      ];
+
+      return Success(
+        PagedList(
+          items: jobs,
+          // UC-25 AF-05: the page the API answered with.
+          pageNumber: page.pageNumber ?? pageNumber,
+          totalItems: page.totalItems ?? jobs.length,
+          totalPages: page.totalPages ?? 1,
+        ),
+      );
+    } on DioException catch (exception) {
+      return failureFromDioException<PagedList<ImportJob>>(exception);
+    }
+  }
+
+  @override
+  Future<Result<List<ImportJob>>> unfinished() async {
+    try {
+      // The API filters by one state at a time; these two are few, so each
+      // is read whole.
+      final jobs = <ImportJobOutput>[
+        for (final status in const [
+          ImportJobStatus.value1,
+          ImportJobStatus.value2,
+        ])
+          ...await readEveryPage((pageNumber, pageSize) async {
+            final page = await _client.getApiImportJobs(
+              status: status,
+              pageNumber: pageNumber,
+              pageSize: pageSize,
+            );
+            return (
+              items: page.data ?? const <ImportJobOutput>[],
+              totalPages: page.totalPages,
+            );
+          }),
+      ];
+
       return Success([for (final job in jobs) _from(job)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<ImportJob>>(exception);

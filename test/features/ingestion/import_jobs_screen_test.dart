@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
+import 'package:fortuna_ui/core/network/paging.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
@@ -13,18 +14,46 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 class FakeJobRepository implements ImportJobRepository {
-  FakeJobRepository(this.next);
+  FakeJobRepository(this.next, {this.totalPages = 1});
 
   Result<List<ImportJob>> Function() next;
+
+  /// How many pages the jobs claim to fill; each request is answered as the
+  /// page it asked for.
+  final int totalPages;
   Failure<void>? retryFailure;
   final List<String> retried = [];
-  int listCalls = 0;
+  final List<int> pagesRead = [];
+
+  int get listCalls => pagesRead.length;
 
   @override
-  Future<Result<List<ImportJob>>> list() async {
-    listCalls++;
-    return next();
+  Future<Result<PagedList<ImportJob>>> page(int pageNumber) async {
+    pagesRead.add(pageNumber);
+    return switch (next()) {
+      Success(:final value) => Success(
+        PagedList(
+          items: value,
+          pageNumber: pageNumber,
+          totalItems: value.length * totalPages,
+          totalPages: value.isEmpty ? 0 : totalPages,
+        ),
+      ),
+      Failure(:final message, :final kind) => Failure(
+        message: message,
+        kind: kind,
+      ),
+    };
   }
+
+  @override
+  Future<Result<List<ImportJob>>> unfinished() async => switch (next()) {
+    Success(:final value) => Success([
+      for (final job in value)
+        if (!job.isFinished) job,
+    ]),
+    final Failure<List<ImportJob>> failure => failure,
+  };
 
   @override
   Future<Result<ImportJob>> read(String id) async =>
@@ -59,6 +88,7 @@ ImportJob job({
 Future<(FakeJobRepository, ProviderContainer)> pumpJobs(
   WidgetTester tester,
   Result<List<ImportJob>> Function() next, {
+  int totalPages = 1,
 
   /// False while a job is running: an indeterminate progress bar animates for
   /// ever by design, so `pumpAndSettle` would never return.
@@ -69,7 +99,7 @@ Future<(FakeJobRepository, ProviderContainer)> pumpJobs(
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 
-  final repository = FakeJobRepository(next);
+  final repository = FakeJobRepository(next, totalPages: totalPages);
   final container = ProviderContainer(
     overrides: [
       tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
@@ -285,6 +315,45 @@ void main() {
 
       expect(repository.listCalls, 2);
       expect(find.text('Finished'), findsOneWidget);
+    });
+
+    testWidgets('Given jobs that fill three pages '
+        'When the screen settles '
+        'Then only the newest page is asked for, and the pager says where '
+        'the reader is (UC-25)', (tester) async {
+      final (repository, _) = await pumpJobs(
+        tester,
+        () => Success([job()]),
+        totalPages: 3,
+      );
+
+      expect(repository.pagesRead, [1]);
+      expect(find.text('Page 1 of 3'), findsOneWidget);
+      expect(find.text('3 jobs'), findsOneWidget);
+    });
+
+    testWidgets('Given the first of three pages of jobs '
+        'When the next page is chosen '
+        'Then page 2 is asked for and shown', (tester) async {
+      final (repository, _) = await pumpJobs(
+        tester,
+        () => Success([job()]),
+        totalPages: 3,
+      );
+
+      await tester.tap(find.byKey(const Key('jobs.next')));
+      await tester.pumpAndSettle();
+
+      expect(repository.pagesRead.last, 2);
+      expect(find.text('Page 2 of 3'), findsOneWidget);
+    });
+
+    testWidgets('Given no imports '
+        'When the screen settles '
+        'Then no pager is shown', (tester) async {
+      await pumpJobs(tester, () => const Success([]));
+
+      expect(find.byKey(const Key('jobs.pageNumber')), findsNothing);
     });
 
     testWidgets('Given a job in a state this build does not know '
