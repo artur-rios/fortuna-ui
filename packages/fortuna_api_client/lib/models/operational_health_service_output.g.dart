@@ -12,6 +12,7 @@ OperationalHealthServiceOutput _$OperationalHealthServiceOutputFromJson(
   name: json['name'] as String?,
   oldestPendingSeconds: (json['oldestPendingSeconds'] as num?)?.toInt(),
   queueDepth: (json['queueDepth'] as num?)?.toInt(),
+  reason: json['reason'] as String?,
   status: json['status'] as String?,
 );
 
@@ -21,5 +22,6 @@ Map<String, dynamic> _$OperationalHealthServiceOutputToJson(
   'name': instance.name,
   'oldestPendingSeconds': instance.oldestPendingSeconds,
   'queueDepth': instance.queueDepth,
+  'reason': instance.reason,
   'status': instance.status,
 };

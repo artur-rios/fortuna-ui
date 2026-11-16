@@ -12,6 +12,7 @@ class OperationalHealthServiceOutput {
     this.name,
     this.oldestPendingSeconds,
     this.queueDepth,
+    this.reason,
     this.status,
   });
 
@@ -21,6 +22,7 @@ class OperationalHealthServiceOutput {
   final String? name;
   final int? oldestPendingSeconds;
   final int? queueDepth;
+  final String? reason;
   final String? status;
 
   Map<String, Object?> toJson() => _$OperationalHealthServiceOutputToJson(this);

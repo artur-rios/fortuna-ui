@@ -13,7 +13,9 @@ class CreditCardOutputPaginatedOutput {
   const CreditCardOutputPaginatedOutput({
     this.data,
     this.errors,
+    this.hasNextPage,
     this.messages,
+    this.nextPageToken,
     this.pageNumber,
     this.pageSize,
     this.success,
@@ -27,7 +29,9 @@ class CreditCardOutputPaginatedOutput {
 
   final List<CreditCardOutput>? data;
   final List<String>? errors;
+  final bool? hasNextPage;
   final List<String>? messages;
+  final String? nextPageToken;
   final int? pageNumber;
   final int? pageSize;
   final bool? success;

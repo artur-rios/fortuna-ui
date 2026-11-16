@@ -13,9 +13,11 @@ ConnectionOutputPaginatedOutput _$ConnectionOutputPaginatedOutputFromJson(
       ?.map((e) => ConnectionOutput.fromJson(e as Map<String, dynamic>))
       .toList(),
   errors: (json['errors'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  hasNextPage: json['hasNextPage'] as bool?,
   messages: (json['messages'] as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
+  nextPageToken: json['nextPageToken'] as String?,
   pageNumber: (json['pageNumber'] as num?)?.toInt(),
   pageSize: (json['pageSize'] as num?)?.toInt(),
   success: json['success'] as bool?,
@@ -31,7 +33,9 @@ Map<String, dynamic> _$ConnectionOutputPaginatedOutputToJson(
 ) => <String, dynamic>{
   'data': instance.data,
   'errors': instance.errors,
+  'hasNextPage': instance.hasNextPage,
   'messages': instance.messages,
+  'nextPageToken': instance.nextPageToken,
   'pageNumber': instance.pageNumber,
   'pageSize': instance.pageSize,
   'success': instance.success,
