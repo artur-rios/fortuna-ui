@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- A transaction's tags are shown, and kept when the transaction is edited: they were read as nothing, so saving
+  an edit could remove them.
+
 ## [1.1.1] - 2026-10-30
 
 ### Fixed

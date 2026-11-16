@@ -577,7 +577,7 @@ class HttpTransactionRepository implements TransactionRepository {
       isDeleted: output.isDeleted ?? false,
       isManuallyCorrected: output.isManuallyCorrected ?? false,
       source: TransactionSource.from(output.sourceType),
-      tags: output.tags?.whereType<String>().toList() ?? const [],
+      tags: _tagNames(output.tags?.map((tag) => tag.name)),
       importedRecord: recordId == null
           ? null
           : ImportedRecord(
@@ -590,6 +590,11 @@ class HttpTransactionRepository implements TransactionRepository {
             ),
     );
   }
+
+  /// The API answers tags as `{id, name}` objects; the client knows a tag by
+  /// its name, which is what the editor shows and sends back on save.
+  static List<String> _tagNames(Iterable<String?>? names) =>
+      names?.whereType<String>().toList() ?? const [];
 
   static Transaction _from(RecordTransactionCommandOutput output) {
     final currency = output.currencyCode ?? '';
@@ -605,6 +610,7 @@ class HttpTransactionRepository implements TransactionRepository {
       creditCardId: output.creditCardId,
       description: output.description,
       counterpartyName: output.counterpartyName,
+      tags: _tagNames(output.tags?.map((tag) => tag.name)),
       // The record response carries ids but not the holding's name, and
       // neither flag: a just-recorded transaction is not a transfer and is
       // not yet reconciled. Both are read from the transaction itself where a
