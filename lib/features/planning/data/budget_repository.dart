@@ -19,6 +19,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// How long a budget's period runs.
@@ -151,12 +152,18 @@ class HttpBudgetRepository implements BudgetRepository {
   @override
   Future<Result<List<Budget>>> list() async {
     try {
-      final output = (await _client.getApiBudgets()).data;
+      final budgets = await readEveryPage((pageNumber, pageSize) async {
+        final page = (await _client.getApiBudgets(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        )).data;
+        return (
+          items: page?.budgets ?? const <BudgetOutput>[],
+          totalPages: page?.totalPages,
+        );
+      });
 
-      return Success([
-        for (final budget in output?.budgets ?? const <BudgetOutput>[])
-          _from(budget),
-      ]);
+      return Success([for (final budget in budgets) _from(budget)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Budget>>(exception);
     }

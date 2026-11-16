@@ -43,6 +43,56 @@ const categoryRecord = DeletedRecord(
 
 void main() {
   group('HttpDeletedRecordRepository.list', () {
+    test('Given more transactions and accounts than one page holds '
+        'When the deleted records are listed '
+        'Then every page of each is read, and the deleted ones on any page '
+        'are listed (UC-40 step 1)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return switch (request.path) {
+          '/api/transactions' => json(
+            200,
+            envelope({
+              'items': [
+                {'id': 'live-t$page', 'isDeleted': false},
+                {'id': 't$page', 'description': 'Lunch', 'isDeleted': true},
+              ],
+              'pageNumber': page,
+              'totalPages': 2,
+            }),
+          ),
+          '/api/accounts' => paginated(
+            [
+              {'id': 'a$page', 'name': 'Savings', 'isDeleted': true},
+            ],
+            pageNumber: page,
+            totalPages: 2,
+          ),
+          _ => json(200, envelope(null)),
+        };
+      });
+
+      final result = await HttpDeletedRecordRepository.fromDio(stub.dio).list();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            if (request.path != '/api/categories')
+              (request.path, request.queryParameters['PageNumber']),
+        ],
+        [
+          ('/api/transactions', 1),
+          ('/api/transactions', 2),
+          ('/api/accounts', 1),
+          ('/api/accounts', 2),
+        ],
+      );
+      expect(
+        [for (final record in result.valueOrNull!) record.id],
+        ['t1', 't2', 'a1', 'a2'],
+      );
+    });
+
     test('Given the three roots deleted records live under '
         'When the deleted records are listed '
         'Then each root is asked for its deleted ones, in order '
@@ -64,10 +114,12 @@ void main() {
       ]);
       expect(stub.requests[0].queryParameters, {
         'IncludeDeleted': true,
+        'PageNumber': 1,
         'PageSize': 100,
       });
       expect(stub.requests[1].queryParameters, {
         'IncludeDeleted': true,
+        'PageNumber': 1,
         'PageSize': 100,
       });
       expect(stub.requests[2].queryParameters, {

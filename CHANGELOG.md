@@ -24,6 +24,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   instance's answer; it is treated as an answer with nothing in it.
 - When the instance refuses to set up two-factor authentication, the methods stay ticked as the user left them
   instead of going back to the authenticator app alone.
+- Lists show every record, not only the first page the instance served: tags, counterparties, budgets and goals
+  stopped at 100, and accounts, cards, investments, valuations, statements, connections, import jobs and the audit
+  trail at the instance's default page. Deleted records are found on every page, not only among the first 100
+  transactions and accounts.
 
 ## [1.1.1] - 2026-10-30
 

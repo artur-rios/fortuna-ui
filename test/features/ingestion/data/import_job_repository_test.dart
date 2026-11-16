@@ -24,6 +24,32 @@ Map<String, Object?> jobOutput({
 
 void main() {
   group('HttpImportJobRepository.list', () {
+    test('Given more import jobs than one page holds '
+        'When they are listed '
+        'Then every page is read and the list is whole (UC-33)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return paginated(
+          [
+            {...jobOutput(), 'id': 'p$page'},
+          ],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpImportJobRepository.fromDio(stub.dio).list();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            request.queryParameters['PageNumber'],
+        ],
+        [1, 2],
+      );
+      expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+    });
+
     test('Given a job the API holds '
         'When the jobs are listed '
         'Then it is fetched without filters and its counts are kept apart '
@@ -34,7 +60,7 @@ void main() {
 
       expect(stub.request.method, 'GET');
       expect(stub.request.path, '/api/import-jobs');
-      expect(stub.request.queryParameters, isEmpty);
+      expect(stub.request.queryParameters, {'PageNumber': 1, 'PageSize': 100});
       final job = result.valueOrNull!.single;
       expect(job.id, 'j1');
       expect(job.state, JobState.completed);

@@ -23,6 +23,32 @@ Map<String, Object?> investmentOutput({
 
 void main() {
   group('HttpInvestmentRepository.list', () {
+    test('Given more investments than one page holds '
+        'When they are listed '
+        'Then every page is read and the list is whole (UC-17)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return paginated(
+          [
+            {...investmentOutput(), 'id': 'p$page'},
+          ],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpInvestmentRepository.fromDio(stub.dio).list();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            request.queryParameters['PageNumber'],
+        ],
+        [1, 2],
+      );
+      expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+    });
+
     test(
       'Given an investment with a recorded valuation '
       'When the investments are listed '
@@ -39,7 +65,10 @@ void main() {
 
         expect(stub.request.method, 'GET');
         expect(stub.request.path, '/api/investments');
-        expect(stub.request.queryParameters, isEmpty);
+        expect(stub.request.queryParameters, {
+          'PageNumber': 1,
+          'PageSize': 100,
+        });
         final investment = result.valueOrNull!.single;
         expect(investment.id, 'i1');
         expect(investment.instrument, 'Treasury 2030');
@@ -362,6 +391,36 @@ void main() {
   });
 
   group('HttpInvestmentRepository.valuations', () {
+    test('Given more valuations than one page holds '
+        'When they are listed '
+        'Then every page is read and the list is whole (FR-HO-11)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return paginated(
+          [
+            {'value': '${page}0', 'currencyCode': 'BRL'},
+          ],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpInvestmentRepository.fromDio(stub.dio)
+          .valuations('i1');
+
+      expect(
+        [
+          for (final request in stub.requests)
+            request.queryParameters['PageNumber'],
+        ],
+        [1, 2],
+      );
+      expect(
+        [for (final item in result.valueOrNull!) item.value.amount.toString()],
+        ['10', '20'],
+      );
+    });
+
     test('Given recorded valuations '
         'When they are listed '
         'Then they are asked for most recent first and mapped as sent '
@@ -391,6 +450,8 @@ void main() {
       expect(stub.request.queryParameters, {
         'SortBy': 'valuedOn',
         'Descending': true,
+        'PageNumber': 1,
+        'PageSize': 100,
       });
       final valuations = result.valueOrNull!;
       expect(valuations.map((valuation) => valuation.value), [

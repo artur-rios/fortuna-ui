@@ -11,6 +11,7 @@ import 'package:fortuna_api_client/export.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// Where a job has got to.
@@ -98,11 +99,17 @@ class HttpImportJobRepository implements ImportJobRepository {
   @override
   Future<Result<List<ImportJob>>> list() async {
     try {
-      final response = await _client.getApiImportJobs();
-      return Success([
-        for (final job in response.data ?? const <ImportJobOutput>[])
-          _from(job),
-      ]);
+      final jobs = await readEveryPage((pageNumber, pageSize) async {
+        final page = await _client.getApiImportJobs(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        return (
+          items: page.data ?? const <ImportJobOutput>[],
+          totalPages: page.totalPages,
+        );
+      });
+      return Success([for (final job in jobs) _from(job)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<ImportJob>>(exception);
     }

@@ -23,6 +23,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// What kind of thing was deleted.
@@ -169,13 +170,22 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
   }
 
   Future<List<DeletedRecord>> _deletedTransactions() async {
-    final output = (await _transactions.getApiTransactions(
-      includeDeleted: true,
-      pageSize: 100,
-    )).data;
+    // The API has no filter for deleted records alone, so every record,
+    // live and deleted, is read and the deleted ones kept.
+    final items = await readEveryPage((pageNumber, pageSize) async {
+      final page = (await _transactions.getApiTransactions(
+        includeDeleted: true,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      )).data;
+      return (
+        items: page?.items ?? const <TransactionOutput>[],
+        totalPages: page?.totalPages,
+      );
+    });
 
     return [
-      for (final item in output?.items ?? const <TransactionOutput>[])
+      for (final item in items)
         if (item.isDeleted ?? false)
           DeletedRecord(
             id: item.id ?? '',
@@ -193,13 +203,20 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
   }
 
   Future<List<DeletedRecord>> _deletedAccounts() async {
-    final output = (await _accounts.getApiAccounts(
-      includeDeleted: true,
-      pageSize: 100,
-    )).data;
+    final items = await readEveryPage((pageNumber, pageSize) async {
+      final page = await _accounts.getApiAccounts(
+        includeDeleted: true,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+      return (
+        items: page.data ?? const <FinancialAccountOutput>[],
+        totalPages: page.totalPages,
+      );
+    });
 
     return [
-      for (final item in output ?? const <FinancialAccountOutput>[])
+      for (final item in items)
         if (item.isDeleted ?? false)
           DeletedRecord(
             id: item.id ?? '',
