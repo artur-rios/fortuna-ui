@@ -209,33 +209,31 @@ void main() {
   });
 
   group('HttpGoalRepository.create', () {
-    test(
-      'Given a goal drawing on nothing in particular '
-      'When it is created '
-      'Then the amount is sent as typed and empty links are left out',
-      () async {
-        final stub = ApiStub.data({'id': 'g1'}, status: 201);
+    test('Given a goal drawing on nothing in particular '
+        'When it is created '
+        'Then the amount is sent as typed and the links as empty lists, '
+        'never null, which the API cannot count', () async {
+      final stub = ApiStub.data({'id': 'g1'}, status: 201);
 
-        final result = await HttpGoalRepository.fromDio(stub.dio).create(
-          name: 'New laptop',
-          targetAmount: '5000.00',
-          currencyCode: 'BRL',
-          targetDate: DateTime(2027, 3),
-        );
+      final result = await HttpGoalRepository.fromDio(stub.dio).create(
+        name: 'New laptop',
+        targetAmount: '5000.00',
+        currencyCode: 'BRL',
+        targetDate: DateTime(2027, 3),
+      );
 
-        expect(result, const Success<void>(null));
-        expect(stub.request.method, 'POST');
-        expect(stub.request.path, '/api/goals');
-        expect(stub.body, {
-          'accountIds': null,
-          'currencyCode': 'BRL',
-          'investmentIds': null,
-          'name': 'New laptop',
-          'targetAmount': '5000.00',
-          'targetDate': '2027-03-01T00:00:00.000',
-        });
-      },
-    );
+      expect(result, const Success<void>(null));
+      expect(stub.request.method, 'POST');
+      expect(stub.request.path, '/api/goals');
+      expect(stub.body, {
+        'accountIds': <String>[],
+        'currencyCode': 'BRL',
+        'investmentIds': <String>[],
+        'name': 'New laptop',
+        'targetAmount': '5000.00',
+        'targetDate': '2027-03-01T00:00:00.000',
+      });
+    });
 
     test('Given a goal drawing on accounts and investments '
         'When it is created '
@@ -301,7 +299,7 @@ void main() {
       expect(stub.body, {
         'accountIds': ['a1'],
         'currencyCode': 'BRL',
-        'investmentIds': null,
+        'investmentIds': <String>[],
         'name': 'Faster laptop',
         'targetAmount': '6000',
         'targetDate': '2027-06-01T00:00:00.000',
