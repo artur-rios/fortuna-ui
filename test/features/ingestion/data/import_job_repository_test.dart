@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/core/network/paging.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/features/ingestion/data/import_job_repository.dart';
 
@@ -23,45 +24,50 @@ Map<String, Object?> jobOutput({
 };
 
 void main() {
-  group('HttpImportJobRepository.list', () {
+  group('HttpImportJobRepository.page', () {
     test('Given more import jobs than one page holds '
-        'When they are listed '
-        'Then every page is read and the list is whole (UC-33)', () async {
-      final stub = ApiStub((request) {
-        final page = requestedPage(request);
-        return paginated(
+        'When page 2 is read '
+        "Then only page 2 is asked for, and the API's position and counts "
+        'come back (UC-25)', () async {
+      final stub = ApiStub(
+        (_) => paginated(
           [
-            {...jobOutput(), 'id': 'p$page'},
+            {...jobOutput(), 'id': 'p2'},
           ],
-          pageNumber: page,
-          totalPages: 2,
-        );
-      });
-
-      final result = await HttpImportJobRepository.fromDio(stub.dio).list();
-
-      expect(
-        [
-          for (final request in stub.requests)
-            request.queryParameters['PageNumber'],
-        ],
-        [1, 2],
+          pageNumber: 2,
+          totalPages: 3,
+          totalItems: 51,
+        ),
       );
-      expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+
+      final result = await HttpImportJobRepository.fromDio(stub.dio).page(2);
+
+      expect(stub.requests, hasLength(1));
+      expect(stub.request.queryParameters['PageNumber'], 2);
+      final page = result.valueOrNull!;
+      expect([for (final item in page.items) item.id], ['p2']);
+      expect(page.pageNumber, 2);
+      expect(page.totalPages, 3);
+      expect(page.totalItems, 51);
     });
 
     test('Given a job the API holds '
         'When the jobs are listed '
-        'Then it is fetched without filters and its counts are kept apart '
-        '(UC-33 AF-02)', () async {
+        'Then the newest are asked for first, a page at a time, and its '
+        'counts are kept apart (UC-33 AF-02)', () async {
       final stub = ApiStub.data([jobOutput()]);
 
-      final result = await HttpImportJobRepository.fromDio(stub.dio).list();
+      final result = await HttpImportJobRepository.fromDio(stub.dio).page(1);
 
       expect(stub.request.method, 'GET');
       expect(stub.request.path, '/api/import-jobs');
-      expect(stub.request.queryParameters, {'PageNumber': 1, 'PageSize': 100});
-      final job = result.valueOrNull!.single;
+      expect(stub.request.queryParameters, {
+        'SortBy': 'CreatedAt',
+        'Descending': true,
+        'PageNumber': 1,
+        'PageSize': browsePageSize,
+      });
+      final job = result.valueOrNull!.items.single;
       expect(job.id, 'j1');
       expect(job.state, JobState.completed);
       expect(job.processed, 400);
@@ -88,9 +94,9 @@ void main() {
         jobOutput(status: null),
       ]);
 
-      final result = await HttpImportJobRepository.fromDio(stub.dio).list();
+      final result = await HttpImportJobRepository.fromDio(stub.dio).page(1);
 
-      expect(result.valueOrNull!.map((job) => job.state), [
+      expect(result.valueOrNull!.items.map((job) => job.state), [
         JobState.pending,
         JobState.running,
         JobState.completed,
@@ -108,7 +114,7 @@ void main() {
       final job = (await HttpImportJobRepository.fromDio(
         stub.dio,
         clock: () => DateTime(2026, 11, 16, 9, 30),
-      ).list()).valueOrNull!.single;
+      ).page(1)).valueOrNull!.items.single;
 
       expect(job.id, '');
       expect(job.state, JobState.unknown);
@@ -128,9 +134,9 @@ void main() {
         'Then there are none', () async {
       final stub = ApiStub.data(null);
 
-      final result = await HttpImportJobRepository.fromDio(stub.dio).list();
+      final result = await HttpImportJobRepository.fromDio(stub.dio).page(1);
 
-      expect(result.valueOrNull, isEmpty);
+      expect(result.valueOrNull!.items, isEmpty);
     });
 
     test('Given an instance that cannot be reached '
@@ -138,15 +144,63 @@ void main() {
         'Then it is a failure saying so', () async {
       final stub = ApiStub.unreachable();
 
-      final result = await HttpImportJobRepository.fromDio(stub.dio).list();
+      final result = await HttpImportJobRepository.fromDio(stub.dio).page(1);
 
       expect(
         result,
-        const Failure<List<ImportJob>>(
+        const Failure<PagedList<ImportJob>>(
           message: 'The instance could not be reached.',
           kind: FailureKind.unreachable,
         ),
       );
+    });
+  });
+
+  group('HttpImportJobRepository.unfinished', () {
+    test('Given pending and running jobs, the running ones over two pages '
+        'When the unfinished jobs are read '
+        'Then every page of each state is asked for, and all of them come '
+        'back, wherever they sit in the full list (UC-31 AF-06)', () async {
+      final stub = ApiStub((request) {
+        final status = request.queryParameters['Status'].toString();
+        final page = requestedPage(request);
+        return paginated(
+          [
+            {...jobOutput(status: int.parse(status)), 'id': 's$status-p$page'},
+          ],
+          pageNumber: page,
+          totalPages: status == '2' ? 2 : 1,
+        );
+      });
+
+      final result = await HttpImportJobRepository.fromDio(stub.dio)
+          .unfinished();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            (
+              request.queryParameters['Status'].toString(),
+              request.queryParameters['PageNumber'],
+            ),
+        ],
+        [('1', 1), ('2', 1), ('2', 2)],
+      );
+      expect(
+        [for (final job in result.valueOrNull!) job.id],
+        ['s1-p1', 's2-p1', 's2-p2'],
+      );
+    });
+
+    test('Given an instance that cannot be reached '
+        'When the unfinished jobs are read '
+        'Then it is a failure saying so', () async {
+      final stub = ApiStub.unreachable();
+
+      final result = await HttpImportJobRepository.fromDio(stub.dio)
+          .unfinished();
+
+      expect(result, isA<Failure<List<ImportJob>>>());
     });
   });
 

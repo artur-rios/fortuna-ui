@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 import '../../../core/session/session_teardown.dart';
 import '../data/import_job_repository.dart';
@@ -16,50 +17,94 @@ import '../data/import_job_repository.dart';
 /// enough that a finished import does not sit unnoticed.
 const jobPollInterval = Duration(seconds: 3);
 
-/// The user's jobs, newest first.
+/// Which page of the jobs is shown.
+final importJobsPageProvider = NotifierProvider<ImportJobsPage, int>(
+  ImportJobsPage.new,
+);
+
+class ImportJobsPage extends Notifier<int> {
+  @override
+  int build() => 1;
+
+  void goToPage(int pageNumber) => state = pageNumber < 1 ? 1 : pageNumber;
+}
+
+/// The page of the user's jobs being shown, newest first.
 ///
-/// Polls only while something is actually running — a list of finished jobs is
-/// static, and polling it would be pure noise against the instance.
-final importJobsProvider = StreamProvider<List<ImportJob>>(
+/// Polls only while something on it is actually running — a page of finished
+/// jobs is static, and polling it would be pure noise against the instance.
+final importJobsProvider = StreamProvider<PagedList<ImportJob>>(
   retry: (retryCount, error) => null,
-  (ref) async* {
+  (ref) {
     ref.read(sessionTeardownProvider).register('import-jobs', () async {
+      ref.invalidateSelf();
+    });
+
+    final pageNumber = ref.watch(importJobsPageProvider);
+    final repository = ref.read(importJobRepositoryProvider);
+
+    return _pollWhileRunning(
+      ref,
+      read: () => repository.page(pageNumber),
+      jobsOf: (page) => page.items,
+    );
+  },
+);
+
+/// Every job still pending or running, polled until none is.
+///
+/// Read apart from the page being shown, because `UC-31 AF-06` asks whether a
+/// connection has a synchronization going, and the answer cannot depend on
+/// which page that job sits on.
+final unfinishedJobsProvider = StreamProvider<List<ImportJob>>(
+  retry: (retryCount, error) => null,
+  (ref) {
+    ref.read(sessionTeardownProvider).register('unfinished-jobs', () async {
       ref.invalidateSelf();
     });
 
     final repository = ref.read(importJobRepositoryProvider);
 
-    // Cancelled when the provider is disposed, so the pending delay below is
-    // torn down with it. Without this the loop would hold a live timer for up
-    // to one interval after the screen is gone — harmless in production, and a
-    // leak the test framework rightly refuses to ignore.
-    final cancelled = Completer<void>();
-    ref.onDispose(() {
-      if (!cancelled.isCompleted) cancelled.complete();
-    });
-
-    while (true) {
-      final result = await repository.list();
-
-      final jobs = switch (result) {
-        Success<List<ImportJob>>(:final value) =>
-          value.toList()..sort((a, b) => b.startedAt.compareTo(a.startedAt)),
-        Failure<List<ImportJob>>(:final message) => throw JobsUnavailable(
-          message,
-        ),
-      };
-
-      yield jobs;
-
-      // AF-04 is the API's to keep, not this client's: the job runs there
-      // regardless. This loop only decides how often to look.
-      if (!jobs.any((job) => !job.isFinished)) return;
-
-      await _wait(jobPollInterval, cancelled.future);
-      if (cancelled.isCompleted) return;
-    }
+    return _pollWhileRunning(
+      ref,
+      read: repository.unfinished,
+      jobsOf: (jobs) => jobs,
+    );
   },
 );
+
+/// Reads with [read] and yields each answer, again every [jobPollInterval]
+/// while any job in it is unfinished.
+Stream<T> _pollWhileRunning<T>(
+  Ref ref, {
+  required Future<Result<T>> Function() read,
+  required List<ImportJob> Function(T value) jobsOf,
+}) async* {
+  // Cancelled when the provider is disposed, so the pending delay below is
+  // torn down with it. Without this the loop would hold a live timer for up
+  // to one interval after the screen is gone — harmless in production, and a
+  // leak the test framework rightly refuses to ignore.
+  final cancelled = Completer<void>();
+  ref.onDispose(() {
+    if (!cancelled.isCompleted) cancelled.complete();
+  });
+
+  while (true) {
+    final value = switch (await read()) {
+      Success<T>(:final value) => value,
+      Failure<T>(:final message) => throw JobsUnavailable(message),
+    };
+
+    yield value;
+
+    // AF-04 is the API's to keep, not this client's: the job runs there
+    // regardless. This loop only decides how often to look.
+    if (!jobsOf(value).any((job) => !job.isFinished)) return;
+
+    await _wait(jobPollInterval, cancelled.future);
+    if (cancelled.isCompleted) return;
+  }
+}
 
 /// Waits [duration], or returns early — cancelling the timer — when
 /// [cancelled] completes first.
@@ -104,7 +149,9 @@ class ImportJobActions {
 
     return switch (result) {
       Success<void>() => () {
-        _ref.invalidate(importJobsProvider);
+        _ref
+          ..invalidate(importJobsProvider)
+          ..invalidate(unfinishedJobsProvider);
         return null;
       }(),
       final Failure<void> failure => failure,
