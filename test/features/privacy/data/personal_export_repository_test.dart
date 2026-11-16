@@ -263,16 +263,25 @@ void main() {
       expect(result.valueOrNull!.sizeBytes, 0);
     });
 
-    test('Given an archive that is no longer there '
-        'When it is downloaded '
-        'Then it is not found', () async {
-      final stub = ApiStub((_) => refusal(404, ['The archive has expired.']));
+    test(
+      'Given an archive that is no longer there '
+      'When it is downloaded '
+      "Then it is not found, in the API's words (UC-43 AF-02, FR-DA-14)",
+      () async {
+        final stub = ApiStub((_) => refusal(404, ['The archive has expired.']));
 
-      final result = await HttpPersonalExportRepository.fromDio(stub.dio)
-          .download(finished());
+        final result = await HttpPersonalExportRepository.fromDio(stub.dio)
+            .download(finished());
 
-      expect((result as Failure<PersonalArchive>).kind, FailureKind.notFound);
-    });
+        expect(
+          result,
+          const Failure<PersonalArchive>(
+            message: 'The archive has expired.',
+            kind: FailureKind.notFound,
+          ),
+        );
+      },
+    );
 
     test('Given an instance that cannot be reached '
         'When an archive is downloaded '

@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - A transaction's tags are shown, and kept when the transaction is edited: they were read as nothing, so saving
   an edit could remove them.
+- A refused download (an export or the personal data archive that has expired, or a format the instance does not
+  produce) shows the API's reason instead of "The request could not be completed."
 
 ## [1.1.1] - 2026-10-30
 

@@ -370,6 +370,43 @@ void main() {
       expect(failure.kind, FailureKind.serverError);
     });
 
+    test('Given a download the API refuses with its envelope '
+        'When the failure is read '
+        "Then the API's reason is read out of the bytes (FR-DA-14, UC-43 "
+        'AF-02)', () async {
+      final dio = httpDio(
+        CapturingHttpAdapter(refusal('The archive has expired.'), status: 404),
+      );
+
+      final failure = await failureOf(
+        () => dio.get<List<int>>(
+          '/api/me/data-export/j1',
+          options: Options(responseType: ResponseType.bytes),
+        ),
+      );
+
+      expect(failure.message, 'The archive has expired.');
+      expect(failure.kind, FailureKind.notFound);
+    });
+
+    test('Given a download refused with a body that is not JSON '
+        'When the failure is read '
+        'Then a plain sentence is shown rather than the bytes', () async {
+      final dio = httpDio(
+        CapturingHttpAdapter('<html>502</html>', status: 502),
+      );
+
+      final failure = await failureOf(
+        () => dio.get<List<int>>(
+          '/api/exports/e1',
+          options: Options(responseType: ResponseType.bytes),
+        ),
+      );
+
+      expect(failure.message, 'The request could not be completed.');
+      expect(failure.kind, FailureKind.serverError);
+    });
+
     test('Given a failure that states no reason anywhere '
         'When the failure is read '
         'Then a plain sentence is shown rather than nothing', () async {

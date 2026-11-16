@@ -264,18 +264,26 @@ void main() {
       );
     });
 
-    test('Given a format the instance does not produce for the data set '
-        'When the export is asked for '
-        'Then it is refused as invalid (UC-39 AF-06)', () async {
-      final stub = ApiStub(
-        (_) => refusal(422, ['PDF is not available for this record set.']),
-      );
+    test(
+      'Given a format the instance does not produce for the data set '
+      'When the export is asked for '
+      "Then it is refused as invalid, in the API's words (UC-39 AF-06)",
+      () async {
+        final stub = ApiStub(
+          (_) => refusal(422, ['PDF is not available for this record set.']),
+        );
 
-      final result = await requestCsv(stub);
+        final result = await requestCsv(stub);
 
-      expect(result, isA<Failure<ExportOutcome>>());
-      expect((result as Failure).kind, FailureKind.invalidInput);
-    });
+        expect(
+          result,
+          const Failure<ExportOutcome>(
+            message: 'PDF is not available for this record set.',
+            kind: FailureKind.invalidInput,
+          ),
+        );
+      },
+    );
 
     test('Given an instance that cannot be reached '
         'When the export is asked for '
@@ -491,13 +499,18 @@ void main() {
 
     test('Given an export the instance has already discarded '
         'When its file is retrieved '
-        'Then it is not found (UC-39 AF-04)', () async {
+        "Then it is not found, in the API's words (UC-39 AF-04)", () async {
       final stub = ApiStub((_) => refusal(404, ['The export has expired.']));
 
       final result = await repositoryOn(stub).download(export());
 
-      expect(result, isA<Failure<ExportedFile>>());
-      expect((result as Failure).kind, FailureKind.notFound);
+      expect(
+        result,
+        const Failure<ExportedFile>(
+          message: 'The export has expired.',
+          kind: FailureKind.notFound,
+        ),
+      );
     });
 
     test('Given an instance that cannot be reached '
