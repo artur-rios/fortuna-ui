@@ -112,13 +112,15 @@ void main() {
         '/api/accounts',
         '/api/categories',
       ]);
+      // Only the deleted ones are asked for, rather than every live record
+      // read to find them (FR-RL-12 in fortuna-api).
       expect(stub.requests[0].queryParameters, {
-        'IncludeDeleted': true,
+        'DeletedOnly': true,
         'PageNumber': 1,
         'PageSize': 100,
       });
       expect(stub.requests[1].queryParameters, {
-        'IncludeDeleted': true,
+        'DeletedOnly': true,
         'PageNumber': 1,
         'PageSize': 100,
       });
