@@ -7,10 +7,15 @@ import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/ingestion/data/connection_repository.dart';
+import 'package:fortuna_ui/features/privacy/data/archive_saver.dart';
 import 'package:fortuna_ui/features/privacy/data/consent_repository.dart';
+import 'package:fortuna_ui/features/privacy/data/personal_export_repository.dart';
 import 'package:fortuna_ui/features/privacy/state/consent_controller.dart';
+import 'package:fortuna_ui/features/privacy/state/personal_export_controller.dart';
 import 'package:fortuna_ui/features/privacy/ui/privacy_screen.dart';
 import 'package:material_ui/material_ui.dart';
+
+import 'personal_export_test.dart' show FakeExports, FakeSaver, completed;
 
 class FakeConsents implements ConsentRepository {
   FakeConsents({this.onList, this.onGrant, this.onWithdraw});
@@ -124,7 +129,14 @@ Future<void> pumpPrivacy(
   required FakeConsents consents,
   FakeConnections? connections,
   Transport transport = Transport.http,
+  FakeExports? exports,
+  FakeSaver? saver,
 }) async {
+  // The screen's ListView builds lazily; a tall window builds every section.
+  tester.view.physicalSize = const Size(1200, 4000);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -150,12 +162,30 @@ Future<void> pumpPrivacy(
         connectionRepositoryProvider.overrideWithValue(
           connections ?? FakeConnections(const Success([])),
         ),
+        personalExportRepositoryProvider.overrideWithValue(
+          exports ?? FakeExports(),
+        ),
+        archiveSaverProvider.overrideWithValue(
+          saver ?? FakeSaver((_) => const Success('/tmp/archive.zip')),
+        ),
       ],
       child: const MaterialApp(home: PrivacyScreen()),
     ),
   );
   await tester.pumpAndSettle();
 }
+
+/// One active connection that depends on the open-banking consent.
+final _bankA = FakeConnections(
+  Success([
+    Connection(
+      id: 'a',
+      state: BankConnectionState.active,
+      connectedAt: DateTime(2026),
+      externalReference: 'Bank A',
+    ),
+  ]),
+);
 
 void main() {
   group('Consent', () {
@@ -393,6 +423,114 @@ void main() {
         expect(state.notice, contains('stay unavailable'));
       },
     );
+
+    test('Given a desktop offline installation '
+        'When the controller asks who controls the data '
+        'Then it is the user (UC-42 AF-05)', () {
+      final container = containerWith(
+        consents: FakeConsents(),
+        transport: Transport.ffi,
+        apiBaseUrl: '',
+      );
+
+      expect(
+        container.read(consentControllerProvider.notifier).controller,
+        DataController.theUser,
+      );
+    });
+
+    test(
+      'Given a disclosure the user agrees to '
+      'When the API refuses to record it '
+      'Then its reason is noted over the consents, which stay as they were',
+      () async {
+        final consents = FakeConsents(
+          onList: () => const Success([_ungranted]),
+          onGrant: (_, _) => const Failure(
+            message: 'That version is no longer offered.',
+            kind: FailureKind.conflict,
+          ),
+        );
+        final container = containerWith(consents: consents);
+        final controller = container.read(consentControllerProvider.notifier);
+
+        await controller.load();
+        await controller.grant(purpose: 'open-banking', version: 'v2');
+
+        final state = container.read(consentControllerProvider);
+        expect(state, isA<ConsentsReady>());
+        expect(
+          (state as ConsentsReady).notice,
+          'That version is no longer offered.',
+        );
+        expect(state.consents.single.isGranted, isFalse);
+        expect(controller.permits('open-banking'), isFalse);
+      },
+    );
+
+    test('Given a recorded consent '
+        'When it is withdrawn '
+        'Then the consents are read again and it no longer permits '
+        '(UC-42 step 6)', () async {
+      var withdrawn = false;
+      final consents = FakeConsents(
+        onList: () => Success([withdrawn ? _ungranted : granted()]),
+        onWithdraw: (_) {
+          withdrawn = true;
+          return const Success(null);
+        },
+      );
+      final container = containerWith(consents: consents);
+      final controller = container.read(consentControllerProvider.notifier);
+      await controller.load();
+      expect(controller.permits('open-banking'), isTrue);
+
+      await controller.withdraw('open-banking');
+
+      expect(consents.withdrawals, ['open-banking']);
+      expect(controller.permits('open-banking'), isFalse);
+    });
+
+    test(
+      'Given the connection list cannot be read '
+      'When the cost of withdrawing is gathered '
+      'Then no connection is claimed, rather than promising none exist',
+      () async {
+        final container = containerWith(
+          consents: FakeConsents(onList: () => Success([granted()])),
+          connections: FakeConnections(
+            const Failure(
+              message: 'The instance could not be reached.',
+              kind: FailureKind.unreachable,
+            ),
+          ),
+        );
+
+        final consequences = await container
+            .read(consentControllerProvider.notifier)
+            .consequencesOfWithdrawing('open-banking');
+
+        expect(consequences.purpose, 'open-banking');
+        expect(consequences.revokesConnections, isFalse);
+      },
+    );
+
+    test('Given the consents were never read '
+        'When a decision is declined '
+        'Then the note stands on its own rather than over a list', () {
+      final container = containerWith(consents: FakeConsents());
+
+      container
+          .read(consentControllerProvider.notifier)
+          .decline('open-banking');
+
+      final state = container.read(consentControllerProvider);
+      expect(state, isA<ConsentsUnavailable>());
+      expect(
+        (state as ConsentsUnavailable).reason,
+        contains('Nothing was recorded.'),
+      );
+    });
   });
 
   group('PrivacyScreen', () {
@@ -501,6 +639,317 @@ void main() {
 
       expect(find.byKey(const Key('privacy.unavailable')), findsOneWidget);
       expect(find.textContaining('will run until this can be read'), findsOne);
+    });
+    testWidgets('Given a disclosure '
+        'When the user agrees '
+        'Then the decision is recorded against the current version and the '
+        'consent shows as given (UC-42 step 4)', (tester) async {
+      var given = false;
+      final consents = FakeConsents(
+        onList: () => Success([given ? granted() : _ungranted]),
+        onGrant: (_, _) {
+          given = true;
+          return const Success(null);
+        },
+      );
+      await pumpPrivacy(tester, consents: consents);
+
+      await tester.tap(find.byKey(const Key('privacy.give.open-banking')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Version v2.'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('privacy.agree')));
+      await tester.pumpAndSettle();
+
+      expect(consents.grants.single, (purpose: 'open-banking', version: 'v2'));
+      expect(find.byKey(const Key('privacy.give.open-banking')), findsNothing);
+      expect(
+        find.byKey(const Key('privacy.withdraw.open-banking')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+      'Given no connection is known to depend on a consent '
+      'When withdrawal is started '
+      'Then the warning is general rather than promising nothing is revoked',
+      (tester) async {
+        await pumpPrivacy(
+          tester,
+          consents: FakeConsents(onList: () => Success([granted()])),
+        );
+
+        await tester.tap(
+          find.byKey(const Key('privacy.withdraw.open-banking')),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(
+            'Any connections that depend on this consent will be revoked.',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets('Given the withdrawal warning '
+        'When the user keeps the consent '
+        'Then nothing is withdrawn', (tester) async {
+      final consents = FakeConsents(onList: () => Success([granted()]));
+      await pumpPrivacy(tester, consents: consents, connections: _bankA);
+
+      await tester.tap(find.byKey(const Key('privacy.withdraw.open-banking')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('privacy.cancelWithdraw')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(consents.withdrawals, isEmpty);
+    });
+
+    testWidgets('Given the withdrawal warning '
+        'When the user confirms '
+        'Then the consent is withdrawn and offered again (UC-42 step 6)', (
+      tester,
+    ) async {
+      var withdrawn = false;
+      final consents = FakeConsents(
+        onList: () => Success([withdrawn ? _ungranted : granted()]),
+        onWithdraw: (_) {
+          withdrawn = true;
+          return const Success(null);
+        },
+      );
+      await pumpPrivacy(tester, consents: consents, connections: _bankA);
+
+      await tester.tap(find.byKey(const Key('privacy.withdraw.open-banking')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('privacy.confirmWithdraw')));
+      await tester.pumpAndSettle();
+
+      expect(consents.withdrawals, ['open-banking']);
+      expect(find.text('Not given.'), findsOneWidget);
+      expect(
+        find.byKey(const Key('privacy.give.open-banking')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Given the consent list could not be read '
+        'When the user tries again and it can be '
+        'Then the consents are shown', (tester) async {
+      var reachable = false;
+      await pumpPrivacy(
+        tester,
+        consents: FakeConsents(
+          onList: () => reachable
+              ? const Success(<Consent>[])
+              : const Failure(
+                  message: 'The instance could not be reached.',
+                  kind: FailureKind.unreachable,
+                ),
+        ),
+      );
+
+      reachable = true;
+      await tester.tap(find.byKey(const Key('privacy.retry')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('privacy.unavailable')), findsNothing);
+      expect(find.text('This instance asks for no consents.'), findsOneWidget);
+    });
+
+    testWidgets('Given no archive has been asked for '
+        'When the user asks for one '
+        'Then the job is shown running, and leaving does not cancel it '
+        '(UC-43 step 3, AF-04)', (tester) async {
+      final exports = FakeExports(onRead: (_) => Success(completed()));
+      await pumpPrivacy(tester, consents: FakeConsents(), exports: exports);
+
+      await tester.tap(find.byKey(const Key('export.request')));
+      await tester.pump();
+
+      expect(exports.requests, 1);
+      expect(find.byKey(const Key('export.progress')), findsOneWidget);
+      expect(
+        tester
+            .widget<LinearProgressIndicator>(
+              find.byKey(const Key('export.progress')),
+            )
+            .value,
+        0.2,
+      );
+      expect(find.byKey(const Key('export.keepsRunning')), findsOneWidget);
+
+      // The job is polled while it runs; this check finds it finished.
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pump();
+
+      expect(exports.reads, ['job-1']);
+      expect(find.byKey(const Key('export.save')), findsOneWidget);
+    });
+
+    testWidgets('Given a running job with no progress yet '
+        'When it is shown '
+        'Then the progress bar is indeterminate rather than at zero', (
+      tester,
+    ) async {
+      await pumpPrivacy(
+        tester,
+        consents: FakeConsents(),
+        exports: FakeExports(
+          onRequest: () => const Success(
+            PersonalExport(
+              jobId: 'job-1',
+              status: PersonalExportStatus.pending,
+              progress: 0,
+            ),
+          ),
+          onRead: (_) => Success(completed()),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('export.request')));
+      await tester.pump();
+
+      expect(
+        tester
+            .widget<LinearProgressIndicator>(
+              find.byKey(const Key('export.progress')),
+            )
+            .value,
+        isNull,
+      );
+
+      await tester.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('Given a ready archive '
+        'When it is saved '
+        'Then where it went and its size are stated (UC-43 step 4, AF-05)', (
+      tester,
+    ) async {
+      await pumpPrivacy(
+        tester,
+        consents: FakeConsents(),
+        exports: FakeExports(onRead: (_) => Success(completed())),
+      );
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(PrivacyScreen)),
+      );
+      await container
+          .read(personalExportControllerProvider.notifier)
+          .refresh('job-1');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('export.save')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Saved to /tmp/archive.zip (3 bytes).'), findsOneWidget);
+    });
+
+    testWidgets('Given the platform refuses the location '
+        'When the archive is saved '
+        'Then the reason is shown, the archive is still ready and saving can '
+        'be tried again (UC-43 AF-03)', (tester) async {
+      var refuse = true;
+      final saver = FakeSaver(
+        (_) => refuse
+            ? const Failure(
+                message: 'That location could not be written to.',
+                kind: FailureKind.forbidden,
+              )
+            : const Success('/elsewhere/archive.zip'),
+      );
+      await pumpPrivacy(
+        tester,
+        consents: FakeConsents(),
+        exports: FakeExports(onRead: (_) => Success(completed())),
+        saver: saver,
+      );
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(PrivacyScreen)),
+      );
+      await container
+          .read(personalExportControllerProvider.notifier)
+          .refresh('job-1');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('export.save')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('That location could not be written to.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('export.stillReady')), findsOneWidget);
+
+      refuse = false;
+      await tester.tap(find.byKey(const Key('export.saveAgain')));
+      await tester.pumpAndSettle();
+
+      expect(saver.saves, 2);
+      expect(find.byKey(const Key('export.saved')), findsOneWidget);
+    });
+
+    testWidgets('Given the archive expired before it was fetched '
+        'When the user asks for a new one '
+        'Then a new job is started (UC-43 AF-02)', (tester) async {
+      final exports = FakeExports(
+        onRead: (_) => Success(completed(expiresAt: DateTime.utc(2000))),
+      );
+      await pumpPrivacy(tester, consents: FakeConsents(), exports: exports);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(PrivacyScreen)),
+      );
+      await container
+          .read(personalExportControllerProvider.notifier)
+          .refresh('job-1');
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('export.expired')), findsOneWidget);
+
+      exports.onRead = (_) => Success(completed());
+      await tester.tap(find.byKey(const Key('export.requestAgain')));
+      await tester.pump();
+
+      expect(exports.requests, 1);
+      expect(find.byKey(const Key('export.progress')), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('Given the export cannot be started '
+        'When the user asks for it '
+        "Then the API's reason is shown with a retry (UC-43 AF-01)", (
+      tester,
+    ) async {
+      var refuse = true;
+      final exports = FakeExports(
+        onRequest: () => refuse
+            ? const Failure(
+                message: 'Exports are paused on this instance.',
+                kind: FailureKind.serverError,
+              )
+            : Success(completed()),
+      );
+      await pumpPrivacy(tester, consents: FakeConsents(), exports: exports);
+
+      await tester.tap(find.byKey(const Key('export.request')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('export.failed')), findsOneWidget);
+      expect(find.text('Exports are paused on this instance.'), findsOneWidget);
+
+      refuse = false;
+      exports.onRead = (_) => Success(completed());
+      await tester.tap(find.byKey(const Key('export.retry')));
+      await tester.pump();
+
+      expect(exports.requests, 2);
+      expect(find.byKey(const Key('export.failed')), findsNothing);
+
+      await tester.pump(const Duration(seconds: 3));
     });
   });
 }

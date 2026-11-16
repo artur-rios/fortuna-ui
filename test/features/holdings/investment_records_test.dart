@@ -126,6 +126,29 @@ Future<void> openSheet(WidgetTester tester, RecordKind kind) async {
   await tester.pumpAndSettle();
 }
 
+/// Types [date] (`MM/dd/yyyy`) into the Material date picker opened by
+/// tapping [key], in its input mode, so no assertion depends on today.
+Future<void> typeDate(WidgetTester tester, Key key, String date) async {
+  await tester.tap(find.byKey(key));
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find.descendant(
+      of: find.byType(DatePickerDialog),
+      matching: find.byIcon(Icons.edit_outlined),
+    ),
+  );
+  await tester.pumpAndSettle();
+  await tester.enterText(
+    find.descendant(
+      of: find.byType(InputDatePickerFormField),
+      matching: find.byType(TextField),
+    ),
+    date,
+  );
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   // The sheet formats dates in the chosen locale, and pt-BR is exercised here.
   setUpAll(initializeDateFormatting);
@@ -576,6 +599,93 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(fake.movements.single['financialAccountId'], 'a1');
+    });
+
+    testWidgets('Given a past date is chosen in the picker '
+        'When the movement is submitted '
+        'Then that date is the day it occurred on', (tester) async {
+      final fake = RecordingInvestments();
+
+      await pumpInvestment(tester, fake);
+      await openSheet(tester, RecordKind.movement);
+      await typeDate(tester, const Key('investmentRecord.date'), '01/15/2025');
+      await tester.enterText(
+        find.byKey(const Key('investmentRecord.amount')),
+        '100.00',
+      );
+      await tester.tap(find.byKey(const Key('investmentRecord.submit')));
+      await tester.pumpAndSettle();
+
+      expect(fake.movements.single['occurredOn'], DateTime(2025, 1, 15));
+    });
+
+    testWidgets('Given a past date is chosen in the picker '
+        'When the valuation is submitted '
+        'Then that date is the day it was valued on', (tester) async {
+      final fake = RecordingInvestments();
+
+      await pumpInvestment(tester, fake);
+      await openSheet(tester, RecordKind.valuation);
+      await typeDate(tester, const Key('investmentRecord.date'), '08/31/2025');
+      await tester.enterText(
+        find.byKey(const Key('investmentRecord.amount')),
+        '16250.75',
+      );
+      await tester.tap(find.byKey(const Key('investmentRecord.submit')));
+      await tester.pumpAndSettle();
+
+      expect(fake.valuationsRecorded.single['valuedOn'], DateTime(2025, 8, 31));
+    });
+
+    testWidgets('Given the date picker is opened '
+        'When it is cancelled '
+        'Then the date shown is unchanged', (tester) async {
+      await pumpInvestment(tester, RecordingInvestments());
+      await openSheet(tester, RecordKind.valuation);
+      String shown() => tester
+          .widget<Text>(
+            find.descendant(
+              of: find.byKey(const Key('investmentRecord.date')),
+              matching: find.byType(Text),
+            ),
+          )
+          .data!;
+      final before = shown();
+
+      await tester.tap(find.byKey(const Key('investmentRecord.date')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(DatePickerDialog),
+          matching: find.text('Cancel'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DatePickerDialog), findsNothing);
+      expect(shown(), before);
+    });
+
+    testWidgets('Given the accounts cannot be read '
+        'When the movement form is shown '
+        'Then the reason is shown in place of the account choice', (
+      tester,
+    ) async {
+      await pumpInvestment(
+        tester,
+        RecordingInvestments(),
+        accounts: FakeAccounts(
+          onList: () => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+      await openSheet(tester, RecordKind.movement);
+
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+      expect(find.byKey(const Key('investmentRecord.account')), findsNothing);
+      expect(find.byKey(const Key('investmentRecord.submit')), findsOneWidget);
     });
   });
 

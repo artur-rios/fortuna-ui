@@ -322,6 +322,130 @@ void main() {
 
       expect(exports.downloads, 0);
     });
+    test('Given the instance refuses to start an export '
+        'When it is requested '
+        "Then the API's reason is presented (UC-43 AF-01)", () async {
+      final container = containerWith(
+        exports: FakeExports(
+          onRequest: () => const Failure(
+            message: 'Exports are paused on this instance.',
+            kind: FailureKind.serverError,
+          ),
+        ),
+      );
+
+      await container.read(personalExportControllerProvider.notifier).request();
+
+      final state = container.read(personalExportControllerProvider);
+      expect(state, isA<PersonalExportFailed>());
+      expect(state.message, 'Exports are paused on this instance.');
+    });
+
+    test('Given a running job '
+        'When it cannot be read '
+        'Then the reason is presented', () async {
+      final container = containerWith(
+        exports: FakeExports(
+          onRead: (_) => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+
+      await container
+          .read(personalExportControllerProvider.notifier)
+          .refresh('job-1');
+
+      final state = container.read(personalExportControllerProvider);
+      expect(state, isA<PersonalExportFailed>());
+      expect(state.message, 'The instance could not be reached.');
+    });
+
+    test(
+      'Given a job still running '
+      'When it is read '
+      'Then it is presented as running, with its progress (UC-43 AF-04)',
+      () async {
+        final container = containerWith(
+          exports: FakeExports(onRead: (_) => Success(running(progress: 60))),
+        );
+
+        await container
+            .read(personalExportControllerProvider.notifier)
+            .refresh('job-1');
+
+        final state = container.read(personalExportControllerProvider);
+        expect(state, isA<PersonalExportRunning>());
+        expect((state as PersonalExportRunning).export.progress, 60);
+      },
+    );
+
+    test('Given a job that failed without saying why '
+        'When it is read '
+        'Then a plain reason is presented rather than nothing', () async {
+      final container = containerWith(
+        exports: FakeExports(
+          onRead: (_) => const Success(
+            PersonalExport(
+              jobId: 'job-1',
+              status: PersonalExportStatus.failed,
+              progress: 0,
+            ),
+          ),
+        ),
+      );
+
+      await container
+          .read(personalExportControllerProvider.notifier)
+          .refresh('job-1');
+
+      expect(
+        container.read(personalExportControllerProvider).message,
+        'The export failed.',
+      );
+    });
+
+    test('Given a ready archive '
+        'When it cannot be downloaded '
+        'Then the reason is presented and nothing is written', () async {
+      final saver = FakeSaver((_) => const Success('/tmp/archive.zip'));
+      final container = containerWith(
+        exports: FakeExports(
+          onRead: (_) => Success(completed()),
+          onDownload: (_) => const Failure(
+            message: 'The archive could not be fetched.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+        saver: saver,
+      );
+      final controller = container.read(
+        personalExportControllerProvider.notifier,
+      );
+
+      await controller.refresh('job-1');
+      await controller.save();
+
+      final state = container.read(personalExportControllerProvider);
+      expect(state, isA<PersonalExportFailed>());
+      expect(state.message, 'The archive could not be fetched.');
+      expect(saver.saves, 0);
+    });
+
+    test('Given a refused save and a saved archive '
+        'When they are asked what to say '
+        'Then the refusal is its reason and the save names where it went', () {
+      expect(
+        PersonalExportSaveRefused('No room there.', completed()).message,
+        'No room there.',
+      );
+      expect(
+        const PersonalExportSaved('/tmp/archive.zip', 3).message,
+        'Saved to /tmp/archive.zip.',
+      );
+      expect(const PersonalExportIdle().message, isNull);
+    });
   });
 }
 

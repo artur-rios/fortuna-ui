@@ -6,6 +6,7 @@ import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/format/money_parser.dart';
 import 'package:fortuna_ui/core/result/result.dart';
+import 'package:fortuna_ui/core/session/session_teardown.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/holdings/data/credit_card_repository.dart';
 import 'package:fortuna_ui/features/holdings/state/credit_card_providers.dart';
@@ -15,16 +16,18 @@ import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/preferences/state/preferences_controller.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'accounts_test.dart' show FakeCurrencies;
+import 'accounts_test.dart' show FakeCurrencies, UnavailableCurrencies;
 
 class FakeCards implements CreditCardRepository {
-  FakeCards({this.onList, this.onCreate, this.onDelete});
+  FakeCards({this.onList, this.onCreate, this.onUpdate, this.onDelete});
 
   Result<List<CreditCard>> Function()? onList;
   Result<void> Function()? onCreate;
+  Result<void> Function()? onUpdate;
   Result<void> Function()? onDelete;
 
   final List<Map<String, Object?>> created = [];
+  final List<Map<String, Object?>> updated = [];
   final List<String> deleted = [];
 
   @override
@@ -64,7 +67,17 @@ class FakeCards implements CreditCardRepository {
     required int closingDay,
     required int dueDay,
     String? issuer,
-  }) async => const Success(null);
+  }) async {
+    updated.add({
+      'id': id,
+      'name': name,
+      'creditLimit': creditLimit,
+      'closingDay': closingDay,
+      'dueDay': dueDay,
+      'issuer': issuer,
+    });
+    return onUpdate?.call() ?? const Success(null);
+  }
 
   @override
   Future<Result<void>> delete(String id) async {
@@ -110,6 +123,7 @@ Future<void> pumpCards(
   WidgetTester tester,
   FakeCards cards, {
   List<Override> extra = const [],
+  CurrencyRepository? currencies,
 }) async {
   tester.view.physicalSize = const Size(1000, 2000);
   tester.view.devicePixelRatio = 1;
@@ -119,7 +133,9 @@ Future<void> pumpCards(
     ProviderScope(
       overrides: [
         creditCardRepositoryProvider.overrideWithValue(cards),
-        currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+        currencyRepositoryProvider.overrideWithValue(
+          currencies ?? FakeCurrencies(),
+        ),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
         ...extra,
       ],
@@ -282,6 +298,32 @@ void main() {
         throwsA(isA<CreditCardsUnavailable>()),
       );
     });
+
+    test(
+      'Given the cards were read '
+      'When the session ends '
+      'Then they are dropped and read again on the next use (FR-SE-21)',
+      () async {
+        var reads = 0;
+        final container = containerWith(
+          FakeCards(
+            onList: () {
+              reads++;
+              return Success([card()]);
+            },
+          ),
+        );
+        await container.read(creditCardsProvider.future);
+
+        await container.read(sessionTeardownProvider).runAll();
+        await container.read(creditCardsProvider.future);
+
+        expect(container.read(sessionTeardownProvider).registered, [
+          'creditCards',
+        ]);
+        expect(reads, 2);
+      },
+    );
   });
 
   group('CreditCardActions', () {
@@ -353,6 +395,81 @@ void main() {
         'Statements still reference this card.',
       );
     });
+
+    test(
+      'Given an existing card '
+      'When it is updated '
+      'Then every field reaches the repository and the list is read again',
+      () async {
+        var reads = 0;
+        final cards = FakeCards(
+          onList: () {
+            reads++;
+            return Success([card()]);
+          },
+        );
+        final container = containerWith(cards);
+        await container.read(creditCardsProvider.future);
+
+        final result = await container
+            .read(creditCardActionsProvider)
+            .update(
+              id: 'c1',
+              name: 'Travel card',
+              creditLimit: '7500.25',
+              closingDay: 5,
+              dueDay: 15,
+              issuer: 'Other Bank',
+            );
+        await container.read(creditCardsProvider.future);
+
+        expect(result, const Success<void>(null));
+        expect(cards.updated.single, {
+          'id': 'c1',
+          'name': 'Travel card',
+          'creditLimit': '7500.25',
+          'closingDay': 5,
+          'dueDay': 15,
+          'issuer': 'Other Bank',
+        });
+        expect(reads, 2);
+      },
+    );
+
+    test('Given an update the API refuses '
+        'When it answers '
+        'Then the reason comes back unchanged and the list is not read again '
+        '(UC-15 AF-02)', () async {
+      var reads = 0;
+      const refusal = Failure<void>(
+        message: 'The due day must fall after the closing day.',
+        kind: FailureKind.invalidInput,
+      );
+      final container = containerWith(
+        FakeCards(
+          onList: () {
+            reads++;
+            return Success([card()]);
+          },
+          onUpdate: () => refusal,
+        ),
+      );
+      await container.read(creditCardsProvider.future);
+
+      final result = await container
+          .read(creditCardActionsProvider)
+          .update(
+            id: 'c1',
+            name: 'Everyday card',
+            creditLimit: '5000',
+            closingDay: 28,
+            dueDay: 20,
+          );
+      await container.read(creditCardsProvider.future);
+
+      expect(result, refusal);
+      expect(reads, 1);
+    });
   });
 
   group('CreditCardsScreen', () {
@@ -397,6 +514,55 @@ void main() {
 
       expect(find.byKey(const Key('cards.overage.c1')), findsOneWidget);
       expect(find.textContaining('Over the limit by'), findsOneWidget);
+    });
+
+    testWidgets('Given the cards could not be read '
+        'When the user tries again and the instance answers '
+        "Then the API's reason was shown and the cards are now listed", (
+      tester,
+    ) async {
+      final cards = FakeCards(
+        onList: () => const Failure(
+          message: 'The instance could not be reached.',
+          kind: FailureKind.unreachable,
+        ),
+      );
+      await pumpCards(tester, cards);
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+      expect(find.byKey(const Key('cards.empty')), findsNothing);
+
+      cards.onList = () => Success([card()]);
+      await tester.tap(find.byKey(const Key('cards.retry')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('cards.item.c1')), findsOneWidget);
+      expect(find.byKey(const Key('cards.retry')), findsNothing);
+    });
+
+    testWidgets('Given cards are listed '
+        'When the new-card button is pressed '
+        'Then an empty creation form opens', (tester) async {
+      await pumpCards(tester, FakeCards(onList: () => Success([card()])));
+
+      await tester.tap(find.byKey(const Key('cards.add')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('New card'), findsWidgets);
+      expect(find.byKey(const Key('cardEditor.currency')), findsOneWidget);
+      expect(find.byKey(const Key('cardEditor.digits')), findsOneWidget);
+      expect(find.byKey(const Key('cardEditor.delete')), findsNothing);
+    });
+
+    testWidgets('Given no cards '
+        'When the creation the empty state offers is taken '
+        'Then the creation form opens (UC-15 AF-06)', (tester) async {
+      await pumpCards(tester, FakeCards());
+
+      await tester.tap(find.byKey(const Key('cards.emptyAdd')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CreditCardEditor), findsOneWidget);
+      expect(find.byKey(const Key('cardEditor.currency')), findsOneWidget);
     });
   });
 
@@ -465,6 +631,163 @@ void main() {
 
       expect(find.byKey(const Key('cardEditor.error')), findsOneWidget);
       expect(cards.created, isEmpty);
+    });
+
+    Future<FakeCards> openExisting(
+      WidgetTester tester, {
+      Result<void> Function()? onUpdate,
+      Result<void> Function()? onDelete,
+    }) async {
+      final cards = FakeCards(
+        onList: () => Success([card()]),
+        onUpdate: onUpdate,
+        onDelete: onDelete,
+      );
+      await pumpCards(tester, cards);
+      await tester.tap(find.text('Everyday card'));
+      await tester.pumpAndSettle();
+      return cards;
+    }
+
+    testWidgets('Given an existing card '
+        'When it is opened '
+        'Then its figures are filled in and neither currency nor digits are '
+        'offered for change', (tester) async {
+      await openExisting(tester);
+
+      expect(find.text('Edit card'), findsOneWidget);
+      String textOf(String key) =>
+          tester.widget<TextField>(find.byKey(Key(key))).controller!.text;
+      expect(textOf('cardEditor.name'), 'Everyday card');
+      expect(textOf('cardEditor.issuer'), 'A Bank');
+      expect(textOf('cardEditor.closingDay'), '20');
+      expect(textOf('cardEditor.dueDay'), '28');
+      expect(find.byKey(const Key('cardEditor.currency')), findsNothing);
+      expect(find.byKey(const Key('cardEditor.digits')), findsNothing);
+    });
+
+    testWidgets('Given an existing card '
+        'When its fields are changed and saved '
+        'Then the update is sent for that card and the editor closes', (
+      tester,
+    ) async {
+      final cards = await openExisting(tester);
+
+      await tester.enterText(
+        find.byKey(const Key('cardEditor.name')),
+        ' Travel card ',
+      );
+      await tester.enterText(find.byKey(const Key('cardEditor.issuer')), '');
+      await tester.enterText(
+        find.byKey(const Key('cardEditor.limit')),
+        '7500.25',
+      );
+      await tester.enterText(
+        find.byKey(const Key('cardEditor.closingDay')),
+        '5',
+      );
+      await tester.enterText(find.byKey(const Key('cardEditor.dueDay')), '15');
+      await tester.tap(find.byKey(const Key('cardEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(cards.updated.single, {
+        'id': 'c1',
+        'name': 'Travel card',
+        'creditLimit': '7500.25',
+        'closingDay': 5,
+        'dueDay': 15,
+        'issuer': null,
+      });
+      expect(cards.created, isEmpty);
+      expect(find.byType(CreditCardEditor), findsNothing);
+    });
+
+    testWidgets('Given the API refuses the day combination '
+        'When an edit is saved '
+        "Then the API's reason is shown and the editor stays usable "
+        '(UC-15 AF-02)', (tester) async {
+      await openExisting(
+        tester,
+        onUpdate: () => const Failure(
+          message: 'The due day must fall after the closing day.',
+          kind: FailureKind.invalidInput,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('cardEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('The due day must fall after the closing day.'),
+        findsOneWidget,
+      );
+      expect(find.byType(CreditCardEditor), findsOneWidget);
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const Key('cardEditor.save')))
+            .onPressed,
+        isNotNull,
+      );
+    });
+
+    testWidgets('Given an existing card '
+        'When it is deleted '
+        'Then that card is deleted and the editor closes', (tester) async {
+      final cards = await openExisting(tester);
+
+      await tester.tap(find.byKey(const Key('cardEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(cards.deleted, ['c1']);
+      expect(find.byType(CreditCardEditor), findsNothing);
+    });
+
+    testWidgets('Given statements still reference the card '
+        'When it is deleted '
+        "Then the API's reason is shown and the editor stays open "
+        '(UC-15 AF-05)', (tester) async {
+      await openExisting(
+        tester,
+        onDelete: () => const Failure(
+          message: 'Statements still reference this card.',
+          kind: FailureKind.conflict,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('cardEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Statements still reference this card.'),
+        findsOneWidget,
+      );
+      expect(find.byType(CreditCardEditor), findsOneWidget);
+      expect(
+        tester
+            .widget<TextButton>(find.byKey(const Key('cardEditor.delete')))
+            .onPressed,
+        isNotNull,
+      );
+    });
+
+    testWidgets('Given the supported currencies cannot be read '
+        'When a new card is started '
+        'Then the editor says so instead of offering a picker (UC-13 AF-03)', (
+      tester,
+    ) async {
+      await pumpCards(tester, FakeCards(), currencies: UnavailableCurrencies());
+
+      await tester.tap(find.byKey(const Key('cards.emptyAdd')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'The supported currencies could not be read: '
+          'The currency list could not be read.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('cardEditor.currency')), findsNothing);
     });
   });
 }

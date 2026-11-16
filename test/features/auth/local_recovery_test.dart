@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
@@ -94,8 +95,9 @@ ProviderContainer containerWith(FakeLocalAccounts repository) {
 
 Future<void> pumpScreen(
   WidgetTester tester,
-  FakeLocalAccounts repository,
-) async {
+  FakeLocalAccounts repository, {
+  VoidCallback? onFinished,
+}) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -114,7 +116,7 @@ Future<void> pumpScreen(
         tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
         localAccountRepositoryProvider.overrideWithValue(repository),
       ],
-      child: const MaterialApp(home: LocalRecoveryScreen()),
+      child: MaterialApp(home: LocalRecoveryScreen(onFinished: onFinished)),
     ),
   );
   await tester.pumpAndSettle();
@@ -131,8 +133,74 @@ Future<void> submitRecovery(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+const _newCodes = Success(
+  CreatedLocalAccount(displayName: '', recoveryCodes: ['NEW-1', 'NEW-2']),
+);
+
 void main() {
   group('LocalRecoveryController.recover', () {
+    test('Given the core answers with a session token this client cannot read '
+        'When recovery succeeds '
+        'Then it is refused and no session is held', () async {
+      final container = containerWith(
+        FakeLocalAccounts(
+          onRecover: (_, _, _) => const Success(
+            RecoveredLocalAccount(
+              token: 'not-a-token',
+              remainingRecoveryCodes: 4,
+            ),
+          ),
+        ),
+      );
+
+      await container
+          .read(localRecoveryControllerProvider.notifier)
+          .recover(
+            name: 'Local User',
+            recoveryCode: 'AAAA-1111',
+            newSecret: 'new-secret',
+          );
+
+      final state = container.read(localRecoveryControllerProvider);
+      expect(state, isA<LocalRecoveryRefused>());
+      expect(
+        state.message,
+        'The core issued a session this application could not read.',
+      );
+      expect(container.read(sessionProvider), isNot(isA<SignedIn>()));
+    });
+
+    test('Given a refusal is on screen '
+        'When the form is reset '
+        'Then it is ready again, and a ready form stays ready', () async {
+      final container = containerWith(FakeLocalAccounts());
+      final controller = container.read(
+        localRecoveryControllerProvider.notifier,
+      );
+
+      await controller.recover(
+        name: 'Local User',
+        recoveryCode: 'wrong',
+        newSecret: 'new-secret',
+      );
+      expect(
+        container.read(localRecoveryControllerProvider),
+        isA<LocalRecoveryRefused>(),
+      );
+
+      controller.reset();
+      expect(
+        container.read(localRecoveryControllerProvider),
+        isA<LocalRecoveryReady>(),
+      );
+
+      controller.reset();
+      expect(
+        container.read(localRecoveryControllerProvider),
+        isA<LocalRecoveryReady>(),
+      );
+    });
+
     test('Given an empty field '
         'When recovery is attempted '
         'Then it is rejected and nothing reaches the core', () async {
@@ -248,6 +316,55 @@ void main() {
   });
 
   group('LocalRecoveryController.regenerateCodes', () {
+    test('Given new codes are showing '
+        'When they are confirmed as kept '
+        'Then the flow is finished and the new count is carried', () async {
+      final container = containerWith(
+        FakeLocalAccounts(
+          onRecover: (_, _, _) => recovered(remaining: 1),
+          onRegenerate: (_) => _newCodes,
+        ),
+      );
+      final controller = container.read(
+        localRecoveryControllerProvider.notifier,
+      );
+
+      await controller.recover(
+        name: 'Local User',
+        recoveryCode: 'AAAA-1111',
+        newSecret: 'new-secret',
+      );
+      await controller.regenerateCodes();
+      controller.confirmCodesKept();
+
+      final state = container.read(localRecoveryControllerProvider);
+      expect(state, isA<LocalRecoveryFinished>());
+      expect((state as LocalRecoveryFinished).remaining, 2);
+    });
+
+    test('Given no new codes were issued '
+        'When keeping them is confirmed '
+        'Then nothing changes', () async {
+      final container = containerWith(
+        FakeLocalAccounts(onRecover: (_, _, _) => recovered()),
+      );
+      final controller = container.read(
+        localRecoveryControllerProvider.notifier,
+      );
+
+      await controller.recover(
+        name: 'Local User',
+        recoveryCode: 'AAAA-1111',
+        newSecret: 'new-secret',
+      );
+      controller.confirmCodesKept();
+
+      expect(
+        container.read(localRecoveryControllerProvider),
+        isA<LocalRecoveryRecovered>(),
+      );
+    });
+
     test('Given a recovered account '
         'When new codes are issued '
         'Then they are presented once (UC-08 step 6)', () async {
@@ -450,6 +567,148 @@ void main() {
             .onPressed,
         isNotNull,
       );
+    });
+    testWidgets('Given the core refuses the recovery '
+        'When it answers '
+        'Then its message is shown under the form, and editing clears it '
+        '(UC-08 AF-01)', (tester) async {
+      const single = 'That name and recovery code do not match an account.';
+      await pumpScreen(
+        tester,
+        FakeLocalAccounts(
+          onRecover: (_, _, _) =>
+              const Failure(message: single, kind: FailureKind.unauthenticated),
+        ),
+      );
+      await submitRecovery(tester);
+
+      expect(find.text(single), findsOneWidget);
+
+      await tester.enterText(find.byKey(const Key('recovery.code')), 'BBBB');
+      await tester.pumpAndSettle();
+
+      expect(find.text(single), findsNothing);
+    });
+
+    testWidgets('Given a filled form '
+        'When the new secret is submitted from the keyboard '
+        'Then recovery is attempted with the trimmed name and code', (
+      tester,
+    ) async {
+      final repository = FakeLocalAccounts(onRecover: (_, _, _) => recovered());
+      await pumpScreen(tester, repository);
+
+      await tester.enterText(
+        find.byKey(const Key('recovery.name')),
+        ' Local User ',
+      );
+      await tester.enterText(
+        find.byKey(const Key('recovery.code')),
+        ' AAAA-1111 ',
+      );
+      await tester.enterText(
+        find.byKey(const Key('recovery.secret')),
+        'new-secret',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(repository.recoveries.single, (
+        name: 'Local User',
+        code: 'AAAA-1111',
+        newSecret: 'new-secret',
+      ));
+      expect(find.textContaining('now used up'), findsOneWidget);
+    });
+
+    testWidgets('Given regeneration failed '
+        'When the user tries again and it succeeds '
+        'Then the new codes are shown (UC-08 AF-05)', (tester) async {
+      var attempts = 0;
+      final repository = FakeLocalAccounts(
+        onRecover: (_, _, _) => recovered(remaining: 3),
+        onRegenerate: (_) => attempts++ == 0
+            ? const Failure(
+                message: 'The credential store could not be written.',
+                kind: FailureKind.serverError,
+              )
+            : _newCodes,
+      );
+      await pumpScreen(tester, repository);
+      await submitRecovery(tester);
+      await tester.tap(find.byKey(const Key('recovery.regenerate')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('recovery.retryRegenerate')));
+      await tester.pumpAndSettle();
+
+      expect(repository.regenerations, ['new-secret', 'new-secret']);
+      expect(find.byKey(const Key('recovery.newCodes')), findsOneWidget);
+    });
+
+    testWidgets('Given new codes are showing '
+        'When they are copied '
+        'Then every code goes to the clipboard and the user is told', (
+      tester,
+    ) async {
+      final copied = <String?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied.add(
+              (call.arguments as Map<Object?, Object?>)['text'] as String?,
+            );
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await pumpScreen(
+        tester,
+        FakeLocalAccounts(
+          onRecover: (_, _, _) => recovered(),
+          onRegenerate: (_) => _newCodes,
+        ),
+      );
+      await submitRecovery(tester);
+      await tester.tap(find.byKey(const Key('recovery.regenerate')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('recovery.copy')));
+      await tester.pumpAndSettle();
+
+      expect(copied, ['NEW-1\nNEW-2']);
+      expect(find.text('Copied to the clipboard.'), findsOneWidget);
+    });
+
+    testWidgets('Given new codes are showing '
+        'When the user confirms keeping them and finishes '
+        'Then the screen reports it is finished', (tester) async {
+      var finished = 0;
+      await pumpScreen(
+        tester,
+        FakeLocalAccounts(
+          onRecover: (_, _, _) => recovered(),
+          onRegenerate: (_) => _newCodes,
+        ),
+        onFinished: () => finished++,
+      );
+      await submitRecovery(tester);
+      await tester.tap(find.byKey(const Key('recovery.regenerate')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('recovery.kept')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('recovery.done')));
+      await tester.pumpAndSettle();
+
+      expect(finished, 1);
     });
   });
 }

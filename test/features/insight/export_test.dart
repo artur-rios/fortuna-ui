@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -430,6 +431,233 @@ void main() {
 
       expect(container.read(exportControllerProvider), isA<ExportIdle>());
     });
+
+    test('Given a finished export that has not expired '
+        'When it is retrieved '
+        'Then its file is in hand', () async {
+      final container = containerWith(
+        exports: FakeExports(onDownload: () => Success(file(name: 'a.csv'))),
+      );
+
+      await container
+          .read(exportControllerProvider.notifier)
+          .retrieve(export(state: ExportState.completed));
+
+      final state = container.read(exportControllerProvider);
+      expect(state, isA<ExportReady>());
+      expect((state as ExportReady).file.fileName, 'a.csv');
+      expect(state.saveRefusal, isNull);
+    });
+
+    test('Given the download is refused '
+        'When a finished export is retrieved '
+        "Then the API's reason is what the user sees", () async {
+      final container = containerWith(
+        exports: FakeExports(
+          onDownload: () => const Failure(
+            message: 'The file could not be downloaded.',
+            kind: FailureKind.serverError,
+          ),
+        ),
+      );
+
+      await container
+          .read(exportControllerProvider.notifier)
+          .retrieve(export(state: ExportState.completed));
+
+      final state = container.read(exportControllerProvider);
+      expect(state, isA<ExportFailed>());
+      expect(
+        (state as ExportFailed).reason,
+        'The file could not be downloaded.',
+      );
+    });
+  });
+
+  // The poller is a periodic timer, so these run under the widget tester's
+  // fake clock: one `pump(exportPollInterval)` is one poll, and no real time
+  // passes.
+  group('ExportController polling', () {
+    Future<ExportController> queue(ProviderContainer container) async {
+      final controller = container.read(exportControllerProvider.notifier);
+      await controller.produce(
+        recordSet: 'transactions',
+        format: ExportFormat.csv,
+        filters: const [],
+      );
+      return controller;
+    }
+
+    testWidgets('Given a queued export still being produced '
+        'When it is polled '
+        'Then the latest state of the job is what is held (FR-EX-04)', (
+      tester,
+    ) async {
+      final container = containerWith(
+        exports: FakeExports(
+          onRequest: () => Success(ExportQueued(export())),
+          onRead: () => Success(export(state: ExportState.running)),
+        ),
+      );
+      final controller = await queue(container);
+
+      await tester.pump(exportPollInterval);
+
+      final state = container.read(exportControllerProvider);
+      expect(state, isA<ExportRunning>());
+      expect((state as ExportRunning).export?.state, ExportState.running);
+
+      controller.reset();
+    });
+
+    testWidgets('Given a poll that fails '
+        'When the next interval passes '
+        'Then the job is asked about again rather than declared dead', (
+      tester,
+    ) async {
+      var reads = 0;
+      final container = containerWith(
+        exports: FakeExports(
+          onRequest: () => Success(ExportQueued(export())),
+          onRead: () {
+            reads++;
+            return const Failure(
+              message: 'The instance could not be reached.',
+              kind: FailureKind.unreachable,
+            );
+          },
+        ),
+      );
+      final controller = await queue(container);
+
+      await tester.pump(exportPollInterval);
+      await tester.pump(exportPollInterval);
+
+      expect(reads, 2);
+      final state = container.read(exportControllerProvider);
+      expect(state, isA<ExportRunning>());
+      expect((state as ExportRunning).export?.state, ExportState.pending);
+
+      controller.reset();
+    });
+
+    testWidgets('Given the job fails with a reason '
+        'When it is polled '
+        "Then the API's reason is what the user sees and polling stops "
+        '(AF-02)', (tester) async {
+      var reads = 0;
+      final container = containerWith(
+        exports: FakeExports(
+          onRequest: () => Success(ExportQueued(export())),
+          onRead: () {
+            reads++;
+            return Success(
+              export(
+                state: ExportState.failed,
+                failureReason: 'The data set is too large.',
+              ),
+            );
+          },
+        ),
+      );
+      await queue(container);
+
+      await tester.pump(exportPollInterval);
+      await tester.pump(exportPollInterval);
+
+      expect(
+        container.read(exportControllerProvider),
+        isA<ExportFailed>().having(
+          (s) => s.reason,
+          'reason',
+          'The data set is too large.',
+        ),
+      );
+      expect(reads, 1);
+    });
+
+    testWidgets('Given the job fails with no reason '
+        'When it is polled '
+        'Then a plain failure is said rather than nothing (AF-02)', (
+      tester,
+    ) async {
+      final container = containerWith(
+        exports: FakeExports(
+          onRequest: () => Success(ExportQueued(export())),
+          onRead: () => Success(export(state: ExportState.failed)),
+        ),
+      );
+      await queue(container);
+
+      await tester.pump(exportPollInterval);
+
+      expect(
+        container.read(exportControllerProvider),
+        isA<ExportFailed>().having(
+          (s) => s.reason,
+          'reason',
+          'The export could not be produced.',
+        ),
+      );
+    });
+
+    testWidgets('Given the job completes '
+        'When it is polled '
+        'Then its file is retrieved and in hand, and polling stops', (
+      tester,
+    ) async {
+      var reads = 0;
+      var downloads = 0;
+      final container = containerWith(
+        exports: FakeExports(
+          onRequest: () => Success(ExportQueued(export())),
+          onRead: () {
+            reads++;
+            return Success(export(state: ExportState.completed));
+          },
+          onDownload: () {
+            downloads++;
+            return Success(file(name: 'queued.csv'));
+          },
+        ),
+      );
+      await queue(container);
+
+      await tester.pump(exportPollInterval);
+      await tester.pump(exportPollInterval);
+
+      final state = container.read(exportControllerProvider);
+      expect(state, isA<ExportReady>());
+      expect((state as ExportReady).file.fileName, 'queued.csv');
+      expect(reads, 1);
+      expect(downloads, 1);
+    });
+
+    testWidgets('Given the job completed but has since expired '
+        'When it is polled '
+        'Then it is reported expired and no download is attempted (AF-04)', (
+      tester,
+    ) async {
+      var downloads = 0;
+      final container = containerWith(
+        exports: FakeExports(
+          onRequest: () => Success(ExportQueued(export())),
+          onRead: () => Success(
+            export(state: ExportState.completed, expiresAt: DateTime(2020)),
+          ),
+          onDownload: () {
+            downloads++;
+            return Success(file());
+          },
+        ),
+      );
+      await queue(container);
+
+      await tester.pump(exportPollInterval);
+
+      expect(container.read(exportControllerProvider), isA<ExportExpired>());
+      expect(downloads, 0);
+    });
   });
 
   group('ExportSheet', () {
@@ -588,6 +816,162 @@ void main() {
       expect(find.textContaining('keeps going'), findsOneWidget);
       // And closing is offered rather than the interface being blocked.
       expect(find.byKey(const Key('export.running.close')), findsOneWidget);
+    });
+
+    testWidgets('Given the job fails '
+        'When the export is tried again '
+        'Then it is asked for again and can succeed (AF-02)', (tester) async {
+      var attempts = 0;
+      final exports = FakeExports(
+        onRequest: () => ++attempts == 1
+            ? const Failure(
+                message: 'The export could not be produced.',
+                kind: FailureKind.serverError,
+              )
+            : Success(ExportDelivered(file())),
+      );
+
+      await pumpSheet(tester, exports: exports);
+      await tester.tap(find.byKey(const Key('export.produce')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('export.retry')));
+      await tester.pumpAndSettle();
+
+      expect(exports.requests, hasLength(2));
+      expect(find.byKey(const Key('export.ready')), findsOneWidget);
+    });
+
+    testWidgets('Given a queued export that expired before it was retrieved '
+        'When the job finishes '
+        'Then the sheet says so and offers to produce another (AF-04)', (
+      tester,
+    ) async {
+      final exports = FakeExports(
+        onRequest: () => Success(ExportQueued(export())),
+        onRead: () => Success(
+          export(state: ExportState.completed, expiresAt: DateTime(2020)),
+        ),
+      );
+
+      await pumpSheet(tester, exports: exports);
+      await tester.tap(find.byKey(const Key('export.produce')));
+      await tester.pump();
+      await tester.pump(exportPollInterval);
+      await tester.pump();
+
+      expect(find.byKey(const Key('export.expired')), findsOneWidget);
+      expect(find.textContaining('no longer available'), findsOneWidget);
+
+      exports.onRequest = () => Success(ExportDelivered(file()));
+      await tester.tap(find.byKey(const Key('export.produceAnother')));
+      await tester.pumpAndSettle();
+
+      expect(exports.requests, hasLength(2));
+      expect(find.byKey(const Key('export.ready')), findsOneWidget);
+    });
+  });
+
+  group('showExportSheet', () {
+    Future<void> pumpHost(
+      WidgetTester tester, {
+      FakeExports? exports,
+      bool hasData = true,
+    }) async {
+      tester.view.physicalSize = const Size(1000, 2000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            exportRepositoryProvider.overrideWithValue(
+              exports ?? FakeExports(),
+            ),
+            exportSaverProvider.overrideWithValue(FakeSaver()),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: Consumer(
+                builder: (context, ref, _) => TextButton(
+                  key: const Key('host.export'),
+                  onPressed: () => unawaited(
+                    showExportSheet(
+                      context,
+                      ref,
+                      recordSet: 'transactions',
+                      filters: const [],
+                      hasData: hasData,
+                    ),
+                  ),
+                  child: const Text('Export'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(const Key('host.export')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('Given a view with no data '
+        'When the sheet is opened and closed '
+        'Then it opens over the view and closes back to it (AF-01)', (
+      tester,
+    ) async {
+      await pumpHost(tester, hasData: false);
+
+      expect(find.byType(ExportSheet), findsOneWidget);
+      expect(find.byKey(const Key('export.nothingToExport')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('export.close')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ExportSheet), findsNothing);
+    });
+
+    testWidgets('Given a saved export '
+        'When done is chosen '
+        'Then the sheet closes', (tester) async {
+      await pumpHost(tester);
+      await tester.tap(find.byKey(const Key('export.produce')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('export.save')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('export.done')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ExportSheet), findsNothing);
+    });
+
+    testWidgets('Given a queued export '
+        'When the sheet is closed while it runs '
+        'Then the sheet goes and the job keeps going (AF-05)', (tester) async {
+      var reads = 0;
+      final exports = FakeExports(
+        onRequest: () => Success(ExportQueued(export())),
+        onRead: () {
+          reads++;
+          return Success(export(state: ExportState.failed));
+        },
+      );
+
+      await pumpHost(tester, exports: exports);
+      await tester.tap(find.byKey(const Key('export.produce')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('export.running.close')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ExportSheet), findsNothing);
+
+      await tester.pump(exportPollInterval);
+
+      // Still asked about with the sheet gone. The job failing ends the poll,
+      // so no timer outlives the test.
+      expect(reads, 1);
     });
   });
 }

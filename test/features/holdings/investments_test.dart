@@ -6,15 +6,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/result/result.dart';
+import 'package:fortuna_ui/core/session/session_teardown.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/holdings/data/investment_repository.dart';
 import 'package:fortuna_ui/features/holdings/state/investment_providers.dart';
+import 'package:fortuna_ui/features/holdings/ui/investment_editor.dart';
 import 'package:fortuna_ui/features/holdings/ui/investment_screen.dart';
 import 'package:fortuna_ui/features/holdings/ui/investments_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'accounts_test.dart' show FakeCurrencies;
+import 'accounts_test.dart' show FakeCurrencies, UnavailableCurrencies;
 
 class FakeInvestments implements InvestmentRepository {
   FakeInvestments({
@@ -156,8 +158,9 @@ ProviderContainer containerWith(FakeInvestments fake) {
 Future<void> _pump(
   WidgetTester tester,
   Widget screen,
-  FakeInvestments fake,
-) async {
+  FakeInvestments fake, {
+  CurrencyRepository? currencies,
+}) async {
   tester.view.physicalSize = const Size(1000, 2400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -166,7 +169,9 @@ Future<void> _pump(
     ProviderScope(
       overrides: [
         investmentRepositoryProvider.overrideWithValue(fake),
-        currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+        currencyRepositoryProvider.overrideWithValue(
+          currencies ?? FakeCurrencies(),
+        ),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
       ],
       child: MaterialApp(home: screen),
@@ -175,8 +180,11 @@ Future<void> _pump(
   await tester.pumpAndSettle();
 }
 
-Future<void> pumpInvestments(WidgetTester tester, FakeInvestments fake) =>
-    _pump(tester, const InvestmentsScreen(), fake);
+Future<void> pumpInvestments(
+  WidgetTester tester,
+  FakeInvestments fake, {
+  CurrencyRepository? currencies,
+}) => _pump(tester, const InvestmentsScreen(), fake, currencies: currencies);
 
 Future<void> pumpInvestment(WidgetTester tester, FakeInvestments fake) =>
     _pump(tester, const InvestmentScreen(investmentId: 'i1'), fake);
@@ -265,6 +273,32 @@ void main() {
 
       expect(list.map((i) => i.instrument), ['Alpha bond', 'zeta fund']);
     });
+
+    test(
+      'Given the investments were read '
+      'When the session ends '
+      'Then they are dropped and read again on the next use (FR-SE-21)',
+      () async {
+        var reads = 0;
+        final container = containerWith(
+          FakeInvestments(
+            onList: () {
+              reads++;
+              return Success([investment()]);
+            },
+          ),
+        );
+        await container.read(investmentsProvider.future);
+
+        await container.read(sessionTeardownProvider).runAll();
+        await container.read(investmentsProvider.future);
+
+        expect(container.read(sessionTeardownProvider).registered, [
+          'investments',
+        ]);
+        expect(reads, 2);
+      },
+    );
 
     test('Given the list cannot be read '
         'When it is requested '
@@ -385,6 +419,80 @@ void main() {
         ),
       );
       expect(fake.deleted, ['i1']);
+    });
+
+    test('Given an existing investment '
+        'When it is updated '
+        'Then every field reaches the repository and both the list and that '
+        'investment are read again', () async {
+      var listReads = 0;
+      var reads = 0;
+      final fake = FakeInvestments(
+        onList: () {
+          listReads++;
+          return Success([investment()]);
+        },
+        onRead: (_) {
+          reads++;
+          return Success(investment());
+        },
+      );
+      final container = containerWith(fake);
+      await container.read(investmentsProvider.future);
+      await container.read(investmentProvider('i1').future);
+
+      final result = await container
+          .read(investmentActionsProvider)
+          .update(
+            id: 'i1',
+            instrument: 'Treasury 2035',
+            type: InvestmentType.fund,
+            institution: 'Other Bank',
+          );
+      await container.read(investmentsProvider.future);
+      await container.read(investmentProvider('i1').future);
+
+      expect(result, const Success<void>(null));
+      expect(fake.updated.single, {
+        'id': 'i1',
+        'instrument': 'Treasury 2035',
+        'type': InvestmentType.fund,
+        'institution': 'Other Bank',
+      });
+      expect(listReads, 2);
+      expect(reads, 2);
+    });
+
+    test('Given an update the API refuses '
+        'When it answers '
+        'Then the reason comes back unchanged and nothing is read again '
+        '(AF-02)', () async {
+      var reads = 0;
+      const refusal = Failure<void>(
+        message: 'You already hold an investment called Treasury 2035.',
+        kind: FailureKind.conflict,
+      );
+      final fake = FakeInvestments(
+        onRead: (_) {
+          reads++;
+          return Success(investment());
+        },
+        onUpdate: () => refusal,
+      );
+      final container = containerWith(fake);
+      await container.read(investmentProvider('i1').future);
+
+      final result = await container
+          .read(investmentActionsProvider)
+          .update(
+            id: 'i1',
+            instrument: 'Treasury 2035',
+            type: InvestmentType.fixedIncome,
+          );
+      await container.read(investmentProvider('i1').future);
+
+      expect(result, refusal);
+      expect(reads, 1);
     });
   });
 
@@ -703,6 +811,118 @@ void main() {
         find.text('This investment still has movements recorded against it.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('Given an existing investment '
+        'When its instrument, type and institution are changed and saved '
+        'Then the update is sent for that investment and the editor closes', (
+      tester,
+    ) async {
+      final fake = FakeInvestments(onRead: (_) => Success(investment()));
+      await pumpInvestment(tester, fake);
+      await tester.tap(find.byKey(const Key('investment.edit')));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('investmentEditor.instrument')),
+        ' Treasury 2035 ',
+      );
+      await tester.enterText(
+        find.byKey(const Key('investmentEditor.institution')),
+        '',
+      );
+      await tester.tap(find.byKey(const Key('investmentEditor.type')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Equity').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('investmentEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(fake.updated.single, {
+        'id': 'i1',
+        'instrument': 'Treasury 2035',
+        'type': InvestmentType.equity,
+        'institution': null,
+      });
+      expect(fake.created, isEmpty);
+      expect(find.byType(InvestmentEditor), findsNothing);
+    });
+
+    testWidgets('Given the API refuses an edit '
+        'When it is saved '
+        "Then the API's reason is shown and the editor stays usable (AF-02)", (
+      tester,
+    ) async {
+      await pumpInvestment(
+        tester,
+        FakeInvestments(
+          onRead: (_) => Success(investment()),
+          onUpdate: () => const Failure(
+            message: 'You already hold an investment called Treasury 2030.',
+            kind: FailureKind.conflict,
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(const Key('investment.edit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('investmentEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('You already hold an investment called Treasury 2030.'),
+        findsOneWidget,
+      );
+      expect(find.byType(InvestmentEditor), findsOneWidget);
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.byKey(const Key('investmentEditor.save')),
+            )
+            .onPressed,
+        isNotNull,
+      );
+    });
+
+    testWidgets('Given an existing investment nothing references '
+        'When it is deleted from the editor '
+        'Then that investment is deleted and the editor closes', (
+      tester,
+    ) async {
+      final fake = FakeInvestments(onRead: (_) => Success(investment()));
+      await pumpInvestment(tester, fake);
+      await tester.tap(find.byKey(const Key('investment.edit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('investmentEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(fake.deleted, ['i1']);
+      expect(find.byType(InvestmentEditor), findsNothing);
+    });
+
+    testWidgets('Given the supported currencies cannot be read '
+        'When a new investment is started '
+        'Then the editor says so instead of offering a picker (UC-13 AF-03)', (
+      tester,
+    ) async {
+      await pumpInvestments(
+        tester,
+        FakeInvestments(onList: () => const Success([])),
+        currencies: UnavailableCurrencies(),
+      );
+
+      await tester.tap(find.byKey(const Key('investments.emptyAdd')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'The supported currencies could not be read: '
+          'The currency list could not be read.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('investmentEditor.currency')), findsNothing);
     });
   });
 }

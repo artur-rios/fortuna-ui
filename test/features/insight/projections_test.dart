@@ -544,5 +544,56 @@ void main() {
       // One section failing does not take the others down with it.
       expect(find.byKey(const Key('position.total')), findsOneWidget);
     });
+
+    testWidgets('Given the obligations fail '
+        'When they are tried again '
+        'Then they are asked for again and shown (AF-02)', (tester) async {
+      var attempts = 0;
+      final fake = FakeProjections(
+        onObligations: () => ++attempts == 1
+            ? const Failure(
+                message: 'The obligations could not be read.',
+                kind: FailureKind.serverError,
+              )
+            : Success(obligations_()),
+      );
+
+      await pumpProjections(tester, fake);
+      await tester.tap(find.byKey(const Key('obligations.retry')));
+      await tester.pumpAndSettle();
+
+      expect(attempts, 2);
+      expect(find.byKey(const Key('obligations.failed')), findsNothing);
+    });
+
+    testWidgets('Given the cash-flow projection fails '
+        'When the screen settles '
+        "Then the API's reason is shown with a retry, and the position still "
+        'shows (AF-02)', (tester) async {
+      var attempts = 0;
+      final fake = FakeProjections(
+        onCashFlow: () => ++attempts == 1
+            ? const Failure(
+                message: 'The projection could not be computed.',
+                kind: FailureKind.serverError,
+              )
+            : Success(projection()),
+      );
+
+      await pumpProjections(tester, fake);
+
+      expect(find.byKey(const Key('cashFlow.failed')), findsOneWidget);
+      expect(
+        find.textContaining('The projection could not be computed.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('position.total')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('cashFlow.retry')));
+      await tester.pumpAndSettle();
+
+      expect(attempts, 2);
+      expect(find.byKey(const Key('cashFlow.failed')), findsNothing);
+    });
   });
 }

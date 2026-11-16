@@ -4,6 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/format/money_parser.dart';
@@ -15,11 +16,12 @@ import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/transactions/data/installment_repository.dart';
 import 'package:fortuna_ui/features/transactions/state/installment_form.dart';
 import 'package:fortuna_ui/features/transactions/ui/record_installment_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart' show FakeCurrencies;
 import 'record_transaction_test.dart'
-    show FakeCards, FakeCategories, card, treeWith;
+    show FakeCards, FakeCategories, card, routerFrom, treeWith, typeDate;
 
 class FakeInstallments implements InstallmentRepository {
   FakeInstallments({this.onRecord});
@@ -60,6 +62,15 @@ class SlowCards extends FakeCards {
 
   @override
   Future<Result<List<CreditCard>>> list() => _pending;
+}
+
+/// Cards that cannot be read at all.
+class UnreadableCards extends FakeCards {
+  @override
+  Future<Result<List<CreditCard>>> list() async => const Failure(
+    message: 'The instance could not be reached.',
+    kind: FailureKind.unreachable,
+  );
 }
 
 InstallmentPlan plan({
@@ -103,6 +114,7 @@ Future<void> pumpInstallment(
   FakeCards? cards,
   FakeCategories? categories,
   List<Override> extra = const [],
+  GoRouter? router,
 }) async {
   tester.view.physicalSize = const Size(1000, 2600);
   tester.view.devicePixelRatio = 1;
@@ -124,11 +136,19 @@ Future<void> pumpInstallment(
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
         ...extra,
       ],
-      child: const MaterialApp(home: RecordInstallmentScreen()),
+      child: router == null
+          ? const MaterialApp(home: RecordInstallmentScreen())
+          : MaterialApp.router(routerConfig: router),
     ),
   );
   await tester.pumpAndSettle();
 }
+
+GoRouter installmentRouter(String destination) => routerFrom(
+  Routes.recordInstallment,
+  const RecordInstallmentScreen(),
+  destinations: [destination],
+);
 
 Future<void> fillValidPlan(
   WidgetTester tester, {
@@ -541,6 +561,78 @@ void main() {
       );
       expect(find.byKey(const Key('recordInstallment.plan')), findsNothing);
       expect(find.text('100.00'), findsOneWidget);
+    });
+
+    testWidgets('Given a purchase date is chosen in the picker '
+        'When the plan is submitted '
+        'Then the plan starts from that date', (tester) async {
+      final fake = FakeInstallments();
+
+      await pumpInstallment(tester, installments: fake);
+      await typeDate(tester, 'recordInstallment.date', '01/15/2020');
+      await fillValidPlan(tester);
+      await tester.tap(find.byKey(const Key('recordInstallment.submit')));
+      await tester.pumpAndSettle();
+
+      expect(fake.recorded.single['purchasedOn'], DateTime(2020, 1, 15));
+    });
+
+    testWidgets('Given the cards cannot be read '
+        'When the form is opened '
+        'Then the reason is shown instead of a form', (tester) async {
+      await pumpInstallment(tester, cards: UnreadableCards());
+
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+      expect(find.byKey(const Key('recordInstallment.total')), findsNothing);
+    });
+
+    testWidgets('Given no card '
+        'When the user follows the offer to create one '
+        'Then the cards screen is opened', (tester) async {
+      await pumpInstallment(
+        tester,
+        cards: FakeCards(),
+        router: installmentRouter(Routes.creditCards),
+      );
+
+      await tester.tap(find.byKey(const Key('recordInstallment.createCard')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('landed on ${Routes.creditCards}'), findsOneWidget);
+    });
+
+    testWidgets('Given no category '
+        'When the user follows the offer to create one '
+        'Then the categories screen is opened', (tester) async {
+      await pumpInstallment(
+        tester,
+        categories: FakeCategories(),
+        router: installmentRouter(Routes.categories),
+      );
+
+      await tester.tap(
+        find.byKey(const Key('recordInstallment.createCategory')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('landed on ${Routes.categories}'), findsOneWidget);
+    });
+
+    testWidgets('Given a recorded plan '
+        'When done is tapped '
+        'Then the cards screen is opened', (tester) async {
+      await pumpInstallment(
+        tester,
+        router: installmentRouter(Routes.creditCards),
+      );
+      await fillValidPlan(tester, count: '2');
+      await tester.tap(find.byKey(const Key('recordInstallment.submit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('recordInstallment.done')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('landed on ${Routes.creditCards}'), findsOneWidget);
     });
   });
 }

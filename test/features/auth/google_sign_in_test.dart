@@ -12,9 +12,17 @@ import 'package:fortuna_ui/features/auth/data/credentials_repository.dart';
 import 'package:fortuna_ui/features/auth/data/google_identity.dart';
 import 'package:fortuna_ui/features/auth/state/sign_in_controller.dart';
 import 'package:fortuna_ui/features/auth/ui/sign_in_screen.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'sign_in_controller_test.dart' show FakeCredentials, tokenFor;
+
+/// The platform's Google sign-in, without its platform channel.
+class _MockGoogleSignIn extends Mock implements GoogleSignIn {}
+
+/// An account the platform sign-in hands back.
+class _MockGoogleAccount extends Mock implements GoogleSignInAccount {}
 
 /// Answers as the platform sheet would, without one.
 class FakeGoogle implements GoogleIdentityService {
@@ -124,6 +132,181 @@ void main() {
       );
 
       expect(container.read(googleIdentityServiceProvider), isNotNull);
+    });
+  });
+
+  group('PlatformGoogleIdentityService.obtainIdToken', () {
+    late _MockGoogleSignIn signIn;
+
+    setUp(() {
+      signIn = _MockGoogleSignIn();
+      when(() => signIn.initialize(clientId: any(named: 'clientId')))
+          .thenAnswer((_) async {});
+    });
+
+    PlatformGoogleIdentityService service() => PlatformGoogleIdentityService(
+      clientId: 'client-id.apps.googleusercontent.com',
+      signIn: signIn,
+    );
+
+    void signsInWith(String? idToken) {
+      final account = _MockGoogleAccount();
+      when(() => account.authentication)
+          .thenReturn(GoogleSignInAuthentication(idToken: idToken));
+      when(() => signIn.authenticate()).thenAnswer((_) async => account);
+    }
+
+    void refusesWith(GoogleSignInException exception) =>
+        when(() => signIn.authenticate()).thenThrow(exception);
+
+    test('Given Google completes the sign-in with an ID token '
+        'When a token is asked for '
+        'Then that token is obtained, after initializing with the client id '
+        '(UC-05 main flow)', () async {
+      signsInWith('google-id-token');
+
+      final outcome = await service().obtainIdToken();
+
+      expect(
+        outcome,
+        isA<GoogleIdentityObtained>().having(
+          (obtained) => obtained.idToken,
+          'idToken',
+          'google-id-token',
+        ),
+      );
+      verify(
+        () =>
+            signIn.initialize(clientId: 'client-id.apps.googleusercontent.com'),
+      ).called(1);
+    });
+
+    test('Given a sign-in that already ran '
+        'When a token is asked for again '
+        'Then Google is not initialized a second time', () async {
+      signsInWith('google-id-token');
+      final google = service();
+
+      await google.obtainIdToken();
+      await google.obtainIdToken();
+
+      verify(() => signIn.initialize(clientId: any(named: 'clientId')))
+          .called(1);
+      verify(() => signIn.authenticate()).called(2);
+    });
+
+    test('Given Google completes the sign-in without a usable ID token '
+        'When a token is asked for '
+        'Then Google is unavailable, rather than an empty token being sent '
+        '(UC-05 AF-02)', () async {
+      for (final idToken in [null, '']) {
+        signsInWith(idToken);
+
+        final outcome = await service().obtainIdToken();
+
+        expect(
+          outcome,
+          isA<GoogleIdentityUnavailable>().having(
+            (unavailable) => unavailable.reason,
+            'reason',
+            'Google did not return a usable sign-in token.',
+          ),
+        );
+      }
+    });
+
+    test('Given the user closes the Google sheet '
+        'When a token is asked for '
+        'Then it is a cancellation, not a failure, and the next attempt needs '
+        'no new initialization (UC-05 AF-01)', () async {
+      refusesWith(
+        const GoogleSignInException(code: GoogleSignInExceptionCode.canceled),
+      );
+      final google = service();
+
+      final outcome = await google.obtainIdToken();
+      await google.obtainIdToken();
+
+      expect(outcome, isA<GoogleIdentityCancelled>());
+      verify(() => signIn.initialize(clientId: any(named: 'clientId')))
+          .called(1);
+    });
+
+    test('Given Google refuses for any other reason '
+        'When a token is asked for '
+        "Then Google is unavailable with Google's description, and the next "
+        'attempt initializes again (UC-05 AF-02)', () async {
+      refusesWith(
+        const GoogleSignInException(
+          code: GoogleSignInExceptionCode.clientConfigurationError,
+          description: 'The client id is not configured for this app.',
+        ),
+      );
+      final google = service();
+
+      final outcome = await google.obtainIdToken();
+      await google.obtainIdToken();
+
+      expect(
+        outcome,
+        isA<GoogleIdentityUnavailable>().having(
+          (unavailable) => unavailable.reason,
+          'reason',
+          'The client id is not configured for this app.',
+        ),
+      );
+      verify(() => signIn.initialize(clientId: any(named: 'clientId')))
+          .called(2);
+    });
+
+    test('Given Google refuses without a description '
+        'When a token is asked for '
+        'Then Google is unavailable with a plain sentence', () async {
+      refusesWith(
+        const GoogleSignInException(
+          code: GoogleSignInExceptionCode.unknownError,
+        ),
+      );
+
+      final outcome = await service().obtainIdToken();
+
+      expect(
+        outcome,
+        isA<GoogleIdentityUnavailable>().having(
+          (unavailable) => unavailable.reason,
+          'reason',
+          'Google sign-in could not be completed.',
+        ),
+      );
+    });
+
+    test('Given Google cannot even be initialized '
+        'When a token is asked for '
+        'Then Google is unavailable with the error, and the next attempt '
+        'initializes again rather than staying stuck', () async {
+      var initializations = 0;
+      when(() => signIn.initialize(clientId: any(named: 'clientId')))
+          .thenAnswer((_) async {
+            initializations++;
+            if (initializations == 1) throw StateError('no platform plugin');
+          });
+      signsInWith('google-id-token');
+      final google = service();
+
+      final first = await google.obtainIdToken();
+      final second = await google.obtainIdToken();
+
+      expect(
+        first,
+        isA<GoogleIdentityUnavailable>().having(
+          (unavailable) => unavailable.reason,
+          'reason',
+          'Google sign-in could not be completed '
+              '(Bad state: no platform plugin).',
+        ),
+      );
+      expect(second, isA<GoogleIdentityObtained>());
+      expect(initializations, 2);
     });
   });
 

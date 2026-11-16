@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/result/result.dart';
+import 'package:fortuna_ui/core/session/session_teardown.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/holdings/data/account_repository.dart';
 import 'package:fortuna_ui/features/holdings/state/account_providers.dart';
@@ -14,11 +15,18 @@ import 'package:fortuna_ui/features/preferences/state/preferences_controller.dar
 import 'package:material_ui/material_ui.dart';
 
 class FakeAccounts implements AccountRepository {
-  FakeAccounts({this.onList, this.onBalance, this.onCreate, this.onDelete});
+  FakeAccounts({
+    this.onList,
+    this.onBalance,
+    this.onCreate,
+    this.onUpdate,
+    this.onDelete,
+  });
 
   Result<List<FinancialAccount>> Function()? onList;
   Result<AccountBalance> Function(String id)? onBalance;
   Result<void> Function()? onCreate;
+  Result<void> Function()? onUpdate;
   Result<void> Function()? onDelete;
 
   final List<Map<String, Object?>> created = [];
@@ -65,8 +73,13 @@ class FakeAccounts implements AccountRepository {
     required AccountType type,
     String? institution,
   }) async {
-    updated.add({'id': id, 'name': name, 'type': type});
-    return const Success(null);
+    updated.add({
+      'id': id,
+      'name': name,
+      'type': type,
+      'institution': institution,
+    });
+    return onUpdate?.call() ?? const Success(null);
   }
 
   @override
@@ -87,6 +100,16 @@ class FakeCurrencies implements CurrencyRepository {
         ),
         SupportedCurrency(code: 'USD', name: 'US dollar', minorUnitDigits: 2),
       ]);
+}
+
+/// A currency list the instance cannot supply (UC-13 AF-03).
+class UnavailableCurrencies implements CurrencyRepository {
+  @override
+  Future<Result<List<SupportedCurrency>>> listSupported() async =>
+      const Failure(
+        message: 'The currency list could not be read.',
+        kind: FailureKind.serverError,
+      );
 }
 
 FinancialAccount account({
@@ -117,7 +140,11 @@ ProviderContainer containerWith(FakeAccounts accounts) {
   return container;
 }
 
-Future<void> pumpAccounts(WidgetTester tester, FakeAccounts accounts) async {
+Future<void> pumpAccounts(
+  WidgetTester tester,
+  FakeAccounts accounts, {
+  CurrencyRepository? currencies,
+}) async {
   tester.view.physicalSize = const Size(1000, 2000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -126,7 +153,9 @@ Future<void> pumpAccounts(WidgetTester tester, FakeAccounts accounts) async {
     ProviderScope(
       overrides: [
         accountRepositoryProvider.overrideWithValue(accounts),
-        currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+        currencyRepositoryProvider.overrideWithValue(
+          currencies ?? FakeCurrencies(),
+        ),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
       ],
       child: const MaterialApp(home: AccountsScreen()),
@@ -204,6 +233,32 @@ void main() {
 
       expect(selectable.map((a) => a.id), ['a']);
     });
+
+    test(
+      'Given the accounts were read '
+      'When the session ends '
+      'Then they are dropped and read again on the next use (FR-SE-21)',
+      () async {
+        var reads = 0;
+        final container = containerWith(
+          FakeAccounts(
+            onList: () {
+              reads++;
+              return Success([account()]);
+            },
+          ),
+        );
+        await container.read(accountsProvider.future);
+
+        await container.read(sessionTeardownProvider).runAll();
+        await container.read(accountsProvider.future);
+
+        expect(container.read(sessionTeardownProvider).registered, [
+          'accounts',
+        ]);
+        expect(reads, 2);
+      },
+    );
   });
 
   group('money on the way through', () {
@@ -322,6 +377,73 @@ void main() {
         'Transactions still reference this account.',
       );
     });
+
+    test(
+      'Given an existing account '
+      'When it is updated '
+      'Then every field reaches the repository and the list is read again',
+      () async {
+        var reads = 0;
+        final accounts = FakeAccounts(
+          onList: () {
+            reads++;
+            return Success([account()]);
+          },
+        );
+        final container = containerWith(accounts);
+        await container.read(accountsProvider.future);
+
+        final result = await container
+            .read(accountActionsProvider)
+            .update(
+              id: 'a1',
+              name: 'Main',
+              type: AccountType.savings,
+              institution: 'Other Bank',
+            );
+        await container.read(accountsProvider.future);
+
+        expect(result, const Success<void>(null));
+        expect(accounts.updated.single, {
+          'id': 'a1',
+          'name': 'Main',
+          'type': AccountType.savings,
+          'institution': 'Other Bank',
+        });
+        expect(reads, 2);
+      },
+    );
+
+    test(
+      'Given an update the API refuses '
+      'When it answers '
+      'Then the reason comes back unchanged and the list is not read again',
+      () async {
+        var reads = 0;
+        const refusal = Failure<void>(
+          message: 'You already have an account with that name.',
+          kind: FailureKind.conflict,
+        );
+        final container = containerWith(
+          FakeAccounts(
+            onList: () {
+              reads++;
+              return Success([account()]);
+            },
+            onUpdate: () => refusal,
+          ),
+        );
+        await container.read(accountsProvider.future);
+
+        final result = await container
+            .read(accountActionsProvider)
+            .update(id: 'a1', name: 'Savings', type: AccountType.checking);
+        await container.read(accountsProvider.future);
+
+        expect(result, refusal);
+        expect(reads, 1);
+      },
+    );
   });
 
   group('AccountsScreen', () {
@@ -393,6 +515,64 @@ void main() {
       expect(find.byKey(const Key('accounts.balance.a1')), findsOneWidget);
       expect(find.textContaining('8,017.61'), findsOneWidget);
     });
+
+    testWidgets('Given the list could not be read '
+        'When the user tries again and the instance answers '
+        'Then the accounts are shown', (tester) async {
+      final accounts = FakeAccounts(
+        onList: () => const Failure(
+          message: 'The instance could not be reached.',
+          kind: FailureKind.unreachable,
+        ),
+      );
+      await pumpAccounts(tester, accounts);
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+
+      accounts.onList = () => Success([account()]);
+      await tester.tap(find.byKey(const Key('accounts.retry')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('accounts.item.a1')), findsOneWidget);
+      expect(find.byKey(const Key('accounts.retry')), findsNothing);
+    });
+
+    testWidgets('Given accounts are listed '
+        'When the new-account button is pressed '
+        'Then an empty creation form opens', (tester) async {
+      await pumpAccounts(
+        tester,
+        FakeAccounts(onList: () => Success([account()])),
+      );
+
+      await tester.tap(find.byKey(const Key('accounts.add')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AccountEditor), findsOneWidget);
+      expect(find.byKey(const Key('accountEditor.currency')), findsOneWidget);
+      expect(find.byKey(const Key('accountEditor.delete')), findsNothing);
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const Key('accountEditor.name')))
+            .controller!
+            .text,
+        isEmpty,
+      );
+    });
+
+    testWidgets('Given no accounts '
+        'When the creation the empty state offers is taken '
+        'Then the creation form opens (UC-14 AF-06)', (tester) async {
+      await pumpAccounts(tester, FakeAccounts());
+
+      await tester.tap(find.byKey(const Key('accounts.emptyAdd')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AccountEditor), findsOneWidget);
+      expect(
+        find.byKey(const Key('accountEditor.openingBalance')),
+        findsOneWidget,
+      );
+    });
   });
 
   group('AccountEditor', () {
@@ -459,6 +639,169 @@ void main() {
 
       expect(find.byKey(const Key('accountEditor.error')), findsOneWidget);
       expect(accounts.created, isEmpty);
+    });
+
+    Future<FakeAccounts> openExisting(
+      WidgetTester tester, {
+      Result<void> Function()? onUpdate,
+      Result<void> Function()? onDelete,
+    }) async {
+      final accounts = FakeAccounts(
+        onList: () => Success([account()]),
+        onUpdate: onUpdate,
+        onDelete: onDelete,
+      );
+      await pumpAccounts(tester, accounts);
+      await tester.tap(find.byKey(const Key('accounts.item.a1')));
+      await tester.pumpAndSettle();
+      return accounts;
+    }
+
+    testWidgets('Given an existing account '
+        'When it is opened '
+        'Then its currency is shown fixed, with the reason, and no opening '
+        'balance is asked for (UC-14 AF-03)', (tester) async {
+      await openExisting(tester);
+
+      expect(find.text('Edit account'), findsOneWidget);
+      final fixed = tester.widget<TextField>(
+        find.byKey(const Key('accountEditor.currencyFixed')),
+      );
+      expect(fixed.enabled, isFalse);
+      expect(fixed.controller!.text, 'BRL');
+      expect(
+        find.textContaining('Fixed once the account exists'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('accountEditor.currency')), findsNothing);
+      expect(
+        find.byKey(const Key('accountEditor.openingBalance')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('Given an existing account '
+        'When its name, type and institution are changed and saved '
+        'Then the update is sent for that account and the editor closes', (
+      tester,
+    ) async {
+      final accounts = await openExisting(tester);
+
+      await tester.enterText(
+        find.byKey(const Key('accountEditor.name')),
+        '  Main  ',
+      );
+      await tester.enterText(
+        find.byKey(const Key('accountEditor.institution')),
+        ' ',
+      );
+      await tester.tap(find.byKey(const Key('accountEditor.type')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Savings').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('accountEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(accounts.updated.single, {
+        'id': 'a1',
+        'name': 'Main',
+        'type': AccountType.savings,
+        'institution': null,
+      });
+      expect(accounts.created, isEmpty);
+      expect(find.byType(AccountEditor), findsNothing);
+    });
+
+    testWidgets('Given an update the API refuses '
+        'When it is saved '
+        "Then the API's reason is shown and the editor stays usable "
+        '(UC-14 AF-02)', (tester) async {
+      await openExisting(
+        tester,
+        onUpdate: () => const Failure(
+          message: 'You already have an account with that name.',
+          kind: FailureKind.conflict,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('accountEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('You already have an account with that name.'),
+        findsOneWidget,
+      );
+      expect(find.byType(AccountEditor), findsOneWidget);
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const Key('accountEditor.save')))
+            .onPressed,
+        isNotNull,
+      );
+    });
+
+    testWidgets('Given an existing account '
+        'When it is deleted '
+        'Then that account is deleted and the editor closes', (tester) async {
+      final accounts = await openExisting(tester);
+
+      await tester.tap(find.byKey(const Key('accountEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(accounts.deleted, ['a1']);
+      expect(find.byType(AccountEditor), findsNothing);
+    });
+
+    testWidgets('Given live records still reference the account '
+        'When it is deleted '
+        "Then the API's reason is shown and the editor stays open "
+        '(UC-14 AF-05)', (tester) async {
+      await openExisting(
+        tester,
+        onDelete: () => const Failure(
+          message: 'Transactions still reference this account.',
+          kind: FailureKind.conflict,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('accountEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Transactions still reference this account.'),
+        findsOneWidget,
+      );
+      expect(find.byType(AccountEditor), findsOneWidget);
+      expect(
+        tester
+            .widget<TextButton>(find.byKey(const Key('accountEditor.delete')))
+            .onPressed,
+        isNotNull,
+      );
+    });
+
+    testWidgets('Given the supported currencies cannot be read '
+        'When a new account is started '
+        'Then the editor says so instead of offering a picker (UC-13 AF-03)', (
+      tester,
+    ) async {
+      await pumpAccounts(
+        tester,
+        FakeAccounts(),
+        currencies: UnavailableCurrencies(),
+      );
+
+      await tester.tap(find.byKey(const Key('accounts.emptyAdd')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'The supported currencies could not be read: '
+          'The currency list could not be read.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('accountEditor.currency')), findsNothing);
     });
   });
 }

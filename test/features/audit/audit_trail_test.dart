@@ -11,6 +11,7 @@ import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/audit/data/audit_repository.dart';
+import 'package:fortuna_ui/features/audit/state/audit_providers.dart';
 import 'package:fortuna_ui/features/audit/ui/audit_trail_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -191,6 +192,89 @@ void main() {
     });
   });
 
+  group('AuditFilterController', () {
+    ProviderContainer containerWith(FakeAudit repository) {
+      final container = ProviderContainer(
+        overrides: [auditRepositoryProvider.overrideWithValue(repository)],
+      );
+      addTearDown(container.dispose);
+      return container;
+    }
+
+    test('Given a period and an action '
+        'When they are set and then the action is cleared '
+        'Then the period stays and the action is gone', () {
+      final container = containerWith(FakeAudit(() => const Success([])));
+      final controller = container.read(auditFilterProvider.notifier);
+
+      controller
+        ..setPeriod(from: DateTime(2026), to: DateTime(2026, 2))
+        ..setOperation('Delete');
+      expect(container.read(auditFilterProvider).operation, 'Delete');
+
+      controller.setOperation(null);
+
+      final filter = container.read(auditFilterProvider);
+      expect(filter.operation, isNull);
+      expect(filter.from, DateTime(2026));
+      expect(filter.to, DateTime(2026, 2));
+    });
+
+    test('Given filters are set '
+        'When they are cleared '
+        'Then nothing is filtered', () {
+      final container = containerWith(FakeAudit(() => const Success([])));
+      final controller = container.read(auditFilterProvider.notifier)
+        ..setPeriod(from: DateTime(2026), to: DateTime(2026, 2))
+        ..setOperation('Delete');
+
+      controller.clear();
+
+      expect(container.read(auditFilterProvider).isEmpty, isTrue);
+    });
+
+    test('Given a period is set '
+        'When the entries are read '
+        'Then the request carries it', () async {
+      final repository = FakeAudit(() => const Success([]));
+      final container = containerWith(repository);
+
+      container
+          .read(auditFilterProvider.notifier)
+          .setPeriod(from: DateTime(2026), to: DateTime(2026, 2));
+      await container.read(auditEntriesProvider.future);
+
+      expect(repository.requested.last.from, DateTime(2026));
+      expect(repository.requested.last.to, DateTime(2026, 2));
+    });
+
+    test('Given the trail cannot be read '
+        'When the entries are asked for '
+        "Then it fails with the repository's message (UC-41 AF-02)", () async {
+      final container = containerWith(
+        FakeAudit(
+          () => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+      final subscription = container.listen(auditEntriesProvider, (_, _) {});
+      addTearDown(subscription.close);
+
+      await expectLater(
+        container.read(auditEntriesProvider.future),
+        throwsA(
+          isA<AuditUnavailable>().having(
+            (error) => error.toString(),
+            'toString',
+            'The instance could not be reached.',
+          ),
+        ),
+      );
+    });
+  });
+
   group('AuditTrailScreen', () {
     testWidgets('Given entries exist '
         'When the screen settles '
@@ -313,6 +397,95 @@ void main() {
 
       expect(find.text('The instance could not be reached.'), findsOneWidget);
       expect(find.widgetWithText(FilledButton, 'Retry'), findsOneWidget);
+    });
+    testWidgets('Given the trail could not be read '
+        'When the user retries and it can be '
+        'Then the entries are shown', (tester) async {
+      var reachable = false;
+      final repository = await pumpAudit(
+        tester,
+        () => reachable
+            ? Success([entry(at: DateTime.utc(2026, 9, 1, 12))])
+            : const Failure(
+                message: 'The instance could not be reached.',
+                kind: FailureKind.unreachable,
+              ),
+      );
+
+      reachable = true;
+      await tester.tap(find.widgetWithText(FilledButton, 'Retry'));
+      await tester.pumpAndSettle();
+
+      expect(repository.requested, hasLength(2));
+      expect(find.text('Update · Transaction'), findsOneWidget);
+    });
+
+    testWidgets('Given the trail is showing '
+        'When it is refreshed '
+        'Then it is read again', (tester) async {
+      final repository = await pumpAudit(
+        tester,
+        () => Success([entry(at: DateTime.utc(2026, 9, 1, 12))]),
+      );
+
+      await tester.tap(find.byTooltip('Refresh'));
+      await tester.pumpAndSettle();
+
+      expect(repository.requested, hasLength(2));
+    });
+
+    testWidgets('Given an entry whose outcome this build does not know '
+        'When it is listed '
+        'Then it is marked as unknown rather than as a success', (
+      tester,
+    ) async {
+      await pumpAudit(
+        tester,
+        () => Success([
+          entry(at: DateTime.utc(2026, 9, 1, 12), result: AuditResult.unknown),
+        ]),
+      );
+
+      expect(find.byIcon(Icons.help_outline), findsOneWidget);
+      expect(find.byIcon(Icons.check_circle_outline), findsNothing);
+    });
+
+    testWidgets('Given the period filter '
+        'When a range is chosen '
+        'Then the request carries it and the button no longer says any '
+        'period', (tester) async {
+      final repository = await pumpAudit(tester, () => const Success([]));
+
+      await tester.tap(find.text('Any period'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pumpAndSettle();
+      final fields = find.descendant(
+        of: find.byType(DateRangePickerDialog),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(fields.at(0), '01/01/2020');
+      await tester.enterText(fields.at(1), '01/31/2020');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(repository.requested.last.from, DateTime(2020));
+      expect(repository.requested.last.to, DateTime(2020, 1, 31));
+      expect(find.text('Any period'), findsNothing);
+    });
+
+    testWidgets('Given the period picker '
+        'When it is dismissed '
+        'Then no period is set and nothing is read again', (tester) async {
+      final repository = await pumpAudit(tester, () => const Success([]));
+
+      await tester.tap(find.text('Any period'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
+
+      expect(repository.requested, hasLength(1));
+      expect(find.text('Any period'), findsOneWidget);
     });
   });
 }

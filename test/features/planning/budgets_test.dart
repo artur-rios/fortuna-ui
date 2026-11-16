@@ -4,16 +4,19 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/format/money_parser.dart';
 import 'package:fortuna_ui/core/result/result.dart';
+import 'package:fortuna_ui/core/session/session_teardown.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/categories/data/category_repository.dart';
 import 'package:fortuna_ui/features/planning/data/budget_repository.dart';
 import 'package:fortuna_ui/features/planning/state/budget_providers.dart';
 import 'package:fortuna_ui/features/planning/ui/budgets_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart' show FakeCurrencies;
@@ -72,7 +75,15 @@ class FakeBudgets implements BudgetRepository {
     required DateTime periodStart,
     bool includeDescendants = false,
   }) async {
-    updated.add({'id': id, 'amount': amount, 'period': period});
+    updated.add({
+      'id': id,
+      'categoryIds': categoryIds,
+      'amount': amount,
+      'currencyCode': currencyCode,
+      'period': period,
+      'periodStart': periodStart,
+      'includeDescendants': includeDescendants,
+    });
     return onUpdate?.call() ?? const Success(null);
   }
 
@@ -81,6 +92,16 @@ class FakeBudgets implements BudgetRepository {
     deleted.add(id);
     return onDelete?.call() ?? const Success(null);
   }
+}
+
+/// A currency list the instance cannot supply.
+class _UnavailableCurrencies implements CurrencyRepository {
+  @override
+  Future<Result<List<SupportedCurrency>>> listSupported() async =>
+      const Failure(
+        message: 'Currencies could not be read.',
+        kind: FailureKind.serverError,
+      );
 }
 
 /// Answers only when the test lets it, so the loading state is observable.
@@ -138,6 +159,7 @@ Future<void> pumpBudgets(
   WidgetTester tester,
   FakeBudgets fake, {
   FakeCategories? categories,
+  CurrencyRepository? currencies,
   List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(1000, 2400);
@@ -151,7 +173,9 @@ Future<void> pumpBudgets(
         categoryRepositoryProvider.overrideWithValue(
           categories ?? FakeCategories(tree: treeWith(['Groceries'])),
         ),
-        currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+        currencyRepositoryProvider.overrideWithValue(
+          currencies ?? FakeCurrencies(),
+        ),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
         ...extra,
       ],
@@ -351,6 +375,26 @@ void main() {
         ),
       );
     });
+
+    test('Given budgets read in a session '
+        'When the session ends '
+        'Then they are forgotten and read afresh next time', () async {
+      var reads = 0;
+      final fake = FakeBudgets(
+        onList: () {
+          reads++;
+          return Success([budget()]);
+        },
+      );
+      final container = containerWith(fake);
+      await container.read(budgetsProvider.future);
+
+      await container.read(sessionTeardownProvider).runAll();
+      await container.read(budgetsProvider.future);
+
+      expect(container.read(sessionTeardownProvider).registered, ['budgets']);
+      expect(reads, 2);
+    });
   });
 
   group('BudgetActions', () {
@@ -411,6 +455,88 @@ void main() {
 
       expect(fake.deleted, ['b1']);
     });
+
+    test('Given an existing budget '
+        'When it is updated '
+        'Then every field reaches the repository and the list is read '
+        'again for the figures the API recomputed', () async {
+      var reads = 0;
+      final fake = FakeBudgets(
+        onList: () {
+          reads++;
+          return Success([budget()]);
+        },
+      );
+      final container = containerWith(fake);
+      await container.read(budgetsProvider.future);
+
+      final result = await container
+          .read(budgetActionsProvider)
+          .update(
+            id: 'b1',
+            categoryIds: const ['cat1', 'cat2'],
+            amount: '950.10',
+            currencyCode: 'BRL',
+            period: BudgetPeriod.yearly,
+            periodStart: DateTime(2026),
+            includeDescendants: true,
+          );
+      await container.read(budgetsProvider.future);
+
+      expect(result, const Success<void>(null));
+      expect(fake.updated.single, {
+        'id': 'b1',
+        'categoryIds': ['cat1', 'cat2'],
+        'amount': '950.10',
+        'currencyCode': 'BRL',
+        'period': BudgetPeriod.yearly,
+        'periodStart': DateTime(2026),
+        'includeDescendants': true,
+      });
+      expect(reads, 2);
+    });
+
+    test(
+      'Given the API refuses an update '
+      'When it is carried back '
+      'Then the refusal is returned and the list is not read again',
+      () async {
+        var reads = 0;
+        final fake = FakeBudgets(
+          onList: () {
+            reads++;
+            return Success([budget()]);
+          },
+          onUpdate: () => const Failure(
+            message: 'A budget already covers Groceries for September.',
+            kind: FailureKind.conflict,
+          ),
+        );
+        final container = containerWith(fake);
+        await container.read(budgetsProvider.future);
+
+        final result = await container
+            .read(budgetActionsProvider)
+            .update(
+              id: 'b1',
+              categoryIds: const ['cat1'],
+              amount: '800.00',
+              currencyCode: 'BRL',
+              period: BudgetPeriod.monthly,
+              periodStart: DateTime(2026, 9),
+            );
+        await container.read(budgetsProvider.future);
+
+        expect(
+          result,
+          const Failure<void>(
+            message: 'A budget already covers Groceries for September.',
+            kind: FailureKind.conflict,
+          ),
+        );
+        expect(reads, 1);
+      },
+    );
   });
 
   group('BudgetsScreen', () {
@@ -564,6 +690,72 @@ void main() {
       expect(find.byKey(const Key('budgets.exceeded.b1')), findsNothing);
       expect(find.text('Remaining'), findsOneWidget);
     });
+
+    testWidgets('Given a budget that includes sub-categories '
+        'When it is listed '
+        'Then the row says so', (tester) async {
+      await pumpBudgets(
+        tester,
+        FakeBudgets(onList: () => Success([budget(includeDescendants: true)])),
+      );
+
+      expect(find.text('Includes sub-categories'), findsOneWidget);
+    });
+
+    testWidgets('Given budgets already listed '
+        'When the new-budget button is pressed '
+        'Then an empty editor opens', (tester) async {
+      await pumpBudgets(tester, FakeBudgets(onList: () => Success([budget()])));
+
+      await tester.tap(find.byKey(const Key('budgets.add')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byKey(const Key('budgetEditor.currency')), findsOneWidget);
+      expect(find.byKey(const Key('budgetEditor.delete')), findsNothing);
+    });
+
+    testWidgets('Given no categories exist '
+        'When the user follows the way out '
+        'Then the categories screen opens (AF-06)', (tester) async {
+      tester.view.physicalSize = const Size(1000, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final router = GoRouter(
+        initialLocation: Routes.budgets,
+        routes: [
+          GoRoute(
+            path: Routes.budgets,
+            builder: (context, state) => const BudgetsScreen(),
+          ),
+          GoRoute(
+            path: Routes.categories,
+            builder: (context, state) => const Text('Categories screen'),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            budgetRepositoryProvider.overrideWithValue(FakeBudgets()),
+            categoryRepositoryProvider.overrideWithValue(FakeCategories()),
+            currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('budgets.createCategory')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Categories screen'), findsOneWidget);
+      expect(find.byType(BudgetsScreen), findsNothing);
+    });
   });
 
   group('BudgetEditor', () {
@@ -708,6 +900,152 @@ void main() {
       expect(checkbox.value, isTrue);
       // And the currency is fixed after creation.
       expect(find.byKey(const Key('budgetEditor.currency')), findsNothing);
+    });
+
+    testWidgets('Given a new budget with no currency chosen '
+        'When it is submitted '
+        'Then it is refused in the form and nothing is sent', (tester) async {
+      final fake = FakeBudgets(onList: () => const Success([]));
+
+      await pumpBudgets(tester, fake);
+      await openEditor(tester);
+      await tester.enterText(
+        find.byKey(const Key('budgetEditor.amount')),
+        '800.00',
+      );
+      await choosePeriodStart(tester);
+      await tester.tap(find.byKey(const Key('budgetEditor.category.cat1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('budgetEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Choose the currency this budget is set in.'),
+        findsOneWidget,
+      );
+      expect(fake.created, isEmpty);
+    });
+
+    testWidgets('Given the supported currencies cannot be read '
+        'When a new budget is started '
+        'Then the editor says so instead of offering an empty picker', (
+      tester,
+    ) async {
+      await pumpBudgets(
+        tester,
+        FakeBudgets(onList: () => const Success([])),
+        currencies: _UnavailableCurrencies(),
+      );
+      await openEditor(tester);
+
+      expect(
+        find.text(
+          'The supported currencies could not be read: '
+          'Currencies could not be read.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('budgetEditor.currency')), findsNothing);
+    });
+
+    testWidgets('Given an existing budget '
+        'When its amount, period and sub-category choice are changed and '
+        'saved '
+        'Then the update keeps its id and currency and the editor closes', (
+      tester,
+    ) async {
+      final fake = FakeBudgets(onList: () => Success([budget()]));
+
+      await pumpBudgets(tester, fake);
+      await tester.tap(find.byKey(const Key('budgets.item.b1')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('budgetEditor.amount')),
+        '950',
+      );
+      await tester.tap(find.byKey(const Key('budgetEditor.period')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Quarterly').last);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const Key('budgetEditor.includeDescendants')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('budgetEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(fake.created, isEmpty);
+      expect(fake.updated.single, {
+        'id': 'b1',
+        'categoryIds': ['cat1'],
+        'amount': '950',
+        'currencyCode': 'BRL',
+        'period': BudgetPeriod.quarterly,
+        'periodStart': DateTime(2026, 9),
+        'includeDescendants': true,
+      });
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('Given an existing budget '
+        'When its only category is unticked and it is saved '
+        'Then it is refused in the form and nothing is sent', (tester) async {
+      final fake = FakeBudgets(onList: () => Success([budget()]));
+
+      await pumpBudgets(tester, fake);
+      await tester.tap(find.byKey(const Key('budgets.item.b1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('budgetEditor.category.cat1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('budgetEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(find.text(BudgetProblem.missingCategory.message), findsOneWidget);
+      expect(fake.updated, isEmpty);
+    });
+
+    testWidgets('Given an existing budget '
+        'When it is deleted '
+        'Then the deletion is sent and the editor closes', (tester) async {
+      final fake = FakeBudgets(onList: () => Success([budget()]));
+
+      await pumpBudgets(tester, fake);
+      await tester.tap(find.byKey(const Key('budgets.item.b1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('budgetEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(fake.deleted, ['b1']);
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('Given the API refuses a deletion '
+        'When it is attempted '
+        "Then the API's reason is shown and the editor stays usable", (
+      tester,
+    ) async {
+      final fake = FakeBudgets(
+        onList: () => Success([budget()]),
+        onDelete: () => const Failure(
+          message: 'That budget could not be deleted.',
+          kind: FailureKind.serverError,
+        ),
+      );
+
+      await pumpBudgets(tester, fake);
+      await tester.tap(find.byKey(const Key('budgets.item.b1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('budgetEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('That budget could not be deleted.'), findsOneWidget);
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(
+        tester
+            .widget<TextButton>(find.byKey(const Key('budgetEditor.delete')))
+            .onPressed,
+        isNotNull,
+      );
     });
   });
 }
