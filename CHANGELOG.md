@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   an edit could remove them.
 - A refused download (an export or the personal data archive that has expired, or a format the instance does not
   produce) shows the API's reason instead of "The request could not be completed."
+- When connecting an institution is refused for want of a consent, "Review the disclosure" can be agreed to: it
+  re-reads the consents, records the version the instance now asks about and tries the connection again. Agreeing
+  always stopped at "did not say which version" before.
 
 ## [1.1.1] - 2026-10-30
 

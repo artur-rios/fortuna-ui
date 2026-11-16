@@ -174,7 +174,7 @@ class _SourceTile extends ConsumerWidget {
         final agreed = await showDisclosure(
           context,
           ref,
-          consent: _consentFor(ref),
+          consent: _externalProcessingConsent(ref),
         );
 
         if (!(agreed ?? false)) return; // AF-01: nothing is initiated.
@@ -188,18 +188,14 @@ class _SourceTile extends ConsumerWidget {
       builder: (context) => _ConnectDialog(source: source),
     );
   }
-
-  Consent? _consentFor(WidgetRef ref) =>
-      switch (ref.read(consentControllerProvider)) {
-        ConsentsReady(:final consents) => () {
-          for (final consent in consents) {
-            if (consent.purpose == externalProcessingPurpose) return consent;
-          }
-          return null;
-        }(),
-        _ => null,
-      };
 }
+
+/// The consent for external processing the controller holds, if it holds one.
+Consent? _externalProcessingConsent(WidgetRef ref) =>
+    switch (ref.read(consentControllerProvider)) {
+      final ConsentsReady ready => ready.forPurpose(externalProcessingPurpose),
+      _ => null,
+    };
 
 /// Step 4: the disclosure — what is shared, with whom, and why — and the
 /// user's decision recorded against the version they were shown.
@@ -482,10 +478,15 @@ class _ConnectDialogState extends ConsumerState<_ConnectDialog> {
               OutlinedButton(
                 key: const Key('sources.consentMissing.review'),
                 onPressed: () async {
+                  // The API's refusal says the consents held here are out of
+                  // date, so the disclosure is asked about as it now stands.
+                  await ref.read(consentControllerProvider.notifier).load();
+                  if (!context.mounted) return;
+
                   final agreed = await showDisclosure(
                     context,
                     ref,
-                    consent: null,
+                    consent: _externalProcessingConsent(ref),
                   );
                   if ((agreed ?? false) && mounted) await _connect();
                 },
