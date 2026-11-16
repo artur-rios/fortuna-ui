@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
@@ -100,14 +102,18 @@ ImportJob runningJobFor(String connectionId) => ImportJob(
 ///
 /// `StreamProvider.future` waits for the stream to *complete*, and a polling
 /// stream never does — so this listens and waits for the first value instead.
-Future<void> awaitJobs(ProviderContainer container) async {
-  container.listen(importJobsProvider, (_, _) {});
+/// Completes on that value rather than polling for it on a real clock, which
+/// gave a loaded machine a quarter of a second before the test failed.
+Future<void> awaitJobs(ProviderContainer container) {
+  final first = Completer<void>();
+  container.listen(importJobsProvider, (_, next) {
+    if (next.value != null && !first.isCompleted) first.complete();
+  }, fireImmediately: true);
 
-  for (var attempt = 0; attempt < 50; attempt++) {
-    if (container.read(importJobsProvider).value != null) return;
-    await Future<void>.delayed(const Duration(milliseconds: 5));
-  }
-  fail('The jobs stream emitted nothing.');
+  return first.future.timeout(
+    const Duration(seconds: 10),
+    onTimeout: () => fail('The jobs stream emitted nothing.'),
+  );
 }
 
 ({ProviderContainer container, FakeConnections repo}) harness({

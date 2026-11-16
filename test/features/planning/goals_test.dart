@@ -561,9 +561,22 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    // Typed rather than accepted as the picker's default: the default is
+    // tomorrow by the real clock, and a run that crosses midnight between
+    // opening the picker and saving would submit a target date that is
+    // today by then, which the rule refuses (AF-02).
     Future<void> chooseTargetDate(WidgetTester tester) async {
       await tester.tap(find.byKey(const Key('goalEditor.targetDate')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(InputDatePickerFormField),
+          matching: find.byType(TextField),
+        ),
+        '03/01/2099',
+      );
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
     }
@@ -656,6 +669,7 @@ void main() {
       expect(fake.created.single['targetAmount'], '5000');
       expect(fake.created.single['name'], 'New laptop');
       expect(fake.created.single['currencyCode'], 'BRL');
+      expect(fake.created.single['targetDate'], DateTime(2099, 3));
     });
 
     testWidgets('Given an existing goal '
