@@ -22,6 +22,7 @@ import 'package:meta/meta.dart';
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 
 /// The net position in one currency, where it could not all be folded into
 /// one (`AF-03`).
@@ -213,13 +214,24 @@ abstract interface class ProjectionRepository {
 }
 
 class HttpProjectionRepository implements ProjectionRepository {
-  HttpProjectionRepository(this._reports, this._projections);
+  HttpProjectionRepository(
+    this._reports,
+    this._projections, {
+    this._clock = systemClock,
+  });
 
-  factory HttpProjectionRepository.fromDio(Dio dio) =>
-      HttpProjectionRepository(ReportsClient(dio), ProjectionsClient(dio));
+  factory HttpProjectionRepository.fromDio(
+    Dio dio, {
+    Clock clock = systemClock,
+  }) => HttpProjectionRepository(
+    ReportsClient(dio),
+    ProjectionsClient(dio),
+    clock: clock,
+  );
 
   final ReportsClient _reports;
   final ProjectionsClient _projections;
+  final Clock _clock;
 
   @override
   Future<Result<NetPosition>> netPosition({String? displayCurrencyCode}) async {
@@ -240,7 +252,7 @@ class HttpProjectionRepository implements ProjectionRepository {
 
       return Success(
         NetPosition(
-          asOf: output.asOf ?? DateTime.now(),
+          asOf: output.asOf ?? _clock(),
           isFullyConverted: output.isFullyConverted ?? true,
           displayCurrencyCode: currency,
           total: (total != null && currency != null)
@@ -281,8 +293,8 @@ class HttpProjectionRepository implements ProjectionRepository {
 
       return Success(
         CashFlowProjection(
-          asOf: output.asOf ?? DateTime.now(),
-          through: output.through ?? DateTime.now(),
+          asOf: output.asOf ?? _clock(),
+          through: output.through ?? _clock(),
           // The starting point is today's balance: a record, not a forecast.
           startingBalance: Money.parse(output.startingBalance ?? '0', currency),
           flatReason: output.flatReason,
@@ -291,8 +303,8 @@ class HttpProjectionRepository implements ProjectionRepository {
             for (final period
                 in output.periods ?? const <CashFlowPeriodOutput>[])
               ProjectedPeriod(
-                periodStart: period.periodStart ?? DateTime.now(),
-                periodEnd: period.periodEnd ?? DateTime.now(),
+                periodStart: period.periodStart ?? _clock(),
+                periodEnd: period.periodEnd ?? _clock(),
                 // FR-PJ-04: the distinction rides on the value, so nothing
                 // downstream can lose it.
                 openingBalance: Money.parse(
@@ -337,8 +349,8 @@ class HttpProjectionRepository implements ProjectionRepository {
 
       return Success(
         CommittedObligations(
-          asOf: output.asOf ?? DateTime.now(),
-          through: output.through ?? DateTime.now(),
+          asOf: output.asOf ?? _clock(),
+          through: output.through ?? _clock(),
           isFullyConverted: output.isFullyConverted ?? true,
           displayCurrencyCode: displayCurrency,
           total: (total != null && displayCurrency != null)
@@ -362,7 +374,7 @@ class HttpProjectionRepository implements ProjectionRepository {
                     isProjected: true,
                   ),
                 },
-                dueDate: item.dueDate ?? DateTime.now(),
+                dueDate: item.dueDate ?? _clock(),
                 isOverdue: item.isOverdue ?? false,
                 daysOverdue: item.daysOverdue ?? 0,
               ),
@@ -391,5 +403,8 @@ class HttpProjectionRepository implements ProjectionRepository {
 }
 
 final projectionRepositoryProvider = Provider<ProjectionRepository>(
-  (ref) => HttpProjectionRepository.fromDio(ref.watch(dioProvider)),
+  (ref) => HttpProjectionRepository.fromDio(
+    ref.watch(dioProvider),
+    clock: ref.watch(clockProvider),
+  ),
 );

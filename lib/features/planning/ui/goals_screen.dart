@@ -17,6 +17,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/format/supported_locales.dart';
 import '../../../core/network/offline_capabilities.dart';
+import '../../../core/time/clock.dart';
 import '../../../shared/widgets/money_text.dart';
 import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
@@ -122,7 +123,7 @@ class _GoalTile extends ConsumerWidget {
       offlineUnavailableProvider(OfflineFeature.goalProgress),
     );
     final noFigures = goal.hasNoProgress || progressUnavailable != null;
-    final elapsed = goal.hasElapsed(now: DateTime.now());
+    final elapsed = goal.hasElapsed(now: ref.now());
 
     return Card(
       key: Key('goals.item.${goal.id}'),

@@ -150,6 +150,26 @@ void main() {
       ]);
     });
 
+    test('Given an entry the API sent without a time '
+        'When it is read '
+        'Then it is placed at the time it was read', () async {
+      final repository = HttpAuditRepository.fromDio(
+        dioAnswering({
+          'data': [
+            {'operation': 'Create', 'entityType': 'Transaction'},
+          ],
+        }),
+        clock: () => DateTime(2026, 11, 16, 9, 30),
+      );
+
+      final result = await repository.read(const AuditFilter());
+
+      expect(
+        result.valueOrNull!.single.occurredAt,
+        DateTime(2026, 11, 16, 9, 30),
+      );
+    });
+
     test('Given the API returns entries out of order '
         'When they are read '
         'Then the repository puts them newest first (UC-41 step 4)', () async {

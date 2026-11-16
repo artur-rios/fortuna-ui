@@ -118,8 +118,9 @@ void main() {
       'When it is in the past '
       'Then it reports as expired — advisory only, the API still decides',
       () {
-        final past = DateTime.now().toUtc().subtract(const Duration(hours: 1));
-        final future = DateTime.now().toUtc().add(const Duration(hours: 1));
+        final now = DateTime.utc(2026, 11, 16, 12);
+        final past = now.subtract(const Duration(seconds: 1));
+        final future = now.add(const Duration(seconds: 1));
 
         expect(
           TokenClaims.tryParse(
@@ -128,7 +129,7 @@ void main() {
               'role': 3,
               'exp': past.millisecondsSinceEpoch ~/ 1000,
             }),
-          )?.hasExpired,
+          )?.hasExpired(now: now),
           isTrue,
         );
         expect(
@@ -138,7 +139,7 @@ void main() {
               'role': 3,
               'exp': future.millisecondsSinceEpoch ~/ 1000,
             }),
-          )?.hasExpired,
+          )?.hasExpired(now: now),
           isFalse,
         );
       },
@@ -148,7 +149,8 @@ void main() {
         'When it is checked '
         'Then it does not claim to have expired', () {
       expect(
-        TokenClaims.tryParse(tokenWith({'id': 's', 'role': 3}))?.hasExpired,
+        TokenClaims.tryParse(tokenWith({'id': 's', 'role': 3}))
+            ?.hasExpired(now: DateTime.utc(2026, 11, 16)),
         isFalse,
       );
     });

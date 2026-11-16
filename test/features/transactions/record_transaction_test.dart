@@ -9,6 +9,7 @@ import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/format/money_parser.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
+import 'package:fortuna_ui/core/time/clock.dart';
 import 'package:fortuna_ui/features/categories/data/category_repository.dart';
 import 'package:fortuna_ui/features/holdings/data/account_repository.dart';
 import 'package:fortuna_ui/features/holdings/data/credit_card_repository.dart';
@@ -252,6 +253,7 @@ Future<void> pumpRecord(
   FakeCards? cards,
   FakeCategories? categories,
   GoRouter? router,
+  Clock? clock,
 }) async {
   tester.view.physicalSize = const Size(1000, 2600);
   tester.view.devicePixelRatio = 1;
@@ -272,6 +274,7 @@ Future<void> pumpRecord(
         ),
         currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+        if (clock != null) clockProvider.overrideWithValue(clock),
       ],
       child: router == null
           ? const MaterialApp(home: RecordTransactionScreen())
@@ -695,6 +698,27 @@ void main() {
       expect(fake.recorded.single['financialAccountId'], 'a1');
       expect(fake.recorded.single['categoryId'], 'cat1');
       expect(fake.recorded.single['currencyCode'], 'BRL');
+    });
+
+    testWidgets('Given a minute before midnight by the clock '
+        'When an entry is submitted without picking a date '
+        'Then it is dated today by that clock (UC-19 step 2)', (tester) async {
+      final fake = FakeTransactions();
+
+      await pumpRecord(
+        tester,
+        transactions: fake,
+        clock: () => DateTime(2031, 3, 10, 23, 59),
+      );
+      await fillValidForm(tester, amount: '125.50');
+      await tester.tap(find.byKey(const Key('recordTransaction.submit')));
+      await tester.pumpAndSettle();
+
+      final occurredOn = fake.recorded.single['occurredOn']! as DateTime;
+      expect(
+        DateTime(occurredOn.year, occurredOn.month, occurredOn.day),
+        DateTime(2031, 3, 10),
+      );
     });
 
     testWidgets('Given the API accepted the transaction '

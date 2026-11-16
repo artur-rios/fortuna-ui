@@ -10,6 +10,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../../categories/data/category_repository.dart';
 import '../../categories/state/category_providers.dart';
 import '../../preferences/state/currency_providers.dart';
@@ -151,7 +152,7 @@ class _BudgetEditorState extends ConsumerState<BudgetEditor> {
   Future<void> _pickPeriodStart() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _periodStart ?? DateTime.now(),
+      initialDate: _periodStart ?? ref.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );

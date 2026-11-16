@@ -69,7 +69,7 @@ final class ChallengePending extends SessionState {
 
   final DateTime expiresAt;
 
-  bool get hasExpired => DateTime.now().isAfter(expiresAt);
+  bool hasExpired({required DateTime now}) => now.isAfter(expiresAt);
 }
 
 /// A verified session.

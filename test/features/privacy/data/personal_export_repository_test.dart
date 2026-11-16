@@ -135,7 +135,7 @@ void main() {
       expect(export.fileName, 'export.zip');
       expect(export.contentType, 'application/zip');
       expect(export.expiresAt, isNull);
-      expect(export.isRetrievable, isTrue);
+      expect(export.isRetrievable(now: DateTime.utc(2026, 11, 16)), isTrue);
     });
 
     test('Given a failed job '
@@ -153,7 +153,7 @@ void main() {
 
       expect(export.status, PersonalExportStatus.failed);
       expect(export.failureReason, 'The archive could not be written.');
-      expect(export.isRetrievable, isFalse);
+      expect(export.isRetrievable(now: DateTime.utc(2026, 11, 16)), isFalse);
     });
 
     test('Given an answer with every field missing '

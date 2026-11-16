@@ -82,13 +82,13 @@ class PersonalExport {
   ///
   /// Checked against the clock rather than trusted from a flag, because the
   /// job may have been sitting on screen for a while.
-  bool get hasExpired {
+  bool hasExpired({required DateTime now}) {
     final expiry = expiresAt;
-    return expiry != null && DateTime.now().isAfter(expiry);
+    return expiry != null && now.isAfter(expiry);
   }
 
-  bool get isRetrievable =>
-      status == PersonalExportStatus.completed && !hasExpired;
+  bool isRetrievable({required DateTime now}) =>
+      status == PersonalExportStatus.completed && !hasExpired(now: now);
 }
 
 /// An archive, in hand.

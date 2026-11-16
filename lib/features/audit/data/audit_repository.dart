@@ -14,6 +14,7 @@ import 'package:meta/meta.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 
 /// Whether the attempt the entry records went through.
 ///
@@ -95,12 +96,13 @@ abstract interface class AuditRepository {
 }
 
 class HttpAuditRepository implements AuditRepository {
-  HttpAuditRepository(this._client);
+  HttpAuditRepository(this._client, {this._clock = systemClock});
 
-  factory HttpAuditRepository.fromDio(Dio dio) =>
-      HttpAuditRepository(AuditEntriesClient(dio));
+  factory HttpAuditRepository.fromDio(Dio dio, {Clock clock = systemClock}) =>
+      HttpAuditRepository(AuditEntriesClient(dio), clock: clock);
 
   final AuditEntriesClient _client;
+  final Clock _clock;
 
   @override
   Future<Result<List<AuditEntry>>> read(AuditFilter filter) async {
@@ -122,7 +124,7 @@ class HttpAuditRepository implements AuditRepository {
       final entries = [
         for (final entry in outputs)
           AuditEntry(
-            occurredAt: entry.occurredAt ?? DateTime.now(),
+            occurredAt: entry.occurredAt ?? _clock(),
             operation: entry.operation ?? 'Unknown action',
             entityType: entry.entityType ?? 'Unknown record',
             result: AuditResult.from(entry.outcome),
@@ -144,5 +146,8 @@ class HttpAuditRepository implements AuditRepository {
 }
 
 final auditRepositoryProvider = Provider<AuditRepository>(
-  (ref) => HttpAuditRepository.fromDio(ref.watch(dioProvider)),
+  (ref) => HttpAuditRepository.fromDio(
+    ref.watch(dioProvider),
+    clock: ref.watch(clockProvider),
+  ),
 );

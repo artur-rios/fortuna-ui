@@ -10,6 +10,7 @@ import 'package:fortuna_ui/core/format/money_parser.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session_teardown.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
+import 'package:fortuna_ui/core/time/clock.dart';
 import 'package:fortuna_ui/features/planning/data/goal_repository.dart';
 import 'package:fortuna_ui/features/planning/state/goal_providers.dart';
 import 'package:fortuna_ui/features/planning/ui/goals_screen.dart';
@@ -653,6 +654,28 @@ void main() {
       expect(find.textContaining('how far it got'), findsOneWidget);
       // The progress it reached is still there.
       expect(find.byKey(const Key('goals.saved.g1')), findsOneWidget);
+    });
+
+    testWidgets('Given a goal due yesterday and one due today by the clock '
+        'When they are listed '
+        'Then only the one due yesterday is shown as elapsed (AF-04)', (
+      tester,
+    ) async {
+      await pumpGoals(
+        tester,
+        FakeGoals(
+          onList: () => Success([
+            goal(id: 'g1', targetDate: DateTime(2031, 3, 9)),
+            goal(id: 'g2', targetDate: DateTime(2031, 3, 10)),
+          ]),
+        ),
+        extra: [
+          clockProvider.overrideWithValue(() => DateTime(2031, 3, 10, 23, 59)),
+        ],
+      );
+
+      expect(find.byKey(const Key('goals.elapsed.g1')), findsOneWidget);
+      expect(find.byKey(const Key('goals.elapsed.g2')), findsNothing);
     });
 
     testWidgets('Given an elapsed goal that was reached '

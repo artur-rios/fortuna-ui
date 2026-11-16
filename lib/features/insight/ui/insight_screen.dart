@@ -13,6 +13,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/format/supported_locales.dart';
 import '../../../core/network/offline_capabilities.dart';
+import '../../../core/time/clock.dart';
 import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/aggregation_repository.dart';
@@ -33,8 +34,8 @@ class _InsightScreenState extends ConsumerState<InsightScreen> {
     grouping: Grouping.category,
     // A year back by default: long enough to have something in it, short
     // enough that the first read is not a whole history.
-    from: DateTime(DateTime.now().year - 1, DateTime.now().month),
-    to: DateTime.now(),
+    from: DateTime(ref.now().year - 1, ref.now().month),
+    to: ref.now(),
   );
 
   @override

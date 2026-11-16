@@ -9,9 +9,14 @@ const _noSession = Failure<SignInGranted>(
   kind: FailureKind.unauthenticated,
 );
 
+/// The time the repository's clock reads in these tests.
+final _now = DateTime(2026, 11, 16, 9, 30);
+
 Future<Result<SignInOutcome>> _signIn(ApiStub stub) =>
-    HttpCredentialsRepository.fromDio(stub.dio)
-        .signIn(email: 'ada@example.com', password: 'correct horse');
+    HttpCredentialsRepository.fromDio(
+      stub.dio,
+      clock: () => _now,
+    ).signIn(email: 'ada@example.com', password: 'correct horse');
 
 void main() {
   group('HttpCredentialsRepository.signIn', () {
@@ -121,7 +126,7 @@ void main() {
         final challenge = result.valueOrNull! as SignInChallenged;
         expect(challenge.challengeToken, 'challenge-token');
         expect(challenge.methods, isEmpty);
-        expect(challenge.expiresAt, isA<DateTime>());
+        expect(challenge.expiresAt, _now.add(const Duration(minutes: 5)));
       },
     );
 

@@ -15,6 +15,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../../categories/data/category_repository.dart';
 import '../../categories/state/category_providers.dart';
 import '../../holdings/data/account_repository.dart';
@@ -91,7 +92,7 @@ class _TransactionEditorState extends ConsumerState<TransactionEditor> {
       categoryId: _categoryId,
       holdingId: _holdingId,
       parser: _parser,
-      now: DateTime.now(),
+      now: ref.now(),
     );
 
     if (problem != null) {
@@ -195,7 +196,7 @@ class _TransactionEditorState extends ConsumerState<TransactionEditor> {
       context: context,
       initialDate: _date,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: maximumDaysAhead)),
+      lastDate: ref.now().add(const Duration(days: maximumDaysAhead)),
     );
 
     if (picked != null) setState(() => _date = picked);

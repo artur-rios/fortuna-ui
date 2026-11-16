@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/format/supported_locales.dart';
+import '../../../core/time/clock.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../../session/ui/sign_out_action.dart';
 import '../data/audit_repository.dart';
@@ -94,7 +95,7 @@ class _Filters extends ConsumerWidget {
               final range = await showDateRangePicker(
                 context: context,
                 firstDate: DateTime(2000),
-                lastDate: DateTime.now(),
+                lastDate: ref.now(),
               );
               if (range == null) return;
               controller.setPeriod(from: range.start, to: range.end);
