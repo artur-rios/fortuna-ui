@@ -1,17 +1,17 @@
 /// How `tool/test_bundles.dart` shares the test files out into bundles and
 /// what a bundle's source is. Kept apart from the script so that
-/// `test/tool/test_bundles_test.dart` can test it without touching the disk.
+/// `test/tool/src/test_bundles_test.dart` can test it without touching the disk.
 library;
 
 /// How many times more a file that uses the widget binding weighs than a
 /// plain one of the same size.
 ///
-/// Measured on the suite as it was when the bundles came in (2,215 tests):
-/// the widget files ran for about 250 ms per kilobyte of source and the plain
-/// ones, controller and repository tests against fakes, for about 10. Sharing
+/// Measured on the suite as it was when the bundles came in (1,970 tests):
+/// the widget files ran for about 51 ms per kilobyte of source and the plain
+/// ones, repository and controller tests against fakes, for about 4. Sharing
 /// the files out by size alone would give the bundle that drew the plain files
 /// almost nothing to run.
-const int widgetWeightFactor = 25;
+const int widgetWeightFactor = 13;
 
 /// Whether a test file's [source] uses flutter_test's widget binding.
 bool usesWidgetBinding(String source) => _widgetBinding.hasMatch(source);
