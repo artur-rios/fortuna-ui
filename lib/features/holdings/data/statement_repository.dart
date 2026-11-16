@@ -22,6 +22,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// Where a statement is in its life.
@@ -182,17 +183,21 @@ class HttpStatementRepository implements StatementRepository {
   @override
   Future<Result<List<CardStatement>>> listForCard(String creditCardId) async {
     try {
-      final page = await _cards.getApiCreditCardsIdStatements(
-        id: creditCardId,
-        sortBy: 'periodEnd',
-        descending: true,
-      );
+      final statements = await readEveryPage((pageNumber, pageSize) async {
+        final page = await _cards.getApiCreditCardsIdStatements(
+          id: creditCardId,
+          sortBy: 'periodEnd',
+          descending: true,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        return (
+          items: page.data ?? const <CreditCardStatementOutput>[],
+          totalPages: page.totalPages,
+        );
+      });
 
-      return Success([
-        for (final statement
-            in page.data ?? const <CreditCardStatementOutput>[])
-          _from(statement),
-      ]);
+      return Success([for (final statement in statements) _from(statement)]);
     } on DioException catch (exception) {
       // AF-05: a card that is not yours is not found, and the API makes the
       // two indistinguishable on purpose.

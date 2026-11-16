@@ -12,6 +12,7 @@ import 'package:fortuna_api_client/export.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// Whether the attempt the entry records went through.
@@ -104,14 +105,22 @@ class HttpAuditRepository implements AuditRepository {
   @override
   Future<Result<List<AuditEntry>>> read(AuditFilter filter) async {
     try {
-      final response = await _client.getApiAuditEntries(
-        from: filter.from,
-        to: filter.to,
-        operation: filter.operation,
-      );
+      final outputs = await readEveryPage((pageNumber, pageSize) async {
+        final page = await _client.getApiAuditEntries(
+          from: filter.from,
+          to: filter.to,
+          operation: filter.operation,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        return (
+          items: page.data ?? const <AuditEntryOutput>[],
+          totalPages: page.totalPages,
+        );
+      });
 
       final entries = [
-        for (final entry in response.data ?? const <AuditEntryOutput>[])
+        for (final entry in outputs)
           AuditEntry(
             occurredAt: entry.occurredAt ?? DateTime.now(),
             operation: entry.operation ?? 'Unknown action',

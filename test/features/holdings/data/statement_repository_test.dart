@@ -29,6 +29,36 @@ Map<String, Object?> statementOutput({
 
 void main() {
   group('HttpStatementRepository.listForCard', () {
+    test(
+      'Given more statements than one page holds '
+      'When they are listed '
+      'Then every page is read and the list is whole (UC-16 step 1)',
+      () async {
+        final stub = ApiStub((request) {
+          final page = requestedPage(request);
+          return paginated(
+            [
+              {...statementOutput(), 'id': 'p$page'},
+            ],
+            pageNumber: page,
+            totalPages: 2,
+          );
+        });
+
+        final result = await HttpStatementRepository.fromDio(stub.dio)
+            .listForCard('c1');
+
+        expect(
+          [
+            for (final request in stub.requests)
+              request.queryParameters['PageNumber'],
+          ],
+          [1, 2],
+        );
+        expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+      },
+    );
+
     test('Given a card with a statement '
         'When its statements are listed '
         'Then they are asked for latest period first and every total is read '
@@ -43,6 +73,8 @@ void main() {
       expect(stub.request.queryParameters, {
         'SortBy': 'periodEnd',
         'Descending': true,
+        'PageNumber': 1,
+        'PageSize': 100,
       });
       final statement = result.valueOrNull!.single;
       expect(statement.id, 's1');

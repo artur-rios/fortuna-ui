@@ -22,6 +22,35 @@ Map<String, Object?> accountOutput({
 
 void main() {
   group('HttpAccountRepository.list', () {
+    test(
+      'Given more accounts than one page holds '
+      'When they are listed '
+      'Then every page is read and the list is whole (UC-14 step 1)',
+      () async {
+        final stub = ApiStub((request) {
+          final page = requestedPage(request);
+          return paginated(
+            [
+              {...accountOutput(), 'id': 'p$page'},
+            ],
+            pageNumber: page,
+            totalPages: 2,
+          );
+        });
+
+        final result = await HttpAccountRepository.fromDio(stub.dio).list();
+
+        expect(
+          [
+            for (final request in stub.requests)
+              request.queryParameters['PageNumber'],
+          ],
+          [1, 2],
+        );
+        expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+      },
+    );
+
     test('Given the API lists an account '
         'When the accounts are listed '
         'Then it is fetched from the accounts route and mapped as sent '
@@ -32,7 +61,7 @@ void main() {
 
       expect(stub.request.method, 'GET');
       expect(stub.request.path, '/api/accounts');
-      expect(stub.request.queryParameters, isEmpty);
+      expect(stub.request.queryParameters, {'PageNumber': 1, 'PageSize': 100});
       final account = result.valueOrNull!.single;
       expect(account.id, 'a1');
       expect(account.name, 'Savings');

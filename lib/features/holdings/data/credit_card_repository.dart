@@ -14,6 +14,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// One of the user's credit cards.
@@ -91,11 +92,18 @@ class HttpCreditCardRepository implements CreditCardRepository {
   @override
   Future<Result<List<CreditCard>>> list() async {
     try {
-      final page = await _client.getApiCreditCards();
+      final cards = await readEveryPage((pageNumber, pageSize) async {
+        final page = await _client.getApiCreditCards(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        return (
+          items: page.data ?? const <CreditCardOutput>[],
+          totalPages: page.totalPages,
+        );
+      });
 
-      return Success([
-        for (final card in page.data ?? const <CreditCardOutput>[]) _from(card),
-      ]);
+      return Success([for (final card in cards) _from(card)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<CreditCard>>(exception);
     }

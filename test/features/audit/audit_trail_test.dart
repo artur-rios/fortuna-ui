@@ -15,6 +15,8 @@ import 'package:fortuna_ui/features/audit/state/audit_providers.dart';
 import 'package:fortuna_ui/features/audit/ui/audit_trail_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../support/api_stub.dart' as api;
+
 class FakeAudit implements AuditRepository {
   FakeAudit(this.next);
 
@@ -116,6 +118,38 @@ Map<String, Object?> auditJson(
 
 void main() {
   group('HttpAuditRepository', () {
+    test('Given more entries than one page holds '
+        'When they are read '
+        'Then every page is read, the filter on each, and all are shown '
+        'newest first (UC-41 step 4)', () async {
+      final stub = api.ApiStub((request) {
+        final page = api.requestedPage(request);
+        return api.paginated(
+          [auditJson('2026-0$page-01T00:00:00Z', 'Page $page')],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpAuditRepository.fromDio(stub.dio)
+          .read(const AuditFilter(operation: 'Delete'));
+
+      expect(
+        [
+          for (final request in stub.requests)
+            (
+              request.queryParameters['PageNumber'],
+              request.queryParameters['Operation'],
+            ),
+        ],
+        [(1, 'Delete'), (2, 'Delete')],
+      );
+      expect(result.valueOrNull!.map((entry) => entry.operation), [
+        'Page 2',
+        'Page 1',
+      ]);
+    });
+
     test('Given the API returns entries out of order '
         'When they are read '
         'Then the repository puts them newest first (UC-41 step 4)', () async {

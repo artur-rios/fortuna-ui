@@ -24,6 +24,33 @@ Map<String, Object?> budgetOutput({
 
 void main() {
   group('HttpBudgetRepository.list', () {
+    test('Given more budgets than one page holds '
+        'When they are listed '
+        'Then every page is read and the list is whole (UC-28)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return pagedList(
+          'budgets',
+          [
+            {...budgetOutput(), 'id': 'p$page'},
+          ],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpBudgetRepository.fromDio(stub.dio).list();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            request.queryParameters['pageNumber'],
+        ],
+        [1, 2],
+      );
+      expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+    });
+
     test('Given a budget with its consumption '
         'When the budgets are listed '
         "Then it is mapped with the API's own figures and verdict "

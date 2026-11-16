@@ -21,6 +21,32 @@ Map<String, Object?> cardOutput() => {
 
 void main() {
   group('HttpCreditCardRepository.list', () {
+    test('Given more cards than one page holds '
+        'When they are listed '
+        'Then every page is read and the list is whole (UC-15)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return paginated(
+          [
+            {...cardOutput(), 'id': 'p$page'},
+          ],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpCreditCardRepository.fromDio(stub.dio).list();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            request.queryParameters['PageNumber'],
+        ],
+        [1, 2],
+      );
+      expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+    });
+
     test(
       'Given a card over its limit '
       'When the cards are listed '
@@ -32,7 +58,10 @@ void main() {
 
         expect(stub.request.method, 'GET');
         expect(stub.request.path, '/api/credit-cards');
-        expect(stub.request.queryParameters, isEmpty);
+        expect(stub.request.queryParameters, {
+          'PageNumber': 1,
+          'PageSize': 100,
+        });
         final card = result.valueOrNull!.single;
         expect(card.id, 'c1');
         expect(card.name, 'Gold');

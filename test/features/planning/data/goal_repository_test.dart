@@ -22,6 +22,33 @@ Map<String, Object?> goalOutput({
 
 void main() {
   group('HttpGoalRepository.list', () {
+    test('Given more goals than one page holds '
+        'When they are listed '
+        'Then every page is read and the list is whole (UC-29)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return pagedList(
+          'goals',
+          [
+            {...goalOutput(), 'id': 'p$page'},
+          ],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpGoalRepository.fromDio(stub.dio).list();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            request.queryParameters['pageNumber'],
+        ],
+        [1, 2],
+      );
+      expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+    });
+
     test(
       'Given goals with their progress '
       'When they are listed '

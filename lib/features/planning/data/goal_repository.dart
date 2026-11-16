@@ -20,6 +20,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// How far along a goal is, as the API computed it.
@@ -157,11 +158,18 @@ class HttpGoalRepository implements GoalRepository {
   @override
   Future<Result<List<Goal>>> list() async {
     try {
-      final output = (await _client.getApiGoals()).data;
+      final goals = await readEveryPage((pageNumber, pageSize) async {
+        final page = (await _client.getApiGoals(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        )).data;
+        return (
+          items: page?.goals ?? const <GoalOutput>[],
+          totalPages: page?.totalPages,
+        );
+      });
 
-      return Success([
-        for (final goal in output?.goals ?? const <GoalOutput>[]) _from(goal),
-      ]);
+      return Success([for (final goal in goals) _from(goal)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Goal>>(exception);
     }

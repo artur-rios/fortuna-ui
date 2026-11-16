@@ -12,6 +12,7 @@ import 'package:fortuna_api_client/export.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// Which of the two a repository serves.
@@ -89,9 +90,18 @@ class HttpTagRepository with _CommandRunner implements LabelRepository {
   @override
   Future<Result<List<Label>>> list() async {
     try {
-      final response = await _client.getApiTags();
+      final tags = await readEveryPage((pageNumber, pageSize) async {
+        final page = (await _client.getApiTags(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        )).data;
+        return (
+          items: page?.tags ?? const <TagOutput>[],
+          totalPages: page?.totalPages,
+        );
+      });
       return Success([
-        for (final tag in response.data?.tags ?? const <TagOutput>[])
+        for (final tag in tags)
           Label(
             id: tag.id ?? '',
             name: tag.name ?? '',
@@ -137,10 +147,18 @@ class HttpCounterpartyRepository
   @override
   Future<Result<List<Label>>> list() async {
     try {
-      final response = await _client.getApiCounterparties();
+      final counterparties = await readEveryPage((pageNumber, pageSize) async {
+        final page = (await _client.getApiCounterparties(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        )).data;
+        return (
+          items: page?.counterparties ?? const <CounterpartyOutput>[],
+          totalPages: page?.totalPages,
+        );
+      });
       return Success([
-        for (final counterparty
-            in response.data?.counterparties ?? const <CounterpartyOutput>[])
+        for (final counterparty in counterparties)
           Label(
             id: counterparty.id ?? '',
             name: counterparty.name ?? '',

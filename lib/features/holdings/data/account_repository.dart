@@ -18,6 +18,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// What kind of holding an account is.
@@ -121,12 +122,18 @@ class HttpAccountRepository implements AccountRepository {
   @override
   Future<Result<List<FinancialAccount>>> list() async {
     try {
-      final page = await _client.getApiAccounts();
+      final accounts = await readEveryPage((pageNumber, pageSize) async {
+        final page = await _client.getApiAccounts(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        return (
+          items: page.data ?? const <FinancialAccountOutput>[],
+          totalPages: page.totalPages,
+        );
+      });
 
-      return Success([
-        for (final account in page.data ?? const <FinancialAccountOutput>[])
-          _from(account),
-      ]);
+      return Success([for (final account in accounts) _from(account)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<FinancialAccount>>(exception);
     }

@@ -22,10 +22,37 @@ void main() {
   });
 
   group('HttpTagRepository.list', () {
+    test('Given more tags than one page holds '
+        'When they are listed '
+        'Then every page is read and the list is whole (UC-27)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return pagedList(
+          'tags',
+          [
+            {'id': 'p$page', 'name': 'tag $page'},
+          ],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpTagRepository.fromDio(stub.dio).list();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            request.queryParameters['pageNumber'],
+        ],
+        [1, 2],
+      );
+      expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+    });
+
     test("Given the user's tags "
         'When they are listed '
-        'Then the first page without deleted tags is fetched and each is '
-        'mapped (UC-27 main flow)', () async {
+        'Then they are fetched without deleted ones, from the first page, and '
+        'each is mapped (UC-27 main flow)', () async {
       final stub = ApiStub.data({
         'tags': [
           {'id': 't1', 'name': 'groceries', 'isDeleted': false},
@@ -279,9 +306,36 @@ void main() {
   });
 
   group('HttpCounterpartyRepository.list', () {
+    test('Given more counterparties than one page holds '
+        'When they are listed '
+        'Then every page is read and the list is whole (UC-27)', () async {
+      final stub = ApiStub((request) {
+        final page = requestedPage(request);
+        return pagedList(
+          'counterparties',
+          [
+            {'id': 'p$page', 'name': 'payee $page'},
+          ],
+          pageNumber: page,
+          totalPages: 2,
+        );
+      });
+
+      final result = await HttpCounterpartyRepository.fromDio(stub.dio).list();
+
+      expect(
+        [
+          for (final request in stub.requests)
+            request.queryParameters['pageNumber'],
+        ],
+        [1, 2],
+      );
+      expect([for (final item in result.valueOrNull!) item.id], ['p1', 'p2']);
+    });
+
     test("Given the user's counterparties "
         'When they are listed '
-        'Then only the first page of 100 without deleted ones is fetched and '
+        'Then they are fetched without deleted ones, from the first page, and '
         'each is mapped (UC-27 main flow)', () async {
       final stub = ApiStub.data({
         'counterparties': [
@@ -290,8 +344,8 @@ void main() {
         ],
         'pageNumber': 1,
         'pageSize': 100,
-        'totalItems': 102,
-        'totalPages': 2,
+        'totalItems': 2,
+        'totalPages': 1,
       });
 
       final result = await HttpCounterpartyRepository.fromDio(stub.dio).list();

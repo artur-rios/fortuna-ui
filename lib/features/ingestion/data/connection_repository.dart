@@ -12,6 +12,7 @@ import 'package:fortuna_api_client/export.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// Where a connection stands.
@@ -97,9 +98,18 @@ class HttpConnectionRepository implements ConnectionRepository {
   @override
   Future<Result<List<Connection>>> list() async {
     try {
-      final response = await _connections.getApiConnections();
+      final connections = await readEveryPage((pageNumber, pageSize) async {
+        final page = await _connections.getApiConnections(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        return (
+          items: page.data ?? const <ConnectionOutput>[],
+          totalPages: page.totalPages,
+        );
+      });
       return Success([
-        for (final connection in response.data ?? const <ConnectionOutput>[])
+        for (final connection in connections)
           Connection(
             id: connection.id ?? '',
             state: BankConnectionState.from(connection.status),

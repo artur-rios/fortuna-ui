@@ -22,6 +22,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// What kind of holding an investment is.
@@ -169,12 +170,18 @@ class HttpInvestmentRepository implements InvestmentRepository {
   @override
   Future<Result<List<Investment>>> list() async {
     try {
-      final page = await _client.getApiInvestments();
+      final investments = await readEveryPage((pageNumber, pageSize) async {
+        final page = await _client.getApiInvestments(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        return (
+          items: page.data ?? const <InvestmentOutput>[],
+          totalPages: page.totalPages,
+        );
+      });
 
-      return Success([
-        for (final investment in page.data ?? const <InvestmentOutput>[])
-          _from(investment),
-      ]);
+      return Success([for (final investment in investments) _from(investment)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Investment>>(exception);
     }
@@ -260,15 +267,22 @@ class HttpInvestmentRepository implements InvestmentRepository {
     String investmentId,
   ) async {
     try {
-      final page = await _client.getApiInvestmentsIdValuations(
-        id: investmentId,
-        sortBy: 'valuedOn',
-        descending: true,
-      );
+      final valuations = await readEveryPage((pageNumber, pageSize) async {
+        final page = await _client.getApiInvestmentsIdValuations(
+          id: investmentId,
+          sortBy: 'valuedOn',
+          descending: true,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        return (
+          items: page.data ?? const <InvestmentValuationOutput>[],
+          totalPages: page.totalPages,
+        );
+      });
 
       return Success([
-        for (final valuation
-            in page.data ?? const <InvestmentValuationOutput>[])
+        for (final valuation in valuations)
           RecordedValuation(
             value: Money.parse(
               valuation.value ?? '0',
