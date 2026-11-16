@@ -160,12 +160,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -246,12 +254,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -1618,12 +1634,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -2836,12 +2860,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -3007,12 +3039,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -3886,12 +3926,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -4792,12 +4840,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -4970,12 +5026,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -5450,12 +5514,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -5553,12 +5625,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -6015,6 +6095,10 @@
             "format": "int32",
             "nullable": true,
             "type": "integer"
+          },
+          "reason": {
+            "nullable": true,
+            "type": "string"
           },
           "status": {
             "nullable": true,
@@ -7555,12 +7639,20 @@
             "nullable": true,
             "type": "array"
           },
+          "hasNextPage": {
+            "readOnly": true,
+            "type": "boolean"
+          },
           "messages": {
             "items": {
               "type": "string"
             },
             "nullable": true,
             "type": "array"
+          },
+          "nextPageToken": {
+            "nullable": true,
+            "type": "string"
           },
           "pageNumber": {
             "format": "int32",
@@ -11069,6 +11161,13 @@
           },
           {
             "in": "query",
+            "name": "DeletedOnly",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
             "name": "SortBy",
             "schema": {
               "type": "string"
@@ -12255,6 +12354,46 @@
             },
             "description": "Forbidden"
           },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
           "503": {
             "content": {
               "application/json": {
@@ -12392,6 +12531,26 @@
             },
             "description": "Unauthorized"
           },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -12411,6 +12570,26 @@
               }
             },
             "description": "Unprocessable Content"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyEmailThroughApiCommandOutputDataOutput"
+                }
+              }
+            },
+            "description": "Too Many Requests"
           },
           "503": {
             "content": {
@@ -17654,6 +17833,13 @@
           {
             "in": "query",
             "name": "IncludeDeleted",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "DeletedOnly",
             "schema": {
               "type": "boolean"
             }

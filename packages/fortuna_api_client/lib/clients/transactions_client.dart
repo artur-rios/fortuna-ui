@@ -42,6 +42,7 @@ abstract class TransactionsClient {
     @Query('MaximumAmount') String? maximumAmount,
     @Query('Text') String? text,
     @Query('IncludeDeleted') bool? includeDeleted,
+    @Query('DeletedOnly') bool? deletedOnly,
     @Query('DisplayCurrencyCode') String? displayCurrencyCode,
     @Query('FigureDate') DateTime? figureDate,
     @Query('SortBy') String? sortBy,

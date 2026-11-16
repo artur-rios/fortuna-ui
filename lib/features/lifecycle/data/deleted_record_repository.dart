@@ -170,11 +170,13 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
   }
 
   Future<List<DeletedRecord>> _deletedTransactions() async {
-    // The API has no filter for deleted records alone, so every record,
-    // live and deleted, is read and the deleted ones kept.
+    // Only the deleted ones are asked for, so the read grows with what was
+    // deleted rather than with every record kept. The check on each item
+    // below stays: a record not marked deleted is not offered for removal
+    // whatever the answer says.
     final items = await readEveryPage((pageNumber, pageSize) async {
       final page = (await _transactions.getApiTransactions(
-        includeDeleted: true,
+        deletedOnly: true,
         pageNumber: pageNumber,
         pageSize: pageSize,
       )).data;
@@ -205,7 +207,7 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
   Future<List<DeletedRecord>> _deletedAccounts() async {
     final items = await readEveryPage((pageNumber, pageSize) async {
       final page = await _accounts.getApiAccounts(
-        includeDeleted: true,
+        deletedOnly: true,
         pageNumber: pageNumber,
         pageSize: pageSize,
       );

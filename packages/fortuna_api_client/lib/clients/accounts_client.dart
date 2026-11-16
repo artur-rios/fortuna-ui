@@ -28,6 +28,7 @@ abstract class AccountsClient {
     @Query('AccountType') FinancialAccountType? accountType,
     @Query('CurrencyCode') String? currencyCode,
     @Query('IncludeDeleted') bool? includeDeleted,
+    @Query('DeletedOnly') bool? deletedOnly,
     @Query('SortBy') String? sortBy,
     @Query('Descending') bool? descending,
     @Query('PageNumber') int? pageNumber,

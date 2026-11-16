@@ -19,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   the transactions are. Both only grow, so each visit no longer reads all of them. Changing the audit trail's
   filters starts again at the first page. Whether a connection already has a synchronization running is still
   answered from every running job, not only those on the page shown.
+- The deleted records screen asks the instance for the deleted transactions and accounts alone, instead of reading
+  every live one to find them. This needs a fortuna-api that accepts `DeletedOnly` (FR-RL-12); an older instance
+  refuses the parameter.
 
 ### Fixed
 
