@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   always stopped at "did not say which version" before.
 - A committed obligation the instance converted, but without naming the currency it converted into, shows its own
   amount in its own currency rather than the converted number labelled with the original currency.
+- Editing a goal keeps the accounts and investments it draws on: the update named none, and the API replaces a
+  goal's links with what an update names.
 
 ## [1.1.1] - 2026-10-30
 

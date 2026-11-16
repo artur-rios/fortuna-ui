@@ -118,6 +118,8 @@ Goal goal({
   DateTime? targetDate,
   bool withProgress = true,
   List<String> accountNames = const [],
+  List<String> accountIds = const [],
+  List<String> investmentIds = const [],
 }) => Goal(
   id: id,
   name: name,
@@ -125,6 +127,8 @@ Goal goal({
   targetDate: targetDate ?? DateTime(2027),
   accountNames: accountNames,
   investmentNames: const [],
+  accountIds: accountIds,
+  investmentIds: investmentIds,
   progress: withProgress
       ? GoalProgress(
           currentAmount: saved == null ? null : Money.parse(saved, 'BRL'),
@@ -961,6 +965,36 @@ void main() {
         'investmentIds': const <String>[],
       });
       expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('Given an existing goal drawing on an account and an '
+        'investment '
+        'When it is edited and saved '
+        'Then what it draws on is sent back, so the edit keeps it (UC-29)', (
+      tester,
+    ) async {
+      final fake = FakeGoals(
+        onList: () => Success([
+          goal(
+            targetDate: DateTime(2099, 6, 30),
+            accountIds: ['a1'],
+            investmentIds: ['i1'],
+          ),
+        ]),
+      );
+
+      await pumpGoals(tester, fake);
+      await tester.tap(find.byKey(const Key('goals.item.g1')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('goalEditor.amount')),
+        '6000',
+      );
+      await tester.tap(find.byKey(const Key('goalEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(fake.updated.single['accountIds'], ['a1']);
+      expect(fake.updated.single['investmentIds'], ['i1']);
     });
 
     testWidgets('Given an existing goal '

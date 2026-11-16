@@ -58,6 +58,8 @@ void main() {
         expect(goal.targetDate, DateTime(2027, 3));
         expect(goal.accountNames, ['Checking']);
         expect(goal.investmentNames, ['Treasury']);
+        expect(goal.accountIds, ['a1']);
+        expect(goal.investmentIds, ['i1']);
         expect(goal.progress!.currentAmount!.amount, Decimal.parse('1250.50'));
         expect(goal.progress!.remaining!.amount, Decimal.parse('3749.50'));
         expect(goal.progress!.proportionReached, Decimal.parse('0.2501'));
