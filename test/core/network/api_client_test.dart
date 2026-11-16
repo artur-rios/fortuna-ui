@@ -428,6 +428,37 @@ void main() {
     });
   });
 
+  group('An answer with no body', () {
+    test(
+      'Given the API answers 204 to a call that expects its envelope '
+      'When the call is made '
+      'Then it reads as an envelope with no data rather than throwing',
+      () async {
+        final dio = httpDio(CapturingHttpAdapter('', status: 204));
+
+        final output = await GoalsClient(dio).putApiGoalsId(
+          id: 'g1',
+          body: const UpdateGoalCommand(name: 'New laptop'),
+        );
+
+        expect(output.data, isNull);
+      },
+    );
+
+    test('Given an empty download '
+        'When it is fetched as bytes '
+        'Then it stays empty bytes, not an envelope', () async {
+      final dio = httpDio(CapturingHttpAdapter(''));
+
+      final response = await dio.get<List<int>>(
+        '/api/exports/e1',
+        options: Options(responseType: ResponseType.bytes),
+      );
+
+      expect(response.data, isEmpty);
+    });
+  });
+
   group('ApiClientFactory.create', () {
     test('Given a stored session token '
         'When a request is sent '

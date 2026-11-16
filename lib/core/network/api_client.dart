@@ -92,6 +92,19 @@ class ApiClientFactory {
           }
           handler.next(options);
         },
+        onResponse: (response, handler) {
+          // A success with no body (a 204, or a 200 with nothing in it) to a
+          // call that reads the API's envelope: the generated client would
+          // fail on the missing map with a TypeError no repository catches.
+          // It reads instead as an envelope with no data, which every
+          // repository already answers.
+          final body = response.data;
+          if (response.requestOptions.responseType == ResponseType.json &&
+              (body == null || body == '')) {
+            response.data = <String, Object?>{};
+          }
+          handler.next(response);
+        },
         onError: (error, handler) {
           final anonymous = anonymousAuthPaths.contains(
             error.requestOptions.path,

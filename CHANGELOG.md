@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   amount in its own currency rather than the converted number labelled with the original currency.
 - Editing a goal keeps the accounts and investments it draws on: the update named none, and the API replaces a
   goal's links with what an update names.
+- A success answered with no body (a 204) no longer fails with an unhandled error where the screen expected the
+  instance's answer; it is treated as an answer with nothing in it.
 
 ## [1.1.1] - 2026-10-30
 
