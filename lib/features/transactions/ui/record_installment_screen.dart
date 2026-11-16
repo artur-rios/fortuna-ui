@@ -18,6 +18,7 @@ import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/network/offline_capabilities.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../../../shared/widgets/money_text.dart';
 import '../../../shared/widgets/offline_unavailable.dart';
 import '../../categories/data/category_repository.dart';
@@ -42,7 +43,7 @@ class _RecordInstallmentScreenState
   final _count = TextEditingController(text: '$minimumInstallments');
   final _counterparty = TextEditingController();
 
-  DateTime _date = DateTime.now();
+  late DateTime _date = ref.now();
   String? _cardId;
   String? _categoryId;
   String _currencyCode = '';
@@ -119,7 +120,7 @@ class _RecordInstallmentScreenState
       context: context,
       initialDate: _date,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 1)),
+      lastDate: ref.now().add(const Duration(days: 1)),
     );
 
     if (picked != null) setState(() => _date = picked);

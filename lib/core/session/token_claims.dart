@@ -91,8 +91,8 @@ class TokenClaims {
   /// Advisory only: the API decides, and a client whose clock is wrong must not
   /// be able to grant itself a session by being optimistic — which is why a
   /// token that looks unexpired is still verified before it is trusted.
-  bool get hasExpired =>
-      expiresAt != null && DateTime.now().toUtc().isAfter(expiresAt!);
+  bool hasExpired({required DateTime now}) =>
+      expiresAt != null && now.toUtc().isAfter(expiresAt!);
 
   /// Maps the API's numeric role id onto the two roles this client has.
   ///

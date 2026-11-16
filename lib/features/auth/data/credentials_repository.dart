@@ -13,6 +13,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 
 /// What the API did with a credential.
 @immutable
@@ -72,12 +73,15 @@ abstract interface class CredentialsRepository {
 }
 
 class HttpCredentialsRepository implements CredentialsRepository {
-  HttpCredentialsRepository(this._client);
+  HttpCredentialsRepository(this._client, {this._clock = systemClock});
 
-  factory HttpCredentialsRepository.fromDio(Dio dio) =>
-      HttpCredentialsRepository(AuthClient(dio));
+  factory HttpCredentialsRepository.fromDio(
+    Dio dio, {
+    Clock clock = systemClock,
+  }) => HttpCredentialsRepository(AuthClient(dio), clock: clock);
 
   final AuthClient _client;
+  final Clock _clock;
 
   @override
   Future<Result<SignInOutcome>> signIn({
@@ -119,8 +123,7 @@ class HttpCredentialsRepository implements CredentialsRepository {
             methods: output.availableMethods ?? const [],
             // A challenge with no stated expiry is treated as short-lived
             // rather than eternal.
-            expiresAt:
-                expiresAt ?? DateTime.now().add(const Duration(minutes: 5)),
+            expiresAt: expiresAt ?? _clock().add(const Duration(minutes: 5)),
           ),
         );
       }
@@ -213,5 +216,8 @@ class HttpCredentialsRepository implements CredentialsRepository {
 }
 
 final credentialsRepositoryProvider = Provider<CredentialsRepository>(
-  (ref) => HttpCredentialsRepository.fromDio(ref.watch(dioProvider)),
+  (ref) => HttpCredentialsRepository.fromDio(
+    ref.watch(dioProvider),
+    clock: ref.watch(clockProvider),
+  ),
 );

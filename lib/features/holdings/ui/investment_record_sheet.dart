@@ -19,6 +19,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/investment_repository.dart';
 import '../state/account_providers.dart';
@@ -59,7 +60,7 @@ class InvestmentRecordSheet extends ConsumerStatefulWidget {
 class _InvestmentRecordSheetState extends ConsumerState<InvestmentRecordSheet> {
   final _amount = TextEditingController();
 
-  late DateTime _date = DateTime.now();
+  late DateTime _date = ref.now();
   MovementType _type = MovementType.contribution;
   String? _accountId;
 
@@ -87,7 +88,7 @@ class _InvestmentRecordSheetState extends ConsumerState<InvestmentRecordSheet> {
           : 'The value must be greater than zero.';
     }
 
-    if (!InvestmentRules.isNotInFuture(_date, now: DateTime.now())) {
+    if (!InvestmentRules.isNotInFuture(_date, now: ref.now())) {
       return 'That date is in the future. Record it on or before today.';
     }
 
@@ -140,7 +141,7 @@ class _InvestmentRecordSheetState extends ConsumerState<InvestmentRecordSheet> {
   }
 
   Future<void> _pickDate() async {
-    final now = DateTime.now();
+    final now = ref.now();
 
     final picked = await showDatePicker(
       context: context,

@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../data/archive_saver.dart';
 import '../data/personal_export_repository.dart';
 
@@ -127,7 +128,8 @@ class PersonalExportController extends Notifier<PersonalExportState> {
             value.failureReason ?? 'The export failed.',
           ),
           // AF-02: finished, and gone before it was fetched.
-          PersonalExportStatus.completed when value.hasExpired =>
+          PersonalExportStatus.completed
+              when value.hasExpired(now: ref.now()) =>
             PersonalExportExpired(value),
           PersonalExportStatus.completed => PersonalExportReady(value),
           _ => PersonalExportRunning(value),

@@ -5,15 +5,11 @@ import 'package:fortuna_ui/features/insight/data/projection_repository.dart';
 
 import '../../../support/api_stub.dart';
 
-HttpProjectionRepository repositoryOn(ApiStub stub) =>
-    HttpProjectionRepository.fromDio(stub.dio);
+/// The time the repository's clock reads in these tests.
+final pinnedNow = DateTime(2026, 11, 16, 9, 30);
 
-/// Whether [actual] was read from the clock between [before] and [after]:
-/// the fallback to "now", pinned without depending on what now is.
-Matcher readBetween(DateTime before, DateTime after) => predicate<DateTime>(
-  (actual) => !actual.isBefore(before) && !actual.isAfter(after),
-  'a time between $before and $after',
-);
+HttpProjectionRepository repositoryOn(ApiStub stub) =>
+    HttpProjectionRepository.fromDio(stub.dio, clock: () => pinnedNow);
 
 void main() {
   group('HttpProjectionRepository.netPosition', () {
@@ -137,11 +133,9 @@ void main() {
       () async {
         final stub = ApiStub.data({'currencyGroups': <Object?>[]});
 
-        final before = DateTime.now();
         final position = (await repositoryOn(stub).netPosition()).valueOrNull!;
-        final after = DateTime.now();
 
-        expect(position.asOf, readBetween(before, after));
+        expect(position.asOf, pinnedNow);
         expect(position.isFullyConverted, isTrue);
         expect(position.total, isNull);
         expect(position.byCurrency, isEmpty);
@@ -310,18 +304,16 @@ void main() {
           'periods': [<String, Object?>{}],
         });
 
-        final before = DateTime.now();
         final projection = (await repositoryOn(stub).cashFlow(horizonDays: 30))
             .valueOrNull!;
-        final after = DateTime.now();
 
-        expect(projection.asOf, readBetween(before, after));
-        expect(projection.through, readBetween(before, after));
+        expect(projection.asOf, pinnedNow);
+        expect(projection.through, pinnedNow);
         expect(projection.displayCurrencyCode, isNull);
         expect(projection.startingBalance, Money.parse('0', ''));
         final period = projection.periods.single;
-        expect(period.periodStart, readBetween(before, after));
-        expect(period.periodEnd, readBetween(before, after));
+        expect(period.periodStart, pinnedNow);
+        expect(period.periodEnd, pinnedNow);
         expect(period.openingBalance, Money.parse('0', '', isProjected: true));
         expect(period.closingBalance, Money.parse('0', '', isProjected: true));
       },
@@ -541,14 +533,12 @@ void main() {
         'Then the dates are now, converted, and there are none', () async {
       final stub = ApiStub.data(<String, Object?>{});
 
-      final before = DateTime.now();
       final obligations = (await repositoryOn(
         stub,
       ).obligations(horizonDays: 60)).valueOrNull!;
-      final after = DateTime.now();
 
-      expect(obligations.asOf, readBetween(before, after));
-      expect(obligations.through, readBetween(before, after));
+      expect(obligations.asOf, pinnedNow);
+      expect(obligations.through, pinnedNow);
       expect(obligations.isFullyConverted, isTrue);
       expect(obligations.displayCurrencyCode, isNull);
       expect(obligations.total, isNull);
@@ -566,17 +556,15 @@ void main() {
           'items': [<String, Object?>{}],
         });
 
-        final before = DateTime.now();
         final item = (await repositoryOn(stub).obligations(horizonDays: 60))
             .valueOrNull!
             .items
             .single;
-        final after = DateTime.now();
 
         expect(item.id, '');
         expect(item.kind, ObligationKind.other);
         expect(item.amount, Money.parse('0', '', isProjected: true));
-        expect(item.dueDate, readBetween(before, after));
+        expect(item.dueDate, pinnedNow);
         expect(item.isOverdue, isFalse);
         expect(item.daysOverdue, 0);
       },

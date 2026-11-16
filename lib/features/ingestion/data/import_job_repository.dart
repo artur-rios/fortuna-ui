@@ -13,6 +13,7 @@ import 'package:meta/meta.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 
 /// Where a job has got to.
 ///
@@ -89,12 +90,15 @@ abstract interface class ImportJobRepository {
 }
 
 class HttpImportJobRepository implements ImportJobRepository {
-  HttpImportJobRepository(this._client);
+  HttpImportJobRepository(this._client, {this._clock = systemClock});
 
-  factory HttpImportJobRepository.fromDio(Dio dio) =>
-      HttpImportJobRepository(ImportJobsClient(dio));
+  factory HttpImportJobRepository.fromDio(
+    Dio dio, {
+    Clock clock = systemClock,
+  }) => HttpImportJobRepository(ImportJobsClient(dio), clock: clock);
 
   final ImportJobsClient _client;
+  final Clock _clock;
 
   @override
   Future<Result<List<ImportJob>>> list() async {
@@ -153,12 +157,15 @@ class HttpImportJobRepository implements ImportJobRepository {
     imported: output.importedCount ?? 0,
     duplicates: output.duplicateCount ?? 0,
     rejected: output.rejectedCount ?? 0,
-    startedAt: output.createdAt ?? DateTime.now(),
+    startedAt: output.createdAt ?? _clock(),
     failureReason: output.failureReason,
     connectionId: output.connectionId,
   );
 }
 
 final importJobRepositoryProvider = Provider<ImportJobRepository>(
-  (ref) => HttpImportJobRepository.fromDio(ref.watch(dioProvider)),
+  (ref) => HttpImportJobRepository.fromDio(
+    ref.watch(dioProvider),
+    clock: ref.watch(clockProvider),
+  ),
 );

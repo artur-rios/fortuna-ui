@@ -14,6 +14,7 @@ import 'package:meta/meta.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 
 /// Where a connection stands.
 ///
@@ -85,15 +86,24 @@ abstract interface class ConnectionRepository {
 }
 
 class HttpConnectionRepository implements ConnectionRepository {
-  HttpConnectionRepository(this._connections, this._sync);
+  HttpConnectionRepository(
+    this._connections,
+    this._sync, {
+    this._clock = systemClock,
+  });
 
-  factory HttpConnectionRepository.fromDio(Dio dio) => HttpConnectionRepository(
+  factory HttpConnectionRepository.fromDio(
+    Dio dio, {
+    Clock clock = systemClock,
+  }) => HttpConnectionRepository(
     ConnectionsClient(dio),
     ConnectionSynchronizationClient(dio),
+    clock: clock,
   );
 
   final ConnectionsClient _connections;
   final ConnectionSynchronizationClient _sync;
+  final Clock _clock;
 
   @override
   Future<Result<List<Connection>>> list() async {
@@ -113,7 +123,7 @@ class HttpConnectionRepository implements ConnectionRepository {
           Connection(
             id: connection.id ?? '',
             state: BankConnectionState.from(connection.status),
-            connectedAt: connection.createdAt ?? DateTime.now(),
+            connectedAt: connection.createdAt ?? _clock(),
             externalReference: connection.externalReference,
           ),
       ]);
@@ -146,7 +156,7 @@ class HttpConnectionRepository implements ConnectionRepository {
         Connection(
           id: output.id ?? '',
           state: BankConnectionState.from(output.status),
-          connectedAt: output.createdAt ?? DateTime.now(),
+          connectedAt: output.createdAt ?? _clock(),
           externalReference: output.externalReference ?? externalReference,
         ),
       );
@@ -199,5 +209,8 @@ class HttpConnectionRepository implements ConnectionRepository {
 }
 
 final connectionRepositoryProvider = Provider<ConnectionRepository>(
-  (ref) => HttpConnectionRepository.fromDio(ref.watch(dioProvider)),
+  (ref) => HttpConnectionRepository.fromDio(
+    ref.watch(dioProvider),
+    clock: ref.watch(clockProvider),
+  ),
 );

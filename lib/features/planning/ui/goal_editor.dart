@@ -10,6 +10,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../../preferences/state/currency_providers.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../data/goal_repository.dart';
@@ -65,7 +66,7 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
       name: _name.text,
       amountText: _amount.text,
       targetDate: _targetDate,
-      now: DateTime.now(),
+      now: ref.now(),
       isReadableAmount: (text) => parser.parse(text) != null,
       isPositiveAmount: parser.isPositive,
     );
@@ -142,7 +143,7 @@ class _GoalEditorState extends ConsumerState<GoalEditor> {
   }
 
   Future<void> _pickTargetDate() async {
-    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    final tomorrow = ref.now().add(const Duration(days: 1));
 
     final picked = await showDatePicker(
       context: context,

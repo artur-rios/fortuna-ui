@@ -21,6 +21,7 @@ import '../../../app/routes.dart';
 import '../../../core/format/money_parser.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../../../shared/widgets/money_text.dart';
 import '../../categories/data/category_repository.dart';
 import '../../categories/state/category_providers.dart';
@@ -47,7 +48,7 @@ class _RecordTransactionScreenState
   final _counterparty = TextEditingController();
   final _tags = TextEditingController();
 
-  DateTime _date = DateTime.now();
+  late DateTime _date = ref.now();
   Direction _direction = Direction.expense;
   String? _categoryId;
   String? _holdingId;
@@ -77,7 +78,7 @@ class _RecordTransactionScreenState
       categoryId: _categoryId,
       holdingId: _holdingId,
       parser: _parser,
-      now: DateTime.now(),
+      now: ref.now(),
     );
 
     if (problem != null) {
@@ -141,7 +142,7 @@ class _RecordTransactionScreenState
       initialDate: _date,
       firstDate: DateTime(2000),
       // AF-02, prevented here as well as checked in the rule.
-      lastDate: DateTime.now().add(const Duration(days: maximumDaysAhead)),
+      lastDate: ref.now().add(const Duration(days: maximumDaysAhead)),
     );
 
     if (picked != null) setState(() => _date = picked);

@@ -125,23 +125,23 @@ void main() {
     test('Given an archive whose expiry has passed '
         'When it is asked '
         'Then it is expired and not retrievable (UC-43 AF-02)', () {
+      final now = DateTime(2026, 11, 16, 12);
       final export = completed(
-        expiresAt: DateTime.now().subtract(const Duration(hours: 1)),
+        expiresAt: now.subtract(const Duration(seconds: 1)),
       );
 
-      expect(export.hasExpired, isTrue);
-      expect(export.isRetrievable, isFalse);
+      expect(export.hasExpired(now: now), isTrue);
+      expect(export.isRetrievable(now: now), isFalse);
     });
 
     test('Given an archive still in date '
         'When it is asked '
         'Then it is retrievable', () {
-      final export = completed(
-        expiresAt: DateTime.now().add(const Duration(hours: 1)),
-      );
+      final now = DateTime(2026, 11, 16, 12);
+      final export = completed(expiresAt: now.add(const Duration(seconds: 1)));
 
-      expect(export.hasExpired, isFalse);
-      expect(export.isRetrievable, isTrue);
+      expect(export.hasExpired(now: now), isFalse);
+      expect(export.isRetrievable(now: now), isTrue);
     });
   });
 

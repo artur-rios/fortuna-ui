@@ -107,6 +107,7 @@ void main() {
 
       final job = (await HttpImportJobRepository.fromDio(
         stub.dio,
+        clock: () => DateTime(2026, 11, 16, 9, 30),
       ).list()).valueOrNull!.single;
 
       expect(job.id, '');
@@ -115,7 +116,7 @@ void main() {
       expect(job.imported, 0);
       expect(job.duplicates, 0);
       expect(job.rejected, 0);
-      expect(job.startedAt, isA<DateTime>());
+      expect(job.startedAt, DateTime(2026, 11, 16, 9, 30));
       expect(job.failureReason, isNull);
       expect(job.connectionId, isNull);
       expect(job.isFinished, isFalse);

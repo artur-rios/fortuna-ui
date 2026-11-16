@@ -18,6 +18,7 @@ import '../../../core/format/money.dart';
 import '../../../core/format/supported_locales.dart';
 import '../../../core/network/offline_capabilities.dart';
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../../../shared/widgets/money_text.dart';
 import '../../../shared/widgets/offline_unavailable.dart';
 import '../../preferences/state/preferences_controller.dart';
@@ -322,7 +323,7 @@ class _SettlementSheet extends ConsumerStatefulWidget {
 
 class _SettlementSheetState extends ConsumerState<_SettlementSheet> {
   String? _accountId;
-  late DateTime _paymentDate = DateTime.now();
+  late DateTime _paymentDate = ref.now();
   var _submitting = false;
   String? _reason;
 

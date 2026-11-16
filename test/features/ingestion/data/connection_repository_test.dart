@@ -103,12 +103,15 @@ void main() {
         ),
       ]);
 
-      final result = await HttpConnectionRepository.fromDio(stub.dio).list();
+      final result = await HttpConnectionRepository.fromDio(
+        stub.dio,
+        clock: () => DateTime(2026, 11, 16, 9, 30),
+      ).list();
 
       final connection = result.valueOrNull!.single;
       expect(connection.id, '');
       expect(connection.state, BankConnectionState.unknown);
-      expect(connection.connectedAt, isA<DateTime>());
+      expect(connection.connectedAt, DateTime(2026, 11, 16, 9, 30));
       expect(connection.externalReference, isNull);
     });
 
@@ -177,13 +180,15 @@ void main() {
         ),
       );
 
-      final result = await HttpConnectionRepository.fromDio(stub.dio)
-          .connect(dataSource: 'pluggy', externalReference: 'item-42');
+      final result = await HttpConnectionRepository.fromDio(
+        stub.dio,
+        clock: () => DateTime(2026, 11, 16, 9, 30),
+      ).connect(dataSource: 'pluggy', externalReference: 'item-42');
 
       final connection = result.valueOrNull!;
       expect(connection.id, '');
       expect(connection.state, BankConnectionState.requiresReauthentication);
-      expect(connection.connectedAt, isA<DateTime>());
+      expect(connection.connectedAt, DateTime(2026, 11, 16, 9, 30));
       expect(connection.externalReference, 'item-42');
     });
 

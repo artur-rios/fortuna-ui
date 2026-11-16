@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/result/result.dart';
+import '../../../core/time/clock.dart';
 import '../data/export_repository.dart';
 import '../data/export_saver.dart';
 
@@ -136,7 +137,7 @@ class ExportController extends Notifier<ExportProgress> {
   Future<void> retrieve(DataExport export) async {
     // AF-04: asked before the request, so an export the instance has already
     // discarded is reported as expired rather than as a failure to download.
-    if (export.hasExpired(now: DateTime.now())) {
+    if (export.hasExpired(now: ref.now())) {
       state = const ExportExpired();
       return;
     }
