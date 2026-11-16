@@ -1,15 +1,25 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_api_client/export.dart';
 import 'package:fortuna_ui/core/bindings/core_dispatcher.dart';
+import 'package:fortuna_ui/core/bindings/core_library.dart';
+import 'package:fortuna_ui/core/config/app_config.dart';
+import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/network/api_client.dart';
 import 'package:fortuna_ui/core/network/date_only_fields.dart';
+import 'package:fortuna_ui/core/network/ffi_transport.dart';
 import 'package:fortuna_ui/core/result/result.dart';
+import 'package:fortuna_ui/core/session/session.dart';
+import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
+
+import '../../support/api_stub.dart' show ApiStub;
 
 /// Answers HTTP from memory and remembers the body it was sent.
 class CapturingHttpAdapter implements HttpClientAdapter {
@@ -114,6 +124,29 @@ Future<Failure<void>> failureOf(Future<void> Function() call) async {
         );
   return (dio: dio, rejections: rejections);
 }
+
+/// A connected build pointed at `https://fortuna.example`.
+const _connected = AppConfig(
+  apiBaseUrl: 'https://fortuna.example',
+  googleClientId: '',
+  transport: Transport.http,
+  databasePath: '',
+);
+
+/// A build wired for desktop offline mode, with its database at
+/// [databasePath].
+AppConfig _offline({String databasePath = ''}) => AppConfig(
+  apiBaseUrl: '',
+  googleClientId: '',
+  transport: Transport.ffi,
+  databasePath: databasePath,
+);
+
+const _signedIn = SignedIn(
+  role: Role.accountOwner,
+  mode: AppMode.connected,
+  subjectReference: 'subject-1',
+);
 
 void main() {
   group('A 401 and the session (FR-SE-19)', () {
@@ -319,6 +352,247 @@ void main() {
 
       expect(failure.kind, FailureKind.unavailableOffline);
       expect(failure.message, 'Not implemented here.');
+    });
+
+    test('Given a failure that is not an envelope but carries a message '
+        'When the failure is read '
+        'Then that message is shown', () async {
+      final dio = httpDio(
+        CapturingHttpAdapter(
+          jsonEncode({'message': 'The gateway gave up.'}),
+          status: 502,
+        ),
+      );
+
+      final failure = await failureOf(() => dio.get<void>('/api/tags'));
+
+      expect(failure.message, 'The gateway gave up.');
+      expect(failure.kind, FailureKind.serverError);
+    });
+
+    test('Given a failure that states no reason anywhere '
+        'When the failure is read '
+        'Then a plain sentence is shown rather than nothing', () async {
+      final dio = httpDio(
+        CapturingHttpAdapter(
+          jsonEncode({
+            'errors': ['  '],
+            'messages': <String>[],
+            'message': '',
+          }),
+          status: 500,
+        ),
+      );
+
+      final failure = await failureOf(() => dio.get<void>('/api/tags'));
+
+      expect(failure.message, 'The request could not be completed.');
+      expect(failure.kind, FailureKind.serverError);
+    });
+  });
+
+  group('ApiClientFactory.create', () {
+    test('Given a stored session token '
+        'When a request is sent '
+        'Then the token travels as a bearer Authorization header '
+        '(IR-08)', () async {
+      final store = InMemoryTokenStore();
+      await store.write('a-token');
+      final stub = ApiStub();
+      final dio = ApiClientFactory(
+        baseUrl: 'https://fortuna.example',
+        tokenStore: store,
+      ).create()..httpClientAdapter = stub;
+
+      await dio.get<void>('/api/accounts');
+
+      expect(stub.request.headers['Authorization'], 'Bearer a-token');
+      expect(stub.request.uri.query, isEmpty);
+    });
+
+    test('Given no token, or an empty one '
+        'When a request is sent '
+        'Then no Authorization header is sent at all', () async {
+      for (final token in [null, '']) {
+        final store = InMemoryTokenStore();
+        if (token != null) await store.write(token);
+        final stub = ApiStub();
+        final dio = ApiClientFactory(
+          baseUrl: 'https://fortuna.example',
+          tokenStore: store,
+        ).create()..httpClientAdapter = stub;
+
+        await dio.get<void>('/api/accounts');
+
+        expect(stub.request.headers, isNot(contains('Authorization')));
+      }
+    });
+  });
+
+  group('coreDispatcherProvider', () {
+    test('Given a connected build '
+        'When the dispatcher is asked for '
+        'Then there is none, so requests go over HTTP', () {
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(_connected),
+          coreLibraryProbeProvider.overrideWithValue(
+            const FixedCoreLibraryProbe(
+              CoreLibraryAvailability.available,
+              libraryPath: 'fortuna_core.dll',
+            ),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      expect(container.read(coreDispatcherProvider), isNull);
+    });
+
+    test('Given an offline build whose probe found no library path '
+        'When the dispatcher is asked for '
+        'Then there is none rather than one with nothing to open', () {
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(_offline()),
+          coreLibraryProbeProvider.overrideWithValue(
+            const FixedCoreLibraryProbe(CoreLibraryAvailability.available),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      expect(container.read(coreDispatcherProvider), isNull);
+    });
+
+    test('Given an offline build carrying its core '
+        'When the dispatcher is asked for '
+        'Then it initializes the core from the build database path, with '
+        'local accounts and hour-long tokens (UC-02)', () {
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(
+            _offline(databasePath: 'D:/data/fortuna.db'),
+          ),
+          coreLibraryProbeProvider.overrideWithValue(
+            const FixedCoreLibraryProbe(
+              CoreLibraryAvailability.available,
+              libraryPath: 'fortuna_core.dll',
+            ),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final dispatcher = container.read(coreDispatcherProvider);
+
+      expect(dispatcher, isA<InitializingCoreDispatcher>());
+      expect(
+        jsonDecode(
+          (dispatcher! as InitializingCoreDispatcher).configurationJson,
+        ),
+        {
+          'databasePath': 'D:/data/fortuna.db',
+          'localAuthEnabled': true,
+          'tokenLifetimeSeconds': 3600,
+        },
+      );
+    });
+  });
+
+  group('dioProvider', () {
+    test('Given a connected instance and a session '
+        'When a request is sent through the shared client '
+        "Then it goes to the instance's address carrying the session "
+        'token', () async {
+      final store = InMemoryTokenStore();
+      await store.write('a-token');
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(_connected),
+          coreLibraryProbeProvider.overrideWithValue(
+            const FixedCoreLibraryProbe(CoreLibraryAvailability.absent),
+          ),
+          tokenStoreProvider.overrideWithValue(store),
+        ],
+      );
+      addTearDown(container.dispose);
+      final stub = ApiStub();
+      final dio = container.read(dioProvider)..httpClientAdapter = stub;
+
+      await dio.get<void>('/api/accounts');
+
+      expect(dio.options.baseUrl, 'https://fortuna.example');
+      expect(
+        stub.request.uri.toString(),
+        'https://fortuna.example/api/accounts',
+      );
+      expect(stub.request.headers['Authorization'], 'Bearer a-token');
+    });
+
+    test('Given a session the API stops accepting '
+        'When a request through the shared client is answered 401 '
+        'Then the session ends with the expiry reason (FR-SE-19)', () async {
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(_connected),
+          coreLibraryProbeProvider.overrideWithValue(
+            const FixedCoreLibraryProbe(CoreLibraryAvailability.absent),
+          ),
+          tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container
+          .read(sessionProvider.notifier)
+          .grant(token: 'a-token', session: _signedIn);
+      final ended = Completer<SignedOut>();
+      container.listen(sessionProvider, (_, next) {
+        if (next is SignedOut && !ended.isCompleted) ended.complete(next);
+      });
+      final dio = container.read(dioProvider)
+        ..httpClientAdapter = CapturingHttpAdapter(
+          refusal('The session has expired.'),
+          status: 401,
+        );
+
+      await failureOf(() => dio.get<void>('/api/accounts'));
+
+      final state = await ended.future;
+      expect(state.reason, 'Your session expired. Please sign in again.');
+    });
+
+    test('Given desktop offline mode '
+        'When a request is sent through the shared client '
+        'Then it reaches the in-process core, never a network address '
+        '(UC-02, FR-DA-02)', () async {
+      final dispatcher = CapturingDispatcher(
+        const CoreResponse(
+          status: 200,
+          body:
+              '{"data":null,"messages":["Recorded."],"errors":[],'
+              '"timestamp":"2026-10-08T12:00:00Z","success":true}',
+        ),
+      );
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(_offline()),
+          coreLibraryProbeProvider.overrideWithValue(
+            const FixedCoreLibraryProbe(CoreLibraryAvailability.available),
+          ),
+          coreDispatcherProvider.overrideWithValue(dispatcher),
+          tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final dio = container.read(dioProvider);
+      await TransactionsClient(dio)
+          .postApiTransactions(body: command(DateTime(2026, 10, 9)));
+
+      expect(dio.options.baseUrl, 'core://fortuna/');
+      expect(dio.httpClientAdapter, isA<FfiHttpClientAdapter>());
+      expect(dispatcher.sent, isNotNull);
     });
   });
 

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_dispatcher.dart';
+import 'package:fortuna_ui/core/bindings/core_dispatcher_native.dart';
 
 /// Stands in for the boundary, so the lifecycle is tested without a library.
 class FakeDispatcher implements CoreDispatcher {
@@ -143,6 +144,45 @@ void main() {
       await dispatcher.dispose();
 
       expect(inner.disposed, isTrue);
+    });
+
+    test('Given a caller that initializes the core explicitly '
+        'When it does '
+        "Then the request reaches the core and the core's answer comes back "
+        'as it is, a 409 included', () async {
+      final inner = FakeDispatcher(
+        initializeWith: const CoreResponse(status: 409, body: 'already'),
+      );
+      final dispatcher = InitializingCoreDispatcher(
+        inner,
+        configurationJson: '{}',
+      );
+
+      final response = await dispatcher.initialize('{"databasePath":"x"}');
+
+      expect((response.status, response.body), (409, 'already'));
+      expect(inner.initializations, 1);
+    });
+  });
+
+  group('createCoreDispatcher', () {
+    test('Given a library path on a target with dart:ffi '
+        'When the dispatcher is created '
+        'Then it is the isolate-backed one for that path, and nothing is '
+        'loaded until it is used', () async {
+      final dispatcher = createCoreDispatcher(
+        libraryPath: 'missing/fortuna_core.dll',
+      );
+
+      expect(
+        dispatcher,
+        isA<IsolateCoreDispatcher>().having(
+          (native) => native.libraryPath,
+          'libraryPath',
+          'missing/fortuna_core.dll',
+        ),
+      );
+      await dispatcher.dispose();
     });
   });
 

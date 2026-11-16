@@ -613,6 +613,74 @@ void main() {
       );
       expect(chart.data.lineBarsData.single.spots.single.y, 0.4);
     });
+
+    testWidgets('Given a temporal grouping '
+        'When another granularity is chosen '
+        'Then the aggregation is asked for at that granularity', (
+      tester,
+    ) async {
+      final fake = FakeAggregations(
+        onAggregate: (_) => Success(aggregation(grouping: Grouping.period)),
+      );
+
+      await pumpInsight(tester, fake);
+      await tester.tap(find.byKey(const Key('insight.grouping')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Over time').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('insight.granularity')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Weekly').last);
+      await tester.pumpAndSettle();
+
+      expect(fake.asked.last['grouping'], Grouping.period);
+      expect(fake.asked.last['granularity'], Granularity.weekly);
+    });
+
+    Future<void> typeRange(WidgetTester tester, String from, String to) async {
+      await tester.tap(find.byKey(const Key('insight.period')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pumpAndSettle();
+      // The screen itself has no text fields, so these are the picker's
+      // start and end.
+      final fields = find.byType(TextField);
+      await tester.enterText(fields.first, from);
+      await tester.enterText(fields.last, to);
+    }
+
+    testWidgets('Given a period is chosen '
+        'When the range is confirmed '
+        'Then the aggregation is asked for over that period (step 1)', (
+      tester,
+    ) async {
+      final fake = FakeAggregations();
+
+      await pumpInsight(tester, fake);
+      await typeRange(tester, '01/01/2025', '06/30/2025');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(fake.asked.last['from'], DateTime(2025));
+      expect(fake.asked.last['to'], DateTime(2025, 6, 30));
+    });
+
+    testWidgets('Given the period picker is open '
+        'When it is cancelled '
+        'Then the period is unchanged and nothing more is asked', (
+      tester,
+    ) async {
+      final fake = FakeAggregations();
+
+      await pumpInsight(tester, fake);
+      final asked = fake.asked.length;
+      await typeRange(tester, '01/01/2025', '06/30/2025');
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(fake.asked, hasLength(asked));
+      expect(fake.asked.last['from'], isNot(DateTime(2025)));
+    });
   });
 
   group('AggregationChart selection', () {
@@ -694,6 +762,112 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(selections, 0);
+    });
+
+    Future<void> pumpChart(
+      WidgetTester tester,
+      Aggregation value,
+      void Function(AggregationBucket) onSelect,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: AggregationChart(aggregation: value, onSelect: onSelect),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('Given a bar chart '
+        'When a bar is touched '
+        'Then the bucket that bar was built from is reported (FR-CH-08)', (
+      tester,
+    ) async {
+      final selected = <String>[];
+
+      await pumpChart(
+        tester,
+        aggregation(
+          buckets: [
+            bucket(share: '1'),
+            bucket(label: 'Transport', total: '120.00', share: '1'),
+          ],
+        ),
+        (value) => selected.add(value.label),
+      );
+      final chart = tester.getRect(find.byKey(const Key('chart.bars')));
+      // Two 18-wide full-height bars spaced evenly: the gaps are a third of
+      // what the bars leave, so the first bar's centre is one gap plus half a
+      // bar in from the left.
+      final gap = (chart.width - 2 * 18) / 3;
+      await tester.tapAt(Offset(chart.left + gap + 9, chart.top + 80));
+      await tester.pumpAndSettle();
+
+      expect(selected, isNotEmpty);
+      expect(selected.toSet(), {'Groceries'});
+    });
+
+    testWidgets('Given a bar chart '
+        'When the space between the bars is touched '
+        'Then nothing is reported', (tester) async {
+      final selected = <String>[];
+
+      await pumpChart(
+        tester,
+        aggregation(
+          buckets: [
+            bucket(share: '1'),
+            bucket(label: 'Transport', total: '120.00', share: '1'),
+          ],
+        ),
+        (value) => selected.add(value.label),
+      );
+      final chart = tester.getRect(find.byKey(const Key('chart.bars')));
+      await tester.tapAt(Offset(chart.center.dx, chart.top + 80));
+      await tester.pumpAndSettle();
+
+      expect(selected, isEmpty);
+    });
+
+    testWidgets('Given a line chart '
+        'When a point is touched '
+        'Then the bucket at that point is reported, not its coordinate '
+        '(FR-CH-08)', (tester) async {
+      final selected = <String>[];
+
+      await pumpChart(
+        tester,
+        aggregation(
+          grouping: Grouping.period,
+          buckets: [
+            bucket(label: 'Jan', share: '0.2'),
+            bucket(label: 'Feb', share: '0.5'),
+            bucket(label: 'Mar', share: '0.3'),
+          ],
+        ),
+        (value) => selected.add(value.label),
+      );
+      final chart = tester.getRect(find.byKey(const Key('chart.line')));
+      await tester.tapAt(Offset(chart.center.dx, chart.top + 80));
+      await tester.pumpAndSettle();
+
+      expect(selected, isNotEmpty);
+      expect(selected.toSet(), {'Feb'});
     });
   });
 }

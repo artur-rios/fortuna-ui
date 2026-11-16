@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/format/money_parser.dart';
@@ -15,6 +16,7 @@ import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/transactions/data/transaction_repository.dart';
 import 'package:fortuna_ui/features/transactions/state/transaction_form.dart';
 import 'package:fortuna_ui/features/transactions/ui/record_transaction_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart'
@@ -249,6 +251,7 @@ Future<void> pumpRecord(
   FakeAccounts? accounts,
   FakeCards? cards,
   FakeCategories? categories,
+  GoRouter? router,
 }) async {
   tester.view.physicalSize = const Size(1000, 2600);
   tester.view.devicePixelRatio = 1;
@@ -270,9 +273,52 @@ Future<void> pumpRecord(
         currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
       ],
-      child: const MaterialApp(home: RecordTransactionScreen()),
+      child: router == null
+          ? const MaterialApp(home: RecordTransactionScreen())
+          : MaterialApp.router(routerConfig: router),
     ),
   );
+  await tester.pumpAndSettle();
+}
+
+/// [screen] at [start], with every place it can send the user to standing in
+/// as a marker that names its path.
+GoRouter routerFrom(
+  String start,
+  Widget screen, {
+  required List<String> destinations,
+}) {
+  final router = GoRouter(
+    initialLocation: start,
+    routes: [
+      GoRoute(path: start, builder: (context, state) => screen),
+      for (final path in destinations)
+        GoRoute(
+          path: path,
+          builder: (context, state) => Text('landed on $path'),
+        ),
+    ],
+  );
+  addTearDown(router.dispose);
+  return router;
+}
+
+/// Opens the date picker behind [key], switches it to typing, and types
+/// [typed] (`MM/dd/yyyy`), so the chosen day never depends on the clock.
+Future<void> typeDate(WidgetTester tester, String key, String typed) async {
+  await tester.tap(find.byKey(Key(key)));
+  await tester.pumpAndSettle();
+  // The last one: a screen behind the picker may carry its own edit icon.
+  await tester.tap(find.byIcon(Icons.edit_outlined).last);
+  await tester.pumpAndSettle();
+  await tester.enterText(
+    find.descendant(
+      of: find.byType(InputDatePickerFormField),
+      matching: find.byType(TextField),
+    ),
+    typed,
+  );
+  await tester.tap(find.text('OK'));
   await tester.pumpAndSettle();
 }
 
@@ -844,6 +890,129 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('BRL'), findsWidgets);
+    });
+
+    testWidgets('Given a date is chosen in the picker '
+        'When the transaction is submitted '
+        'Then it is recorded on that date', (tester) async {
+      final fake = FakeTransactions();
+
+      await pumpRecord(tester, transactions: fake);
+      await typeDate(tester, 'recordTransaction.date', '01/15/2020');
+      await fillValidForm(tester);
+      await tester.tap(find.byKey(const Key('recordTransaction.submit')));
+      await tester.pumpAndSettle();
+
+      expect(fake.recorded.single['occurredOn'], DateTime(2020, 1, 15));
+    });
+
+    testWidgets('Given the accounts cannot be read '
+        'When the form is opened '
+        'Then the reason is shown instead of a form', (tester) async {
+      await pumpRecord(
+        tester,
+        accounts: FakeAccounts(
+          onList: () => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+      expect(find.byKey(const Key('recordTransaction.amount')), findsNothing);
+    });
+
+    testWidgets('Given a recorded transaction '
+        'When another is asked for '
+        'Then the form returns with the entry cleared', (tester) async {
+      await pumpRecord(tester);
+      await fillValidForm(tester, amount: '125.50');
+      await tester.enterText(
+        find.byKey(const Key('recordTransaction.description')),
+        'Weekly shop',
+      );
+      await tester.tap(find.byKey(const Key('recordTransaction.submit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('recordTransaction.another')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('recordTransaction.confirmation')),
+        findsNothing,
+      );
+      final amount = tester.widget<TextField>(
+        find.byKey(const Key('recordTransaction.amount')),
+      );
+      final description = tester.widget<TextField>(
+        find.byKey(const Key('recordTransaction.description')),
+      );
+      expect(amount.controller!.text, isEmpty);
+      expect(description.controller!.text, isEmpty);
+    });
+
+    testWidgets('Given a recorded transaction '
+        'When done is tapped '
+        'Then the user is taken home', (tester) async {
+      await pumpRecord(
+        tester,
+        router: routerFrom(
+          Routes.recordTransaction,
+          const RecordTransactionScreen(),
+          destinations: [Routes.home],
+        ),
+      );
+      await fillValidForm(tester);
+      await tester.tap(find.byKey(const Key('recordTransaction.submit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('recordTransaction.done')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('landed on ${Routes.home}'), findsOneWidget);
+    });
+
+    testWidgets('Given no account and no card '
+        'When the user follows the offer to create one '
+        'Then the accounts screen is opened (AF-07)', (tester) async {
+      await pumpRecord(
+        tester,
+        accounts: FakeAccounts(onList: () => const Success([])),
+        router: routerFrom(
+          Routes.recordTransaction,
+          const RecordTransactionScreen(),
+          destinations: [Routes.accounts],
+        ),
+      );
+
+      await tester.tap(
+        find.byKey(const Key('recordTransaction.createAccount')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('landed on ${Routes.accounts}'), findsOneWidget);
+    });
+
+    testWidgets('Given no category '
+        'When the user follows the offer to create one '
+        'Then the categories screen is opened (AF-07)', (tester) async {
+      await pumpRecord(
+        tester,
+        categories: FakeCategories(),
+        router: routerFrom(
+          Routes.recordTransaction,
+          const RecordTransactionScreen(),
+          destinations: [Routes.categories],
+        ),
+      );
+
+      await tester.tap(
+        find.byKey(const Key('recordTransaction.createCategory')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('landed on ${Routes.categories}'), findsOneWidget);
     });
   });
 }

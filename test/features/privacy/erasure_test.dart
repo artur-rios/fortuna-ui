@@ -4,6 +4,7 @@ import 'package:fortuna_ui/core/bindings/core_library.dart';
 import 'package:fortuna_ui/core/config/app_config.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/result/result.dart';
+import 'package:fortuna_ui/core/session/session.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
@@ -363,6 +364,67 @@ void main() {
 
       expect(find.byKey(const Key('erasure.done')), findsOneWidget);
       expect(find.textContaining('12 transactions'), findsOneWidget);
+    });
+    testWidgets('Given the API refuses the erasure '
+        'When it answers '
+        'Then the screen says the account is intact and erasure can be begun '
+        'again (UC-44 AF-02)', (tester) async {
+      await pumpPrivacy(
+        tester,
+        erasure: FakeErasure(
+          answer: (_) => const Failure(
+            message: 'The erasure could not be completed.',
+            kind: FailureKind.serverError,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('erasure.begin')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('erasure.confirmation')),
+        'ERASE',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('erasure.confirm')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('erasure.refused')), findsOneWidget);
+      expect(
+        find.text(
+          'The erasure could not be completed. Nothing was erased and your '
+          'account is intact.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('erasure.begin')), findsOneWidget);
+    });
+
+    testWidgets('Given the erasure report '
+        'When the user closes it '
+        'Then the session ends, saying why (UC-44 step 6)', (tester) async {
+      await pumpPrivacy(tester, erasure: FakeErasure());
+      await tester.tap(find.byKey(const Key('erasure.begin')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('erasure.confirmation')),
+        'ERASE',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('erasure.confirm')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('erasure.finish')));
+      await tester.pumpAndSettle();
+
+      final session = ProviderScope.containerOf(
+        tester.element(find.byType(PrivacyScreen)),
+      ).read(sessionProvider);
+      expect(session, isA<SignedOut>());
+      expect(
+        (session as SignedOut).reason,
+        'Your account was erased. Nothing of it remains here.',
+      );
     });
   });
 }

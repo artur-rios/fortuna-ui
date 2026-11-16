@@ -1,6 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/result/result.dart';
@@ -10,6 +11,7 @@ import 'package:fortuna_ui/features/insight/state/drill_down_controller.dart';
 import 'package:fortuna_ui/features/insight/ui/insight_screen.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/transactions/data/transaction_repository.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart' show FakeCurrencies;
@@ -109,7 +111,8 @@ void main() {
       );
     });
 
-    test('Given an element is selected '
+    test('Given an element of the chart '
+        'When it is selected to descend '
         "Then the bucket's own key is what descends, never a coordinate "
         '(FR-CH-08, step 2)', () async {
       final fake = DrillableAggregations();
@@ -531,6 +534,107 @@ void main() {
 
       expect(find.byKey(const Key('chart.total.A Market')), findsOneWidget);
       expect(find.textContaining('320.00'), findsOneWidget);
+    });
+  });
+
+  group('DrillDownView', () {
+    testWidgets('Given a breakdown that failed '
+        'When it is tried again '
+        'Then the same level is asked for again and shown (AF-02)', (
+      tester,
+    ) async {
+      var attempts = 0;
+      final fake = DrillableAggregations(
+        onDrill: (_) => ++attempts == 1
+            ? const Failure(
+                message: 'The breakdown could not be computed.',
+                kind: FailureKind.serverError,
+              )
+            : Success(deeperBuckets()),
+      );
+
+      await pumpInsight(tester, fake);
+      await tester.tap(find.byKey(const Key('chart.bucket.Groceries')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('drill.retry')));
+      await tester.pumpAndSettle();
+
+      expect(fake.drills.map((d) => d['key']), ['cat1', 'cat1']);
+      expect(find.byKey(const Key('drill.failed')), findsNothing);
+      expect(find.byKey(const Key('chart.bucket.A Market')), findsOneWidget);
+    });
+
+    testWidgets('Given two levels drilled '
+        'When the first crumb is tapped '
+        'Then that level is shown again, bounded by it alone (FR-CH-06)', (
+      tester,
+    ) async {
+      final fake = DrillableAggregations(
+        onDrill: (key) =>
+            key == 'cat1' ? Success(deeperBuckets()) : Success(finestLevel()),
+      );
+
+      await pumpInsight(tester, fake);
+      await tester.tap(find.byKey(const Key('chart.bucket.Groceries')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('chart.bucket.A Market')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('drill.crumb.0')));
+      await tester.pumpAndSettle();
+
+      expect(fake.drills.map((d) => d['key']), ['cat1', 'cp1', 'cat1']);
+      expect(find.byKey(const Key('drill.crumb.0')), findsNothing);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('drill.crumb.current'))).data,
+        'Groceries',
+      );
+      expect(find.byKey(const Key('chart.bucket.A Market')), findsOneWidget);
+    });
+
+    testWidgets('Given the finest level '
+        'When a transaction is tapped '
+        'Then its own detail opens (step 6, FR-TB-06)', (tester) async {
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final router = GoRouter(
+        initialLocation: Routes.insight,
+        routes: [
+          GoRoute(
+            path: Routes.insight,
+            builder: (context, state) => const InsightScreen(),
+          ),
+          GoRoute(
+            path: Routes.transaction,
+            builder: (context, state) =>
+                Text('Detail of ${state.pathParameters['id']}'),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            aggregationRepositoryProvider.overrideWithValue(
+              DrillableAggregations(onDrill: (_) => Success(finestLevel())),
+            ),
+            currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('chart.bucket.Groceries')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('drill.transaction.t2')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Detail of t2'), findsOneWidget);
     });
   });
 }

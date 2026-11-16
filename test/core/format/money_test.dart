@@ -69,6 +69,90 @@ void main() {
       expect((recorded + recorded).isProjected, isFalse);
     });
 
+    test('Given two amounts in the same currency '
+        'When one is subtracted from the other '
+        'Then the difference is exact, may go below zero and keeps the '
+        'currency', () {
+      final difference = Money.parse('0.3', 'BRL') - Money.parse('0.1', 'BRL');
+      final negative = Money.parse('0.01', 'BRL') - Money.parse('0.02', 'BRL');
+
+      expect(difference.amount, Decimal.parse('0.2'));
+      expect(difference.currencyCode, 'BRL');
+      expect(negative.amount, Decimal.parse('-0.01'));
+      expect(negative.isPositive, isFalse);
+    });
+
+    test('Given two amounts in different currencies '
+        'When one is subtracted from the other '
+        'Then the operation is refused rather than converted (BR-07)', () {
+      expect(
+        () => Money.parse('10.00', 'USD') - Money.parse('10.00', 'BRL'),
+        throwsA(
+          isA<ArgumentError>().having(
+            (error) => error.message,
+            'message',
+            contains('"-" to USD and BRL'),
+          ),
+        ),
+      );
+    });
+
+    test('Given a projected amount '
+        'When a recorded one is subtracted from it, or it from a recorded one '
+        'Then the result is marked projected either way', () {
+      final projected = Money.parse('5.00', 'USD').asProjected();
+      final recorded = Money.parse('2.00', 'USD');
+
+      expect((projected - recorded).isProjected, isTrue);
+      expect((recorded - projected).isProjected, isTrue);
+      expect((recorded - recorded).isProjected, isFalse);
+    });
+
+    test('Given a recorded amount '
+        'When it is marked projected '
+        'Then the amount and currency are unchanged', () {
+      final projected = Money.parse('12.34', 'EUR').asProjected();
+
+      expect(projected.amount, Decimal.parse('12.34'));
+      expect(projected.currencyCode, 'EUR');
+      expect(projected.isProjected, isTrue);
+    });
+
+    test('Given amounts in the same currency '
+        'When they are compared '
+        'Then they order by value, and equal values compare as equal', () {
+      final small = Money.parse('9.99', 'USD');
+      final large = Money.parse('10.00', 'USD');
+
+      expect(small.compareTo(large), lessThan(0));
+      expect(large.compareTo(small), greaterThan(0));
+      expect(large.compareTo(Money.parse('10', 'USD')), 0);
+      expect([large, small]..sort(), [small, large]);
+    });
+
+    test('Given two equal amounts '
+        'When they are hashed '
+        'Then they hash alike, so they can key a map', () {
+      expect(
+        Money.parse('1.00', 'USD').hashCode,
+        Money.parse('1', 'USD').hashCode,
+      );
+      expect(
+        {Money.parse('1.00', 'USD'): 'one'}[Money.parse('1', 'USD')],
+        'one',
+      );
+    });
+
+    test('Given a recorded and a projected amount '
+        'When they are written out for a log '
+        'Then each names its currency, and only the projection says so', () {
+      expect(Money.parse('10.50', 'USD').toString(), 'USD 10.5');
+      expect(
+        Money.parse('10.50', 'USD').asProjected().toString(),
+        'USD 10.5 (projected)',
+      );
+    });
+
     test('Given a malformed amount '
         'When it is parsed '
         'Then it throws rather than guessing at a value', () {

@@ -21,6 +21,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'accounts_test.dart' show FakeAccounts, FakeCurrencies, account;
+import 'investment_records_test.dart' show typeDate;
 
 class FakeStatements implements StatementRepository {
   FakeStatements({this.onList, this.onRead, this.onClose, this.onSettle});
@@ -438,6 +439,66 @@ void main() {
       expect(fake.settled.single['financialAccountId'], 'a1');
     });
 
+    testWidgets('Given a payment date is chosen in the picker '
+        'When the settlement is confirmed '
+        'Then that date is the day it was paid on', (tester) async {
+      final fake = FakeStatements(
+        onRead: (_) => Success(statement(status: StatementStatus.closed)),
+      );
+
+      await pumpStatement(
+        tester,
+        fake,
+        accounts: FakeAccounts(onList: () => Success([account()])),
+      );
+
+      await tester.tap(find.byKey(const Key('statement.settle')));
+      await tester.pumpAndSettle();
+      await typeDate(tester, const Key('statement.settle.date'), '05/27/2026');
+      expect(find.textContaining('Paid on May 27, 2026'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('statement.settle.account')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Everyday · BRL').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('statement.settle.confirm')));
+      await tester.pumpAndSettle();
+
+      expect(fake.settled.single['paymentDate'], DateTime(2026, 5, 27));
+    });
+
+    testWidgets('Given the accounts cannot be read '
+        'When settlement is opened '
+        'Then the reason is shown and settling cannot be confirmed', (
+      tester,
+    ) async {
+      await pumpStatement(
+        tester,
+        FakeStatements(
+          onRead: (_) => Success(statement(status: StatementStatus.closed)),
+        ),
+        accounts: FakeAccounts(
+          onList: () => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('statement.settle')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+      expect(find.byKey(const Key('statement.settle.account')), findsNothing);
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.byKey(const Key('statement.settle.confirm')),
+            )
+            .onPressed,
+        isNull,
+      );
+    });
+
     test(
       'Given settlement from an account in another currency '
       'When the API refuses '
@@ -578,6 +639,89 @@ void main() {
 
       expect(find.byKey(const Key('statements.late.s1')), findsOneWidget);
     });
+
+    testWidgets('Given a settled cycle '
+        'When it is listed '
+        'Then its state is named, not only tinted (NFR-17)', (tester) async {
+      await pumpStatements(
+        tester,
+        FakeStatements(
+          onList: () => Success([statement(status: StatementStatus.settled)]),
+        ),
+      );
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('statements.status.s1')),
+          matching: find.text('Settled'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Given a cycle '
+        'When it is tapped '
+        'Then that statement of that card opens (UC-16 step 2)', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1000, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final router = GoRouter(
+        initialLocation: Routes.statementsOf('c1'),
+        routes: [
+          GoRoute(
+            path: Routes.cardStatements,
+            builder: (context, state) => CardStatementsScreen(
+              creditCardId: state.pathParameters['id'] ?? '',
+            ),
+          ),
+          GoRoute(
+            path: Routes.cardStatement,
+            builder: (context, state) => StatementScreen(
+              creditCardId: state.pathParameters['id'] ?? '',
+              statementId: state.pathParameters['statementId'] ?? '',
+            ),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      final read = <String>[];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            statementRepositoryProvider.overrideWithValue(
+              FakeStatements(
+                onList: () => Success([statement(id: 's7')]),
+                onRead: (id) {
+                  read.add(id);
+                  return Success(statement(id: id));
+                },
+              ),
+            ),
+            accountRepositoryProvider.overrideWithValue(FakeAccounts()),
+            currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('statements.item.s7')));
+      await tester.pumpAndSettle();
+
+      final opened = tester.widget<StatementScreen>(
+        find.byType(StatementScreen),
+      );
+      expect(opened.creditCardId, 'c1');
+      expect(opened.statementId, 's7');
+      expect(read, ['s7']);
+    });
   });
 
   group('CreditCardsScreen reaching statements', () {
@@ -672,6 +816,26 @@ void main() {
       );
 
       expect(find.text('That statement was not found.'), findsOneWidget);
+    });
+
+    testWidgets('Given the statement could not be read '
+        'When the user tries again and the instance answers '
+        'Then the statement is shown', (tester) async {
+      final fake = FakeStatements(
+        onRead: (_) => const Failure(
+          message: 'The instance could not be reached.',
+          kind: FailureKind.unreachable,
+        ),
+      );
+      await pumpStatement(tester, fake);
+      expect(find.byKey(const Key('statement.error')), findsOneWidget);
+
+      fake.onRead = (_) => Success(statement());
+      await tester.tap(find.byKey(const Key('statement.retry')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('statement.error')), findsNothing);
+      expect(find.textContaining('1,320.45'), findsWidgets);
     });
 
     testWidgets('Given an open statement '

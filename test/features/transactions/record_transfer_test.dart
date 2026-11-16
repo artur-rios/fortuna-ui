@@ -4,6 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/format/money_parser.dart';
@@ -14,10 +15,12 @@ import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/transactions/data/transfer_repository.dart';
 import 'package:fortuna_ui/features/transactions/state/transfer_form.dart';
 import 'package:fortuna_ui/features/transactions/ui/record_transfer_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart'
     show FakeAccounts, FakeCurrencies, account;
+import 'record_transaction_test.dart' show routerFrom, typeDate;
 
 class FakeTransfers implements TransferRepository {
   FakeTransfers({this.onRecord});
@@ -94,6 +97,7 @@ Future<void> pumpTransfer(
   FakeTransfers? transfers,
   FakeAccounts? accounts,
   List<Override> extra = const [],
+  GoRouter? router,
 }) async {
   tester.view.physicalSize = const Size(1000, 2400);
   tester.view.devicePixelRatio = 1;
@@ -112,11 +116,19 @@ Future<void> pumpTransfer(
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
         ...extra,
       ],
-      child: const MaterialApp(home: RecordTransferScreen()),
+      child: router == null
+          ? const MaterialApp(home: RecordTransferScreen())
+          : MaterialApp.router(routerConfig: router),
     ),
   );
   await tester.pumpAndSettle();
 }
+
+GoRouter transferRouter() => routerFrom(
+  Routes.recordTransfer,
+  const RecordTransferScreen(),
+  destinations: [Routes.accounts],
+);
 
 /// Chooses two different accounts and an amount.
 Future<void> fillValidTransfer(
@@ -571,6 +583,66 @@ void main() {
       );
       expect(find.text('The instance could not be reached.'), findsOneWidget);
       expect(find.byKey(const Key('recordTransfer.submit')), findsOneWidget);
+    });
+
+    testWidgets('Given a date is chosen in the picker '
+        'When the transfer is submitted '
+        'Then it is recorded on that date', (tester) async {
+      final fake = FakeTransfers();
+
+      await pumpTransfer(tester, transfers: fake);
+      await typeDate(tester, 'recordTransfer.date', '01/15/2020');
+      await fillValidTransfer(tester);
+      await tester.tap(find.byKey(const Key('recordTransfer.submit')));
+      await tester.pumpAndSettle();
+
+      expect(fake.recorded.single['occurredOn'], DateTime(2020, 1, 15));
+    });
+
+    testWidgets('Given the accounts cannot be read '
+        'When the form is opened '
+        'Then the reason is shown instead of a form', (tester) async {
+      await pumpTransfer(
+        tester,
+        accounts: FakeAccounts(
+          onList: () => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+      expect(find.byKey(const Key('recordTransfer.origin')), findsNothing);
+    });
+
+    testWidgets('Given only one account '
+        'When the user follows the offer to create another '
+        'Then the accounts screen is opened (AF-06)', (tester) async {
+      await pumpTransfer(
+        tester,
+        accounts: FakeAccounts(onList: () => Success([account()])),
+        router: transferRouter(),
+      );
+
+      await tester.tap(find.byKey(const Key('recordTransfer.createAccount')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('landed on ${Routes.accounts}'), findsOneWidget);
+    });
+
+    testWidgets('Given a recorded transfer '
+        'When done is tapped '
+        'Then the accounts screen is opened', (tester) async {
+      await pumpTransfer(tester, router: transferRouter());
+      await fillValidTransfer(tester);
+      await tester.tap(find.byKey(const Key('recordTransfer.submit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('recordTransfer.done')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('landed on ${Routes.accounts}'), findsOneWidget);
     });
   });
 }

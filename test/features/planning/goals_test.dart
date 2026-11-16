@@ -8,6 +8,7 @@ import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/format/money.dart';
 import 'package:fortuna_ui/core/format/money_parser.dart';
 import 'package:fortuna_ui/core/result/result.dart';
+import 'package:fortuna_ui/core/session/session_teardown.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/planning/data/goal_repository.dart';
 import 'package:fortuna_ui/features/planning/state/goal_providers.dart';
@@ -67,7 +68,15 @@ class FakeGoals implements GoalRepository {
     List<String> accountIds = const [],
     List<String> investmentIds = const [],
   }) async {
-    updated.add({'id': id, 'name': name, 'targetAmount': targetAmount});
+    updated.add({
+      'id': id,
+      'name': name,
+      'targetAmount': targetAmount,
+      'currencyCode': currencyCode,
+      'targetDate': targetDate,
+      'accountIds': accountIds,
+      'investmentIds': investmentIds,
+    });
     return onUpdate?.call() ?? const Success(null);
   }
 
@@ -76,6 +85,16 @@ class FakeGoals implements GoalRepository {
     deleted.add(id);
     return onDelete?.call() ?? const Success(null);
   }
+}
+
+/// A currency list the instance cannot supply.
+class _UnavailableCurrencies implements CurrencyRepository {
+  @override
+  Future<Result<List<SupportedCurrency>>> listSupported() async =>
+      const Failure(
+        message: 'Currencies could not be read.',
+        kind: FailureKind.serverError,
+      );
 }
 
 /// Answers only when the test lets it, so the loading state is observable.
@@ -132,6 +151,7 @@ ProviderContainer containerWith(FakeGoals fake) {
 Future<void> pumpGoals(
   WidgetTester tester,
   FakeGoals fake, {
+  CurrencyRepository? currencies,
   List<Override> extra = const [],
 }) async {
   tester.view.physicalSize = const Size(1000, 2400);
@@ -142,7 +162,9 @@ Future<void> pumpGoals(
     ProviderScope(
       overrides: [
         goalRepositoryProvider.overrideWithValue(fake),
-        currencyRepositoryProvider.overrideWithValue(FakeCurrencies()),
+        currencyRepositoryProvider.overrideWithValue(
+          currencies ?? FakeCurrencies(),
+        ),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
         ...extra,
       ],
@@ -355,6 +377,26 @@ void main() {
         ),
       );
     });
+
+    test('Given goals read in a session '
+        'When the session ends '
+        'Then they are forgotten and read afresh next time', () async {
+      var reads = 0;
+      final fake = FakeGoals(
+        onList: () {
+          reads++;
+          return Success([goal()]);
+        },
+      );
+      final container = containerWith(fake);
+      await container.read(goalsProvider.future);
+
+      await container.read(sessionTeardownProvider).runAll();
+      await container.read(goalsProvider.future);
+
+      expect(container.read(sessionTeardownProvider).registered, ['goals']);
+      expect(reads, 2);
+    });
   });
 
   group('GoalActions', () {
@@ -385,6 +427,87 @@ void main() {
 
       expect(fake.deleted, ['g1']);
     });
+
+    test('Given an existing goal '
+        'When it is updated '
+        'Then every field reaches the repository and the list is read '
+        'again for the progress the API recomputed', () async {
+      var reads = 0;
+      final fake = FakeGoals(
+        onList: () {
+          reads++;
+          return Success([goal()]);
+        },
+      );
+      final container = containerWith(fake);
+      await container.read(goalsProvider.future);
+
+      final result = await container
+          .read(goalActionsProvider)
+          .update(
+            id: 'g1',
+            name: 'Faster laptop',
+            targetAmount: '6000.50',
+            currencyCode: 'BRL',
+            targetDate: DateTime(2028),
+            accountIds: const ['a1'],
+            investmentIds: const ['i1'],
+          );
+      await container.read(goalsProvider.future);
+
+      expect(result, const Success<void>(null));
+      expect(fake.updated.single, {
+        'id': 'g1',
+        'name': 'Faster laptop',
+        'targetAmount': '6000.50',
+        'currencyCode': 'BRL',
+        'targetDate': DateTime(2028),
+        'accountIds': ['a1'],
+        'investmentIds': ['i1'],
+      });
+      expect(reads, 2);
+    });
+
+    test(
+      'Given the API refuses an update '
+      'When it is carried back '
+      'Then the refusal is returned and the list is not read again',
+      () async {
+        var reads = 0;
+        final fake = FakeGoals(
+          onList: () {
+            reads++;
+            return Success([goal()]);
+          },
+          onUpdate: () => const Failure(
+            message: 'A goal with that name already exists.',
+            kind: FailureKind.conflict,
+          ),
+        );
+        final container = containerWith(fake);
+        await container.read(goalsProvider.future);
+
+        final result = await container
+            .read(goalActionsProvider)
+            .update(
+              id: 'g1',
+              name: 'New laptop',
+              targetAmount: '5000.00',
+              currencyCode: 'BRL',
+              targetDate: DateTime(2028),
+            );
+        await container.read(goalsProvider.future);
+
+        expect(
+          result,
+          const Failure<void>(
+            message: 'A goal with that name already exists.',
+            kind: FailureKind.conflict,
+          ),
+        );
+        expect(reads, 1);
+      },
+    );
   });
 
   group('GoalsScreen', () {
@@ -553,6 +676,42 @@ void main() {
 
       expect(find.byKey(const Key('goals.elapsed.g1')), findsNothing);
     });
+
+    testWidgets('Given a goal tracked from accounts '
+        'When it is listed '
+        'Then the accounts it draws from are named', (tester) async {
+      await pumpGoals(
+        tester,
+        FakeGoals(
+          onList: () => Success([
+            goal(accountNames: const ['Everyday', 'Savings']),
+          ]),
+        ),
+      );
+
+      expect(find.text('From Everyday, Savings'), findsOneWidget);
+    });
+
+    testWidgets('Given a goal tracked from nothing in particular '
+        'When it is listed '
+        'Then no source line is shown', (tester) async {
+      await pumpGoals(tester, FakeGoals(onList: () => Success([goal()])));
+
+      expect(find.textContaining(RegExp('^From ')), findsNothing);
+    });
+
+    testWidgets('Given goals already listed '
+        'When the new-goal button is pressed '
+        'Then an empty editor opens', (tester) async {
+      await pumpGoals(tester, FakeGoals(onList: () => Success([goal()])));
+
+      await tester.tap(find.byKey(const Key('goals.add')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byKey(const Key('goalEditor.currency')), findsOneWidget);
+      expect(find.byKey(const Key('goalEditor.delete')), findsNothing);
+    });
   });
 
   group('GoalEditor', () {
@@ -561,9 +720,22 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    // Typed rather than accepted as the picker's default: the default is
+    // tomorrow by the real clock, and a run that crosses midnight between
+    // opening the picker and saving would submit a target date that is
+    // today by then, which the rule refuses (AF-02).
     Future<void> chooseTargetDate(WidgetTester tester) async {
       await tester.tap(find.byKey(const Key('goalEditor.targetDate')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(InputDatePickerFormField),
+          matching: find.byType(TextField),
+        ),
+        '03/01/2099',
+      );
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
     }
@@ -656,6 +828,7 @@ void main() {
       expect(fake.created.single['targetAmount'], '5000');
       expect(fake.created.single['name'], 'New laptop');
       expect(fake.created.single['currencyCode'], 'BRL');
+      expect(fake.created.single['targetDate'], DateTime(2099, 3));
     });
 
     testWidgets('Given an existing goal '
@@ -704,6 +877,133 @@ void main() {
       expect(
         find.text('A goal with that name already exists.'),
         findsOneWidget,
+      );
+    });
+
+    testWidgets('Given a new goal with no currency chosen '
+        'When it is submitted '
+        'Then it is refused in the form and nothing is sent', (tester) async {
+      final fake = FakeGoals(onList: () => const Success([]));
+
+      await pumpGoals(tester, fake);
+      await openEditor(tester);
+      await tester.enterText(
+        find.byKey(const Key('goalEditor.name')),
+        'New laptop',
+      );
+      await tester.enterText(
+        find.byKey(const Key('goalEditor.amount')),
+        '5000.00',
+      );
+      await chooseTargetDate(tester);
+      await tester.tap(find.byKey(const Key('goalEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Choose the currency this goal is set in.'),
+        findsOneWidget,
+      );
+      expect(fake.created, isEmpty);
+    });
+
+    testWidgets('Given the supported currencies cannot be read '
+        'When a new goal is started '
+        'Then the editor says so instead of offering an empty picker', (
+      tester,
+    ) async {
+      await pumpGoals(
+        tester,
+        FakeGoals(onList: () => const Success([])),
+        currencies: _UnavailableCurrencies(),
+      );
+      await openEditor(tester);
+
+      expect(
+        find.text(
+          'The supported currencies could not be read: '
+          'Currencies could not be read.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('goalEditor.currency')), findsNothing);
+    });
+
+    testWidgets('Given an existing goal '
+        'When its name and target are changed and saved '
+        'Then the update keeps its id, currency and date and the editor '
+        'closes', (tester) async {
+      final fake = FakeGoals(
+        onList: () => Success([goal(targetDate: DateTime(2099, 6, 30))]),
+      );
+
+      await pumpGoals(tester, fake);
+      await tester.tap(find.byKey(const Key('goals.item.g1')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('goalEditor.name')),
+        '  Faster laptop  ',
+      );
+      await tester.enterText(
+        find.byKey(const Key('goalEditor.amount')),
+        '6000',
+      );
+      await tester.tap(find.byKey(const Key('goalEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(fake.created, isEmpty);
+      expect(fake.updated.single, {
+        'id': 'g1',
+        'name': 'Faster laptop',
+        'targetAmount': '6000',
+        'currencyCode': 'BRL',
+        'targetDate': DateTime(2099, 6, 30),
+        'accountIds': const <String>[],
+        'investmentIds': const <String>[],
+      });
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('Given an existing goal '
+        'When it is deleted '
+        'Then the deletion is sent and the editor closes', (tester) async {
+      final fake = FakeGoals(onList: () => Success([goal()]));
+
+      await pumpGoals(tester, fake);
+      await tester.tap(find.byKey(const Key('goals.item.g1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('goalEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(fake.deleted, ['g1']);
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('Given the API refuses a deletion '
+        'When it is attempted '
+        "Then the API's reason is shown and the editor stays usable", (
+      tester,
+    ) async {
+      final fake = FakeGoals(
+        onList: () => Success([goal()]),
+        onDelete: () => const Failure(
+          message: 'That goal could not be deleted.',
+          kind: FailureKind.serverError,
+        ),
+      );
+
+      await pumpGoals(tester, fake);
+      await tester.tap(find.byKey(const Key('goals.item.g1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('goalEditor.delete')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('That goal could not be deleted.'), findsOneWidget);
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(
+        tester
+            .widget<TextButton>(find.byKey(const Key('goalEditor.delete')))
+            .onPressed,
+        isNotNull,
       );
     });
   });

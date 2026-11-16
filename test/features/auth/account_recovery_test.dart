@@ -164,6 +164,91 @@ Future<void> pump(
 
 void main() {
   group('requestPasswordRecovery', () {
+    test('Given each state '
+        'When it is asked whether it is busy and what to say '
+        'Then only a request in flight is busy, and a password prompt is its '
+        'own message', () {
+      expect(const RecoveryWorking().isBusy, isTrue);
+      expect(const RecoveryIdle().isBusy, isFalse);
+      expect(const RecoveryWorking().message, isNull);
+      expect(const RecoveryIdle().message, isNull);
+      expect(
+        const RecoveryNeedsPassword('Enter it.', error: 'Wrong.').message,
+        'Enter it.',
+      );
+    });
+
+    test('Given a request asked again too soon '
+        'When the API answers with a conflict '
+        'Then it is presented as "not yet" rather than as a failure '
+        '(UC-09 AF-06)', () async {
+      final container = containerWith(
+        FakeRecovery(
+          onRequest: (_) => const Failure(
+            message: 'Wait a minute before asking again.',
+            kind: FailureKind.conflict,
+          ),
+        ),
+      );
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .requestPasswordRecovery('someone@example.com');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryRateLimited>());
+      expect(state.message, 'Wait a minute before asking again.');
+    });
+
+    test('Given the instance cannot be reached '
+        'When a reset link is requested '
+        'Then the reason is presented as a refusal', () async {
+      final container = containerWith(
+        FakeRecovery(
+          onRequest: (_) => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .requestPasswordRecovery('someone@example.com');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryRefused>());
+      expect(state.message, 'The instance could not be reached.');
+      expect((state as RecoveryRefused).canRequestAnother, isFalse);
+    });
+
+    test('Given an answer is on screen '
+        'When the form is reset '
+        'Then the screen is idle again, and an idle one stays idle', () async {
+      final container = containerWith(FakeRecovery());
+      final controller = container.read(
+        accountRecoveryControllerProvider.notifier,
+      );
+
+      await controller.requestPasswordRecovery('nonsense');
+      expect(
+        container.read(accountRecoveryControllerProvider),
+        isA<RecoveryInvalid>(),
+      );
+
+      controller.reset();
+      expect(
+        container.read(accountRecoveryControllerProvider),
+        isA<RecoveryIdle>(),
+      );
+
+      controller.reset();
+      expect(
+        container.read(accountRecoveryControllerProvider),
+        isA<RecoveryIdle>(),
+      );
+    });
+
     test(
       'Given a malformed address '
       'When it is submitted '
@@ -224,6 +309,22 @@ void main() {
   });
 
   group('resetPassword', () {
+    test('Given no new password '
+        'When the reset is submitted '
+        'Then it is rejected and nothing reaches the API', () async {
+      final repository = FakeRecovery();
+      final container = containerWith(repository);
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .resetPassword(token: 'tok', newPassword: '', confirmation: '');
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryInvalid>());
+      expect(state.message, 'Choose a new password.');
+      expect(repository.resets, isEmpty);
+    });
+
     test(
       'Given a password and a confirmation that differ '
       'When they are submitted '
@@ -341,6 +442,73 @@ void main() {
   });
 
   group('verifyEmail and resendVerification', () {
+    test(
+      'Given a verification link with no token '
+      'When it is verified '
+      'Then it is refused, a new message is offered and nothing is sent',
+      () async {
+        final repository = FakeRecovery();
+        final container = containerWith(repository);
+
+        await container
+            .read(accountRecoveryControllerProvider.notifier)
+            .verifyEmail('   ');
+
+        final state = container.read(accountRecoveryControllerProvider);
+        expect(state, isA<RecoveryRefused>());
+        expect(
+          state.message,
+          'This verification link is incomplete. Request a new one.',
+        );
+        expect((state as RecoveryRefused).canRequestAnother, isTrue);
+        expect(repository.verifications, isEmpty);
+      },
+    );
+
+    test(
+      'Given a token sent without a password '
+      'When the API nevertheless calls the password wrong '
+      'Then its message becomes the question, with no error under it',
+      () async {
+        final container = containerWith(
+          FakeRecovery(
+            onVerify: (_, _) =>
+                const Success(VerifyEmailPasswordWrong('Enter your password.')),
+          ),
+        );
+
+        await container
+            .read(accountRecoveryControllerProvider.notifier)
+            .verifyEmail('tok');
+
+        final state = container.read(accountRecoveryControllerProvider);
+        expect(state, isA<RecoveryNeedsPassword>());
+        expect(state.message, 'Enter your password.');
+        expect((state as RecoveryNeedsPassword).error, isNull);
+      },
+    );
+
+    test('Given the instance cannot be reached '
+        'When a verification message is asked for again '
+        'Then it is presented as a refusal, not as "not yet"', () async {
+      final container = containerWith(
+        FakeRecovery(
+          onResend: () => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+
+      await container
+          .read(accountRecoveryControllerProvider.notifier)
+          .resendVerification();
+
+      final state = container.read(accountRecoveryControllerProvider);
+      expect(state, isA<RecoveryRefused>());
+      expect(state.message, 'The instance could not be reached.');
+    });
+
     test('Given a verification token '
         'When it is submitted '
         "Then the API's outcome is reported (UC-09 step 7)", () async {
@@ -861,6 +1029,77 @@ void main() {
   });
 
   group('PasswordRecoveryScreen', () {
+    testWidgets('Given a request asked again too soon '
+        'When the API rate-limits it '
+        'Then its wording is shown (UC-09 AF-06)', (tester) async {
+      await pump(
+        tester,
+        FakeRecovery(
+          onRequest: (_) => const Failure(
+            message: 'Wait a minute before asking again.',
+            kind: FailureKind.conflict,
+          ),
+        ),
+        const PasswordRecoveryScreen(),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('recovery.email')),
+        'someone@example.com',
+      );
+      await tester.tap(find.byKey(const Key('recovery.request')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Wait a minute before asking again.'), findsOneWidget);
+    });
+
+    testWidgets('Given the instance cannot be reached '
+        'When the address is submitted from the keyboard '
+        'Then it is sent and the reason is shown', (tester) async {
+      final repository = FakeRecovery(
+        onRequest: (_) => const Failure(
+          message: 'The instance could not be reached.',
+          kind: FailureKind.unreachable,
+        ),
+      );
+      await pump(tester, repository, const PasswordRecoveryScreen());
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('recovery.email')),
+        'someone@example.com',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(repository.requested, ['someone@example.com']);
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+    });
+
+    testWidgets('Given a malformed address was rejected '
+        'When the user edits it '
+        'Then the error is cleared (UC-09 AF-01)', (tester) async {
+      await pump(tester, FakeRecovery(), const PasswordRecoveryScreen());
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('recovery.email')), 'bad');
+      await tester.tap(find.byKey(const Key('recovery.request')));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Enter the email address for your account.'),
+        findsOneWidget,
+      );
+
+      await tester.enterText(find.byKey(const Key('recovery.email')), 'bad@');
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Enter the email address for your account.'),
+        findsNothing,
+      );
+    });
+
     testWidgets('Given an address is submitted '
         'When the API confirms '
         'Then its wording is shown unchanged (UC-09 AF-02)', (tester) async {
@@ -884,6 +1123,63 @@ void main() {
   });
 
   group('PasswordResetScreen', () {
+    testWidgets('Given an expired token was refused '
+        'When a new link is requested '
+        'Then the refusal is cleared (UC-09 AF-03)', (tester) async {
+      await pump(
+        tester,
+        FakeRecovery(
+          onReset: (_, _) => const Failure(
+            message: 'That reset link has expired.',
+            kind: FailureKind.notFound,
+          ),
+        ),
+        const PasswordResetScreen(token: 'stale'),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('reset.password')), 'secret');
+      await tester.enterText(
+        find.byKey(const Key('reset.confirmation')),
+        'secret',
+      );
+      await tester.tap(find.byKey(const Key('reset.submit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('reset.requestAnother')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('That reset link has expired.'), findsNothing);
+      expect(find.byKey(const Key('reset.requestAnother')), findsNothing);
+    });
+
+    testWidgets('Given a matching password '
+        'When it is submitted from the keyboard and the API accepts it '
+        "Then the API's confirmation is shown and sign-in is handed over "
+        '(UC-09 main flow)', (tester) async {
+      var done = 0;
+      final repository = FakeRecovery(
+        onReset: (_, _) => const Success('Password updated.'),
+      );
+      await pump(
+        tester,
+        repository,
+        PasswordResetScreen(token: 'tok', onDone: () => done++),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('reset.password')), 'secret');
+      await tester.enterText(
+        find.byKey(const Key('reset.confirmation')),
+        'secret',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(repository.resets.single, (token: 'tok', password: 'secret'));
+      expect(find.text('Password updated.'), findsOneWidget);
+      expect(done, 1);
+    });
+
     testWidgets('Given the two passwords differ '
         'When reset is attempted '
         'Then the form says so (UC-09 AF-04)', (tester) async {
@@ -931,6 +1227,25 @@ void main() {
   });
 
   group('VerifyEmailScreen', () {
+    testWidgets('Given the password form is shown '
+        'When the password is submitted from the keyboard '
+        'Then {token, password} is submitted', (tester) async {
+      final repository = FakeRecovery(
+        onVerify: (_, password) => password == null
+            ? const Success(VerifyEmailPasswordNeeded('Enter your password.'))
+            : const Success(VerifyEmailConfirmed('Your account is ready.')),
+      );
+      await pump(tester, repository, const VerifyEmailScreen(token: 'tok'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('verify.password')), 'right');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(repository.verifications.last, (token: 'tok', password: 'right'));
+      expect(find.text('Your account is ready.'), findsOneWidget);
+    });
+
     testWidgets('Given a link carrying a token '
         'When the screen opens '
         'Then it verifies without the user doing anything (UC-09 step 7)', (

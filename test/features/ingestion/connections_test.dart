@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
+import 'package:fortuna_ui/core/session/session_teardown.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/ingestion/data/connection_repository.dart';
@@ -20,9 +23,13 @@ class FakeConnections implements ConnectionRepository {
   Failure<void>? writeFailure;
 
   final List<String> calls = [];
+  int lists = 0;
 
   @override
-  Future<Result<List<Connection>>> list() async => connections;
+  Future<Result<List<Connection>>> list() async {
+    lists++;
+    return connections;
+  }
 
   @override
   Future<Result<String?>> synchronize(String id) async {
@@ -100,14 +107,18 @@ ImportJob runningJobFor(String connectionId) => ImportJob(
 ///
 /// `StreamProvider.future` waits for the stream to *complete*, and a polling
 /// stream never does — so this listens and waits for the first value instead.
-Future<void> awaitJobs(ProviderContainer container) async {
-  container.listen(importJobsProvider, (_, _) {});
+/// Completes on that value rather than polling for it on a real clock, which
+/// gave a loaded machine a quarter of a second before the test failed.
+Future<void> awaitJobs(ProviderContainer container) {
+  final first = Completer<void>();
+  container.listen(importJobsProvider, (_, next) {
+    if (next.value != null && !first.isCompleted) first.complete();
+  }, fireImmediately: true);
 
-  for (var attempt = 0; attempt < 50; attempt++) {
-    if (container.read(importJobsProvider).value != null) return;
-    await Future<void>.delayed(const Duration(milliseconds: 5));
-  }
-  fail('The jobs stream emitted nothing.');
+  return first.future.timeout(
+    const Duration(seconds: 10),
+    onTimeout: () => fail('The jobs stream emitted nothing.'),
+  );
 }
 
 ({ProviderContainer container, FakeConnections repo}) harness({
@@ -227,6 +238,110 @@ void main() {
         (outcome as SyncFailed).reason,
         'The aggregator is not responding.',
       );
+    });
+  });
+
+  group('connectionsProvider', () {
+    test('Given connections made at different times '
+        'When they are read '
+        'Then the newest comes first', () async {
+      final h = harness(
+        connections: [
+          Connection(
+            id: 'old',
+            state: BankConnectionState.active,
+            connectedAt: DateTime(2026, 1, 1),
+          ),
+          Connection(
+            id: 'new',
+            state: BankConnectionState.active,
+            connectedAt: DateTime(2026, 6, 1),
+          ),
+        ],
+      );
+
+      final connections = await h.container.read(connectionsProvider.future);
+
+      expect(connections.map((c) => c.id), ['new', 'old']);
+    });
+
+    test('Given the connections cannot be read '
+        'When they are asked for '
+        "Then it fails with the repository's message", () async {
+      final h = harness();
+      h.repo.connections = const Failure(
+        message: 'The instance could not be reached.',
+        kind: FailureKind.unreachable,
+      );
+      final subscription = h.container.listen(connectionsProvider, (_, _) {});
+      addTearDown(subscription.close);
+
+      await expectLater(
+        h.container.read(connectionsProvider.future),
+        throwsA(
+          isA<ConnectionsUnavailable>().having(
+            (error) => error.toString(),
+            'toString',
+            'The instance could not be reached.',
+          ),
+        ),
+      );
+    });
+
+    test('Given the connections have been read '
+        'When the session ends '
+        'Then they are forgotten and read afresh', () async {
+      final h = harness(connections: [connection()]);
+      final subscription = h.container.listen(connectionsProvider, (_, _) {});
+      addTearDown(subscription.close);
+      await h.container.read(connectionsProvider.future);
+
+      await h.container.read(sessionTeardownProvider).runAll();
+      await h.container.read(connectionsProvider.future);
+
+      expect(h.repo.lists, 2);
+    });
+  });
+
+  group('ConnectionActions.reauthenticate and revoke', () {
+    test('Given the API accepts '
+        'When a connection is reauthenticated '
+        'Then nothing is returned and the connections are read again '
+        '(UC-31 step 3)', () async {
+      final h = harness(connections: [connection()]);
+      final subscription = h.container.listen(connectionsProvider, (_, _) {});
+      addTearDown(subscription.close);
+      await h.container.read(connectionsProvider.future);
+
+      final failure = await h.container
+          .read(connectionActionsProvider)
+          .reauthenticate('conn-1');
+      await h.container.read(connectionsProvider.future);
+
+      expect(failure, isNull);
+      expect(h.repo.calls, ['reauth:conn-1']);
+      expect(h.repo.lists, 2);
+    });
+
+    test('Given the API refuses '
+        'When a connection is revoked '
+        'Then the failure is returned and nothing is read again', () async {
+      const refusal = Failure<void>(
+        message: 'That connection is already revoked.',
+        kind: FailureKind.conflict,
+      );
+      final h = harness(connections: [connection()]);
+      h.repo.writeFailure = refusal;
+      final subscription = h.container.listen(connectionsProvider, (_, _) {});
+      addTearDown(subscription.close);
+      await h.container.read(connectionsProvider.future);
+
+      final failure = await h.container
+          .read(connectionActionsProvider)
+          .revoke('conn-1');
+
+      expect(failure, refusal);
+      expect(h.repo.lists, 1);
     });
   });
 
@@ -363,6 +478,192 @@ void main() {
         );
       },
     );
+
+    testWidgets('Given the connections cannot be read '
+        'When the screen settles '
+        'Then the reason is shown with a retry that reads them again', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1000, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final h = harness(connections: [connection()]);
+      h.repo.connections = const Failure(
+        message: 'The instance could not be reached.',
+        kind: FailureKind.unreachable,
+      );
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: h.container,
+          child: const MaterialApp(home: ConnectionsScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+
+      h.repo.connections = Success([connection()]);
+      await tester.tap(find.widgetWithText(FilledButton, 'Retry'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Active'), findsOneWidget);
+    });
+
+    testWidgets('Given the connections are showing '
+        'When they are refreshed '
+        'Then they are read again and every one is listed', (tester) async {
+      final repo = await pump(tester, connections: [connection()]);
+
+      repo.connections = Success([
+        connection(),
+        connection(id: 'conn-2', state: BankConnectionState.unknown),
+      ]);
+      await tester.tap(find.byTooltip('Refresh'));
+      await tester.pumpAndSettle();
+
+      expect(repo.lists, 2);
+      expect(find.text('Active'), findsOneWidget);
+      // A state this build does not know is shown as unknown, not as working.
+      expect(find.text('Unknown'), findsOneWidget);
+    });
+
+    testWidgets('Given an active connection '
+        'When it is synchronized '
+        'Then a job is started and the user is told where to follow it '
+        '(UC-31 main flow)', (tester) async {
+      final repo = await pump(tester, connections: [connection()]);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Synchronize now'));
+      await tester.pumpAndSettle();
+
+      expect(repo.calls, ['sync:conn-1']);
+      expect(find.textContaining('follow it under Imports'), findsOneWidget);
+    });
+
+    testWidgets('Given the aggregator is unavailable '
+        'When the connection is synchronized '
+        "Then the API's reason is shown (UC-31 AF-03)", (tester) async {
+      final repo = await pump(tester, connections: [connection()]);
+      repo.syncResult = const Failure(
+        message: 'The aggregator is not responding.',
+        kind: FailureKind.unreachable,
+      );
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Synchronize now'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('The aggregator is not responding.'), findsOneWidget);
+    });
+
+    testWidgets('Given a synchronization already running for a connection '
+        'When it is shown '
+        'Then its progress is shown and another cannot be started '
+        '(UC-31 AF-06)', (tester) async {
+      tester.view.physicalSize = const Size(1000, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final jobs = FakeJobs([runningJobFor('conn-1')]);
+      final container = ProviderContainer(
+        overrides: [
+          tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+          preferencesStoreProvider.overrideWithValue(
+            InMemoryPreferencesStore(),
+          ),
+          connectionRepositoryProvider.overrideWithValue(
+            FakeConnections(Success([connection()])),
+          ),
+          importJobRepositoryProvider.overrideWithValue(jobs),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: ConnectionsScreen()),
+        ),
+      );
+      // The progress bar never settles, so frames are pumped by hand.
+      for (var frame = 0; frame < 5; frame++) {
+        await tester.pump();
+      }
+
+      expect(
+        find.text('Synchronizing now — 42 rows read so far.'),
+        findsOneWidget,
+      );
+      final button = tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, 'Synchronizing…'),
+      );
+      expect(button.onPressed, isNull);
+
+      // The job finishes, so the jobs stop being polled.
+      jobs.jobs = const [];
+      await tester.pump(jobPollInterval);
+      await tester.pump();
+
+      expect(find.widgetWithText(FilledButton, 'Synchronize now'), findsOne);
+    });
+
+    testWidgets('Given a connection needing reauthentication '
+        'When the user continues and the API accepts '
+        'Then it is reauthenticated (UC-31 step 3)', (tester) async {
+      final repo = await pump(
+        tester,
+        connections: [
+          connection(state: BankConnectionState.requiresReauthentication),
+        ],
+      );
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Reauthenticate'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
+      await tester.pumpAndSettle();
+
+      expect(repo.calls, ['reauth:conn-1']);
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('Given a connection needing reauthentication '
+        'When the API refuses it '
+        'Then its reason is shown', (tester) async {
+      final repo = await pump(
+        tester,
+        connections: [
+          connection(state: BankConnectionState.requiresReauthentication),
+        ],
+      );
+      repo.writeFailure = const Failure(
+        message: 'The institution did not accept the request.',
+        kind: FailureKind.conflict,
+      );
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Reauthenticate'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('The institution did not accept the request.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Given revocation is confirmed '
+        'When the API refuses it '
+        'Then its reason is shown', (tester) async {
+      final repo = await pump(tester, connections: [connection()]);
+      repo.writeFailure = const Failure(
+        message: 'That connection is already revoked.',
+        kind: FailureKind.conflict,
+      );
+
+      await tester.tap(find.widgetWithText(TextButton, 'Revoke'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Revoke'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('That connection is already revoked.'), findsOneWidget);
+    });
   });
 
   group('BankConnectionState', () {

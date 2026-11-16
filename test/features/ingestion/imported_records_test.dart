@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/ingestion/data/imported_record_repository.dart';
 import 'package:fortuna_ui/features/ingestion/state/imported_record_providers.dart';
 import 'package:fortuna_ui/features/ingestion/ui/imported_records_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 class FakeImportedRecords implements ImportedRecordRepository {
@@ -429,6 +431,146 @@ void main() {
       await pumpRecords(tester, FakeImportedRecords());
 
       expect(find.byKey(const Key('records.pageNumber')), findsNothing);
+    });
+    testWidgets('Given the records could not be read '
+        'When the user tries again and they can be '
+        'Then the records are shown (AF-04)', (tester) async {
+      var reachable = false;
+      final fake = FakeImportedRecords(
+        onForJob: (_) => reachable
+            ? Success(page())
+            : const Failure(
+                message: 'The instance could not be reached.',
+                kind: FailureKind.unreachable,
+              ),
+      );
+      await pumpRecords(tester, fake);
+
+      reachable = true;
+      await tester.tap(find.byKey(const Key('records.retry')));
+      await tester.pumpAndSettle();
+
+      expect(fake.pagesAsked, [1, 1]);
+      expect(find.byKey(const Key('records.error')), findsNothing);
+      expect(find.byKey(const Key('records.amount.1')), findsOneWidget);
+    });
+
+    testWidgets(
+      'Given a record carrying the external reference it arrived with '
+      'When it is listed '
+      'Then the reference is shown, and an empty one is not',
+      (tester) async {
+        await pumpRecords(
+          tester,
+          FakeImportedRecords(
+            onForJob: (_) => Success(
+              page(
+                items: [
+                  record(externalId: 'ext-9'),
+                  record(externalId: ''),
+                ],
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Reference ext-9'), findsOneWidget);
+        expect(find.textContaining(RegExp('^Reference ')), findsOneWidget);
+      },
+    );
+
+    testWidgets('Given a record whose outcome this build does not know '
+        'When it is listed '
+        'Then it is labelled unknown and not claimed to have produced '
+        'anything', (tester) async {
+      await pumpRecords(
+        tester,
+        FakeImportedRecords(
+          onForJob: (_) => Success(
+            page(
+              items: [
+                record(
+                  outcome: RecordOutcome.unknown,
+                  hasLiveTransaction: false,
+                  transactionId: null,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('records.outcome.1')),
+          matching: find.text('Unknown'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text('No transaction was created from this row.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('records.openTransaction.1')), findsNothing);
+    });
+
+    testWidgets('Given the second of several pages '
+        'When the previous page is requested '
+        'Then the first page is shown again', (tester) async {
+      final fake = FakeImportedRecords(
+        onForJob: (number) => Success(page(pageNumber: number, totalPages: 3)),
+      );
+      await pumpRecords(tester, fake);
+      await tester.tap(find.byKey(const Key('records.next')));
+      await tester.pumpAndSettle();
+      expect(find.text('Page 2 of 3'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('records.previous')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Page 1 of 3'), findsOneWidget);
+    });
+
+    testWidgets('Given a record with a live transaction '
+        'When the transaction is opened '
+        'Then the application goes to it (step 3)', (tester) async {
+      tester.view.physicalSize = const Size(1000, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final router = GoRouter(
+        initialLocation: '/records',
+        routes: [
+          GoRoute(
+            path: '/records',
+            builder: (_, _) => const ImportedRecordsScreen(jobId: 'job1'),
+          ),
+          GoRoute(
+            path: '${Routes.transactions}/:id',
+            builder: (_, state) =>
+                Text('Transaction ${state.pathParameters['id']}'),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            importedRecordRepositoryProvider.overrideWithValue(
+              FakeImportedRecords(),
+            ),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('records.openTransaction.1')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Transaction t1'), findsOneWidget);
     });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
@@ -8,6 +9,7 @@ import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
 import 'package:fortuna_ui/features/ingestion/data/import_job_repository.dart';
 import 'package:fortuna_ui/features/ingestion/ui/import_jobs_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 class FakeJobRepository implements ImportJobRepository {
@@ -246,6 +248,108 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(repository.listCalls, 1);
+    });
+
+    testWidgets('Given the jobs are showing '
+        'When they are refreshed '
+        'Then they are read again and every job is listed', (tester) async {
+      var jobs = [job()];
+      final (repository, _) = await pumpJobs(tester, () => Success(jobs));
+
+      jobs = [job(), job(id: 'job-2', state: JobState.failed)];
+      await tester.tap(find.byTooltip('Refresh'));
+      await tester.pumpAndSettle();
+
+      expect(repository.listCalls, 2);
+      expect(find.text('Finished'), findsOneWidget);
+      expect(find.text('Failed'), findsOneWidget);
+    });
+
+    testWidgets('Given the jobs could not be read '
+        'When the user retries and they can be '
+        'Then the jobs are shown', (tester) async {
+      var reachable = false;
+      final (repository, _) = await pumpJobs(
+        tester,
+        () => reachable
+            ? Success([job()])
+            : const Failure(
+                message: 'The instance could not be reached.',
+                kind: FailureKind.unreachable,
+              ),
+      );
+
+      reachable = true;
+      await tester.tap(find.widgetWithText(FilledButton, 'Retry'));
+      await tester.pumpAndSettle();
+
+      expect(repository.listCalls, 2);
+      expect(find.text('Finished'), findsOneWidget);
+    });
+
+    testWidgets('Given a job in a state this build does not know '
+        'When it is shown '
+        'Then it is labelled unknown and treated as still going', (
+      tester,
+    ) async {
+      final (_, container) = await pumpJobs(
+        tester,
+        () => Success([job(state: JobState.unknown, processed: 0)]),
+        settle: false,
+      );
+
+      expect(find.text('Unknown'), findsOneWidget);
+      expect(find.text('Starting…'), findsOneWidget);
+
+      // Disposed here, so the poll timer is gone before the framework checks
+      // for pending timers.
+      container.dispose();
+      await tester.pump();
+    });
+
+    testWidgets('Given a finished job '
+        'When its records are reviewed '
+        'Then the application goes to that job\'s records (UC-34 step 1)', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1000, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final router = GoRouter(
+        initialLocation: Routes.imports,
+        routes: [
+          GoRoute(
+            path: Routes.imports,
+            builder: (_, _) => const ImportJobsScreen(),
+          ),
+          GoRoute(
+            path: '${Routes.imports}/:id/records',
+            builder: (_, state) =>
+                Text('Records of ${state.pathParameters['id']}'),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+            preferencesStoreProvider.overrideWithValue(
+              InMemoryPreferencesStore(),
+            ),
+            importJobRepositoryProvider.overrideWithValue(
+              FakeJobRepository(() => Success([job()])),
+            ),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('jobs.records.job-1')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Records of job-1'), findsOneWidget);
     });
   });
 

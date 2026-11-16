@@ -20,7 +20,7 @@ import 'package:material_ui/material_ui.dart';
 import '../holdings/accounts_test.dart'
     show FakeAccounts, FakeCurrencies, account;
 import 'record_transaction_test.dart'
-    show FakeCards, FakeCategories, FakeTransactions, treeWith;
+    show FakeCards, FakeCategories, FakeTransactions, card, treeWith, typeDate;
 
 /// Extends the UC-19 fake with the three calls UC-20 adds, so both use cases
 /// exercise one double rather than two that could drift apart.
@@ -187,6 +187,7 @@ Future<void> pumpTransaction(
   WidgetTester tester,
   EditableTransactions fake, {
   FakeCategories? categories,
+  FakeCards? cards,
 }) async {
   tester.view.physicalSize = const Size(1000, 2600);
   tester.view.devicePixelRatio = 1;
@@ -199,7 +200,7 @@ Future<void> pumpTransaction(
         accountRepositoryProvider.overrideWithValue(
           FakeAccounts(onList: () => Success([account()])),
         ),
-        creditCardRepositoryProvider.overrideWithValue(FakeCards()),
+        creditCardRepositoryProvider.overrideWithValue(cards ?? FakeCards()),
         categoryRepositoryProvider.overrideWithValue(
           categories ?? FakeCategories(tree: treeWith(['Groceries'])),
         ),
@@ -558,6 +559,99 @@ void main() {
 
       expect(find.byKey(const Key('transaction.reconciled')), findsOneWidget);
     });
+
+    testWidgets('Given a counterparty '
+        'When the transaction is opened '
+        'Then the counterparty is shown', (tester) async {
+      await pumpTransaction(
+        tester,
+        EditableTransactions(
+          onRead: () => Success(stored(counterparty: 'A Market')),
+        ),
+      );
+
+      expect(
+        tester
+            .widget<Text>(find.byKey(const Key('transaction.counterparty')))
+            .data,
+        'A Market',
+      );
+    });
+
+    testWidgets('Given the transaction could not be read '
+        'When the user tries again and the read succeeds '
+        'Then the transaction is shown (AF-02)', (tester) async {
+      var attempts = 0;
+      final fake = EditableTransactions(
+        onRead: () {
+          attempts++;
+          return attempts == 1
+              ? const Failure<Transaction>(
+                  message: 'The instance could not be reached.',
+                  kind: FailureKind.unreachable,
+                )
+              : Success(stored());
+        },
+      );
+
+      await pumpTransaction(tester, fake);
+
+      expect(find.byKey(const Key('transaction.error')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('transaction.retry')));
+      await tester.pumpAndSettle();
+
+      expect(attempts, 2);
+      expect(find.byKey(const Key('transaction.amount')), findsOneWidget);
+      expect(find.byKey(const Key('transaction.error')), findsNothing);
+    });
+  });
+
+  group('showTransactionFailure', () {
+    Future<void> report(WidgetTester tester, Result<void> result) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showTransactionFailure(context, result),
+                child: const Text('report'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('report'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('Given a failure '
+        'When it is reported '
+        "Then the API's reason is shown in a snack bar", (tester) async {
+      await report(
+        tester,
+        const Failure(
+          message: 'This transaction is reconciled.',
+          kind: FailureKind.conflict,
+        ),
+      );
+
+      expect(
+        find.descendant(
+          of: find.byType(SnackBar),
+          matching: find.text('This transaction is reconciled.'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Given a success '
+        'When it is reported '
+        'Then nothing is shown', (tester) async {
+      await report(tester, const Success(null));
+
+      expect(find.byType(SnackBar), findsNothing);
+    });
   });
 
   group('TransactionEditor', () {
@@ -709,6 +803,62 @@ void main() {
         find.text('This transaction is reconciled and cannot be deleted.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('Given a date is chosen in the picker '
+        'When the correction is saved '
+        'Then the transaction is moved to that date', (tester) async {
+      final fake = EditableTransactions();
+
+      await pumpTransaction(tester, fake);
+      await openEditor(tester);
+      await typeDate(tester, 'transactionEditor.date', '01/15/2020');
+      await tester.tap(find.byKey(const Key('transactionEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(fake.updated.single['occurredOn'], DateTime(2020, 1, 15));
+    });
+
+    testWidgets('Given the direction and the category are changed '
+        'When the correction is saved '
+        'Then both changes reach the repository', (tester) async {
+      final fake = EditableTransactions();
+
+      await pumpTransaction(
+        tester,
+        fake,
+        categories: FakeCategories(tree: treeWith(['Groceries', 'Dining'])),
+      );
+      await openEditor(tester);
+      await tester.tap(find.text('Earning'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('transactionEditor.category')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Dining').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('transactionEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(fake.updated.single['direction'], Direction.earning);
+      expect(fake.updated.single['categoryId'], 'cat2');
+    });
+
+    testWidgets('Given the holding is switched to a card '
+        'When the correction is saved '
+        'Then the card id is sent and the account id is not', (tester) async {
+      final fake = EditableTransactions();
+
+      await pumpTransaction(tester, fake, cards: FakeCards(cards: [card()]));
+      await openEditor(tester);
+      await tester.tap(find.byKey(const Key('transactionEditor.holding')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Everyday card').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('transactionEditor.save')));
+      await tester.pumpAndSettle();
+
+      expect(fake.updated.single['creditCardId'], 'cc1');
+      expect(fake.updated.single['financialAccountId'], isNull);
     });
   });
 }

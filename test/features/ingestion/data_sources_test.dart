@@ -700,5 +700,143 @@ void main() {
       );
       expect(find.byKey(const Key('sources.connectFailed')), findsNothing);
     });
+    testWidgets('Given the disclosure is agreed to '
+        'When the decision cannot be recorded '
+        'Then the dialog says nothing was started, and no connection form '
+        'opens', (tester) async {
+      final consents = FakeConsents(consents: [consent()], grantFails: true);
+
+      await pumpSources(tester, consents: consents);
+      await tester.tap(find.byKey(const Key('sources.connect.pluggy')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('sources.disclosure.agree')));
+      await tester.pumpAndSettle();
+
+      expect(consents.granted, hasLength(1));
+      expect(
+        find.text(
+          'The decision could not be recorded, so nothing was started.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('sources.disclosure')), findsOneWidget);
+      expect(find.byKey(const Key('sources.connect.reference')), findsNothing);
+    });
+
+    testWidgets('Given the connection form '
+        'When it is submitted with no institution '
+        'Then it is refused in the form and nothing is sent', (tester) async {
+      final connections = ConnectableConnections();
+
+      await pumpSources(
+        tester,
+        connections: connections,
+        consents: FakeConsents(
+          consents: [
+            consent(version: 'v2', grantedVersion: 'v2', isCurrent: true),
+          ],
+        ),
+      );
+      await tester.tap(find.byKey(const Key('sources.connect.pluggy')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('sources.connect.reference')),
+        '   ',
+      );
+      await tester.tap(find.byKey(const Key('sources.connect.submit')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Name the institution to connect.'), findsOneWidget);
+      expect(connections.connected, isEmpty);
+    });
+
+    testWidgets('Given a source that requires named inputs '
+        'When its connection form opens '
+        'Then the inputs are named under the field', (tester) async {
+      await pumpSources(
+        tester,
+        sources: FakeDataSources(
+          onList: () => Success([
+            source(requiredInputs: ['institution id', 'branch']),
+          ]),
+        ),
+        consents: FakeConsents(
+          consents: [
+            consent(version: 'v2', grantedVersion: 'v2', isCurrent: true),
+          ],
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('sources.connect.pluggy')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Required: institution id, branch'), findsOneWidget);
+    });
+
+    testWidgets('Given a connection was made '
+        'When the user is done '
+        'Then the dialog closes', (tester) async {
+      await pumpSources(
+        tester,
+        consents: FakeConsents(
+          consents: [
+            consent(version: 'v2', grantedVersion: 'v2', isCurrent: true),
+          ],
+        ),
+      );
+      await tester.tap(find.byKey(const Key('sources.connect.pluggy')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('sources.connect.reference')),
+        'A Bank',
+      );
+      await tester.tap(find.byKey(const Key('sources.connect.submit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('sources.connected.done')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('sources.connected')), findsNothing);
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('Given the API refused for want of a consent '
+        'When the disclosure is reviewed and declined '
+        'Then nothing is sent again and the refusal stays (AF-03, AF-01)', (
+      tester,
+    ) async {
+      final connections = ConnectableConnections(
+        onConnect: () => const Failure(
+          message: 'No current consent for external processing.',
+          kind: FailureKind.forbidden,
+        ),
+      );
+      await pumpSources(
+        tester,
+        connections: connections,
+        consents: FakeConsents(
+          consents: [
+            consent(version: 'v2', grantedVersion: 'v2', isCurrent: true),
+          ],
+        ),
+      );
+      await tester.tap(find.byKey(const Key('sources.connect.pluggy')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('sources.connect.reference')),
+        'A Bank',
+      );
+      await tester.tap(find.byKey(const Key('sources.connect.submit')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('sources.consentMissing.review')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('sources.disclosure')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('sources.disclosure.decline')));
+      await tester.pumpAndSettle();
+
+      expect(connections.connected, hasLength(1));
+      expect(find.byKey(const Key('sources.consentMissing')), findsOneWidget);
+    });
   });
 }

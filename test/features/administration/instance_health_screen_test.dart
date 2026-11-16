@@ -169,5 +169,75 @@ void main() {
       expect(texts, isNot(contains('Balance')));
       expect(texts, isNot(contains('Transaction')));
     });
+    testWidgets('Given more than one dependency in trouble '
+        'When the screen settles '
+        'Then each is named as a cause, and queue figures are shown '
+        '(UC-45 AF-05)', (tester) async {
+      await pumpHealth(
+        tester,
+        () => const Success(
+          InstanceHealth(
+            status: HealthStatus.unhealthy,
+            rawStatus: 'Unhealthy',
+            services: [
+              ServiceHealth(
+                name: 'Aggregator',
+                status: HealthStatus.unhealthy,
+                rawStatus: 'Unhealthy',
+              ),
+              ServiceHealth(
+                name: 'Import queue',
+                status: HealthStatus.degraded,
+                rawStatus: 'Degraded',
+                queueDepth: 4,
+                oldestPendingSeconds: 90,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.text('Caused by Aggregator, Import queue.'), findsOneWidget);
+      expect(find.text('queue depth 4 · oldest pending 90s'), findsOneWidget);
+    });
+
+    testWidgets('Given a dependency in a status this build does not know '
+        'When the screen settles '
+        'Then it is shown as the API named it', (tester) async {
+      await pumpHealth(
+        tester,
+        () => const Success(
+          InstanceHealth(
+            status: HealthStatus.healthy,
+            rawStatus: 'Healthy',
+            services: [
+              ServiceHealth(
+                name: 'Database',
+                status: HealthStatus.unknown,
+                rawStatus: 'Maintenance',
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.text('Maintenance'), findsOneWidget);
+      expect(find.byIcon(Icons.help_outline), findsOneWidget);
+    });
+
+    testWidgets('Given the report is showing '
+        'When it is refreshed '
+        'Then the instance is read again', (tester) async {
+      final repository = await pumpHealth(
+        tester,
+        () => const Success(_degraded),
+      );
+
+      await tester.tap(find.byTooltip('Refresh'));
+      await tester.pumpAndSettle();
+
+      expect(repository.calls, 2);
+      expect(find.text('Database'), findsOneWidget);
+    });
   });
 }

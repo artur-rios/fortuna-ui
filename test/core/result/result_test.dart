@@ -64,4 +64,87 @@ void main() {
       );
     });
   });
+
+  group('Success equality', () {
+    test('Given two successes carrying equal values '
+        'When they are compared '
+        'Then they are equal and hash alike', () {
+      const a = Success<String>('42');
+      const b = Success<String>('42');
+
+      expect(a == b, isTrue);
+      expect(a.hashCode, b.hashCode);
+    });
+
+    test('Given successes with different values or different types '
+        'When they are compared '
+        'Then they are not equal', () {
+      expect(const Success<int>(1) == const Success<int>(2), isFalse);
+      expect(const Success<int>(1) == const Success<num>(1), isFalse);
+    });
+
+    test('Given a success '
+        'When it is printed '
+        'Then it reads as its value', () {
+      expect(const Success<int>(42).toString(), 'Success(42)');
+    });
+  });
+
+  group('Failure equality', () {
+    test('Given two failures with the same reason and kind '
+        'When they are compared '
+        'Then they are equal and hash alike', () {
+      const a = Failure<int>(message: 'Not found.', kind: FailureKind.notFound);
+      const b = Failure<int>(message: 'Not found.', kind: FailureKind.notFound);
+
+      expect(a == b, isTrue);
+      expect(a.hashCode, b.hashCode);
+    });
+
+    test('Given failures differing in reason, kind or type '
+        'When they are compared '
+        'Then they are not equal', () {
+      const failure = Failure<int>(
+        message: 'Not found.',
+        kind: FailureKind.notFound,
+      );
+
+      expect(
+        failure ==
+            const Failure<int>(message: 'Gone.', kind: FailureKind.notFound),
+        isFalse,
+      );
+      expect(
+        failure ==
+            const Failure<int>(
+              message: 'Not found.',
+              kind: FailureKind.forbidden,
+            ),
+        isFalse,
+      );
+      // A failure of one operation is not a failure of another, even worded
+      // alike: the value type is part of what it is.
+      expect(
+        failure,
+        isNot(
+          const Failure<String>(
+            message: 'Not found.',
+            kind: FailureKind.notFound,
+          ),
+        ),
+      );
+    });
+
+    test('Given a failure '
+        'When it is printed '
+        'Then it reads as its kind and reason', () {
+      expect(
+        const Failure<int>(
+          message: 'Not found.',
+          kind: FailureKind.notFound,
+        ).toString(),
+        'Failure(FailureKind.notFound: Not found.)',
+      );
+    });
+  });
 }

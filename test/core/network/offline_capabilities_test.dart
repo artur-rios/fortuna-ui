@@ -209,6 +209,80 @@ void main() {
     });
   });
 
+  group('NotImplementedRoute', () {
+    test('Given two entries with the same method, path, reason and symbol '
+        'When they are compared '
+        'Then they are equal and hash alike', () {
+      const a = NotImplementedRoute(
+        method: 'POST',
+        path: '/api/transfers',
+        reason: transfersReason,
+        symbol: 'fortuna_api_transfers_post',
+      );
+      const b = NotImplementedRoute(
+        method: 'POST',
+        path: '/api/transfers',
+        reason: transfersReason,
+        symbol: 'fortuna_api_transfers_post',
+      );
+
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
+    });
+
+    test('Given entries differing in any one field '
+        'When they are compared '
+        'Then they are not equal', () {
+      const route = NotImplementedRoute(
+        method: 'POST',
+        path: '/api/transfers',
+        reason: transfersReason,
+        symbol: 's',
+      );
+
+      for (final other in const [
+        NotImplementedRoute(
+          method: 'GET',
+          path: '/api/transfers',
+          reason: transfersReason,
+          symbol: 's',
+        ),
+        NotImplementedRoute(
+          method: 'POST',
+          path: '/api/transfers/{id}',
+          reason: transfersReason,
+          symbol: 's',
+        ),
+        NotImplementedRoute(
+          method: 'POST',
+          path: '/api/transfers',
+          reason: 'Another reason.',
+          symbol: 's',
+        ),
+        NotImplementedRoute(
+          method: 'POST',
+          path: '/api/transfers',
+          reason: transfersReason,
+        ),
+      ]) {
+        expect(route, isNot(other));
+      }
+    });
+
+    test('Given an entry '
+        'When it is printed '
+        "Then it reads as the route and the core's reason", () {
+      expect(
+        const NotImplementedRoute(
+          method: 'POST',
+          path: '/api/transfers',
+          reason: 'Not here.',
+        ).toString(),
+        'POST /api/transfers: Not here.',
+      );
+    });
+  });
+
   group('CoreCapabilities.reasonFor', () {
     test('Given a feature one of whose routes the core does not implement '
         'When its availability is asked '

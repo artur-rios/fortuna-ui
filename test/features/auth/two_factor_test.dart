@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/result/result.dart';
@@ -27,6 +28,9 @@ class FakeTwoFactor implements TwoFactorRepository {
 
   final List<List<TwoFactorMethod>> enabled = [];
   final List<({String? app, String? email})> confirmations = [];
+  final List<({String password, String? code, String? recoveryCode})> disabled =
+      [];
+  final List<({String? code, String? recoveryCode})> regenerated = [];
   int disables = 0;
   int regenerations = 0;
 
@@ -68,6 +72,7 @@ class FakeTwoFactor implements TwoFactorRepository {
     String? recoveryCode,
   }) async {
     disables++;
+    disabled.add((password: password, code: code, recoveryCode: recoveryCode));
     return onDisable?.call(password, code) ?? const Success(null);
   }
 
@@ -77,6 +82,7 @@ class FakeTwoFactor implements TwoFactorRepository {
     String? recoveryCode,
   }) async {
     regenerations++;
+    regenerated.add((code: code, recoveryCode: recoveryCode));
     return onRegenerate?.call() ?? const Success(['NEW-1']);
   }
 }
@@ -111,6 +117,48 @@ Future<void> pumpScreen(WidgetTester tester, FakeTwoFactor repository) async {
   );
   await tester.pumpAndSettle();
 }
+
+/// Pushes the screen over a page, so leaving it can be observed.
+Future<void> pumpPushedScreen(
+  WidgetTester tester,
+  FakeTwoFactor repository,
+) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [twoFactorRepositoryProvider.overrideWithValue(repository)],
+      child: MaterialApp(
+        home: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const TwoFactorScreen()),
+            ),
+            child: const Text('Open two-factor'),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.tap(find.text('Open two-factor'));
+  await tester.pumpAndSettle();
+}
+
+/// From an off account through a confirmed setup to the recovery codes.
+Future<void> reachRecoveryCodes(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('twoFactor.enable')));
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byKey(const Key('twoFactor.appCode')), '123456');
+  await tester.tap(find.byKey(const Key('twoFactor.confirm')));
+  await tester.pumpAndSettle();
+}
+
+const _off = Success(
+  TwoFactorStatus(
+    isActive: false,
+    appEnabled: false,
+    emailEnabled: false,
+    remainingRecoveryCodes: 0,
+  ),
+);
 
 void main() {
   group('TwoFactorSetup.sharedSecret', () {
@@ -397,6 +445,154 @@ void main() {
       expect(state, isA<TwoFactorCodesIssued>());
       expect((state as TwoFactorCodesIssued).codes, ['NEW-1', 'NEW-2']);
     });
+    test('Given each state '
+        'When it is asked whether it is busy and what to say '
+        'Then only an operation in flight is busy, and a pending reason is '
+        'its message', () {
+      const setup = TwoFactorSetup(otpAuthUri: _otpUri, emailCodeSent: false);
+
+      expect(const TwoFactorWorking().isBusy, isTrue);
+      expect(const TwoFactorLoading().isBusy, isFalse);
+      expect(
+        const TwoFactorPending(setup: setup, reason: 'Try again.').message,
+        'Try again.',
+      );
+      expect(const TwoFactorPending(setup: setup).message, isNull);
+      expect(const TwoFactorCodesIssued(['C']).message, isNull);
+    });
+
+    test('Given the instance cannot be reached '
+        'When the status is read '
+        'Then the reason is presented with no configuration to show', () async {
+      final container = containerWith(
+        FakeTwoFactor(
+          onStatus: () => const Failure(
+            message: 'The instance could not be reached.',
+            kind: FailureKind.unreachable,
+          ),
+        ),
+      );
+
+      await container.read(twoFactorControllerProvider.notifier).load();
+
+      final state = container.read(twoFactorControllerProvider);
+      expect(state, isA<TwoFactorFailed>());
+      expect(state.message, 'The instance could not be reached.');
+      expect((state as TwoFactorFailed).status, isNull);
+    });
+
+    test(
+      'Given a loaded status '
+      'When the API refuses to start a setup '
+      "Then its reason is presented with the account's status kept",
+      () async {
+        final container = containerWith(
+          FakeTwoFactor(
+            onEnable: (_) => const Failure(
+              message: 'Email is not configured on this instance.',
+              kind: FailureKind.conflict,
+            ),
+          ),
+        );
+        final controller = container.read(twoFactorControllerProvider.notifier);
+
+        await controller.load();
+        await controller.enable([TwoFactorMethod.email]);
+
+        final state = container.read(twoFactorControllerProvider);
+        expect(state, isA<TwoFactorFailed>());
+        expect(state.message, 'Email is not configured on this instance.');
+        expect((state as TwoFactorFailed).status?.isActive, isFalse);
+      },
+    );
+
+    test('Given an idle account '
+        'When a confirmation is attempted with no setup pending '
+        'Then nothing is sent', () async {
+      final repository = FakeTwoFactor();
+      final container = containerWith(repository);
+      final controller = container.read(twoFactorControllerProvider.notifier);
+
+      await controller.load();
+      await controller.confirm(appCode: '123456');
+
+      expect(repository.confirmations, isEmpty);
+      expect(container.read(twoFactorControllerProvider), isA<TwoFactorIdle>());
+    });
+
+    test('Given two-factor is on '
+        'When it is turned off with a recovery code '
+        'Then the codes are sent trimmed and the status is re-read '
+        '(UC-10 step 6)', () async {
+      var on = true;
+      final repository = FakeTwoFactor(
+        onStatus: () => on ? active() : _off,
+        onDisable: (_, _) {
+          on = false;
+          return const Success(null);
+        },
+      );
+      final container = containerWith(repository);
+      final controller = container.read(twoFactorControllerProvider.notifier);
+
+      await controller.load();
+      await controller.disable(
+        password: 'secret',
+        code: ' 123456 ',
+        recoveryCode: ' RC-1 ',
+      );
+
+      expect(repository.disabled.single, (
+        password: 'secret',
+        code: '123456',
+        recoveryCode: 'RC-1',
+      ));
+      final state = container.read(twoFactorControllerProvider);
+      expect(state, isA<TwoFactorIdle>());
+      expect((state as TwoFactorIdle).status.isActive, isFalse);
+    });
+
+    test('Given two-factor is on '
+        'When replacing the codes is refused '
+        "Then the API's reason is presented with the status kept", () async {
+      final repository = FakeTwoFactor(
+        onStatus: () => active(remaining: 2),
+        onRegenerate: () => const Failure(
+          message: 'That code is not right.',
+          kind: FailureKind.unauthenticated,
+        ),
+      );
+      final container = containerWith(repository);
+      final controller = container.read(twoFactorControllerProvider.notifier);
+
+      await controller.load();
+      await controller.regenerateCodes(recoveryCode: ' RC-9 ');
+
+      expect(repository.regenerated.single, (code: null, recoveryCode: 'RC-9'));
+      final state = container.read(twoFactorControllerProvider);
+      expect(state, isA<TwoFactorFailed>());
+      expect(state.message, 'That code is not right.');
+      expect((state as TwoFactorFailed).status?.remainingRecoveryCodes, 2);
+    });
+
+    test('Given the recovery codes are showing '
+        'When they are confirmed as kept '
+        'Then the configuration is re-read and shown', () async {
+      final container = containerWith(FakeTwoFactor(onStatus: () => active()));
+      final controller = container.read(twoFactorControllerProvider.notifier);
+
+      await controller.regenerateCodes(code: '123456');
+      expect(
+        container.read(twoFactorControllerProvider),
+        isA<TwoFactorCodesIssued>(),
+      );
+
+      await controller.confirmCodesKept();
+
+      final state = container.read(twoFactorControllerProvider);
+      expect(state, isA<TwoFactorIdle>());
+      expect((state as TwoFactorIdle).status.isActive, isTrue);
+    });
   });
 
   group('TwoFactorScreen', () {
@@ -513,6 +709,272 @@ void main() {
 
       expect(find.byKey(const Key('twoFactor.unavailable')), findsOneWidget);
       expect(find.byKey(const Key('twoFactor.enable')), findsNothing);
+    });
+    testWidgets('Given the leave warning over the recovery codes '
+        'When the user goes back '
+        'Then the codes are still on screen (UC-10 AF-06)', (tester) async {
+      await pumpPushedScreen(tester, FakeTwoFactor());
+      await reachRecoveryCodes(tester);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('twoFactor.stay')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('twoFactor.codes')), findsOneWidget);
+      expect(find.byType(TwoFactorScreen), findsOneWidget);
+    });
+
+    testWidgets('Given the leave warning over the recovery codes '
+        'When the user leaves anyway '
+        'Then the screen is closed (UC-10 AF-06)', (tester) async {
+      await pumpPushedScreen(tester, FakeTwoFactor());
+      await reachRecoveryCodes(tester);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('twoFactor.leaveAnyway')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TwoFactorScreen), findsNothing);
+      expect(find.text('Open two-factor'), findsOneWidget);
+    });
+
+    testWidgets('Given the recovery codes are showing '
+        'When the user ticks that they kept them and presses Done '
+        'Then the configuration is shown again', (tester) async {
+      await pumpScreen(tester, FakeTwoFactor());
+      await reachRecoveryCodes(tester);
+
+      final done = find.byKey(const Key('twoFactor.done'));
+      expect(tester.widget<FilledButton>(done).onPressed, isNull);
+
+      await tester.tap(find.byKey(const Key('twoFactor.kept')));
+      await tester.pumpAndSettle();
+      await tester.tap(done);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('twoFactor.codes')), findsNothing);
+      expect(find.byKey(const Key('twoFactor.status')), findsOneWidget);
+    });
+
+    testWidgets('Given a pending setup '
+        'When it is cancelled '
+        'Then the configuration says two-factor is off (UC-10 AF-02)', (
+      tester,
+    ) async {
+      await pumpScreen(tester, FakeTwoFactor());
+
+      await tester.tap(find.byKey(const Key('twoFactor.enable')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('twoFactor.abandon')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('twoFactor.qr')), findsNothing);
+      expect(find.textContaining('is off'), findsOneWidget);
+    });
+
+    testWidgets('Given an authenticator setup '
+        'When the secret is copied '
+        'Then it goes to the clipboard and the user is told (FR-SE-13)', (
+      tester,
+    ) async {
+      final copied = <String?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied.add(
+              (call.arguments as Map<Object?, Object?>)['text'] as String?,
+            );
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await pumpScreen(tester, FakeTwoFactor());
+
+      await tester.tap(find.byKey(const Key('twoFactor.enable')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('twoFactor.copySecret')));
+      await tester.pumpAndSettle();
+
+      expect(copied, ['JBSWY3DPEHPK3PXP']);
+      expect(find.text('Copied to the clipboard.'), findsOneWidget);
+    });
+
+    testWidgets('Given two-factor is on with both methods '
+        'When the screen settles '
+        'Then the methods and the remaining codes are stated, and no setup is '
+        'offered (UC-10 step 1)', (tester) async {
+      await pumpScreen(
+        tester,
+        FakeTwoFactor(onStatus: () => active(email: true)),
+      );
+
+      expect(
+        find.text(
+          'Two-factor authentication is on, using authenticator app and '
+          'email.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('5 recovery codes left.'), findsOneWidget);
+      expect(find.byKey(const Key('twoFactor.enable')), findsNothing);
+    });
+
+    testWidgets('Given a single recovery code left '
+        'When the screen settles '
+        'Then it is counted in the singular', (tester) async {
+      await pumpScreen(
+        tester,
+        FakeTwoFactor(onStatus: () => active(remaining: 1)),
+      );
+
+      expect(find.text('1 recovery code left.'), findsOneWidget);
+    });
+
+    testWidgets('Given two-factor is on '
+        'When the user turns it off with their password and a code '
+        'Then both are sent and the screen shows it off (UC-10 step 6)', (
+      tester,
+    ) async {
+      var on = true;
+      final repository = FakeTwoFactor(
+        onStatus: () => on ? active() : _off,
+        onDisable: (_, _) {
+          on = false;
+          return const Success(null);
+        },
+      );
+      await pumpScreen(tester, repository);
+
+      await tester.enterText(
+        find.byKey(const Key('twoFactor.password')),
+        'secret',
+      );
+      await tester.enterText(find.byKey(const Key('twoFactor.code')), '123456');
+      await tester.tap(find.byKey(const Key('twoFactor.disable')));
+      await tester.pumpAndSettle();
+
+      expect(repository.disabled.single.password, 'secret');
+      expect(repository.disabled.single.code, '123456');
+      expect(find.textContaining('is off'), findsOneWidget);
+    });
+
+    testWidgets('Given two-factor is on '
+        'When the user replaces their recovery codes '
+        'Then the new set is shown once (UC-10 step 6)', (tester) async {
+      final repository = FakeTwoFactor(
+        onStatus: () => active(),
+        onRegenerate: () => const Success(['NEW-1', 'NEW-2']),
+      );
+      await pumpScreen(tester, repository);
+
+      await tester.enterText(find.byKey(const Key('twoFactor.code')), '123456');
+      await tester.tap(find.byKey(const Key('twoFactor.regenerate')));
+      await tester.pumpAndSettle();
+
+      expect(repository.regenerated.single.code, '123456');
+      expect(find.text('NEW-1\nNEW-2'), findsOneWidget);
+    });
+
+    testWidgets('Given turning two-factor off is refused '
+        'When the API answers '
+        'Then its reason is shown above the configuration, which stays usable '
+        '(UC-10 AF-03)', (tester) async {
+      final repository = FakeTwoFactor(
+        onStatus: () => active(),
+        onDisable: (_, _) => const Failure(
+          message: 'That password and code do not match.',
+          kind: FailureKind.unauthenticated,
+        ),
+      );
+      await pumpScreen(tester, repository);
+
+      await tester.enterText(
+        find.byKey(const Key('twoFactor.password')),
+        'wrong',
+      );
+      await tester.tap(find.byKey(const Key('twoFactor.disable')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('That password and code do not match.'), findsOneWidget);
+      expect(find.byKey(const Key('twoFactor.password')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('twoFactor.regenerate')));
+      await tester.pumpAndSettle();
+
+      expect(repository.regenerations, 1);
+    });
+
+    testWidgets('Given two-factor is off '
+        'When every method is unticked and setup is started '
+        'Then it is refused on screen and the methods are still offered', (
+      tester,
+    ) async {
+      final repository = FakeTwoFactor();
+      await pumpScreen(tester, repository);
+
+      await tester.tap(find.byKey(const Key('twoFactor.method.app')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('twoFactor.enable')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Choose at least one method.'), findsOneWidget);
+      expect(repository.enabled, isEmpty);
+
+      await tester.tap(find.byKey(const Key('twoFactor.method.email')));
+      await tester.pumpAndSettle();
+      final ticked = [
+        for (final method in TwoFactorMethod.values)
+          if (tester
+                  .widget<CheckboxListTile>(
+                    find.byKey(Key('twoFactor.method.${method.wireName}')),
+                  )
+                  .value ??
+              false)
+            method,
+      ];
+      await tester.tap(find.byKey(const Key('twoFactor.enable')));
+      await tester.pumpAndSettle();
+
+      // Exactly what the boxes show is asked for, email among them.
+      expect(ticked, contains(TwoFactorMethod.email));
+      expect(repository.enabled.single, ticked);
+    });
+
+    testWidgets('Given the status cannot be read '
+        'When the screen settles '
+        'Then the reason is shown with a retry that reads it again', (
+      tester,
+    ) async {
+      var reachable = false;
+      await pumpScreen(
+        tester,
+        FakeTwoFactor(
+          onStatus: () => reachable
+              ? active()
+              : const Failure(
+                  message: 'The instance could not be reached.',
+                  kind: FailureKind.unreachable,
+                ),
+        ),
+      );
+
+      expect(find.text('The instance could not be reached.'), findsOneWidget);
+
+      reachable = true;
+      await tester.tap(find.byKey(const Key('twoFactor.retry')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('is on'), findsOneWidget);
+      expect(find.byKey(const Key('twoFactor.retry')), findsNothing);
     });
   });
 }

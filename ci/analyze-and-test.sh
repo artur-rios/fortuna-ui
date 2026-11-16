@@ -18,4 +18,8 @@ flutter analyze
 # IR-13 and IR-14. Enforced as a build step rather than an IDE plugin; see tool/boundary_rules.dart for why.
 dart run tool/check_boundaries.dart
 
-flutter test --coverage
+# The suite runs as four bundles side by side (tool/test_bundles.dart says why): `flutter test` compiles one entry
+# point at a time whatever its concurrency, so one entry point per test file spent most of the step compiling and
+# loading 100-odd files in a row. The concurrency is set, not left at half the agent's cores.
+dart run tool/test_bundles.dart build/test-bundles 4
+flutter test --coverage --concurrency 4 build/test-bundles

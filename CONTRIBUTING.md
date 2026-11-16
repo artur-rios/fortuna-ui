@@ -52,7 +52,20 @@ flutter analyze
 flutter test
 ```
 
-An analyzer failure is a failure. Integration tests belong in `integration_test/` and are invoked
+An analyzer failure is a failure. CI runs the same tests as four bundles side by side, each a
+generated file that imports a share of the test files (`tool/test_bundles.dart` says why); to run
+them that way:
+
+```bash
+dart run tool/test_bundles.dart build/test-bundles 4
+flutter test --concurrency 4 build/test-bundles
+```
+
+The test files of a bundle share one isolate, so a test that sets process-wide state (a mock
+platform channel, `SharedPreferences.setMockInitialValues`, a plugin's platform instance) puts it
+back in a tear-down.
+
+Integration tests belong in `integration_test/` and are invoked
 deliberately, so the fast suite stays fast:
 
 ```bash

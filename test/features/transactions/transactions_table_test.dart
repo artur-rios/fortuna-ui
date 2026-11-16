@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fortuna_ui/app/routes.dart';
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
@@ -13,6 +14,7 @@ import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/transactions/data/transaction_repository.dart';
 import 'package:fortuna_ui/features/transactions/state/transaction_table.dart';
 import 'package:fortuna_ui/features/transactions/ui/transactions_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart'
@@ -125,6 +127,7 @@ Future<void> pumpTable(
   SearchableTransactions fake, {
   PreferencesStore? preferences,
   List<Override> extra = const [],
+  GoRouter? router,
 }) async {
   tester.view.physicalSize = const Size(1400, 2000);
   tester.view.devicePixelRatio = 1;
@@ -147,11 +150,46 @@ Future<void> pumpTable(
         ),
         ...extra,
       ],
-      child: const MaterialApp(home: TransactionsScreen()),
+      child: router == null
+          ? const MaterialApp(home: TransactionsScreen())
+          : MaterialApp.router(routerConfig: router),
     ),
   );
   await tester.pumpAndSettle();
 }
+
+/// The table at its own route, with every place it can send the user to
+/// standing in as a marker that names its path.
+GoRouter tableRouter() {
+  final router = GoRouter(
+    initialLocation: Routes.transactions,
+    routes: [
+      GoRoute(
+        path: Routes.transactions,
+        builder: (context, state) => const TransactionsScreen(),
+      ),
+      for (final path in [Routes.recordTransaction, Routes.transactionOf('t1')])
+        GoRoute(
+          path: path,
+          builder: (context, state) => Text('landed on $path'),
+        ),
+    ],
+  );
+  addTearDown(router.dispose);
+  return router;
+}
+
+/// Opens one of the filter bar's dropdowns and picks [option] from its menu.
+Future<void> pickFilter(WidgetTester tester, String key, String option) async {
+  await tester.tap(find.byKey(Key(key)));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(option).last);
+  await tester.pumpAndSettle();
+}
+
+TransactionView viewOf(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(TransactionsScreen)))
+        .read(transactionViewProvider);
 
 void main() {
   group('TransactionView.hasInvalidDateRange', () {
@@ -344,6 +382,74 @@ void main() {
       final stored = await preferences.read(PreferenceKey.transactionsView);
       expect(stored, isNotNull);
       expect(stored, contains('cat1'));
+    });
+  });
+
+  group('TransactionViewStore', () {
+    test('Given a stored value that is JSON but not an object '
+        'When the view is read '
+        'Then it is discarded rather than raised (AF-06)', () async {
+      final preferences = InMemoryPreferencesStore();
+      await preferences.write(PreferenceKey.transactionsView, '[1, 2]');
+
+      final restored = await TransactionViewStore(preferences).read();
+
+      expect(restored, isNull);
+    });
+
+    test('Given a stored value that is not JSON at all '
+        'When the view is read '
+        'Then it is discarded rather than raised (AF-06)', () async {
+      final preferences = InMemoryPreferencesStore();
+      await preferences.write(PreferenceKey.transactionsView, '{not json');
+
+      final restored = await TransactionViewStore(preferences).read();
+
+      expect(restored, isNull);
+    });
+  });
+
+  group('describeFilters', () {
+    test('Given a view narrowed to one account, card, category, tag and '
+        'counterparty '
+        'When its scope is described '
+        'Then each is named in words with the identifier the API needs '
+        '(FR-EX-03)', () {
+      const view = TransactionView(
+        financialAccountId: 'a1',
+        creditCardId: 'cc1',
+        categoryId: 'cat1',
+        tagId: 'tag1',
+        counterpartyId: 'cp1',
+      );
+
+      final described = describeFilters(view);
+
+      expect(
+        [
+          for (final filter in described)
+            (filter.field, filter.operator, filter.value, filter.description),
+        ],
+        [
+          ('financialAccountId', 'eq', 'a1', 'One account only'),
+          ('creditCardId', 'eq', 'cc1', 'One card only'),
+          ('categoryId', 'eq', 'cat1', 'One category only'),
+          ('tagId', 'eq', 'tag1', 'One tag only'),
+          ('counterpartyId', 'eq', 'cp1', 'One counterparty only'),
+        ],
+      );
+    });
+
+    test('Given amount bounds and a text left empty '
+        'When the scope is described '
+        'Then the empty ones are not stated as filters', () {
+      const view = TransactionView(
+        minimumAmount: '',
+        maximumAmount: '',
+        text: '',
+      );
+
+      expect(describeFilters(view), isEmpty);
     });
   });
 
@@ -743,6 +849,201 @@ void main() {
       pending.complete(Success(page()));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('transactions.grid')), findsOneWidget);
+    });
+
+    testWidgets('Given records '
+        'When export is opened '
+        'Then the sheet offers to produce the file for the unfiltered view '
+        '(UC-39 step 2)', (tester) async {
+      await pumpTable(tester, SearchableTransactions());
+
+      await tester.tap(find.byKey(const Key('transactions.export')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('export.scope.unfiltered')), findsOneWidget);
+      expect(find.byKey(const Key('export.produce')), findsOneWidget);
+    });
+
+    testWidgets('Given a filtered view '
+        'When export is opened '
+        "Then the sheet names the view's filter (FR-EX-03)", (tester) async {
+      await pumpTable(tester, SearchableTransactions());
+      await pickFilter(tester, 'transactions.filter.category', 'Groceries');
+
+      await tester.tap(find.byKey(const Key('transactions.export')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('export.scope.categoryId')), findsOneWidget);
+    });
+
+    testWidgets('Given a view with no records '
+        'When export is opened '
+        'Then the sheet says there is nothing to export (UC-39 AF-01)', (
+      tester,
+    ) async {
+      await pumpTable(
+        tester,
+        SearchableTransactions(
+          onSearch: () => Success(page(items: 0, totalItems: 0)),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('transactions.export')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('export.nothingToExport')), findsOneWidget);
+      expect(find.byKey(const Key('export.produce')), findsNothing);
+    });
+
+    testWidgets('Given the table '
+        'When record is tapped '
+        'Then the recording form is opened', (tester) async {
+      await pumpTable(tester, SearchableTransactions(), router: tableRouter());
+
+      await tester.tap(find.byKey(const Key('transactions.record')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('landed on ${Routes.recordTransaction}'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Given a row '
+        'When it is tapped '
+        'Then that record is opened (step 7, FR-TB-06)', (tester) async {
+      await pumpTable(tester, SearchableTransactions(), router: tableRouter());
+
+      await tester.tap(
+        find
+            .descendant(
+              of: find.byKey(const Key('transactions.grid')),
+              matching: find.text('Groceries'),
+            )
+            .first,
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('landed on ${Routes.transactionOf('t1')}'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Given a period is typed into the date range picker '
+        'When it is saved '
+        'Then the API is asked for that period (step 3)', (tester) async {
+      final fake = SearchableTransactions();
+
+      await pumpTable(tester, fake);
+      await tester.tap(find.byKey(const Key('transactions.filter.dates')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pumpAndSettle();
+      final fields = find.descendant(
+        of: find.byType(DateRangePickerDialog),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(fields.at(0), '09/01/2026');
+      await tester.enterText(fields.at(1), '09/30/2026');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(fake.searches.last['from'], DateTime(2026, 9));
+      expect(fake.searches.last['to'], DateTime(2026, 9, 30));
+      expect(
+        find.byKey(const Key('transactions.filter.clear')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Given the date range picker is open '
+        'When it is cancelled '
+        'Then the view keeps no period', (tester) async {
+      final fake = SearchableTransactions();
+
+      await pumpTable(tester, fake);
+      final before = fake.searches.length;
+      await tester.tap(find.byKey(const Key('transactions.filter.dates')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(viewOf(tester).from, isNull);
+      expect(viewOf(tester).to, isNull);
+      expect(fake.searches.length, before);
+    });
+
+    testWidgets('Given an account is chosen '
+        'When "any account" is chosen again '
+        'Then the account filter is asked of the API and then dropped '
+        '(step 3)', (tester) async {
+      final fake = SearchableTransactions();
+
+      await pumpTable(tester, fake);
+      await pickFilter(tester, 'transactions.filter.account', 'Everyday');
+
+      expect(fake.searches.last['financialAccountId'], 'a1');
+
+      await pickFilter(tester, 'transactions.filter.account', 'Any account');
+
+      expect(viewOf(tester).financialAccountId, isNull);
+      expect(viewOf(tester).hasFilters, isFalse);
+    });
+
+    testWidgets('Given a category is chosen '
+        'When "any category" is chosen again '
+        'Then the category filter is dropped (step 3)', (tester) async {
+      await pumpTable(tester, SearchableTransactions());
+      await pickFilter(tester, 'transactions.filter.category', 'Groceries');
+
+      expect(viewOf(tester).categoryId, 'cat1');
+
+      await pickFilter(tester, 'transactions.filter.category', 'Any category');
+
+      expect(viewOf(tester).categoryId, isNull);
+    });
+
+    testWidgets('Given a direction is chosen '
+        'When "any direction" is chosen again '
+        'Then the direction is asked of the API and then dropped (step 3)', (
+      tester,
+    ) async {
+      final fake = SearchableTransactions();
+
+      await pumpTable(tester, fake);
+      await pickFilter(tester, 'transactions.filter.direction', 'Earning');
+
+      expect(fake.searches.last['direction'], Direction.earning);
+
+      await pickFilter(
+        tester,
+        'transactions.filter.direction',
+        'Any direction',
+      );
+
+      expect(viewOf(tester).direction, isNull);
+    });
+
+    testWidgets('Given a page after the first '
+        'When the previous page is requested '
+        'Then the API is asked for it (step 6)', (tester) async {
+      final preferences = InMemoryPreferencesStore();
+      await preferences.write(
+        PreferenceKey.transactionsView,
+        '{"pageNumber":3}',
+      );
+      final fake = SearchableTransactions(
+        onSearch: () => Success(page(pageNumber: 3, totalPages: 3)),
+      );
+
+      await pumpTable(tester, fake, preferences: preferences);
+      await tester.tap(find.byKey(const Key('transactions.previous')));
+      await tester.pumpAndSettle();
+
+      expect(fake.searches.last['pageNumber'], 2);
     });
   });
 }

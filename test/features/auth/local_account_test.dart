@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
@@ -80,33 +81,64 @@ ProviderContainer containerWith(
   return container;
 }
 
+/// [pushed] opens the screen over a page, so leaving it can be observed.
 Future<void> pumpScreen(
   WidgetTester tester,
   FakeLocalAccounts repository, {
   VoidCallback? onFinished,
+  Transport transport = Transport.ffi,
+  CoreLibraryAvailability core = CoreLibraryAvailability.available,
+  bool pushed = false,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         appConfigProvider.overrideWithValue(
-          const AppConfig(
+          AppConfig(
             apiBaseUrl: '',
             googleClientId: '',
-            transport: Transport.ffi,
+            transport: transport,
             databasePath: '',
           ),
         ),
         preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
-        coreLibraryProbeProvider.overrideWithValue(
-          const FixedCoreLibraryProbe(CoreLibraryAvailability.available),
-        ),
+        coreLibraryProbeProvider.overrideWithValue(FixedCoreLibraryProbe(core)),
         localAccountRepositoryProvider.overrideWithValue(repository),
       ],
       child: MaterialApp(
-        home: CreateLocalAccountScreen(onFinished: onFinished),
+        home: pushed
+            ? Builder(
+                builder: (context) => TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) =>
+                          CreateLocalAccountScreen(onFinished: onFinished),
+                    ),
+                  ),
+                  child: const Text('Open'),
+                ),
+              )
+            : CreateLocalAccountScreen(onFinished: onFinished),
       ),
     ),
   );
+  if (pushed) {
+    await tester.tap(find.text('Open'));
+  }
+  await tester.pumpAndSettle();
+}
+
+/// Fills the form and creates the account.
+Future<void> createAccount(WidgetTester tester) async {
+  await tester.enterText(
+    find.byKey(const Key('localAccount.name')),
+    'Local User',
+  );
+  await tester.enterText(
+    find.byKey(const Key('localAccount.secret')),
+    'secret',
+  );
+  await tester.tap(find.byKey(const Key('localAccount.create')));
   await tester.pumpAndSettle();
 }
 
@@ -445,6 +477,146 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('will not be shown again'), findsNothing);
+    });
+    testWidgets('Given the leave warning over the codes '
+        'When the user goes back '
+        'Then the codes are still on screen (UC-06 AF-04)', (tester) async {
+      await pumpScreen(
+        tester,
+        FakeLocalAccounts((_, _) => createdOk()),
+        pushed: true,
+      );
+      await createAccount(tester);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('localAccount.stay')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('localAccount.codes')), findsOneWidget);
+      expect(find.byType(CreateLocalAccountScreen), findsOneWidget);
+    });
+
+    testWidgets('Given the leave warning over the codes '
+        'When the user leaves anyway '
+        'Then the screen is closed (UC-06 AF-04)', (tester) async {
+      await pumpScreen(
+        tester,
+        FakeLocalAccounts((_, _) => createdOk()),
+        pushed: true,
+      );
+      await createAccount(tester);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('localAccount.leaveAnyway')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CreateLocalAccountScreen), findsNothing);
+      expect(find.text('Open'), findsOneWidget);
+    });
+
+    testWidgets('Given the codes are showing '
+        'When they are copied '
+        'Then every code goes to the clipboard and the user is told', (
+      tester,
+    ) async {
+      final copied = <String?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied.add(
+              (call.arguments as Map<Object?, Object?>)['text'] as String?,
+            );
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await pumpScreen(tester, FakeLocalAccounts((_, _) => createdOk()));
+      await createAccount(tester);
+
+      await tester.tap(find.byKey(const Key('localAccount.copy')));
+      await tester.pumpAndSettle();
+
+      expect(copied, [_codes.join('\n')]);
+      expect(find.text('Copied to the clipboard.'), findsOneWidget);
+    });
+
+    testWidgets('Given the core refuses the account '
+        'When it answers '
+        'Then its reason is shown under the form, and editing clears it '
+        '(UC-06 AF-02)', (tester) async {
+      const reason = 'A local account already exists on this computer.';
+      await pumpScreen(
+        tester,
+        FakeLocalAccounts(
+          (_, _) => const Failure(message: reason, kind: FailureKind.conflict),
+        ),
+      );
+      await createAccount(tester);
+
+      expect(find.text(reason), findsOneWidget);
+      expect(find.byKey(const Key('localAccount.create')), findsOneWidget);
+
+      await tester.enterText(
+        find.byKey(const Key('localAccount.name')),
+        'Another User',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(reason), findsNothing);
+    });
+
+    testWidgets('Given a name and a secret '
+        'When the secret is submitted from the keyboard '
+        'Then the account is created', (tester) async {
+      final repository = FakeLocalAccounts((_, _) => createdOk());
+      await pumpScreen(tester, repository);
+
+      await tester.enterText(
+        find.byKey(const Key('localAccount.name')),
+        'Local User',
+      );
+      await tester.enterText(
+        find.byKey(const Key('localAccount.secret')),
+        'secret',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(repository.created.single, (
+        displayName: 'Local User',
+        secret: 'secret',
+      ));
+      expect(find.byKey(const Key('localAccount.codes')), findsOneWidget);
+    });
+
+    testWidgets('Given an installation that signs in against an instance '
+        'When creation is attempted '
+        'Then the form gives way to the reason (UC-06 AF-05)', (tester) async {
+      final repository = FakeLocalAccounts((_, _) => createdOk());
+      await pumpScreen(
+        tester,
+        repository,
+        transport: Transport.http,
+        core: CoreLibraryAvailability.absent,
+      );
+
+      await createAccount(tester);
+
+      expect(
+        find.textContaining('belongs to a desktop offline installation'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('localAccount.create')), findsNothing);
+      expect(repository.created, isEmpty);
     });
   });
 }
