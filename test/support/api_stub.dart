@@ -76,6 +76,43 @@ ResponseBody json(int status, Object? body) => ResponseBody.fromString(
   },
 );
 
+/// The page [request] asks for, however the route spells the parameter.
+int requestedPage(RequestOptions request) =>
+    (request.queryParameters['PageNumber'] ??
+            request.queryParameters['pageNumber'] ??
+            1)
+        as int;
+
+/// Page [pageNumber] of [totalPages] of a list the API serves as a
+/// `PaginatedOutput`: the [items] in `data`, the count in the envelope.
+ResponseBody paginated(
+  List<Object?> items, {
+  required int pageNumber,
+  required int totalPages,
+}) => json(200, {
+  ...envelope(items),
+  'pageNumber': pageNumber,
+  'pageSize': 100,
+  'totalPages': totalPages,
+});
+
+/// Page [pageNumber] of [totalPages] of a list the API serves inside the
+/// envelope's `data`, under [field] (a `TagListOutput`, a `GoalListOutput`).
+ResponseBody pagedList(
+  String field,
+  List<Object?> items, {
+  required int pageNumber,
+  required int totalPages,
+}) => json(
+  200,
+  envelope({
+    field: items,
+    'pageNumber': pageNumber,
+    'pageSize': 100,
+    'totalPages': totalPages,
+  }),
+);
+
 /// The API's `DataOutput` envelope around [data].
 Map<String, Object?> envelope(Object? data, {List<String>? messages}) => {
   'success': true,
