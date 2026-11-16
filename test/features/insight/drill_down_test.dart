@@ -109,7 +109,8 @@ void main() {
       );
     });
 
-    test('Given an element is selected '
+    test('Given an element of the chart '
+        'When it is selected to descend '
         "Then the bucket's own key is what descends, never a coordinate "
         '(FR-CH-08, step 2)', () async {
       final fake = DrillableAggregations();
