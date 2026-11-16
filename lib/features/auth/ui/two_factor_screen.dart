@@ -25,6 +25,13 @@ class TwoFactorScreen extends ConsumerStatefulWidget {
 }
 
 class _TwoFactorScreenState extends ConsumerState<TwoFactorScreen> {
+  /// The methods ticked for setup. Held here rather than in the form, which
+  /// is rebuilt after the spinner, so a refusal leaves the boxes as they were.
+  final _chosen = <TwoFactorMethod>{TwoFactorMethod.app};
+
+  void _choose(TwoFactorMethod method, {required bool on}) =>
+      setState(() => on ? _chosen.add(method) : _chosen.remove(method));
+
   @override
   void initState() {
     super.initState();
@@ -100,6 +107,8 @@ class _TwoFactorScreenState extends ConsumerState<TwoFactorScreen> {
                 ),
                 TwoFactorIdle(:final status) => _Configuration(
                   status: status,
+                  chosen: _chosen,
+                  onChoose: _choose,
                   onEnable: (methods) => unawaited(controller.enable(methods)),
                   onDisable: (password, code) => unawaited(
                     controller.disable(password: password, code: code),
@@ -116,6 +125,8 @@ class _TwoFactorScreenState extends ConsumerState<TwoFactorScreen> {
                     if (status != null)
                       _Configuration(
                         status: status,
+                        chosen: _chosen,
+                        onChoose: _choose,
                         onEnable: (methods) =>
                             unawaited(controller.enable(methods)),
                         onDisable: (password, code) => unawaited(
@@ -145,12 +156,16 @@ class _TwoFactorScreenState extends ConsumerState<TwoFactorScreen> {
 class _Configuration extends StatefulWidget {
   const _Configuration({
     required this.status,
+    required this.chosen,
+    required this.onChoose,
     required this.onEnable,
     required this.onDisable,
     required this.onRegenerate,
   });
 
   final TwoFactorStatus status;
+  final Set<TwoFactorMethod> chosen;
+  final void Function(TwoFactorMethod method, {required bool on}) onChoose;
   final void Function(List<TwoFactorMethod>) onEnable;
   final void Function(String password, String code) onDisable;
   final void Function(String code) onRegenerate;
@@ -160,7 +175,6 @@ class _Configuration extends StatefulWidget {
 }
 
 class _ConfigurationState extends State<_Configuration> {
-  final _chosen = <TwoFactorMethod>{TwoFactorMethod.app};
   final _password = TextEditingController();
   final _code = TextEditingController();
 
@@ -205,10 +219,8 @@ class _ConfigurationState extends State<_Configuration> {
           for (final method in TwoFactorMethod.values)
             CheckboxListTile(
               key: Key('twoFactor.method.${method.wireName}'),
-              value: _chosen.contains(method),
-              onChanged: (on) => setState(() {
-                (on ?? false) ? _chosen.add(method) : _chosen.remove(method);
-              }),
+              value: widget.chosen.contains(method),
+              onChanged: (on) => widget.onChoose(method, on: on ?? false),
               title: Text(method.label),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,
@@ -216,7 +228,7 @@ class _ConfigurationState extends State<_Configuration> {
           const SizedBox(height: 8),
           FilledButton(
             key: const Key('twoFactor.enable'),
-            onPressed: () => widget.onEnable(_chosen.toList()),
+            onPressed: () => widget.onEnable(widget.chosen.toList()),
             child: const Text('Set up two-factor authentication'),
           ),
         ] else ...[

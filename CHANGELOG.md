@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   goal's links with what an update names.
 - A success answered with no body (a 204) no longer fails with an unhandled error where the screen expected the
   instance's answer; it is treated as an answer with nothing in it.
+- When the instance refuses to set up two-factor authentication, the methods stay ticked as the user left them
+  instead of going back to the authenticator app alone.
 
 ## [1.1.1] - 2026-10-30
 
