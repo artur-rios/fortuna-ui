@@ -1,4 +1,4 @@
-/// Fails the build when a boundary rule is broken (IR-13, IR-14).
+/// Fails the build when a boundary rule is broken (IR-13, IR-14, TS-6.2).
 ///
 /// Run by CI on every push and pull request:
 ///
@@ -40,7 +40,7 @@ Future<void> main(List<String> arguments) async {
 
   if (violations.isEmpty) {
     stdout.writeln(
-      'Boundaries clean: ${files.length} files checked against IR-13 and IR-14.',
+      'Boundaries clean: ${files.length} files checked against IR-13, IR-14 and TS-6.2.',
     );
     return;
   }

@@ -113,6 +113,65 @@ void main() {
     );
   });
 
+  group('§6.2 — the clock is injected, never read directly', () {
+    test('Given production code that reads DateTime.now '
+        'When the boundaries are checked '
+        'Then it is reported, with the clock to use instead', () {
+      final violations = checkBoundaries([
+        const SourceFile(
+          'lib/features/planning/ui/goal_editor.dart',
+          'final tomorrow = DateTime.now().add(const Duration(days: 1));\n',
+        ),
+      ]);
+
+      expect(violations, hasLength(1));
+      expect(violations.single.rule, 'TS-6.2');
+      expect(violations.single.line, 1);
+      expect(violations.single.explanation, contains('clockProvider'));
+    });
+
+    test('Given DateTime.now passed as a function rather than called '
+        'When the boundaries are checked '
+        'Then it is reported all the same', () {
+      final violations = checkBoundaries([
+        const SourceFile(
+          'lib/features/insight/state/export_controller.dart',
+          'final read = DateTime.now;\n',
+        ),
+      ]);
+
+      expect(violations.single.rule, 'TS-6.2');
+    });
+
+    test('Given the clock itself reading the system time '
+        'When the boundaries are checked '
+        'Then it is allowed — that is the one place it belongs', () {
+      final violations = checkBoundaries([
+        const SourceFile(
+          'lib/core/time/clock.dart',
+          'DateTime systemClock() => DateTime.now();\n',
+        ),
+      ]);
+
+      expect(violations, isEmpty);
+    });
+
+    test('Given DateTime.now named only in a comment, or a name that merely '
+        'starts the same '
+        'When the boundaries are checked '
+        'Then neither is reported', () {
+      final violations = checkBoundaries([
+        const SourceFile(
+          'lib/core/session/session.dart',
+          '/// Never DateTime.now() here.\n'
+              'final at = MyDateTime.nowish;\n',
+        ),
+      ]);
+
+      expect(violations, isEmpty);
+    });
+  });
+
   group('The real source tree', () {
     test('Given no violations '
         'When the boundaries are checked '

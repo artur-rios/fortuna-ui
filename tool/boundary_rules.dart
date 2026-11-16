@@ -1,4 +1,5 @@
-/// The two boundary rules, as data (IR-13, IR-14).
+/// The boundary rules, as data (IR-13, IR-14, and the Testing Specification's
+/// §6.2 clock).
 ///
 /// Separated from `check_boundaries.dart` so they can be tested against
 /// fixtures rather than only against the real source tree — a checker nobody
@@ -6,8 +7,8 @@
 ///
 /// These are enforced by a build step rather than by a custom analyzer plugin.
 /// A plugin would report them in the IDE, which is nicer, but it is a great deal
-/// of machinery for two rules; this runs in CI, fails the build, and is fifty
-/// lines. Worth revisiting if the rule set grows.
+/// of machinery for three rules; this runs in CI, fails the build, and is short.
+/// Worth revisiting if the rule set grows.
 library;
 
 /// One violation, with enough detail to fix it without re-running anything.
@@ -49,7 +50,12 @@ const bindingsDirectory = 'lib/core/bindings/';
 /// The file that defines the money type. It may not mention `double` at all.
 const moneyFile = 'lib/core/format/money.dart';
 
-/// Applies both rules to [files], returning every violation found.
+/// The file that reads the system clock. Nothing else may (Testing
+/// Specification §6.2: "An injected clock, never `DateTime.now()` in
+/// production code").
+const clockFile = 'lib/core/time/clock.dart';
+
+/// Applies every rule to [files], returning every violation found.
 List<BoundaryViolation> checkBoundaries(Iterable<SourceFile> files) {
   final violations = <BoundaryViolation>[];
 
@@ -78,6 +84,22 @@ List<BoundaryViolation> checkBoundaries(Iterable<SourceFile> files) {
         );
       }
 
+      // §6.2 — the time is read through the injected clock.
+      if (_readsSystemClock(trimmed) && normalized != clockFile) {
+        violations.add(
+          BoundaryViolation(
+            rule: 'TS-6.2',
+            path: normalized,
+            line: i + 1,
+            source: trimmed,
+            explanation:
+                'Production code reads the time through clockProvider '
+                "('$clockFile'), so a test can pin it. Use ref.now(), or take a "
+                'Clock where there is no ref.',
+          ),
+        );
+      }
+
       // IR-14 — no monetary value is converted to or from a floating-point type.
       final floatUse = _floatingPointUse(trimmed);
       if (floatUse != null && _touchesMoney(normalized, file.contents)) {
@@ -100,6 +122,9 @@ List<BoundaryViolation> checkBoundaries(Iterable<SourceFile> files) {
 
   return violations;
 }
+
+bool _readsSystemClock(String line) =>
+    RegExp(r'(?<![\w.])DateTime\s*\.\s*(now|timestamp)\b').hasMatch(line);
 
 bool _importsFfi(String line) =>
     RegExp(r'''^import\s+['"]dart:ffi['"]''').hasMatch(line) ||
