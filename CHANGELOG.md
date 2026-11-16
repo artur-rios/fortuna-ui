@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - When connecting an institution is refused for want of a consent, "Review the disclosure" can be agreed to: it
   re-reads the consents, records the version the instance now asks about and tries the connection again. Agreeing
   always stopped at "did not say which version" before.
+- A committed obligation the instance converted, but without naming the currency it converted into, shows its own
+  amount in its own currency rather than the converted number labelled with the original currency.
 
 ## [1.1.1] - 2026-10-30
 

@@ -512,6 +512,30 @@ void main() {
       expect(obligations.total, isNull);
     });
 
+    test('Given a converted amount with no display currency named '
+        'When an obligation is read '
+        'Then it is its own amount in its own currency, not a number '
+        'labelled with the wrong one (BR-07)', () async {
+      final stub = ApiStub.data({
+        'items': [
+          {
+            'id': 'o1',
+            'kind': 1,
+            'amount': '30000',
+            'currencyCode': 'JPY',
+            'displayAmount': '1040.00',
+          },
+        ],
+      });
+
+      final item = (await repositoryOn(stub).obligations(horizonDays: 60))
+          .valueOrNull!
+          .items
+          .single;
+
+      expect(item.amount, Money.parse('30000', 'JPY', isProjected: true));
+    });
+
     test('Given obligations with every optional field missing '
         'When they are read '
         'Then the dates are now, converted, and there are none', () async {
