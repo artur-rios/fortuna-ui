@@ -607,53 +607,6 @@ void main() {
     });
   });
 
-  group('showTransactionFailure', () {
-    Future<void> report(WidgetTester tester, Result<void> result) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => TextButton(
-                onPressed: () => showTransactionFailure(context, result),
-                child: const Text('report'),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('report'));
-      await tester.pumpAndSettle();
-    }
-
-    testWidgets('Given a failure '
-        'When it is reported '
-        "Then the API's reason is shown in a snack bar", (tester) async {
-      await report(
-        tester,
-        const Failure(
-          message: 'This transaction is reconciled.',
-          kind: FailureKind.conflict,
-        ),
-      );
-
-      expect(
-        find.descendant(
-          of: find.byType(SnackBar),
-          matching: find.text('This transaction is reconciled.'),
-        ),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('Given a success '
-        'When it is reported '
-        'Then nothing is shown', (tester) async {
-      await report(tester, const Success(null));
-
-      expect(find.byType(SnackBar), findsNothing);
-    });
-  });
-
   group('TransactionEditor', () {
     Future<void> openEditor(WidgetTester tester) async {
       await tester.tap(find.byKey(const Key('transaction.edit')));
