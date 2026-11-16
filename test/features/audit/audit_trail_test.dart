@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_api_client/export.dart' show AuditOutcome;
 import 'package:fortuna_ui/core/config/instance_config.dart';
+import 'package:fortuna_ui/core/network/paging.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/storage/preferences_store.dart';
@@ -18,15 +19,32 @@ import 'package:material_ui/material_ui.dart';
 import '../../support/api_stub.dart' as api;
 
 class FakeAudit implements AuditRepository {
-  FakeAudit(this.next);
+  FakeAudit(this.next, {this.totalPages = 1});
 
   Result<List<AuditEntry>> Function() next;
+
+  /// How many pages the trail claims to have; each request is answered as
+  /// the page it asked for.
+  final int totalPages;
   final List<AuditFilter> requested = [];
 
   @override
-  Future<Result<List<AuditEntry>>> read(AuditFilter filter) async {
+  Future<Result<PagedList<AuditEntry>>> read(AuditFilter filter) async {
     requested.add(filter);
-    return next();
+    return switch (next()) {
+      Success(:final value) => Success(
+        PagedList(
+          items: value,
+          pageNumber: filter.pageNumber,
+          totalItems: value.length * totalPages,
+          totalPages: value.isEmpty ? 0 : totalPages,
+        ),
+      ),
+      Failure(:final message, :final kind) => Failure(
+        message: message,
+        kind: kind,
+      ),
+    };
   }
 }
 
@@ -48,13 +66,14 @@ AuditEntry entry({
 
 Future<FakeAudit> pumpAudit(
   WidgetTester tester,
-  Result<List<AuditEntry>> Function() next,
-) async {
+  Result<List<AuditEntry>> Function() next, {
+  int totalPages = 1,
+}) async {
   tester.view.physicalSize = const Size(1100, 1600);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 
-  final repository = FakeAudit(next);
+  final repository = FakeAudit(next, totalPages: totalPages);
   final container = ProviderContainer(
     overrides: [
       tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
@@ -118,36 +137,51 @@ Map<String, Object?> auditJson(
 
 void main() {
   group('HttpAuditRepository', () {
-    test('Given more entries than one page holds '
-        'When they are read '
-        'Then every page is read, the filter on each, and all are shown '
-        'newest first (UC-41 step 4)', () async {
-      final stub = api.ApiStub((request) {
-        final page = api.requestedPage(request);
-        return api.paginated(
-          [auditJson('2026-0$page-01T00:00:00Z', 'Page $page')],
-          pageNumber: page,
-          totalPages: 2,
-        );
-      });
+    test('Given a trail longer than one page '
+        'When page 2 is read '
+        'Then only page 2 is asked for, with the filter and the page size, '
+        "and the API's position and counts come back (UC-25)", () async {
+      final stub = api.ApiStub(
+        (request) => api.paginated(
+          [auditJson('2026-02-01T00:00:00Z', 'Page 2')],
+          pageNumber: 2,
+          totalPages: 3,
+          pageSize: browsePageSize,
+          totalItems: 60,
+        ),
+      );
 
       final result = await HttpAuditRepository.fromDio(stub.dio)
-          .read(const AuditFilter(operation: 'Delete'));
+          .read(const AuditFilter(operation: 'Delete', pageNumber: 2));
 
-      expect(
-        [
-          for (final request in stub.requests)
-            (
-              request.queryParameters['PageNumber'],
-              request.queryParameters['Operation'],
-            ),
-        ],
-        [(1, 'Delete'), (2, 'Delete')],
+      expect(stub.requests, hasLength(1));
+      expect(stub.request.queryParameters['PageNumber'], 2);
+      expect(stub.request.queryParameters['PageSize'], browsePageSize);
+      expect(stub.request.queryParameters['Operation'], 'Delete');
+      final page = result.valueOrNull!;
+      expect(page.items.single.operation, 'Page 2');
+      expect(page.pageNumber, 2);
+      expect(page.totalPages, 3);
+      expect(page.totalItems, 60);
+    });
+
+    test('Given a page beyond the last is asked for '
+        'When the API answers with its last page '
+        'Then the page is the one the API answered, not the one asked for '
+        '(UC-25 AF-05)', () async {
+      final stub = api.ApiStub(
+        (_) => api.paginated(
+          [auditJson('2026-02-01T00:00:00Z', 'Last')],
+          pageNumber: 3,
+          totalPages: 3,
+          totalItems: 51,
+        ),
       );
-      expect(result.valueOrNull!.map((entry) => entry.operation), [
-        'Page 2',
-        'Page 1',
-      ]);
+
+      final result = await HttpAuditRepository.fromDio(stub.dio)
+          .read(const AuditFilter(pageNumber: 9));
+
+      expect(result.valueOrNull!.pageNumber, 3);
     });
 
     test('Given an entry the API sent without a time '
@@ -165,7 +199,7 @@ void main() {
       final result = await repository.read(const AuditFilter());
 
       expect(
-        result.valueOrNull!.single.occurredAt,
+        result.valueOrNull!.items.single.occurredAt,
         DateTime(2026, 11, 16, 9, 30),
       );
     });
@@ -188,7 +222,7 @@ void main() {
 
       final result = await repository.read(const AuditFilter());
 
-      final entries = (result as Success<List<AuditEntry>>).value;
+      final entries = (result as Success<PagedList<AuditEntry>>).value.items;
       expect(entries.map((e) => e.operation), ['Delete', 'Update', 'Create']);
     });
 
@@ -212,7 +246,7 @@ void main() {
 
         final entries = ((await repository.read(
           const AuditFilter(),
-        )) as Success<List<AuditEntry>>).value;
+        )) as Success<PagedList<AuditEntry>>).value.items;
 
         expect(entries.single.result, AuditResult.refused);
         expect(entries.single.reason, 'Still referenced.');
@@ -230,8 +264,11 @@ void main() {
 
       final result = await repository.read(const AuditFilter());
 
-      expect(result, isA<Failure<List<AuditEntry>>>());
-      expect((result as Failure<List<AuditEntry>>).message, 'Not available.');
+      expect(result, isA<Failure<PagedList<AuditEntry>>>());
+      expect(
+        (result as Failure<PagedList<AuditEntry>>).message,
+        'Not available.',
+      );
     });
   });
 
@@ -292,6 +329,46 @@ void main() {
         expect(filter.operation, 'Delete');
       },
     );
+
+    test('Given page 3 of a filtered trail '
+        'When the period or the action changes '
+        'Then the trail starts again at page 1, since page 3 of the old '
+        'filter means nothing under the new one', () {
+      final container = containerWith(FakeAudit(() => const Success([])));
+      final controller = container.read(auditFilterProvider.notifier)
+        ..goToPage(3);
+      expect(container.read(auditFilterProvider).pageNumber, 3);
+
+      controller.setOperation('Delete');
+      expect(container.read(auditFilterProvider).pageNumber, 1);
+
+      controller
+        ..goToPage(3)
+        ..setPeriod(from: DateTime(2026), to: DateTime(2026, 2));
+      expect(container.read(auditFilterProvider).pageNumber, 1);
+    });
+
+    test('Given the first page '
+        'When a page before it is asked for '
+        'Then the trail stays on page 1', () {
+      final container = containerWith(FakeAudit(() => const Success([])));
+
+      container.read(auditFilterProvider.notifier).goToPage(0);
+
+      expect(container.read(auditFilterProvider).pageNumber, 1);
+    });
+
+    test('Given a page is chosen '
+        'When the entries are read '
+        'Then that page is asked for', () async {
+      final repository = FakeAudit(() => const Success([]));
+      final container = containerWith(repository);
+
+      container.read(auditFilterProvider.notifier).goToPage(2);
+      await container.read(auditEntriesProvider.future);
+
+      expect(repository.requested.last.pageNumber, 2);
+    });
 
     test('Given filters are set '
         'When they are cleared '
@@ -559,6 +636,51 @@ void main() {
 
       expect(repository.requested, hasLength(1));
       expect(find.text('Any period'), findsOneWidget);
+    });
+
+    testWidgets('Given a trail of three pages '
+        'When the screen settles '
+        'Then only the first page is asked for, and the pager says where the '
+        'reader is (UC-25)', (tester) async {
+      final repository = await pumpAudit(
+        tester,
+        () => Success([entry(at: DateTime(2026, 9, 1))]),
+        totalPages: 3,
+      );
+
+      expect(repository.requested.single.pageNumber, 1);
+      expect(find.text('Page 1 of 3'), findsOneWidget);
+      expect(find.text('3 entries'), findsOneWidget);
+      expect(
+        tester
+            .widget<IconButton>(find.byKey(const Key('audit.previous')))
+            .onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('Given the first of three pages '
+        'When the next page is chosen '
+        'Then page 2 is asked for and shown', (tester) async {
+      final repository = await pumpAudit(
+        tester,
+        () => Success([entry(at: DateTime(2026, 9, 1))]),
+        totalPages: 3,
+      );
+
+      await tester.tap(find.byKey(const Key('audit.next')));
+      await tester.pumpAndSettle();
+
+      expect(repository.requested.last.pageNumber, 2);
+      expect(find.text('Page 2 of 3'), findsOneWidget);
+    });
+
+    testWidgets('Given no entries '
+        'When the screen settles '
+        'Then no pager is shown, only the empty state', (tester) async {
+      await pumpAudit(tester, () => const Success([]));
+
+      expect(find.byKey(const Key('audit.pageNumber')), findsNothing);
     });
   });
 }

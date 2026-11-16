@@ -64,10 +64,13 @@ class AuditEntry {
   final String? reason;
 }
 
-/// What the trail is filtered to (`step 3`).
+/// What the trail is filtered to (`step 3`), and which page of it is shown.
+///
+/// The trail grows with every write and never shrinks (`BR-41`), so it is
+/// read a page at a time, the way the transaction grid is (UC-25).
 @immutable
 class AuditFilter {
-  const AuditFilter({this.from, this.to, this.operation});
+  const AuditFilter({this.from, this.to, this.operation, this.pageNumber = 1});
 
   final DateTime? from;
   final DateTime? to;
@@ -75,12 +78,17 @@ class AuditFilter {
   /// The kind of action, as the API names it.
   final String? operation;
 
+  final int pageNumber;
+
+  /// Whether any filter narrows the trail. The page is a position, not a
+  /// filter.
   bool get isEmpty => from == null && to == null && operation == null;
 
   AuditFilter copyWith({
     DateTime? from,
     DateTime? to,
     String? operation,
+    int? pageNumber,
     bool clearFrom = false,
     bool clearTo = false,
     bool clearOperation = false,
@@ -88,11 +96,24 @@ class AuditFilter {
     from: clearFrom ? null : from ?? this.from,
     to: clearTo ? null : to ?? this.to,
     operation: clearOperation ? null : operation ?? this.operation,
+    pageNumber: pageNumber ?? this.pageNumber,
   );
+
+  @override
+  bool operator ==(Object other) =>
+      other is AuditFilter &&
+      other.from == from &&
+      other.to == to &&
+      other.operation == operation &&
+      other.pageNumber == pageNumber;
+
+  @override
+  int get hashCode => Object.hash(from, to, operation, pageNumber);
 }
 
 abstract interface class AuditRepository {
-  Future<Result<List<AuditEntry>>> read(AuditFilter filter);
+  /// The page [AuditFilter.pageNumber] of the entries matching [filter].
+  Future<Result<PagedList<AuditEntry>>> read(AuditFilter filter);
 }
 
 class HttpAuditRepository implements AuditRepository {
@@ -105,24 +126,18 @@ class HttpAuditRepository implements AuditRepository {
   final Clock _clock;
 
   @override
-  Future<Result<List<AuditEntry>>> read(AuditFilter filter) async {
+  Future<Result<PagedList<AuditEntry>>> read(AuditFilter filter) async {
     try {
-      final outputs = await readEveryPage((pageNumber, pageSize) async {
-        final page = await _client.getApiAuditEntries(
-          from: filter.from,
-          to: filter.to,
-          operation: filter.operation,
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-        );
-        return (
-          items: page.data ?? const <AuditEntryOutput>[],
-          totalPages: page.totalPages,
-        );
-      });
+      final page = await _client.getApiAuditEntries(
+        from: filter.from,
+        to: filter.to,
+        operation: filter.operation,
+        pageNumber: filter.pageNumber,
+        pageSize: browsePageSize,
+      );
 
       final entries = [
-        for (final entry in outputs)
+        for (final entry in page.data ?? const <AuditEntryOutput>[])
           AuditEntry(
             occurredAt: entry.occurredAt ?? _clock(),
             operation: entry.operation ?? 'Unknown action',
@@ -133,14 +148,20 @@ class HttpAuditRepository implements AuditRepository {
           ),
       ];
 
-      // Reverse chronological, as step 4 requires. Sorted here rather than
-      // trusted: the order a reader depends on should not rest on an
-      // undocumented default.
+      // Reverse chronological, as step 4 requires. The API serves the pages
+      // newest first; each page is sorted here as well, so the order a reader
+      // depends on does not rest on the page alone.
       return Success(
-        entries..sort((a, b) => b.occurredAt.compareTo(a.occurredAt)),
+        PagedList(
+          items: entries..sort((a, b) => b.occurredAt.compareTo(a.occurredAt)),
+          // AF-05: the page the API answered with.
+          pageNumber: page.pageNumber ?? filter.pageNumber,
+          totalItems: page.totalItems ?? entries.length,
+          totalPages: page.totalPages ?? 1,
+        ),
       );
     } on DioException catch (exception) {
-      return failureFromDioException<List<AuditEntry>>(exception);
+      return failureFromDioException<PagedList<AuditEntry>>(exception);
     }
   }
 }

@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/format/supported_locales.dart';
 import '../../../core/time/clock.dart';
+import '../../../shared/widgets/page_bar.dart';
 import '../../preferences/state/preferences_controller.dart';
 import '../../session/ui/sign_out_action.dart';
 import '../data/audit_repository.dart';
@@ -31,6 +32,18 @@ class AuditTrailScreen extends ConsumerWidget {
           const SignOutAction(),
         ],
       ),
+      // A bar rather than the last row of the list, as in the transaction
+      // grid, and only once there is a page to step through.
+      bottomNavigationBar: switch (entries) {
+        AsyncData(:final value) when !value.isEmpty => PageBar(
+          page: value,
+          keyPrefix: 'audit',
+          singular: 'entry',
+          plural: 'entries',
+          onGoTo: ref.read(auditFilterProvider.notifier).goToPage,
+        ),
+        _ => null,
+      },
       body: Column(
         children: [
           const _Filters(),
@@ -44,15 +57,15 @@ class AuditTrailScreen extends ConsumerWidget {
                     : 'The audit trail could not be read.',
                 onRetry: () => ref.invalidate(auditEntriesProvider),
               ),
-              data: (data) => data.isEmpty
+              data: (page) => page.isEmpty
                   ? const _Empty()
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: data.length,
+                      itemCount: page.items.length,
                       separatorBuilder: (context, index) =>
                           const Divider(height: 1),
                       itemBuilder: (context, index) =>
-                          _EntryTile(entry: data[index]),
+                          _EntryTile(entry: page.items[index]),
                     ),
             ),
           ),
