@@ -220,6 +220,25 @@ void main() {
       expect(filter.to, DateTime(2026, 2));
     });
 
+    test(
+      'Given a period and an action '
+      'When a period with no start is set '
+      'Then the start is gone, the end is the new one and the action stays',
+      () {
+        final container = containerWith(FakeAudit(() => const Success([])));
+        final controller = container.read(auditFilterProvider.notifier)
+          ..setPeriod(from: DateTime(2026), to: DateTime(2026, 2))
+          ..setOperation('Delete');
+
+        controller.setPeriod(to: DateTime(2026, 3));
+
+        final filter = container.read(auditFilterProvider);
+        expect(filter.from, isNull);
+        expect(filter.to, DateTime(2026, 3));
+        expect(filter.operation, 'Delete');
+      },
+    );
+
     test('Given filters are set '
         'When they are cleared '
         'Then nothing is filtered', () {
