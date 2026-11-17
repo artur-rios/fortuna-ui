@@ -3,7 +3,7 @@
 import 'dart:convert' as convert;
 
 import 'package:dio/dio.dart'
-    show Dio, Options, ResponseType, CancelToken, RequestOptions;
+    show Dio, Options, ResponseType, ResponseBody, CancelToken, RequestOptions;
 import 'package:retrofit/retrofit.dart'
     show RestApi, Extras, CancelRequest, GET, ParseErrorLogger, Path;
 
@@ -23,7 +23,7 @@ abstract class ExportsClient {
 
   final Dio _transport;
 
-  Future<String> postApiExports({
+  Future<List<int>> postApiExports({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -34,14 +34,15 @@ abstract class ExportsClient {
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
-      responseType: ResponseType.json,
+      responseType: ResponseType.stream,
       extra: {...?options?.extra, ...extra},
       contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
-        'Accept': "application/json",
+        'Accept':
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       },
       validateStatus: (status) => status != null && (status == 200),
     );
@@ -51,7 +52,9 @@ abstract class ExportsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return response.data as String;
+    return await (response.data as ResponseBody).stream
+        .expand((chunk) => chunk)
+        .toList();
   }
 
   Future<RetrieveDataExportQueryOutputDataOutput$Response>
