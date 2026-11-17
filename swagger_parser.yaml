@@ -38,6 +38,11 @@ swagger_parser:
     # is the repository's job in the consuming feature, not the generator's.
     original_http_response: false
 
+    # A query parameter the contract gives a default (`includeDeleted=false`,
+    # `pageSize=100`) is sent with it when the caller passes nothing, as the
+    # 1.x client sent it.
+    apply_parameter_defaults: true
+
     # An optional nullable property stays `T?`, and a null one is left out of
     # a request body. The online API reads a missing key as null, but the
     # offline core merges a PUT body into the stored record, where a missing
