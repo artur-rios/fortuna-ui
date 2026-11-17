@@ -23,36 +23,24 @@ BudgetConsumptionCommandOutput _$BudgetConsumptionCommandOutputFromJson(
     disallowNullValues: const ['isFullyConverted', 'periodEnd', 'periodStart'],
   );
   return BudgetConsumptionCommandOutput(
-    isExceeded: !json.containsKey('isExceeded')
-        ? null
-        : BudgetConsumptionCommandOutput._read_isExceeded(json['isExceeded']),
+    isExceeded: json['isExceeded'] as bool?,
     isFullyConverted: json['isFullyConverted'] as bool?,
-    overage: !json.containsKey('overage')
-        ? null
-        : BudgetConsumptionCommandOutput._read_overage(json['overage']),
+    overage: json['overage'] as String?,
     periodEnd: json['periodEnd'] as String?,
     periodStart: json['periodStart'] as String?,
-    remaining: !json.containsKey('remaining')
-        ? null
-        : BudgetConsumptionCommandOutput._read_remaining(json['remaining']),
-    spent: !json.containsKey('spent')
-        ? null
-        : BudgetConsumptionCommandOutput._read_spent(json['spent']),
+    remaining: json['remaining'] as String?,
+    spent: json['spent'] as String?,
   );
 }
 
 Map<String, dynamic> _$BudgetConsumptionCommandOutputToJson(
   BudgetConsumptionCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.isExceeded case final $value?)
-    'isExceeded': BudgetConsumptionCommandOutput._write_isExceeded($value),
+  'isExceeded': ?instance.isExceeded,
   'isFullyConverted': ?instance.isFullyConverted,
-  if (instance.overage case final $value?)
-    'overage': BudgetConsumptionCommandOutput._write_overage($value),
+  'overage': ?instance.overage,
   'periodEnd': ?instance.periodEnd,
   'periodStart': ?instance.periodStart,
-  if (instance.remaining case final $value?)
-    'remaining': BudgetConsumptionCommandOutput._write_remaining($value),
-  if (instance.spent case final $value?)
-    'spent': BudgetConsumptionCommandOutput._write_spent($value),
+  'remaining': ?instance.remaining,
+  'spent': ?instance.spent,
 };

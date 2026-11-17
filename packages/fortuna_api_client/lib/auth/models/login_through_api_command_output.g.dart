@@ -22,47 +22,26 @@ LoginThroughApiCommandOutput _$LoginThroughApiCommandOutputFromJson(
     disallowNullValues: const ['requiresTwoFactor'],
   );
   return LoginThroughApiCommandOutput(
-    availableMethods: !json.containsKey('availableMethods')
-        ? null
-        : LoginThroughApiCommandOutput._read_availableMethods(
-            json['availableMethods'],
-          ),
-    challengeToken: !json.containsKey('challengeToken')
-        ? null
-        : LoginThroughApiCommandOutput._read_challengeToken(
-            json['challengeToken'],
-          ),
-    emailVerified: !json.containsKey('emailVerified')
-        ? null
-        : LoginThroughApiCommandOutput._read_emailVerified(
-            json['emailVerified'],
-          ),
-    expiresAt: !json.containsKey('expiresAt')
-        ? null
-        : LoginThroughApiCommandOutput._read_expiresAt(json['expiresAt']),
+    availableMethods: (json['availableMethods'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    challengeToken: json['challengeToken'] as String?,
+    emailVerified: json['emailVerified'] as bool?,
+    expiresAt: LoginThroughApiCommandOutput._read_expiresAt(json['expiresAt']),
     requiresTwoFactor: json['requiresTwoFactor'] as bool?,
-    token: !json.containsKey('token')
-        ? null
-        : LoginThroughApiCommandOutput._read_token(json['token']),
+    token: json['token'] as String?,
   );
 }
 
 Map<String, dynamic> _$LoginThroughApiCommandOutputToJson(
   LoginThroughApiCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.availableMethods case final $value?)
-    'availableMethods': LoginThroughApiCommandOutput._write_availableMethods(
-      $value,
-    ),
-  if (instance.challengeToken case final $value?)
-    'challengeToken': LoginThroughApiCommandOutput._write_challengeToken(
-      $value,
-    ),
-  if (instance.emailVerified case final $value?)
-    'emailVerified': LoginThroughApiCommandOutput._write_emailVerified($value),
-  if (instance.expiresAt case final $value?)
-    'expiresAt': LoginThroughApiCommandOutput._write_expiresAt($value),
+  'availableMethods': ?instance.availableMethods,
+  'challengeToken': ?instance.challengeToken,
+  'emailVerified': ?instance.emailVerified,
+  'expiresAt': ?LoginThroughApiCommandOutput._write_expiresAt(
+    instance.expiresAt,
+  ),
   'requiresTwoFactor': ?instance.requiresTwoFactor,
-  if (instance.token case final $value?)
-    'token': LoginThroughApiCommandOutput._write_token($value),
+  'token': ?instance.token,
 };

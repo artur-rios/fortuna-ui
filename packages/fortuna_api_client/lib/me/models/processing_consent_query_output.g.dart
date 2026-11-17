@@ -11,15 +11,17 @@ ProcessingConsentQueryOutput _$ProcessingConsentQueryOutputFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['consents']);
   return ProcessingConsentQueryOutput(
-    consents: !json.containsKey('consents')
-        ? null
-        : ProcessingConsentQueryOutput._read_consents(json['consents']),
+    consents: (json['consents'] as List<dynamic>?)
+        ?.map(
+          (e) =>
+              ProcessingConsentStateOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$ProcessingConsentQueryOutputToJson(
   ProcessingConsentQueryOutput instance,
 ) => <String, dynamic>{
-  if (instance.consents case final $value?)
-    'consents': ProcessingConsentQueryOutput._write_consents($value),
+  'consents': ?instance.consents?.map((e) => e.toJson()).toList(),
 };

@@ -22,73 +22,33 @@ class LoginThroughApiCommandOutput {
   factory LoginThroughApiCommandOutput.fromJson(Map<String, Object?> json) =>
       _$LoginThroughApiCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: LoginThroughApiCommandOutput._read_availableMethods,
-    toJson: LoginThroughApiCommandOutput._write_availableMethods,
-  )
-  final ({List<String>? value})? availableMethods;
+  @JsonKey(includeIfNull: false)
+  final List<String>? availableMethods;
+
+  @JsonKey(includeIfNull: false)
+  final String? challengeToken;
+
+  @JsonKey(includeIfNull: false)
+  final bool? emailVerified;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: LoginThroughApiCommandOutput._read_challengeToken,
-    toJson: LoginThroughApiCommandOutput._write_challengeToken,
-  )
-  final ({String? value})? challengeToken;
-
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: LoginThroughApiCommandOutput._read_emailVerified,
-    toJson: LoginThroughApiCommandOutput._write_emailVerified,
-  )
-  final ({bool? value})? emailVerified;
-
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: LoginThroughApiCommandOutput._read_expiresAt,
     toJson: LoginThroughApiCommandOutput._write_expiresAt,
   )
-  final ({DateTime? value})? expiresAt;
+  final DateTime? expiresAt;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? requiresTwoFactor;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: LoginThroughApiCommandOutput._read_token,
-    toJson: LoginThroughApiCommandOutput._write_token,
-  )
-  final ({String? value})? token;
+  @JsonKey(includeIfNull: false)
+  final String? token;
 
-  static ({List<String>? value}) _read_availableMethods(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
+  static DateTime? _read_expiresAt(Object? value) =>
+      value == null ? null : DateTime.parse(value as String).toUtc();
 
-  static Object? _write_availableMethods(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_challengeToken(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_challengeToken(({String? value}) value) => value.value;
-
-  static ({bool? value}) _read_emailVerified(Object? value) =>
-      (value: value as bool?);
-
-  static Object? _write_emailVerified(({bool? value}) value) => value.value;
-
-  static ({DateTime? value}) _read_expiresAt(Object? value) =>
-      (value: value == null ? null : DateTime.parse(value as String).toUtc());
-
-  static Object? _write_expiresAt(({DateTime? value}) value) =>
-      value.value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_token(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_token(({String? value}) value) => value.value;
+  static Object? _write_expiresAt(DateTime? value) =>
+      value?.toUtc().toIso8601String();
 
   Map<String, Object?> toJson() => _$LoginThroughApiCommandOutputToJson(this);
 }

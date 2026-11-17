@@ -26,6 +26,60 @@ class _TransactionsClient extends TransactionsClient {
   final ParseErrorLogger? errorLogger;
 
   @override
+  Future<RecordTransactionCommandOutputDataOutput$Response>
+  postApiTransactions({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RecordTransactionCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<RecordTransactionCommandOutputDataOutput$Response>(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/transactions',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late RecordTransactionCommandOutputDataOutput$Response _value;
+    try {
+      _value = RecordTransactionCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<TransactionOutputDataOutput$Response> getApiTransactionsById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -60,6 +114,61 @@ class _TransactionsClient extends TransactionsClient {
     late TransactionOutputDataOutput$Response _value;
     try {
       _value = TransactionOutputDataOutput$Response.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<UpdateTransactionCommandOutputDataOutput$Response>
+  putApiTransactionsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateTransactionCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<UpdateTransactionCommandOutputDataOutput$Response>(
+          Options(
+                method: 'PUT',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/transactions/${id}',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late UpdateTransactionCommandOutputDataOutput$Response _value;
+    try {
+      _value = UpdateTransactionCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -195,6 +304,61 @@ class _TransactionsClient extends TransactionsClient {
     late TransactionLifecycleCommandOutputDataOutput$Response _value;
     try {
       _value = TransactionLifecycleCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ReconcileTransactionCommandOutputDataOutput$Response>
+  postApiTransactionsByIdReconcile({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required ReconcileTransactionCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<ReconcileTransactionCommandOutputDataOutput$Response>(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/transactions/${id}/reconcile',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late ReconcileTransactionCommandOutputDataOutput$Response _value;
+    try {
+      _value = ReconcileTransactionCommandOutputDataOutput$Response.fromJson(
         _result.data!,
       );
     } on Object catch (e, s) {

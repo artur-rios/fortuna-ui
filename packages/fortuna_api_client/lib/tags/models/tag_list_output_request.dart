@@ -42,12 +42,8 @@ class TagListOutput$Request {
   )
   final int? pageSize;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TagListOutput$Request._read_tags,
-    toJson: TagListOutput$Request._write_tags,
-  )
-  final ({List<TagOutput>? value})? tags;
+  @JsonKey(includeIfNull: false)
+  final List<TagOutput>? tags;
 
   @JsonKey(
     disallowNullValue: true,
@@ -66,17 +62,6 @@ class TagListOutput$Request {
       value == null ? null : value as int;
 
   static Object? _write_pageSize(int? value) => value;
-
-  static ({List<TagOutput>? value}) _read_tags(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map((item) => TagOutput.fromJson(item as Map<String, Object?>))
-              .toList(),
-  );
-
-  static Object? _write_tags(({List<TagOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   static int? _read_totalItems(Object? value) =>
       value == null ? null : value as int;

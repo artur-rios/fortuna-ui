@@ -15,9 +15,7 @@ EraseUserCommandOutput$Response _$EraseUserCommandOutput$ResponseFromJson(
     disallowNullValues: const ['irreversible', 'revokedConnections'],
   );
   return EraseUserCommandOutput$Response(
-    erased: !json.containsKey('erased')
-        ? null
-        : EraseUserCommandOutput$Response._read_erased(json['erased']),
+    erased: EraseUserCommandOutput$Response._read_erased(json['erased']),
     irreversible: json['irreversible'] as bool?,
     revokedConnections:
         EraseUserCommandOutput$Response._read_revokedConnections(
@@ -29,8 +27,7 @@ EraseUserCommandOutput$Response _$EraseUserCommandOutput$ResponseFromJson(
 Map<String, dynamic> _$EraseUserCommandOutput$ResponseToJson(
   EraseUserCommandOutput$Response instance,
 ) => <String, dynamic>{
-  if (instance.erased case final $value?)
-    'erased': EraseUserCommandOutput$Response._write_erased($value),
+  'erased': ?EraseUserCommandOutput$Response._write_erased(instance.erased),
   'irreversible': ?instance.irreversible,
   'revokedConnections':
       ?EraseUserCommandOutput$Response._write_revokedConnections(

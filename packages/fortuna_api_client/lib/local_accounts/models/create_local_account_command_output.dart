@@ -33,29 +33,17 @@ class CreateLocalAccountCommandOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateLocalAccountCommandOutput._read_displayName,
-    toJson: CreateLocalAccountCommandOutput._write_displayName,
-  )
-  final ({String? value})? displayName;
+  @JsonKey(includeIfNull: false)
+  final String? displayName;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateLocalAccountCommandOutput._read_recoveryCodes,
-    toJson: CreateLocalAccountCommandOutput._write_recoveryCodes,
-  )
-  final ({List<String>? value})? recoveryCodes;
+  @JsonKey(includeIfNull: false)
+  final List<String>? recoveryCodes;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateLocalAccountCommandOutput._read_recoveryWarning,
-    toJson: CreateLocalAccountCommandOutput._write_recoveryWarning,
-  )
-  final ({String? value})? recoveryWarning;
+  @JsonKey(includeIfNull: false)
+  final String? recoveryWarning;
 
   @JsonKey(
     disallowNullValue: true,
@@ -73,25 +61,6 @@ class CreateLocalAccountCommandOutput {
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_displayName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayName(({String? value}) value) => value.value;
-
-  static ({List<String>? value}) _read_recoveryCodes(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_recoveryCodes(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_recoveryWarning(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recoveryWarning(({String? value}) value) => value.value;
 
   static LocalAccountStorageMode? _read_storageMode(Object? value) =>
       value == null ? null : LocalAccountStorageMode.fromJson(value);

@@ -22,22 +22,14 @@ class TableColumnOutput {
   factory TableColumnOutput.fromJson(Map<String, Object?> json) =>
       _$TableColumnOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableColumnOutput._read_currencyColumn,
-    toJson: TableColumnOutput._write_currencyColumn,
-  )
-  final ({String? value})? currencyColumn;
+  @JsonKey(includeIfNull: false)
+  final String? currencyColumn;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isNumeric;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableColumnOutput._read_name,
-    toJson: TableColumnOutput._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   @JsonKey(
     disallowNullValue: true,
@@ -46,16 +38,6 @@ class TableColumnOutput {
     toJson: TableColumnOutput._write_type,
   )
   final TableColumnType? type;
-
-  static ({String? value}) _read_currencyColumn(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyColumn(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
 
   static TableColumnType? _read_type(Object? value) =>
       value == null ? null : TableColumnType.fromJson(value);

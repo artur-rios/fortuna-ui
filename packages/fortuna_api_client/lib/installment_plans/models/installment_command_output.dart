@@ -30,19 +30,11 @@ class InstallmentCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentCommandOutput._read_appliedRate,
-    toJson: InstallmentCommandOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentCommandOutput._read_currencyCode,
-    toJson: InstallmentCommandOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isLateArriving;
@@ -58,72 +50,25 @@ class InstallmentCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentCommandOutput._read_originalAmount,
-    toJson: InstallmentCommandOutput._write_originalAmount,
-  )
-  final ({String? value})? originalAmount;
+  @JsonKey(includeIfNull: false)
+  final String? originalAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentCommandOutput._read_originalCurrencyCode,
-    toJson: InstallmentCommandOutput._write_originalCurrencyCode,
-  )
-  final ({String? value})? originalCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? originalCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentCommandOutput._read_rateDate,
-    toJson: InstallmentCommandOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentCommandOutput._read_statementId,
-    toJson: InstallmentCommandOutput._write_statementId,
-  )
-  final ({String? value})? statementId;
+  @JsonKey(includeIfNull: false)
+  final String? statementId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? transactionId;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
 
   static int? _read_number(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_number(int? value) => value;
-
-  static ({String? value}) _read_originalAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_originalAmount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_originalCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_originalCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_statementId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_statementId(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$InstallmentCommandOutputToJson(this);
 }

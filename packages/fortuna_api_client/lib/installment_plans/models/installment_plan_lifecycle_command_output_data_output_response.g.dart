@@ -13,7 +13,7 @@ _$InstallmentPlanLifecycleCommandOutputDataOutput$ResponseFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'success', 'timestamp'],
-    disallowNullValues: const ['data', 'success', 'timestamp'],
+    disallowNullValues: const ['success', 'timestamp'],
   );
   return InstallmentPlanLifecycleCommandOutputDataOutput$Response(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$InstallmentPlanLifecycleCommandOutputDataOutput$ResponseFromJson(
         : InstallmentPlanLifecycleCommandOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : InstallmentPlanLifecycleCommandOutputDataOutput$Response._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : InstallmentPlanLifecycleCommandOutputDataOutput$Response._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp:
         InstallmentPlanLifecycleCommandOutputDataOutput$Response._read_timestamp(
@@ -44,16 +40,8 @@ _$InstallmentPlanLifecycleCommandOutputDataOutput$ResponseToJson(
   InstallmentPlanLifecycleCommandOutputDataOutput$Response instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors':
-        InstallmentPlanLifecycleCommandOutputDataOutput$Response._write_errors(
-          $value,
-        ),
-  if (instance.messages case final $value?)
-    'messages':
-        InstallmentPlanLifecycleCommandOutputDataOutput$Response._write_messages(
-          $value,
-        ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp':
       ?InstallmentPlanLifecycleCommandOutputDataOutput$Response._write_timestamp(

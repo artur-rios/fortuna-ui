@@ -31,12 +31,8 @@ class CreditCardStatementTransactionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementTransactionOutput._read_appliedRate,
-    toJson: CreditCardStatementTransactionOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
   @JsonKey(
     disallowNullValue: true,
@@ -46,12 +42,8 @@ class CreditCardStatementTransactionOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementTransactionOutput._read_direction,
-    toJson: CreditCardStatementTransactionOutput._write_direction,
-  )
-  final ({String? value})? direction;
+  @JsonKey(includeIfNull: false)
+  final String? direction;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -62,26 +54,14 @@ class CreditCardStatementTransactionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementTransactionOutput._read_originalAmount,
-    toJson: CreditCardStatementTransactionOutput._write_originalAmount,
-  )
-  final ({String? value})? originalAmount;
+  @JsonKey(includeIfNull: false)
+  final String? originalAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementTransactionOutput._read_originalCurrencyCode,
-    toJson: CreditCardStatementTransactionOutput._write_originalCurrencyCode,
-  )
-  final ({String? value})? originalCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? originalCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementTransactionOutput._read_rateDate,
-    toJson: CreditCardStatementTransactionOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
     disallowNullValue: true,
@@ -91,37 +71,11 @@ class CreditCardStatementTransactionOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_direction(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_direction(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_originalAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_originalAmount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_originalCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_originalCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

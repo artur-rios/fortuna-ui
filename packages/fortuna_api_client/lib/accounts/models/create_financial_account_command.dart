@@ -31,26 +31,14 @@ class CreateFinancialAccountCommand {
   )
   final FinancialAccountType? accountType;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateFinancialAccountCommand._read_currencyCode,
-    toJson: CreateFinancialAccountCommand._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateFinancialAccountCommand._read_institution,
-    toJson: CreateFinancialAccountCommand._write_institution,
-  )
-  final ({String? value})? institution;
+  @JsonKey(includeIfNull: false)
+  final String? institution;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateFinancialAccountCommand._read_name,
-    toJson: CreateFinancialAccountCommand._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? openingBalance;
@@ -60,21 +48,6 @@ class CreateFinancialAccountCommand {
 
   static Object? _write_accountType(FinancialAccountType? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_institution(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_institution(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$CreateFinancialAccountCommandToJson(this);
 }

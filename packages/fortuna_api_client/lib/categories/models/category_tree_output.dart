@@ -20,25 +20,8 @@ class CategoryTreeOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? canSeedDefaults;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CategoryTreeOutput._read_categories,
-    toJson: CategoryTreeOutput._write_categories,
-  )
-  final ({List<CategoryOutput>? value})? categories;
-
-  static ({List<CategoryOutput>? value}) _read_categories(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => CategoryOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_categories(({List<CategoryOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
+  @JsonKey(includeIfNull: false)
+  final List<CategoryOutput>? categories;
 
   Map<String, Object?> toJson() => _$CategoryTreeOutputToJson(this);
 }

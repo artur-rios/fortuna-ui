@@ -35,20 +35,10 @@ _$UpdateFinancialAccountCommandOutputFromJson(Map<String, dynamic> json) {
     createdAt: UpdateFinancialAccountCommandOutput._read_createdAt(
       json['createdAt'],
     ),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : UpdateFinancialAccountCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
-    institution: !json.containsKey('institution')
-        ? null
-        : UpdateFinancialAccountCommandOutput._read_institution(
-            json['institution'],
-          ),
-    name: !json.containsKey('name')
-        ? null
-        : UpdateFinancialAccountCommandOutput._read_name(json['name']),
+    institution: json['institution'] as String?,
+    name: json['name'] as String?,
     openingBalance: json['openingBalance'] as String?,
     updatedAt: UpdateFinancialAccountCommandOutput._read_updatedAt(
       json['updatedAt'],
@@ -65,17 +55,10 @@ Map<String, dynamic> _$UpdateFinancialAccountCommandOutputToJson(
   'createdAt': ?UpdateFinancialAccountCommandOutput._write_createdAt(
     instance.createdAt,
   ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': UpdateFinancialAccountCommandOutput._write_currencyCode(
-      $value,
-    ),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
-  if (instance.institution case final $value?)
-    'institution': UpdateFinancialAccountCommandOutput._write_institution(
-      $value,
-    ),
-  if (instance.name case final $value?)
-    'name': UpdateFinancialAccountCommandOutput._write_name($value),
+  'institution': ?instance.institution,
+  'name': ?instance.name,
   'openingBalance': ?instance.openingBalance,
   'updatedAt': ?UpdateFinancialAccountCommandOutput._write_updatedAt(
     instance.updatedAt,

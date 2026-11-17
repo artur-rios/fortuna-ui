@@ -37,12 +37,8 @@ class TransferOutput {
   factory TransferOutput.fromJson(Map<String, Object?> json) =>
       _$TransferOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_appliedRate,
-    toJson: TransferOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
   @JsonKey(
     disallowNullValue: true,
@@ -52,33 +48,17 @@ class TransferOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_destinationCreditCardId,
-    toJson: TransferOutput._write_destinationCreditCardId,
-  )
-  final ({String? value})? destinationCreditCardId;
+  @JsonKey(includeIfNull: false)
+  final String? destinationCreditCardId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_destinationFinancialAccountId,
-    toJson: TransferOutput._write_destinationFinancialAccountId,
-  )
-  final ({String? value})? destinationFinancialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? destinationFinancialAccountId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_destinationInvestmentId,
-    toJson: TransferOutput._write_destinationInvestmentId,
-  )
-  final ({String? value})? destinationInvestmentId;
+  @JsonKey(includeIfNull: false)
+  final String? destinationInvestmentId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_destinationStatementId,
-    toJson: TransferOutput._write_destinationStatementId,
-  )
-  final ({String? value})? destinationStatementId;
+  @JsonKey(includeIfNull: false)
+  final String? destinationStatementId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -86,29 +66,17 @@ class TransferOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? inboundAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_inboundCurrencyCode,
-    toJson: TransferOutput._write_inboundCurrencyCode,
-  )
-  final ({String? value})? inboundCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? inboundCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_inboundInvestmentMovementId,
-    toJson: TransferOutput._write_inboundInvestmentMovementId,
-  )
-  final ({String? value})? inboundInvestmentMovementId;
+  @JsonKey(includeIfNull: false)
+  final String? inboundInvestmentMovementId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? inboundIsDeleted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_inboundTransactionId,
-    toJson: TransferOutput._write_inboundTransactionId,
-  )
-  final ({String? value})? inboundTransactionId;
+  @JsonKey(includeIfNull: false)
+  final String? inboundTransactionId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isDeleted;
@@ -122,12 +90,8 @@ class TransferOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? outboundAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_outboundCurrencyCode,
-    toJson: TransferOutput._write_outboundCurrencyCode,
-  )
-  final ({String? value})? outboundCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? outboundCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? outboundIsDeleted;
@@ -135,12 +99,8 @@ class TransferOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? outboundTransactionId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransferOutput._read_rateDate,
-    toJson: TransferOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
     disallowNullValue: true,
@@ -150,70 +110,11 @@ class TransferOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_destinationCreditCardId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_destinationCreditCardId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_destinationFinancialAccountId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_destinationFinancialAccountId(
-    ({String? value}) value,
-  ) => value.value;
-
-  static ({String? value}) _read_destinationInvestmentId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_destinationInvestmentId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_destinationStatementId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_destinationStatementId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_inboundCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_inboundCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_inboundInvestmentMovementId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_inboundInvestmentMovementId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_inboundTransactionId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_inboundTransactionId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_outboundCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_outboundCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

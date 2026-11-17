@@ -34,12 +34,8 @@ class BudgetOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetOutput._read_categories,
-    toJson: BudgetOutput._write_categories,
-  )
-  final ({List<BudgetCategoryOutput>? value})? categories;
+  @JsonKey(includeIfNull: false)
+  final List<BudgetCategoryOutput>? categories;
 
   @JsonKey(
     disallowNullValue: true,
@@ -49,12 +45,8 @@ class BudgetOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetOutput._read_currencyCode,
-    toJson: BudgetOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final BudgetConsumptionOutput? currentPeriod;
@@ -87,33 +79,11 @@ class BudgetOutput {
   )
   final DateTime? updatedAt;
 
-  static ({List<BudgetCategoryOutput>? value}) _read_categories(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    BudgetCategoryOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_categories(
-    ({List<BudgetCategoryOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
 
   static BudgetPeriodType? _read_periodType(Object? value) =>
       value == null ? null : BudgetPeriodType.fromJson(value);

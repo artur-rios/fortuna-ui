@@ -36,93 +36,53 @@ InvestmentOutput _$InvestmentOutputFromJson(Map<String, dynamic> json) {
       'isDeleted',
       'isIndependentlyValued',
       'position',
-      'rateSource',
       'updatedAt',
     ],
   );
   return InvestmentOutput(
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : InvestmentOutput._read_appliedRate(json['appliedRate']),
+    appliedRate: json['appliedRate'] as String?,
     createdAt: InvestmentOutput._read_createdAt(json['createdAt']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : InvestmentOutput._read_currencyCode(json['currencyCode']),
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : InvestmentOutput._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
-          ),
-    displayPosition: !json.containsKey('displayPosition')
-        ? null
-        : InvestmentOutput._read_displayPosition(json['displayPosition']),
+    currencyCode: json['currencyCode'] as String?,
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
+    displayPosition: json['displayPosition'] as String?,
     id: json['id'] as String?,
-    institution: !json.containsKey('institution')
-        ? null
-        : InvestmentOutput._read_institution(json['institution']),
-    instrument: !json.containsKey('instrument')
-        ? null
-        : InvestmentOutput._read_instrument(json['instrument']),
+    institution: json['institution'] as String?,
+    instrument: json['instrument'] as String?,
     investmentType: InvestmentOutput._read_investmentType(
       json['investmentType'],
     ),
     isDeleted: json['isDeleted'] as bool?,
     isIndependentlyValued: json['isIndependentlyValued'] as bool?,
-    latestValuationDate: !json.containsKey('latestValuationDate')
-        ? null
-        : InvestmentOutput._read_latestValuationDate(
-            json['latestValuationDate'],
-          ),
-    latestValuationValue: !json.containsKey('latestValuationValue')
-        ? null
-        : InvestmentOutput._read_latestValuationValue(
-            json['latestValuationValue'],
-          ),
+    latestValuationDate: json['latestValuationDate'] as String?,
+    latestValuationValue: json['latestValuationValue'] as String?,
     position: json['position'] as String?,
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : InvestmentOutput._read_rateDate(json['rateDate']),
+    rateDate: json['rateDate'] as String?,
     rateSource: InvestmentOutput._read_rateSource(json['rateSource']),
-    unconvertedReason: !json.containsKey('unconvertedReason')
-        ? null
-        : InvestmentOutput._read_unconvertedReason(json['unconvertedReason']),
+    unconvertedReason: json['unconvertedReason'] as String?,
     updatedAt: InvestmentOutput._read_updatedAt(json['updatedAt']),
   );
 }
 
-Map<String, dynamic> _$InvestmentOutputToJson(
-  InvestmentOutput instance,
-) => <String, dynamic>{
-  if (instance.appliedRate case final $value?)
-    'appliedRate': InvestmentOutput._write_appliedRate($value),
-  'createdAt': ?InvestmentOutput._write_createdAt(instance.createdAt),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': InvestmentOutput._write_currencyCode($value),
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode': InvestmentOutput._write_displayCurrencyCode($value),
-  if (instance.displayPosition case final $value?)
-    'displayPosition': InvestmentOutput._write_displayPosition($value),
-  'id': ?instance.id,
-  if (instance.institution case final $value?)
-    'institution': InvestmentOutput._write_institution($value),
-  if (instance.instrument case final $value?)
-    'instrument': InvestmentOutput._write_instrument($value),
-  'investmentType': ?InvestmentOutput._write_investmentType(
-    instance.investmentType,
-  ),
-  'isDeleted': ?instance.isDeleted,
-  'isIndependentlyValued': ?instance.isIndependentlyValued,
-  if (instance.latestValuationDate case final $value?)
-    'latestValuationDate': InvestmentOutput._write_latestValuationDate($value),
-  if (instance.latestValuationValue case final $value?)
-    'latestValuationValue': InvestmentOutput._write_latestValuationValue(
-      $value,
-    ),
-  'position': ?instance.position,
-  if (instance.rateDate case final $value?)
-    'rateDate': InvestmentOutput._write_rateDate($value),
-  'rateSource': ?InvestmentOutput._write_rateSource(instance.rateSource),
-  if (instance.unconvertedReason case final $value?)
-    'unconvertedReason': InvestmentOutput._write_unconvertedReason($value),
-  'updatedAt': ?InvestmentOutput._write_updatedAt(instance.updatedAt),
-};
+Map<String, dynamic> _$InvestmentOutputToJson(InvestmentOutput instance) =>
+    <String, dynamic>{
+      'appliedRate': ?instance.appliedRate,
+      'createdAt': ?InvestmentOutput._write_createdAt(instance.createdAt),
+      'currencyCode': ?instance.currencyCode,
+      'displayCurrencyCode': ?instance.displayCurrencyCode,
+      'displayPosition': ?instance.displayPosition,
+      'id': ?instance.id,
+      'institution': ?instance.institution,
+      'instrument': ?instance.instrument,
+      'investmentType': ?InvestmentOutput._write_investmentType(
+        instance.investmentType,
+      ),
+      'isDeleted': ?instance.isDeleted,
+      'isIndependentlyValued': ?instance.isIndependentlyValued,
+      'latestValuationDate': ?instance.latestValuationDate,
+      'latestValuationValue': ?instance.latestValuationValue,
+      'position': ?instance.position,
+      'rateDate': ?instance.rateDate,
+      'rateSource': ?InvestmentOutput._write_rateSource(instance.rateSource),
+      'unconvertedReason': ?instance.unconvertedReason,
+      'updatedAt': ?InvestmentOutput._write_updatedAt(instance.updatedAt),
+    };

@@ -103,6 +103,60 @@ class _MeClient extends MeClient {
   }
 
   @override
+  Future<GrantProcessingConsentCommandOutputDataOutput$Response>
+  postApiMeConsents({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required GrantProcessingConsentCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<GrantProcessingConsentCommandOutputDataOutput$Response>(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/me/consents',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late GrantProcessingConsentCommandOutputDataOutput$Response _value;
+    try {
+      _value = GrantProcessingConsentCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<WithdrawProcessingConsentCommandOutputDataOutput$Response>
   deleteApiMeConsentsByPurpose({
     Map<String, Object?> extra = const {
@@ -233,6 +287,56 @@ class _MeClient extends MeClient {
     late PersonalDataExportQueryOutputDataOutput$Response _value;
     try {
       _value = PersonalDataExportQueryOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<EraseUserCommandOutputDataOutput$Response> postApiMeErasure({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required EraseUserCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<EraseUserCommandOutputDataOutput$Response>(
+      Options(
+            method: 'POST',
+            headers: _headers,
+            extra: _extra,
+            contentType: 'application/json',
+          )
+          .compose(
+            _dio.options,
+            '/api/me/erasure',
+            queryParameters: queryParameters,
+            data: _data,
+            cancelToken: cancelToken,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late EraseUserCommandOutputDataOutput$Response _value;
+    try {
+      _value = EraseUserCommandOutputDataOutput$Response.fromJson(
         _result.data!,
       );
     } on Object catch (e, s) {

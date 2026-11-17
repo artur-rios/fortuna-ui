@@ -45,67 +45,31 @@ _$UpdateRecurringTransactionCommandOutputFromJson(Map<String, dynamic> json) {
   );
   return UpdateRecurringTransactionCommandOutput(
     amount: json['amount'] as String?,
-    appliesFrom: !json.containsKey('appliesFrom')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_appliesFrom(
-            json['appliesFrom'],
-          ),
+    appliesFrom: json['appliesFrom'] as String?,
     categoryId: json['categoryId'] as String?,
-    counterpartyId: !json.containsKey('counterpartyId')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_counterpartyId(
-            json['counterpartyId'],
-          ),
-    counterpartyName: !json.containsKey('counterpartyName')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_counterpartyName(
-            json['counterpartyName'],
-          ),
+    counterpartyId: json['counterpartyId'] as String?,
+    counterpartyName: json['counterpartyName'] as String?,
     createdAt: UpdateRecurringTransactionCommandOutput._read_createdAt(
       json['createdAt'],
     ),
-    creditCardId: !json.containsKey('creditCardId')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_creditCardId(
-            json['creditCardId'],
-          ),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
-    description: !json.containsKey('description')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_description(
-            json['description'],
-          ),
+    creditCardId: json['creditCardId'] as String?,
+    currencyCode: json['currencyCode'] as String?,
+    description: json['description'] as String?,
     direction: UpdateRecurringTransactionCommandOutput._read_direction(
       json['direction'],
     ),
-    endsOn: !json.containsKey('endsOn')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_endsOn(json['endsOn']),
-    financialAccountId: !json.containsKey('financialAccountId')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_financialAccountId(
-            json['financialAccountId'],
-          ),
+    endsOn: json['endsOn'] as String?,
+    financialAccountId: json['financialAccountId'] as String?,
     frequency: UpdateRecurringTransactionCommandOutput._read_frequency(
       json['frequency'],
     ),
     id: json['id'] as String?,
-    lastMaterializedOn: !json.containsKey('lastMaterializedOn')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_lastMaterializedOn(
-            json['lastMaterializedOn'],
-          ),
+    lastMaterializedOn: json['lastMaterializedOn'] as String?,
     materializedOccurrencesChanged:
         json['materializedOccurrencesChanged'] as bool?,
-    nextOccurrences: !json.containsKey('nextOccurrences')
-        ? null
-        : UpdateRecurringTransactionCommandOutput._read_nextOccurrences(
-            json['nextOccurrences'],
-          ),
+    nextOccurrences: (json['nextOccurrences'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     startsOn: json['startsOn'] as String?,
     updatedAt: UpdateRecurringTransactionCommandOutput._read_updatedAt(
       json['updatedAt'],
@@ -117,55 +81,28 @@ Map<String, dynamic> _$UpdateRecurringTransactionCommandOutputToJson(
   UpdateRecurringTransactionCommandOutput instance,
 ) => <String, dynamic>{
   'amount': ?instance.amount,
-  if (instance.appliesFrom case final $value?)
-    'appliesFrom': UpdateRecurringTransactionCommandOutput._write_appliesFrom(
-      $value,
-    ),
+  'appliesFrom': ?instance.appliesFrom,
   'categoryId': ?instance.categoryId,
-  if (instance.counterpartyId case final $value?)
-    'counterpartyId':
-        UpdateRecurringTransactionCommandOutput._write_counterpartyId($value),
-  if (instance.counterpartyName case final $value?)
-    'counterpartyName':
-        UpdateRecurringTransactionCommandOutput._write_counterpartyName($value),
+  'counterpartyId': ?instance.counterpartyId,
+  'counterpartyName': ?instance.counterpartyName,
   'createdAt': ?UpdateRecurringTransactionCommandOutput._write_createdAt(
     instance.createdAt,
   ),
-  if (instance.creditCardId case final $value?)
-    'creditCardId': UpdateRecurringTransactionCommandOutput._write_creditCardId(
-      $value,
-    ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': UpdateRecurringTransactionCommandOutput._write_currencyCode(
-      $value,
-    ),
-  if (instance.description case final $value?)
-    'description': UpdateRecurringTransactionCommandOutput._write_description(
-      $value,
-    ),
+  'creditCardId': ?instance.creditCardId,
+  'currencyCode': ?instance.currencyCode,
+  'description': ?instance.description,
   'direction': ?UpdateRecurringTransactionCommandOutput._write_direction(
     instance.direction,
   ),
-  if (instance.endsOn case final $value?)
-    'endsOn': UpdateRecurringTransactionCommandOutput._write_endsOn($value),
-  if (instance.financialAccountId case final $value?)
-    'financialAccountId':
-        UpdateRecurringTransactionCommandOutput._write_financialAccountId(
-          $value,
-        ),
+  'endsOn': ?instance.endsOn,
+  'financialAccountId': ?instance.financialAccountId,
   'frequency': ?UpdateRecurringTransactionCommandOutput._write_frequency(
     instance.frequency,
   ),
   'id': ?instance.id,
-  if (instance.lastMaterializedOn case final $value?)
-    'lastMaterializedOn':
-        UpdateRecurringTransactionCommandOutput._write_lastMaterializedOn(
-          $value,
-        ),
+  'lastMaterializedOn': ?instance.lastMaterializedOn,
   'materializedOccurrencesChanged': ?instance.materializedOccurrencesChanged,
-  if (instance.nextOccurrences case final $value?)
-    'nextOccurrences':
-        UpdateRecurringTransactionCommandOutput._write_nextOccurrences($value),
+  'nextOccurrences': ?instance.nextOccurrences,
   'startsOn': ?instance.startsOn,
   'updatedAt': ?UpdateRecurringTransactionCommandOutput._write_updatedAt(
     instance.updatedAt,

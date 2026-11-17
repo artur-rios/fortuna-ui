@@ -24,17 +24,9 @@ CreateFinancialAccountCommand _$CreateFinancialAccountCommandFromJson(
     accountType: CreateFinancialAccountCommand._read_accountType(
       json['accountType'],
     ),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : CreateFinancialAccountCommand._read_currencyCode(
-            json['currencyCode'],
-          ),
-    institution: !json.containsKey('institution')
-        ? null
-        : CreateFinancialAccountCommand._read_institution(json['institution']),
-    name: !json.containsKey('name')
-        ? null
-        : CreateFinancialAccountCommand._read_name(json['name']),
+    currencyCode: json['currencyCode'] as String?,
+    institution: json['institution'] as String?,
+    name: json['name'] as String?,
     openingBalance: json['openingBalance'] as String?,
   );
 }
@@ -45,11 +37,8 @@ Map<String, dynamic> _$CreateFinancialAccountCommandToJson(
   'accountType': ?CreateFinancialAccountCommand._write_accountType(
     instance.accountType,
   ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': CreateFinancialAccountCommand._write_currencyCode($value),
-  if (instance.institution case final $value?)
-    'institution': CreateFinancialAccountCommand._write_institution($value),
-  if (instance.name case final $value?)
-    'name': CreateFinancialAccountCommand._write_name($value),
+  'currencyCode': ?instance.currencyCode,
+  'institution': ?instance.institution,
+  'name': ?instance.name,
   'openingBalance': ?instance.openingBalance,
 };

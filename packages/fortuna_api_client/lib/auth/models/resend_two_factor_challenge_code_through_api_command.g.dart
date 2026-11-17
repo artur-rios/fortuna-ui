@@ -12,20 +12,10 @@ _$ResendTwoFactorChallengeCodeThroughApiCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['challengeToken']);
   return ResendTwoFactorChallengeCodeThroughApiCommand(
-    challengeToken: !json.containsKey('challengeToken')
-        ? null
-        : ResendTwoFactorChallengeCodeThroughApiCommand._read_challengeToken(
-            json['challengeToken'],
-          ),
+    challengeToken: json['challengeToken'] as String?,
   );
 }
 
 Map<String, dynamic> _$ResendTwoFactorChallengeCodeThroughApiCommandToJson(
   ResendTwoFactorChallengeCodeThroughApiCommand instance,
-) => <String, dynamic>{
-  if (instance.challengeToken case final $value?)
-    'challengeToken':
-        ResendTwoFactorChallengeCodeThroughApiCommand._write_challengeToken(
-          $value,
-        ),
-};
+) => <String, dynamic>{'challengeToken': ?instance.challengeToken};

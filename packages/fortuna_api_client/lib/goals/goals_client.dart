@@ -10,12 +10,16 @@ import 'package:retrofit/retrofit.dart'
         Extras,
         CancelRequest,
         GET,
+        POST,
+        PUT,
         DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
-import 'models/create_goal_command.dart' as models show CreateGoalCommand;
+import 'models/create_goal_command.dart' show CreateGoalCommand;
 import 'models/goal_command_output_data_output_response.dart'
     show GoalCommandOutputDataOutput$Response;
 import 'models/goal_list_output_data_output_response.dart'
@@ -24,7 +28,7 @@ import 'models/goal_output_data_output_response.dart'
     show GoalOutputDataOutput$Response;
 import 'models/goal_progress_detail_output_data_output_response.dart'
     show GoalProgressDetailOutputDataOutput$Response;
-import 'models/update_goal_command.dart' as models show UpdateGoalCommand;
+import 'models/update_goal_command.dart' show UpdateGoalCommand;
 
 part 'goals_client.g.dart';
 
@@ -81,27 +85,26 @@ abstract class GoalsClient {
     @Query('pageNumber') int? pageNumber,
     @Query('pageSize') int? pageSize,
   });
-  Future<GoalCommandOutputDataOutput$Response> postApiGoals({
+  Future<GoalCommandOutputDataOutput$Response> _postApiGoalsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateGoalCommand body,
+    required CreateGoalCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/goals",
@@ -114,6 +117,18 @@ abstract class GoalsClient {
     );
   }
 
+  @POST('/api/goals')
+  @Headers({'Content-Type': 'application/json'})
+  Future<GoalCommandOutputDataOutput$Response> postApiGoals({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateGoalCommand body,
+  });
   Future<GoalOutputDataOutput$Response> _getApiGoalsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -155,7 +170,7 @@ abstract class GoalsClient {
     @Path('id') required String id,
     @Query('includeDeleted') bool? includeDeleted,
   });
-  Future<GoalCommandOutputDataOutput$Response> putApiGoalsById({
+  Future<GoalCommandOutputDataOutput$Response> _putApiGoalsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -163,26 +178,22 @@ abstract class GoalsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateGoalCommand body,
+    required UpdateGoalCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/goals/" + Uri.encodeComponent(id),
+      "/api/goals/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
@@ -192,6 +203,19 @@ abstract class GoalsClient {
     );
   }
 
+  @PUT('/api/goals/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<GoalCommandOutputDataOutput$Response> putApiGoalsById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateGoalCommand body,
+  });
   Future<GoalCommandOutputDataOutput$Response> _deleteApiGoalsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -302,6 +326,31 @@ class _GoalsClientWithOptions extends _GoalsClient {
   }
 
   @override
+  Future<GoalCommandOutputDataOutput$Response> postApiGoals({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateGoalCommand body,
+  }) {
+    return options == null
+        ? super.postApiGoals(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiGoalsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<GoalOutputDataOutput$Response> getApiGoalsById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -326,6 +375,34 @@ class _GoalsClientWithOptions extends _GoalsClient {
             options: options,
             id: id,
             includeDeleted: includeDeleted,
+          );
+  }
+
+  @override
+  Future<GoalCommandOutputDataOutput$Response> putApiGoalsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateGoalCommand body,
+  }) {
+    return options == null
+        ? super.putApiGoalsById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiGoalsByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

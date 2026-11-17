@@ -25,19 +25,11 @@ CreateCreditCardCommand _$CreateCreditCardCommandFromJson(
   return CreateCreditCardCommand(
     closingDay: CreateCreditCardCommand._read_closingDay(json['closingDay']),
     creditLimit: json['creditLimit'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : CreateCreditCardCommand._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
     dueDay: CreateCreditCardCommand._read_dueDay(json['dueDay']),
-    issuer: !json.containsKey('issuer')
-        ? null
-        : CreateCreditCardCommand._read_issuer(json['issuer']),
-    lastFourDigits: !json.containsKey('lastFourDigits')
-        ? null
-        : CreateCreditCardCommand._read_lastFourDigits(json['lastFourDigits']),
-    name: !json.containsKey('name')
-        ? null
-        : CreateCreditCardCommand._read_name(json['name']),
+    issuer: json['issuer'] as String?,
+    lastFourDigits: json['lastFourDigits'] as String?,
+    name: json['name'] as String?,
   );
 }
 
@@ -46,13 +38,9 @@ Map<String, dynamic> _$CreateCreditCardCommandToJson(
 ) => <String, dynamic>{
   'closingDay': ?CreateCreditCardCommand._write_closingDay(instance.closingDay),
   'creditLimit': ?instance.creditLimit,
-  if (instance.currencyCode case final $value?)
-    'currencyCode': CreateCreditCardCommand._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'dueDay': ?CreateCreditCardCommand._write_dueDay(instance.dueDay),
-  if (instance.issuer case final $value?)
-    'issuer': CreateCreditCardCommand._write_issuer($value),
-  if (instance.lastFourDigits case final $value?)
-    'lastFourDigits': CreateCreditCardCommand._write_lastFourDigits($value),
-  if (instance.name case final $value?)
-    'name': CreateCreditCardCommand._write_name($value),
+  'issuer': ?instance.issuer,
+  'lastFourDigits': ?instance.lastFourDigits,
+  'name': ?instance.name,
 };

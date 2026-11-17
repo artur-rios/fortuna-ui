@@ -34,32 +34,24 @@ CashFlowProjectionOutput _$CashFlowProjectionOutputFromJson(
   );
   return CashFlowProjectionOutput(
     asOf: json['asOf'] as String?,
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : CashFlowProjectionOutput._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
-          ),
-    estimateOmittedReason: !json.containsKey('estimateOmittedReason')
-        ? null
-        : CashFlowProjectionOutput._read_estimateOmittedReason(
-            json['estimateOmittedReason'],
-          ),
-    flatReason: !json.containsKey('flatReason')
-        ? null
-        : CashFlowProjectionOutput._read_flatReason(json['flatReason']),
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
+    estimateOmittedReason: json['estimateOmittedReason'] as String?,
+    flatReason: json['flatReason'] as String?,
     isFullyConverted: json['isFullyConverted'] as bool?,
-    missingRates: !json.containsKey('missingRates')
-        ? null
-        : CashFlowProjectionOutput._read_missingRates(json['missingRates']),
+    missingRates: (json['missingRates'] as List<dynamic>?)
+        ?.map(
+          (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
     periodicity: CashFlowProjectionOutput._read_periodicity(
       json['periodicity'],
     ),
-    periods: !json.containsKey('periods')
-        ? null
-        : CashFlowProjectionOutput._read_periods(json['periods']),
-    rates: !json.containsKey('rates')
-        ? null
-        : CashFlowProjectionOutput._read_rates(json['rates']),
+    periods: (json['periods'] as List<dynamic>?)
+        ?.map((e) => CashFlowPeriodOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    rates: (json['rates'] as List<dynamic>?)
+        ?.map((e) => CashFlowRateOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     startingBalance: json['startingBalance'] as String?,
     through: json['through'] as String?,
   );
@@ -69,25 +61,16 @@ Map<String, dynamic> _$CashFlowProjectionOutputToJson(
   CashFlowProjectionOutput instance,
 ) => <String, dynamic>{
   'asOf': ?instance.asOf,
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode': CashFlowProjectionOutput._write_displayCurrencyCode(
-      $value,
-    ),
-  if (instance.estimateOmittedReason case final $value?)
-    'estimateOmittedReason':
-        CashFlowProjectionOutput._write_estimateOmittedReason($value),
-  if (instance.flatReason case final $value?)
-    'flatReason': CashFlowProjectionOutput._write_flatReason($value),
+  'displayCurrencyCode': ?instance.displayCurrencyCode,
+  'estimateOmittedReason': ?instance.estimateOmittedReason,
+  'flatReason': ?instance.flatReason,
   'isFullyConverted': ?instance.isFullyConverted,
-  if (instance.missingRates case final $value?)
-    'missingRates': CashFlowProjectionOutput._write_missingRates($value),
+  'missingRates': ?instance.missingRates?.map((e) => e.toJson()).toList(),
   'periodicity': ?CashFlowProjectionOutput._write_periodicity(
     instance.periodicity,
   ),
-  if (instance.periods case final $value?)
-    'periods': CashFlowProjectionOutput._write_periods($value),
-  if (instance.rates case final $value?)
-    'rates': CashFlowProjectionOutput._write_rates($value),
+  'periods': ?instance.periods?.map((e) => e.toJson()).toList(),
+  'rates': ?instance.rates?.map((e) => e.toJson()).toList(),
   'startingBalance': ?instance.startingBalance,
   'through': ?instance.through,
 };

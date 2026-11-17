@@ -19,37 +19,11 @@ class RegenerateLocalAccountRecoveryCodesCommandOutput {
     Map<String, Object?> json,
   ) => _$RegenerateLocalAccountRecoveryCodesCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson:
-        RegenerateLocalAccountRecoveryCodesCommandOutput._read_recoveryCodes,
-    toJson:
-        RegenerateLocalAccountRecoveryCodesCommandOutput._write_recoveryCodes,
-  )
-  final ({List<String>? value})? recoveryCodes;
+  @JsonKey(includeIfNull: false)
+  final List<String>? recoveryCodes;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson:
-        RegenerateLocalAccountRecoveryCodesCommandOutput._read_recoveryWarning,
-    toJson:
-        RegenerateLocalAccountRecoveryCodesCommandOutput._write_recoveryWarning,
-  )
-  final ({String? value})? recoveryWarning;
-
-  static ({List<String>? value}) _read_recoveryCodes(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_recoveryCodes(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_recoveryWarning(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recoveryWarning(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? recoveryWarning;
 
   Map<String, Object?> toJson() =>
       _$RegenerateLocalAccountRecoveryCodesCommandOutputToJson(this);

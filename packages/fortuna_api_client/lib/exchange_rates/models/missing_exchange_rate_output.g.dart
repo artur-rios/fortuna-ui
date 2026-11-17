@@ -14,28 +14,14 @@ MissingExchangeRateOutput _$MissingExchangeRateOutputFromJson(
     allowedKeys: const ['baseCurrencyCode', 'quoteCurrencyCode'],
   );
   return MissingExchangeRateOutput(
-    baseCurrencyCode: !json.containsKey('baseCurrencyCode')
-        ? null
-        : MissingExchangeRateOutput._read_baseCurrencyCode(
-            json['baseCurrencyCode'],
-          ),
-    quoteCurrencyCode: !json.containsKey('quoteCurrencyCode')
-        ? null
-        : MissingExchangeRateOutput._read_quoteCurrencyCode(
-            json['quoteCurrencyCode'],
-          ),
+    baseCurrencyCode: json['baseCurrencyCode'] as String?,
+    quoteCurrencyCode: json['quoteCurrencyCode'] as String?,
   );
 }
 
 Map<String, dynamic> _$MissingExchangeRateOutputToJson(
   MissingExchangeRateOutput instance,
 ) => <String, dynamic>{
-  if (instance.baseCurrencyCode case final $value?)
-    'baseCurrencyCode': MissingExchangeRateOutput._write_baseCurrencyCode(
-      $value,
-    ),
-  if (instance.quoteCurrencyCode case final $value?)
-    'quoteCurrencyCode': MissingExchangeRateOutput._write_quoteCurrencyCode(
-      $value,
-    ),
+  'baseCurrencyCode': ?instance.baseCurrencyCode,
+  'quoteCurrencyCode': ?instance.quoteCurrencyCode,
 };

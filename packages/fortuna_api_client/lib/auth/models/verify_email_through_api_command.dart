@@ -15,29 +15,11 @@ class VerifyEmailThroughApiCommand {
   factory VerifyEmailThroughApiCommand.fromJson(Map<String, Object?> json) =>
       _$VerifyEmailThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: VerifyEmailThroughApiCommand._read_password,
-    toJson: VerifyEmailThroughApiCommand._write_password,
-  )
-  final ({String? value})? password;
+  @JsonKey(includeIfNull: false)
+  final String? password;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: VerifyEmailThroughApiCommand._read_token,
-    toJson: VerifyEmailThroughApiCommand._write_token,
-  )
-  final ({String? value})? token;
-
-  static ({String? value}) _read_password(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_password(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_token(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_token(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? token;
 
   Map<String, Object?> toJson() => _$VerifyEmailThroughApiCommandToJson(this);
 }

@@ -16,14 +16,8 @@ SynchronizeConnectionCommandOutput _$SynchronizeConnectionCommandOutputFromJson(
   );
   return SynchronizeConnectionCommandOutput(
     importJobId: json['importJobId'] as String?,
-    periodEnd: !json.containsKey('periodEnd')
-        ? null
-        : SynchronizeConnectionCommandOutput._read_periodEnd(json['periodEnd']),
-    periodStart: !json.containsKey('periodStart')
-        ? null
-        : SynchronizeConnectionCommandOutput._read_periodStart(
-            json['periodStart'],
-          ),
+    periodEnd: json['periodEnd'] as String?,
+    periodStart: json['periodStart'] as String?,
     status: SynchronizeConnectionCommandOutput._read_status(json['status']),
   );
 }
@@ -32,11 +26,7 @@ Map<String, dynamic> _$SynchronizeConnectionCommandOutputToJson(
   SynchronizeConnectionCommandOutput instance,
 ) => <String, dynamic>{
   'importJobId': ?instance.importJobId,
-  if (instance.periodEnd case final $value?)
-    'periodEnd': SynchronizeConnectionCommandOutput._write_periodEnd($value),
-  if (instance.periodStart case final $value?)
-    'periodStart': SynchronizeConnectionCommandOutput._write_periodStart(
-      $value,
-    ),
+  'periodEnd': ?instance.periodEnd,
+  'periodStart': ?instance.periodStart,
   'status': ?SynchronizeConnectionCommandOutput._write_status(instance.status),
 };

@@ -15,29 +15,11 @@ class AuthenticateLocalAccountCommand {
   factory AuthenticateLocalAccountCommand.fromJson(Map<String, Object?> json) =>
       _$AuthenticateLocalAccountCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AuthenticateLocalAccountCommand._read_name,
-    toJson: AuthenticateLocalAccountCommand._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AuthenticateLocalAccountCommand._read_secret,
-    toJson: AuthenticateLocalAccountCommand._write_secret,
-  )
-  final ({String? value})? secret;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_secret(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_secret(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? secret;
 
   Map<String, Object?> toJson() =>
       _$AuthenticateLocalAccountCommandToJson(this);

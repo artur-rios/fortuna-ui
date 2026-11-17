@@ -16,10 +16,13 @@ import 'package:retrofit/retrofit.dart'
         RestApi,
         Extras,
         CancelRequest,
-        GET,
-        DELETE,
         POST,
+        GET,
+        PUT,
+        DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
@@ -32,16 +35,11 @@ import 'models/attach_document_command_output_data_output_response.dart'
 import 'models/attachment_output_paginated_output_response.dart'
     show AttachmentOutputPaginatedOutput$Response;
 import 'models/reconcile_transaction_command.dart'
-    as models
     show ReconcileTransactionCommand;
 import 'models/reconcile_transaction_command_output_data_output_response.dart'
-    as models
     show ReconcileTransactionCommandOutputDataOutput$Response;
-import 'models/record_transaction_command.dart'
-    as models
-    show RecordTransactionCommand;
+import 'models/record_transaction_command.dart' show RecordTransactionCommand;
 import 'models/record_transaction_command_output_data_output_response.dart'
-    as models
     show RecordTransactionCommandOutputDataOutput$Response;
 import 'models/transaction_lifecycle_command_output_data_output_response.dart'
     show TransactionLifecycleCommandOutputDataOutput$Response;
@@ -52,11 +50,8 @@ import 'models/transaction_search_output_data_output_response.dart'
     show TransactionSearchOutputDataOutput$Response;
 import 'models/transaction_tag_command_output_data_output_response.dart'
     show TransactionTagCommandOutputDataOutput$Response;
-import 'models/update_transaction_command.dart'
-    as models
-    show UpdateTransactionCommand;
+import 'models/update_transaction_command.dart' show UpdateTransactionCommand;
 import 'models/update_transaction_command_output_data_output_response.dart'
-    as models
     show UpdateTransactionCommandOutputDataOutput$Response;
 
 part 'transactions_client.g.dart';
@@ -136,28 +131,27 @@ abstract class TransactionsClient {
     );
   }
 
-  Future<models.RecordTransactionCommandOutputDataOutput$Response>
-  postApiTransactions({
+  Future<RecordTransactionCommandOutputDataOutput$Response>
+  _postApiTransactionsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RecordTransactionCommand body,
+    required RecordTransactionCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/transactions",
@@ -165,11 +159,24 @@ abstract class TransactionsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.RecordTransactionCommandOutputDataOutput$Response.fromJson(
+    return RecordTransactionCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/transactions')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RecordTransactionCommandOutputDataOutput$Response>
+  postApiTransactions({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RecordTransactionCommand body,
+  });
   Future<TransactionOutputDataOutput$Response>
   _getApiTransactionsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -212,8 +219,8 @@ abstract class TransactionsClient {
     @Path('id') required String id,
     @Query('includeDeleted') bool? includeDeleted,
   });
-  Future<models.UpdateTransactionCommandOutputDataOutput$Response>
-  putApiTransactionsById({
+  Future<UpdateTransactionCommandOutputDataOutput$Response>
+  _putApiTransactionsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -221,35 +228,45 @@ abstract class TransactionsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateTransactionCommand body,
+    required UpdateTransactionCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/transactions/" + Uri.encodeComponent(id),
+      "/api/transactions/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.UpdateTransactionCommandOutputDataOutput$Response.fromJson(
+    return UpdateTransactionCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @PUT('/api/transactions/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<UpdateTransactionCommandOutputDataOutput$Response>
+  putApiTransactionsById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateTransactionCommand body,
+  });
   Future<TransactionLifecycleCommandOutputDataOutput$Response>
   _deleteApiTransactionsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -417,8 +434,8 @@ abstract class TransactionsClient {
     Options? options,
     @Path('id') required String id,
   });
-  Future<models.ReconcileTransactionCommandOutputDataOutput$Response>
-  postApiTransactionsByIdReconcile({
+  Future<ReconcileTransactionCommandOutputDataOutput$Response>
+  _postApiTransactionsByIdReconcileWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -426,35 +443,45 @@ abstract class TransactionsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.ReconcileTransactionCommand body,
+    required ReconcileTransactionCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/transactions/" + Uri.encodeComponent(id) + "/reconcile",
+      "/api/transactions/" + id.toString() + "/reconcile",
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.ReconcileTransactionCommandOutputDataOutput$Response.fromJson(
+    return ReconcileTransactionCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/transactions/{id}/reconcile')
+  @Headers({'Content-Type': 'application/json'})
+  Future<ReconcileTransactionCommandOutputDataOutput$Response>
+  postApiTransactionsByIdReconcile({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required ReconcileTransactionCommand body,
+  });
   Future<TransactionLifecycleCommandOutputDataOutput$Response>
   _postApiTransactionsByIdRestoreWithOptions({
     Map<String, Object?> extra = const {
@@ -579,6 +606,32 @@ class _TransactionsClientWithOptions extends _TransactionsClient {
   _TransactionsClientWithOptions(Dio dio) : super._(dio, dio);
 
   @override
+  Future<RecordTransactionCommandOutputDataOutput$Response>
+  postApiTransactions({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RecordTransactionCommand body,
+  }) {
+    return options == null
+        ? super.postApiTransactions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiTransactionsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<TransactionOutputDataOutput$Response> getApiTransactionsById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -603,6 +656,35 @@ class _TransactionsClientWithOptions extends _TransactionsClient {
             options: options,
             id: id,
             includeDeleted: includeDeleted,
+          );
+  }
+
+  @override
+  Future<UpdateTransactionCommandOutputDataOutput$Response>
+  putApiTransactionsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateTransactionCommand body,
+  }) {
+    return options == null
+        ? super.putApiTransactionsById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiTransactionsByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 
@@ -690,6 +772,35 @@ class _TransactionsClientWithOptions extends _TransactionsClient {
             cancelToken: cancelToken,
             options: options,
             id: id,
+          );
+  }
+
+  @override
+  Future<ReconcileTransactionCommandOutputDataOutput$Response>
+  postApiTransactionsByIdReconcile({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required ReconcileTransactionCommand body,
+  }) {
+    return options == null
+        ? super.postApiTransactionsByIdReconcile(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _postApiTransactionsByIdReconcileWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

@@ -14,33 +14,16 @@ VerifyTwoFactorThroughApiCommand _$VerifyTwoFactorThroughApiCommandFromJson(
     allowedKeys: const ['challengeToken', 'code', 'recoveryCode'],
   );
   return VerifyTwoFactorThroughApiCommand(
-    challengeToken: !json.containsKey('challengeToken')
-        ? null
-        : VerifyTwoFactorThroughApiCommand._read_challengeToken(
-            json['challengeToken'],
-          ),
-    code: !json.containsKey('code')
-        ? null
-        : VerifyTwoFactorThroughApiCommand._read_code(json['code']),
-    recoveryCode: !json.containsKey('recoveryCode')
-        ? null
-        : VerifyTwoFactorThroughApiCommand._read_recoveryCode(
-            json['recoveryCode'],
-          ),
+    challengeToken: json['challengeToken'] as String?,
+    code: json['code'] as String?,
+    recoveryCode: json['recoveryCode'] as String?,
   );
 }
 
 Map<String, dynamic> _$VerifyTwoFactorThroughApiCommandToJson(
   VerifyTwoFactorThroughApiCommand instance,
 ) => <String, dynamic>{
-  if (instance.challengeToken case final $value?)
-    'challengeToken': VerifyTwoFactorThroughApiCommand._write_challengeToken(
-      $value,
-    ),
-  if (instance.code case final $value?)
-    'code': VerifyTwoFactorThroughApiCommand._write_code($value),
-  if (instance.recoveryCode case final $value?)
-    'recoveryCode': VerifyTwoFactorThroughApiCommand._write_recoveryCode(
-      $value,
-    ),
+  'challengeToken': ?instance.challengeToken,
+  'code': ?instance.code,
+  'recoveryCode': ?instance.recoveryCode,
 };

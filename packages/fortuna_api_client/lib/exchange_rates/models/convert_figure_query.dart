@@ -23,19 +23,11 @@ class ConvertFigureQuery {
   factory ConvertFigureQuery.fromJson(Map<String, Object?> json) =>
       _$ConvertFigureQueryFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConvertFigureQuery._read_amounts,
-    toJson: ConvertFigureQuery._write_amounts,
-  )
-  final ({List<FigureAmountInput>? value})? amounts;
+  @JsonKey(includeIfNull: false)
+  final List<FigureAmountInput>? amounts;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConvertFigureQuery._read_displayCurrencyCode,
-    toJson: ConvertFigureQuery._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? figureDate;
@@ -55,26 +47,6 @@ class ConvertFigureQuery {
     toJson: ConvertFigureQuery._write_pageSize,
   )
   final int? pageSize;
-
-  static ({List<FigureAmountInput>? value}) _read_amounts(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    FigureAmountInput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_amounts(({List<FigureAmountInput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;

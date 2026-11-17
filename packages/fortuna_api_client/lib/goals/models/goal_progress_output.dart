@@ -21,57 +21,20 @@ class GoalProgressOutput {
   factory GoalProgressOutput.fromJson(Map<String, Object?> json) =>
       _$GoalProgressOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressOutput._read_currentAmount,
-    toJson: GoalProgressOutput._write_currentAmount,
-  )
-  final ({String? value})? currentAmount;
+  @JsonKey(includeIfNull: false)
+  final String? currentAmount;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressOutput._read_isReached,
-    toJson: GoalProgressOutput._write_isReached,
-  )
-  final ({bool? value})? isReached;
+  @JsonKey(includeIfNull: false)
+  final bool? isReached;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressOutput._read_proportionReached,
-    toJson: GoalProgressOutput._write_proportionReached,
-  )
-  final ({String? value})? proportionReached;
+  @JsonKey(includeIfNull: false)
+  final String? proportionReached;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressOutput._read_remaining,
-    toJson: GoalProgressOutput._write_remaining,
-  )
-  final ({String? value})? remaining;
-
-  static ({String? value}) _read_currentAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currentAmount(({String? value}) value) => value.value;
-
-  static ({bool? value}) _read_isReached(Object? value) =>
-      (value: value as bool?);
-
-  static Object? _write_isReached(({bool? value}) value) => value.value;
-
-  static ({String? value}) _read_proportionReached(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_proportionReached(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_remaining(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_remaining(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? remaining;
 
   Map<String, Object?> toJson() => _$GoalProgressOutputToJson(this);
 }

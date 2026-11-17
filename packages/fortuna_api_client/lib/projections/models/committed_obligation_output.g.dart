@@ -34,42 +34,25 @@ CommittedObligationOutput _$CommittedObligationOutputFromJson(
       'id',
       'isOverdue',
       'kind',
-      'rateSource',
     ],
   );
   return CommittedObligationOutput(
     amount: json['amount'] as String?,
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : CommittedObligationOutput._read_appliedRate(json['appliedRate']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : CommittedObligationOutput._read_currencyCode(json['currencyCode']),
-    cycleEnd: !json.containsKey('cycleEnd')
-        ? null
-        : CommittedObligationOutput._read_cycleEnd(json['cycleEnd']),
-    cycleStart: !json.containsKey('cycleStart')
-        ? null
-        : CommittedObligationOutput._read_cycleStart(json['cycleStart']),
+    appliedRate: json['appliedRate'] as String?,
+    currencyCode: json['currencyCode'] as String?,
+    cycleEnd: json['cycleEnd'] as String?,
+    cycleStart: json['cycleStart'] as String?,
     daysOverdue: CommittedObligationOutput._read_daysOverdue(
       json['daysOverdue'],
     ),
-    displayAmount: !json.containsKey('displayAmount')
-        ? null
-        : CommittedObligationOutput._read_displayAmount(json['displayAmount']),
+    displayAmount: json['displayAmount'] as String?,
     dueDate: json['dueDate'] as String?,
     id: json['id'] as String?,
     isOverdue: json['isOverdue'] as bool?,
     kind: CommittedObligationOutput._read_kind(json['kind']),
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : CommittedObligationOutput._read_rateDate(json['rateDate']),
+    rateDate: json['rateDate'] as String?,
     rateSource: CommittedObligationOutput._read_rateSource(json['rateSource']),
-    unconvertedReason: !json.containsKey('unconvertedReason')
-        ? null
-        : CommittedObligationOutput._read_unconvertedReason(
-            json['unconvertedReason'],
-          ),
+    unconvertedReason: json['unconvertedReason'] as String?,
   );
 }
 
@@ -77,30 +60,21 @@ Map<String, dynamic> _$CommittedObligationOutputToJson(
   CommittedObligationOutput instance,
 ) => <String, dynamic>{
   'amount': ?instance.amount,
-  if (instance.appliedRate case final $value?)
-    'appliedRate': CommittedObligationOutput._write_appliedRate($value),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': CommittedObligationOutput._write_currencyCode($value),
-  if (instance.cycleEnd case final $value?)
-    'cycleEnd': CommittedObligationOutput._write_cycleEnd($value),
-  if (instance.cycleStart case final $value?)
-    'cycleStart': CommittedObligationOutput._write_cycleStart($value),
+  'appliedRate': ?instance.appliedRate,
+  'currencyCode': ?instance.currencyCode,
+  'cycleEnd': ?instance.cycleEnd,
+  'cycleStart': ?instance.cycleStart,
   'daysOverdue': ?CommittedObligationOutput._write_daysOverdue(
     instance.daysOverdue,
   ),
-  if (instance.displayAmount case final $value?)
-    'displayAmount': CommittedObligationOutput._write_displayAmount($value),
+  'displayAmount': ?instance.displayAmount,
   'dueDate': ?instance.dueDate,
   'id': ?instance.id,
   'isOverdue': ?instance.isOverdue,
   'kind': ?CommittedObligationOutput._write_kind(instance.kind),
-  if (instance.rateDate case final $value?)
-    'rateDate': CommittedObligationOutput._write_rateDate($value),
+  'rateDate': ?instance.rateDate,
   'rateSource': ?CommittedObligationOutput._write_rateSource(
     instance.rateSource,
   ),
-  if (instance.unconvertedReason case final $value?)
-    'unconvertedReason': CommittedObligationOutput._write_unconvertedReason(
-      $value,
-    ),
+  'unconvertedReason': ?instance.unconvertedReason,
 };

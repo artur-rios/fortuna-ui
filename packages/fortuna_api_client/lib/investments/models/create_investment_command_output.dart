@@ -33,29 +33,17 @@ class CreateInvestmentCommandOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateInvestmentCommandOutput._read_currencyCode,
-    toJson: CreateInvestmentCommandOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateInvestmentCommandOutput._read_institution,
-    toJson: CreateInvestmentCommandOutput._write_institution,
-  )
-  final ({String? value})? institution;
+  @JsonKey(includeIfNull: false)
+  final String? institution;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateInvestmentCommandOutput._read_instrument,
-    toJson: CreateInvestmentCommandOutput._write_instrument,
-  )
-  final ({String? value})? instrument;
+  @JsonKey(includeIfNull: false)
+  final String? instrument;
 
   @JsonKey(
     disallowNullValue: true,
@@ -78,21 +66,6 @@ class CreateInvestmentCommandOutput {
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_institution(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_institution(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_instrument(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_instrument(({String? value}) value) => value.value;
 
   static InvestmentType? _read_investmentType(Object? value) =>
       value == null ? null : InvestmentType.fromJson(value);

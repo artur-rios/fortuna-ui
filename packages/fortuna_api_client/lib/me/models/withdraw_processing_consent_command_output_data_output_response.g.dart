@@ -13,7 +13,7 @@ _$WithdrawProcessingConsentCommandOutputDataOutput$ResponseFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'success', 'timestamp'],
-    disallowNullValues: const ['data', 'success', 'timestamp'],
+    disallowNullValues: const ['success', 'timestamp'],
   );
   return WithdrawProcessingConsentCommandOutputDataOutput$Response(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$WithdrawProcessingConsentCommandOutputDataOutput$ResponseFromJson(
         : WithdrawProcessingConsentCommandOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : WithdrawProcessingConsentCommandOutputDataOutput$Response._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : WithdrawProcessingConsentCommandOutputDataOutput$Response._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp:
         WithdrawProcessingConsentCommandOutputDataOutput$Response._read_timestamp(
@@ -44,16 +40,8 @@ _$WithdrawProcessingConsentCommandOutputDataOutput$ResponseToJson(
   WithdrawProcessingConsentCommandOutputDataOutput$Response instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors':
-        WithdrawProcessingConsentCommandOutputDataOutput$Response._write_errors(
-          $value,
-        ),
-  if (instance.messages case final $value?)
-    'messages':
-        WithdrawProcessingConsentCommandOutputDataOutput$Response._write_messages(
-          $value,
-        ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp':
       ?WithdrawProcessingConsentCommandOutputDataOutput$Response._write_timestamp(

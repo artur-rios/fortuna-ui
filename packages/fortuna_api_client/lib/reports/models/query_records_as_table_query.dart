@@ -26,26 +26,14 @@ class QueryRecordsAsTableQuery {
   factory QueryRecordsAsTableQuery.fromJson(Map<String, Object?> json) =>
       _$QueryRecordsAsTableQueryFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: QueryRecordsAsTableQuery._read_columns,
-    toJson: QueryRecordsAsTableQuery._write_columns,
-  )
-  final ({List<String>? value})? columns;
+  @JsonKey(includeIfNull: false)
+  final List<String>? columns;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: QueryRecordsAsTableQuery._read_displayCurrencyCode,
-    toJson: QueryRecordsAsTableQuery._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: QueryRecordsAsTableQuery._read_filters,
-    toJson: QueryRecordsAsTableQuery._write_filters,
-  )
-  final ({List<TableFilterInput>? value})? filters;
+  @JsonKey(includeIfNull: false)
+  final List<TableFilterInput>? filters;
 
   @JsonKey(
     disallowNullValue: true,
@@ -63,48 +51,11 @@ class QueryRecordsAsTableQuery {
   )
   final int? pageSize;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: QueryRecordsAsTableQuery._read_recordSet,
-    toJson: QueryRecordsAsTableQuery._write_recordSet,
-  )
-  final ({String? value})? recordSet;
+  @JsonKey(includeIfNull: false)
+  final String? recordSet;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: QueryRecordsAsTableQuery._read_sorts,
-    toJson: QueryRecordsAsTableQuery._write_sorts,
-  )
-  final ({List<TableSortInput>? value})? sorts;
-
-  static ({List<String>? value}) _read_columns(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_columns(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({List<TableFilterInput>? value}) _read_filters(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    TableFilterInput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_filters(({List<TableFilterInput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
+  @JsonKey(includeIfNull: false)
+  final List<TableSortInput>? sorts;
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;
@@ -115,24 +66,6 @@ class QueryRecordsAsTableQuery {
       value == null ? null : value as int;
 
   static Object? _write_pageSize(int? value) => value;
-
-  static ({String? value}) _read_recordSet(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recordSet(({String? value}) value) => value.value;
-
-  static ({List<TableSortInput>? value}) _read_sorts(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => TableSortInput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_sorts(({List<TableSortInput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   Map<String, Object?> toJson() => _$QueryRecordsAsTableQueryToJson(this);
 }

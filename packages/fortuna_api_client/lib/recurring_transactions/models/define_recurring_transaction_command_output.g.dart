@@ -40,54 +40,26 @@ _$DefineRecurringTransactionCommandOutputFromJson(Map<String, dynamic> json) {
   return DefineRecurringTransactionCommandOutput(
     amount: json['amount'] as String?,
     categoryId: json['categoryId'] as String?,
-    counterpartyId: !json.containsKey('counterpartyId')
-        ? null
-        : DefineRecurringTransactionCommandOutput._read_counterpartyId(
-            json['counterpartyId'],
-          ),
-    counterpartyName: !json.containsKey('counterpartyName')
-        ? null
-        : DefineRecurringTransactionCommandOutput._read_counterpartyName(
-            json['counterpartyName'],
-          ),
+    counterpartyId: json['counterpartyId'] as String?,
+    counterpartyName: json['counterpartyName'] as String?,
     createdAt: DefineRecurringTransactionCommandOutput._read_createdAt(
       json['createdAt'],
     ),
-    creditCardId: !json.containsKey('creditCardId')
-        ? null
-        : DefineRecurringTransactionCommandOutput._read_creditCardId(
-            json['creditCardId'],
-          ),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : DefineRecurringTransactionCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
-    description: !json.containsKey('description')
-        ? null
-        : DefineRecurringTransactionCommandOutput._read_description(
-            json['description'],
-          ),
+    creditCardId: json['creditCardId'] as String?,
+    currencyCode: json['currencyCode'] as String?,
+    description: json['description'] as String?,
     direction: DefineRecurringTransactionCommandOutput._read_direction(
       json['direction'],
     ),
-    endsOn: !json.containsKey('endsOn')
-        ? null
-        : DefineRecurringTransactionCommandOutput._read_endsOn(json['endsOn']),
-    financialAccountId: !json.containsKey('financialAccountId')
-        ? null
-        : DefineRecurringTransactionCommandOutput._read_financialAccountId(
-            json['financialAccountId'],
-          ),
+    endsOn: json['endsOn'] as String?,
+    financialAccountId: json['financialAccountId'] as String?,
     frequency: DefineRecurringTransactionCommandOutput._read_frequency(
       json['frequency'],
     ),
     id: json['id'] as String?,
-    nextOccurrences: !json.containsKey('nextOccurrences')
-        ? null
-        : DefineRecurringTransactionCommandOutput._read_nextOccurrences(
-            json['nextOccurrences'],
-          ),
+    nextOccurrences: (json['nextOccurrences'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     startsOn: json['startsOn'] as String?,
   );
 }
@@ -97,43 +69,23 @@ Map<String, dynamic> _$DefineRecurringTransactionCommandOutputToJson(
 ) => <String, dynamic>{
   'amount': ?instance.amount,
   'categoryId': ?instance.categoryId,
-  if (instance.counterpartyId case final $value?)
-    'counterpartyId':
-        DefineRecurringTransactionCommandOutput._write_counterpartyId($value),
-  if (instance.counterpartyName case final $value?)
-    'counterpartyName':
-        DefineRecurringTransactionCommandOutput._write_counterpartyName($value),
+  'counterpartyId': ?instance.counterpartyId,
+  'counterpartyName': ?instance.counterpartyName,
   'createdAt': ?DefineRecurringTransactionCommandOutput._write_createdAt(
     instance.createdAt,
   ),
-  if (instance.creditCardId case final $value?)
-    'creditCardId': DefineRecurringTransactionCommandOutput._write_creditCardId(
-      $value,
-    ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': DefineRecurringTransactionCommandOutput._write_currencyCode(
-      $value,
-    ),
-  if (instance.description case final $value?)
-    'description': DefineRecurringTransactionCommandOutput._write_description(
-      $value,
-    ),
+  'creditCardId': ?instance.creditCardId,
+  'currencyCode': ?instance.currencyCode,
+  'description': ?instance.description,
   'direction': ?DefineRecurringTransactionCommandOutput._write_direction(
     instance.direction,
   ),
-  if (instance.endsOn case final $value?)
-    'endsOn': DefineRecurringTransactionCommandOutput._write_endsOn($value),
-  if (instance.financialAccountId case final $value?)
-    'financialAccountId':
-        DefineRecurringTransactionCommandOutput._write_financialAccountId(
-          $value,
-        ),
+  'endsOn': ?instance.endsOn,
+  'financialAccountId': ?instance.financialAccountId,
   'frequency': ?DefineRecurringTransactionCommandOutput._write_frequency(
     instance.frequency,
   ),
   'id': ?instance.id,
-  if (instance.nextOccurrences case final $value?)
-    'nextOccurrences':
-        DefineRecurringTransactionCommandOutput._write_nextOccurrences($value),
+  'nextOccurrences': ?instance.nextOccurrences,
   'startsOn': ?instance.startsOn,
 };

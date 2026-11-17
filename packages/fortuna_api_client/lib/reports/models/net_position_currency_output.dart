@@ -28,22 +28,14 @@ class NetPositionCurrencyOutput {
   factory NetPositionCurrencyOutput.fromJson(Map<String, Object?> json) =>
       _$NetPositionCurrencyOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionCurrencyOutput._read_appliedRate,
-    toJson: NetPositionCurrencyOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? creditCards;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionCurrencyOutput._read_displayNet,
-    toJson: NetPositionCurrencyOutput._write_displayNet,
-  )
-  final ({String? value})? displayNet;
+  @JsonKey(includeIfNull: false)
+  final String? displayNet;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? financialAccounts;
@@ -51,70 +43,30 @@ class NetPositionCurrencyOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? investments;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionCurrencyOutput._read_rateDate,
-    toJson: NetPositionCurrencyOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
-    disallowNullValue: true,
     includeIfNull: false,
     fromJson: NetPositionCurrencyOutput._read_rateSource,
     toJson: NetPositionCurrencyOutput._write_rateSource,
   )
   final ExchangeRateSource? rateSource;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionCurrencyOutput._read_sourceCurrencyCode,
-    toJson: NetPositionCurrencyOutput._write_sourceCurrencyCode,
-  )
-  final ({String? value})? sourceCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? sourceCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? sourceNet;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionCurrencyOutput._read_unconvertedReason,
-    toJson: NetPositionCurrencyOutput._write_unconvertedReason,
-  )
-  final ({String? value})? unconvertedReason;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayNet(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayNet(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? unconvertedReason;
 
   static ExchangeRateSource? _read_rateSource(Object? value) =>
       value == null ? null : ExchangeRateSource.fromJson(value);
 
   static Object? _write_rateSource(ExchangeRateSource? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_sourceCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_sourceCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_unconvertedReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_unconvertedReason(({String? value}) value) =>
-      value.value;
 
   Map<String, Object?> toJson() => _$NetPositionCurrencyOutputToJson(this);
 }

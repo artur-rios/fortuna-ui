@@ -41,9 +41,7 @@ _$CloseCreditCardStatementCommandOutputFromJson(Map<String, dynamic> json) {
     periodEnd: json['periodEnd'] as String?,
     periodStart: json['periodStart'] as String?,
     purchaseTotal: json['purchaseTotal'] as String?,
-    status: !json.containsKey('status')
-        ? null
-        : CloseCreditCardStatementCommandOutput._read_status(json['status']),
+    status: json['status'] as String?,
   );
 }
 
@@ -58,6 +56,5 @@ Map<String, dynamic> _$CloseCreditCardStatementCommandOutputToJson(
   'periodEnd': ?instance.periodEnd,
   'periodStart': ?instance.periodStart,
   'purchaseTotal': ?instance.purchaseTotal,
-  if (instance.status case final $value?)
-    'status': CloseCreditCardStatementCommandOutput._write_status($value),
+  'status': ?instance.status,
 };

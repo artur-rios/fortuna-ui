@@ -26,12 +26,8 @@ class RequestDataExportCommandOutput {
   factory RequestDataExportCommandOutput.fromJson(Map<String, Object?> json) =>
       _$RequestDataExportCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommandOutput._read_contentType,
-    toJson: RequestDataExportCommandOutput._write_contentType,
-  )
-  final ({String? value})? contentType;
+  @JsonKey(includeIfNull: false)
+  final String? contentType;
 
   @JsonKey(
     disallowNullValue: true,
@@ -41,19 +37,11 @@ class RequestDataExportCommandOutput {
   )
   final DataExportDelivery? delivery;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommandOutput._read_exportId,
-    toJson: RequestDataExportCommandOutput._write_exportId,
-  )
-  final ({String? value})? exportId;
+  @JsonKey(includeIfNull: false)
+  final String? exportId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommandOutput._read_fileName,
-    toJson: RequestDataExportCommandOutput._write_fileName,
-  )
-  final ({String? value})? fileName;
+  @JsonKey(includeIfNull: false)
+  final String? fileName;
 
   @JsonKey(
     disallowNullValue: true,
@@ -63,12 +51,8 @@ class RequestDataExportCommandOutput {
   )
   final DataExportFormat? format;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommandOutput._read_jobId,
-    toJson: RequestDataExportCommandOutput._write_jobId,
-  )
-  final ({String? value})? jobId;
+  @JsonKey(includeIfNull: false)
+  final String? jobId;
 
   @JsonKey(
     disallowNullValue: true,
@@ -78,35 +62,15 @@ class RequestDataExportCommandOutput {
   )
   final int? rowCount;
 
-  static ({String? value}) _read_contentType(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_contentType(({String? value}) value) => value.value;
-
   static DataExportDelivery? _read_delivery(Object? value) =>
       value == null ? null : DataExportDelivery.fromJson(value);
 
   static Object? _write_delivery(DataExportDelivery? value) => value?.toJson();
 
-  static ({String? value}) _read_exportId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_exportId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_fileName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_fileName(({String? value}) value) => value.value;
-
   static DataExportFormat? _read_format(Object? value) =>
       value == null ? null : DataExportFormat.fromJson(value);
 
   static Object? _write_format(DataExportFormat? value) => value?.toJson();
-
-  static ({String? value}) _read_jobId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_jobId(({String? value}) value) => value.value;
 
   static int? _read_rowCount(Object? value) =>
       value == null ? null : value as int;

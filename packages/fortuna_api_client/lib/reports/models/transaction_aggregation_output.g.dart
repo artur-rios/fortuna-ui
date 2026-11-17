@@ -24,25 +24,23 @@ TransactionAggregationOutput _$TransactionAggregationOutputFromJson(
     disallowNullValues: const ['from', 'isFullyConverted', 'to'],
   );
   return TransactionAggregationOutput(
-    buckets: !json.containsKey('buckets')
-        ? null
-        : TransactionAggregationOutput._read_buckets(json['buckets']),
-    dimension: !json.containsKey('dimension')
-        ? null
-        : TransactionAggregationOutput._read_dimension(json['dimension']),
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : TransactionAggregationOutput._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
+    buckets: (json['buckets'] as List<dynamic>?)
+        ?.map(
+          (e) => TransactionAggregationBucketOutput.fromJson(
+            e as Map<String, dynamic>,
           ),
+        )
+        .toList(),
+    dimension: json['dimension'] as String?,
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
     from: json['from'] as String?,
-    granularity: !json.containsKey('granularity')
-        ? null
-        : TransactionAggregationOutput._read_granularity(json['granularity']),
+    granularity: json['granularity'] as String?,
     isFullyConverted: json['isFullyConverted'] as bool?,
-    missingRates: !json.containsKey('missingRates')
-        ? null
-        : TransactionAggregationOutput._read_missingRates(json['missingRates']),
+    missingRates: (json['missingRates'] as List<dynamic>?)
+        ?.map(
+          (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
     to: json['to'] as String?,
   );
 }
@@ -50,18 +48,12 @@ TransactionAggregationOutput _$TransactionAggregationOutputFromJson(
 Map<String, dynamic> _$TransactionAggregationOutputToJson(
   TransactionAggregationOutput instance,
 ) => <String, dynamic>{
-  if (instance.buckets case final $value?)
-    'buckets': TransactionAggregationOutput._write_buckets($value),
-  if (instance.dimension case final $value?)
-    'dimension': TransactionAggregationOutput._write_dimension($value),
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode':
-        TransactionAggregationOutput._write_displayCurrencyCode($value),
+  'buckets': ?instance.buckets?.map((e) => e.toJson()).toList(),
+  'dimension': ?instance.dimension,
+  'displayCurrencyCode': ?instance.displayCurrencyCode,
   'from': ?instance.from,
-  if (instance.granularity case final $value?)
-    'granularity': TransactionAggregationOutput._write_granularity($value),
+  'granularity': ?instance.granularity,
   'isFullyConverted': ?instance.isFullyConverted,
-  if (instance.missingRates case final $value?)
-    'missingRates': TransactionAggregationOutput._write_missingRates($value),
+  'missingRates': ?instance.missingRates?.map((e) => e.toJson()).toList(),
   'to': ?instance.to,
 };

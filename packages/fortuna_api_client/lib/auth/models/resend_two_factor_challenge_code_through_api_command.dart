@@ -16,18 +16,8 @@ class ResendTwoFactorChallengeCodeThroughApiCommand {
     Map<String, Object?> json,
   ) => _$ResendTwoFactorChallengeCodeThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson:
-        ResendTwoFactorChallengeCodeThroughApiCommand._read_challengeToken,
-    toJson: ResendTwoFactorChallengeCodeThroughApiCommand._write_challengeToken,
-  )
-  final ({String? value})? challengeToken;
-
-  static ({String? value}) _read_challengeToken(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_challengeToken(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? challengeToken;
 
   Map<String, Object?> toJson() =>
       _$ResendTwoFactorChallengeCodeThroughApiCommandToJson(this);

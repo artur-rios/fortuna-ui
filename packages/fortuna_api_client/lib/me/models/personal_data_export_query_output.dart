@@ -27,12 +27,8 @@ class PersonalDataExportQueryOutput {
   factory PersonalDataExportQueryOutput.fromJson(Map<String, Object?> json) =>
       _$PersonalDataExportQueryOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: PersonalDataExportQueryOutput._read_contentType,
-    toJson: PersonalDataExportQueryOutput._write_contentType,
-  )
-  final ({String? value})? contentType;
+  @JsonKey(includeIfNull: false)
+  final String? contentType;
 
   @JsonKey(
     disallowNullValue: true,
@@ -50,19 +46,11 @@ class PersonalDataExportQueryOutput {
   )
   final DateTime? expiresAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: PersonalDataExportQueryOutput._read_failureReason,
-    toJson: PersonalDataExportQueryOutput._write_failureReason,
-  )
-  final ({String? value})? failureReason;
+  @JsonKey(includeIfNull: false)
+  final String? failureReason;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: PersonalDataExportQueryOutput._read_fileName,
-    toJson: PersonalDataExportQueryOutput._write_fileName,
-  )
-  final ({String? value})? fileName;
+  @JsonKey(includeIfNull: false)
+  final String? fileName;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? jobId;
@@ -91,11 +79,6 @@ class PersonalDataExportQueryOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_contentType(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_contentType(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
@@ -107,16 +90,6 @@ class PersonalDataExportQueryOutput {
 
   static Object? _write_expiresAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_failureReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_failureReason(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_fileName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_fileName(({String? value}) value) => value.value;
 
   static int? _read_progress(Object? value) =>
       value == null ? null : value as int;

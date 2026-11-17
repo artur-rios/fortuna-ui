@@ -27,19 +27,11 @@ class CreateBudgetCommand {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateBudgetCommand._read_categoryIds,
-    toJson: CreateBudgetCommand._write_categoryIds,
-  )
-  final ({List<String>? value})? categoryIds;
+  @JsonKey(includeIfNull: false)
+  final List<String>? categoryIds;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateBudgetCommand._read_currencyCode,
-    toJson: CreateBudgetCommand._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? includeDescendants;
@@ -54,20 +46,6 @@ class CreateBudgetCommand {
     toJson: CreateBudgetCommand._write_periodType,
   )
   final BudgetPeriodType? periodType;
-
-  static ({List<String>? value}) _read_categoryIds(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_categoryIds(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
 
   static BudgetPeriodType? _read_periodType(Object? value) =>
       value == null ? null : BudgetPeriodType.fromJson(value);

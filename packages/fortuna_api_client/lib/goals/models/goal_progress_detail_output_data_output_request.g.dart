@@ -13,7 +13,7 @@ _$GoalProgressDetailOutputDataOutput$RequestFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'timestamp'],
-    disallowNullValues: const ['data', 'timestamp'],
+    disallowNullValues: const ['timestamp'],
   );
   return GoalProgressDetailOutputDataOutput$Request(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$GoalProgressDetailOutputDataOutput$RequestFromJson(
         : GoalProgressDetailOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : GoalProgressDetailOutputDataOutput$Request._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : GoalProgressDetailOutputDataOutput$Request._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     timestamp: GoalProgressDetailOutputDataOutput$Request._read_timestamp(
       json['timestamp'],
     ),
@@ -41,12 +37,8 @@ Map<String, dynamic> _$GoalProgressDetailOutputDataOutput$RequestToJson(
   GoalProgressDetailOutputDataOutput$Request instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors': GoalProgressDetailOutputDataOutput$Request._write_errors($value),
-  if (instance.messages case final $value?)
-    'messages': GoalProgressDetailOutputDataOutput$Request._write_messages(
-      $value,
-    ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'timestamp': ?GoalProgressDetailOutputDataOutput$Request._write_timestamp(
     instance.timestamp,
   ),

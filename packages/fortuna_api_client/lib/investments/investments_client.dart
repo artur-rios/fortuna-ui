@@ -9,18 +9,18 @@ import 'package:retrofit/retrofit.dart'
         RestApi,
         Extras,
         CancelRequest,
-        GET,
-        DELETE,
         POST,
+        GET,
+        PUT,
+        DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
-import 'models/create_investment_command.dart'
-    as models
-    show CreateInvestmentCommand;
+import 'models/create_investment_command.dart' show CreateInvestmentCommand;
 import 'models/create_investment_command_output_data_output_response.dart'
-    as models
     show CreateInvestmentCommandOutputDataOutput$Response;
 import 'models/investment_lifecycle_command_output_data_output_response.dart'
     show InvestmentLifecycleCommandOutputDataOutput$Response;
@@ -33,22 +33,15 @@ import 'models/investment_type.dart' as models show InvestmentType;
 import 'models/investment_valuation_output_paginated_output_response.dart'
     show InvestmentValuationOutputPaginatedOutput$Response;
 import 'models/record_investment_movement_command.dart'
-    as models
     show RecordInvestmentMovementCommand;
 import 'models/record_investment_movement_command_output_data_output_response.dart'
-    as models
     show RecordInvestmentMovementCommandOutputDataOutput$Response;
 import 'models/record_investment_valuation_command.dart'
-    as models
     show RecordInvestmentValuationCommand;
 import 'models/record_investment_valuation_command_output_data_output_response.dart'
-    as models
     show RecordInvestmentValuationCommandOutputDataOutput$Response;
-import 'models/update_investment_command.dart'
-    as models
-    show UpdateInvestmentCommand;
+import 'models/update_investment_command.dart' show UpdateInvestmentCommand;
 import 'models/update_investment_command_output_data_output_response.dart'
-    as models
     show UpdateInvestmentCommandOutputDataOutput$Response;
 
 part 'investments_client.g.dart';
@@ -111,28 +104,27 @@ abstract class InvestmentsClient {
     );
   }
 
-  Future<models.CreateInvestmentCommandOutputDataOutput$Response>
-  postApiInvestments({
+  Future<CreateInvestmentCommandOutputDataOutput$Response>
+  _postApiInvestmentsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateInvestmentCommand body,
+    required CreateInvestmentCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/investments",
@@ -140,11 +132,23 @@ abstract class InvestmentsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.CreateInvestmentCommandOutputDataOutput$Response.fromJson(
+    return CreateInvestmentCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/investments')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CreateInvestmentCommandOutputDataOutput$Response> postApiInvestments({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateInvestmentCommand body,
+  });
   Future<InvestmentOutputDataOutput$Response>
   _getApiInvestmentsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -191,8 +195,8 @@ abstract class InvestmentsClient {
     @Query('displayCurrencyCode') String? displayCurrencyCode,
     @Query('figureDate') String? figureDate,
   });
-  Future<models.UpdateInvestmentCommandOutputDataOutput$Response>
-  putApiInvestmentsById({
+  Future<UpdateInvestmentCommandOutputDataOutput$Response>
+  _putApiInvestmentsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -200,35 +204,45 @@ abstract class InvestmentsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateInvestmentCommand body,
+    required UpdateInvestmentCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/investments/" + Uri.encodeComponent(id),
+      "/api/investments/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.UpdateInvestmentCommandOutputDataOutput$Response.fromJson(
+    return UpdateInvestmentCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @PUT('/api/investments/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<UpdateInvestmentCommandOutputDataOutput$Response>
+  putApiInvestmentsById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateInvestmentCommand body,
+  });
   Future<InvestmentLifecycleCommandOutputDataOutput$Response>
   _deleteApiInvestmentsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -305,8 +319,8 @@ abstract class InvestmentsClient {
     Options? options,
     @Path('id') required String id,
   });
-  Future<models.RecordInvestmentMovementCommandOutputDataOutput$Response>
-  postApiInvestmentsByIdMovements({
+  Future<RecordInvestmentMovementCommandOutputDataOutput$Response>
+  _postApiInvestmentsByIdMovementsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -314,36 +328,45 @@ abstract class InvestmentsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.RecordInvestmentMovementCommand body,
+    required RecordInvestmentMovementCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/investments/" + Uri.encodeComponent(id) + "/movements",
+      "/api/investments/" + id.toString() + "/movements",
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .RecordInvestmentMovementCommandOutputDataOutput$Response.fromJson(
+    return RecordInvestmentMovementCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/investments/{id}/movements')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RecordInvestmentMovementCommandOutputDataOutput$Response>
+  postApiInvestmentsByIdMovements({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required RecordInvestmentMovementCommand body,
+  });
   Future<InvestmentLifecycleCommandOutputDataOutput$Response>
   _postApiInvestmentsByIdRestoreWithOptions({
     Map<String, Object?> extra = const {
@@ -443,8 +466,8 @@ abstract class InvestmentsClient {
     @Query('PageNumber') int? pageNumber,
     @Query('PageSize') int? pageSize,
   });
-  Future<models.RecordInvestmentValuationCommandOutputDataOutput$Response>
-  postApiInvestmentsByIdValuations({
+  Future<RecordInvestmentValuationCommandOutputDataOutput$Response>
+  _postApiInvestmentsByIdValuationsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -452,39 +475,74 @@ abstract class InvestmentsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.RecordInvestmentValuationCommand body,
+    required RecordInvestmentValuationCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/investments/" + Uri.encodeComponent(id) + "/valuations",
+      "/api/investments/" + id.toString() + "/valuations",
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .RecordInvestmentValuationCommandOutputDataOutput$Response.fromJson(
+    return RecordInvestmentValuationCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
+
+  @POST('/api/investments/{id}/valuations')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RecordInvestmentValuationCommandOutputDataOutput$Response>
+  postApiInvestmentsByIdValuations({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required RecordInvestmentValuationCommand body,
+  });
 }
 
 class _InvestmentsClientWithOptions extends _InvestmentsClient {
   _InvestmentsClientWithOptions(Dio dio) : super._(dio, dio);
+
+  @override
+  Future<CreateInvestmentCommandOutputDataOutput$Response> postApiInvestments({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateInvestmentCommand body,
+  }) {
+    return options == null
+        ? super.postApiInvestments(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiInvestmentsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
 
   @override
   Future<InvestmentOutputDataOutput$Response> getApiInvestmentsById({
@@ -514,6 +572,35 @@ class _InvestmentsClientWithOptions extends _InvestmentsClient {
             id: id,
             displayCurrencyCode: displayCurrencyCode,
             figureDate: figureDate,
+          );
+  }
+
+  @override
+  Future<UpdateInvestmentCommandOutputDataOutput$Response>
+  putApiInvestmentsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateInvestmentCommand body,
+  }) {
+    return options == null
+        ? super.putApiInvestmentsById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiInvestmentsByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 
@@ -566,6 +653,35 @@ class _InvestmentsClientWithOptions extends _InvestmentsClient {
             cancelToken: cancelToken,
             options: options,
             id: id,
+          );
+  }
+
+  @override
+  Future<RecordInvestmentMovementCommandOutputDataOutput$Response>
+  postApiInvestmentsByIdMovements({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required RecordInvestmentMovementCommand body,
+  }) {
+    return options == null
+        ? super.postApiInvestmentsByIdMovements(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _postApiInvestmentsByIdMovementsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 
@@ -639,6 +755,35 @@ class _InvestmentsClientWithOptions extends _InvestmentsClient {
             descending: descending,
             pageNumber: pageNumber,
             pageSize: pageSize,
+          );
+  }
+
+  @override
+  Future<RecordInvestmentValuationCommandOutputDataOutput$Response>
+  postApiInvestmentsByIdValuations({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required RecordInvestmentValuationCommand body,
+  }) {
+    return options == null
+        ? super.postApiInvestmentsByIdValuations(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _postApiInvestmentsByIdValuationsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 }

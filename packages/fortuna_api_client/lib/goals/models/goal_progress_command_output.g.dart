@@ -21,36 +21,20 @@ GoalProgressCommandOutput _$GoalProgressCommandOutputFromJson(
     disallowNullValues: const ['isFullyConverted'],
   );
   return GoalProgressCommandOutput(
-    currentAmount: !json.containsKey('currentAmount')
-        ? null
-        : GoalProgressCommandOutput._read_currentAmount(json['currentAmount']),
+    currentAmount: json['currentAmount'] as String?,
     isFullyConverted: json['isFullyConverted'] as bool?,
-    isReached: !json.containsKey('isReached')
-        ? null
-        : GoalProgressCommandOutput._read_isReached(json['isReached']),
-    proportionReached: !json.containsKey('proportionReached')
-        ? null
-        : GoalProgressCommandOutput._read_proportionReached(
-            json['proportionReached'],
-          ),
-    remaining: !json.containsKey('remaining')
-        ? null
-        : GoalProgressCommandOutput._read_remaining(json['remaining']),
+    isReached: json['isReached'] as bool?,
+    proportionReached: json['proportionReached'] as String?,
+    remaining: json['remaining'] as String?,
   );
 }
 
 Map<String, dynamic> _$GoalProgressCommandOutputToJson(
   GoalProgressCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.currentAmount case final $value?)
-    'currentAmount': GoalProgressCommandOutput._write_currentAmount($value),
+  'currentAmount': ?instance.currentAmount,
   'isFullyConverted': ?instance.isFullyConverted,
-  if (instance.isReached case final $value?)
-    'isReached': GoalProgressCommandOutput._write_isReached($value),
-  if (instance.proportionReached case final $value?)
-    'proportionReached': GoalProgressCommandOutput._write_proportionReached(
-      $value,
-    ),
-  if (instance.remaining case final $value?)
-    'remaining': GoalProgressCommandOutput._write_remaining($value),
+  'isReached': ?instance.isReached,
+  'proportionReached': ?instance.proportionReached,
+  'remaining': ?instance.remaining,
 };

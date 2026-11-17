@@ -10,17 +10,21 @@ import 'package:retrofit/retrofit.dart'
         Extras,
         CancelRequest,
         GET,
+        POST,
+        PUT,
         DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
-import 'models/create_tag_command.dart' as models show CreateTagCommand;
+import 'models/create_tag_command.dart' show CreateTagCommand;
 import 'models/tag_command_output_data_output_response.dart'
     show TagCommandOutputDataOutput$Response;
 import 'models/tag_list_output_data_output_response.dart'
     show TagListOutputDataOutput$Response;
-import 'models/update_tag_command.dart' as models show UpdateTagCommand;
+import 'models/update_tag_command.dart' show UpdateTagCommand;
 
 part 'tags_client.g.dart';
 
@@ -77,27 +81,26 @@ abstract class TagsClient {
     @Query('pageNumber') int? pageNumber,
     @Query('pageSize') int? pageSize,
   });
-  Future<TagCommandOutputDataOutput$Response> postApiTags({
+  Future<TagCommandOutputDataOutput$Response> _postApiTagsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateTagCommand body,
+    required CreateTagCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/tags",
@@ -110,7 +113,19 @@ abstract class TagsClient {
     );
   }
 
-  Future<TagCommandOutputDataOutput$Response> putApiTagsById({
+  @POST('/api/tags')
+  @Headers({'Content-Type': 'application/json'})
+  Future<TagCommandOutputDataOutput$Response> postApiTags({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateTagCommand body,
+  });
+  Future<TagCommandOutputDataOutput$Response> _putApiTagsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -118,26 +133,22 @@ abstract class TagsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateTagCommand body,
+    required UpdateTagCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/tags/" + Uri.encodeComponent(id),
+      "/api/tags/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
@@ -147,6 +158,19 @@ abstract class TagsClient {
     );
   }
 
+  @PUT('/api/tags/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<TagCommandOutputDataOutput$Response> putApiTagsById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateTagCommand body,
+  });
   Future<TagCommandOutputDataOutput$Response> _deleteApiTagsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -216,6 +240,59 @@ class _TagsClientWithOptions extends _TagsClient {
             includeDeleted: includeDeleted,
             pageNumber: pageNumber,
             pageSize: pageSize,
+          );
+  }
+
+  @override
+  Future<TagCommandOutputDataOutput$Response> postApiTags({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateTagCommand body,
+  }) {
+    return options == null
+        ? super.postApiTags(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiTagsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<TagCommandOutputDataOutput$Response> putApiTagsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateTagCommand body,
+  }) {
+    return options == null
+        ? super.putApiTagsById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiTagsByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

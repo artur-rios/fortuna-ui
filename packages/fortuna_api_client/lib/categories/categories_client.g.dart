@@ -69,6 +69,59 @@ class _CategoriesClient extends CategoriesClient {
   }
 
   @override
+  Future<CreateCategoryCommandOutputDataOutput$Response> postApiCategories({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateCategoryCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<CreateCategoryCommandOutputDataOutput$Response>(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/categories',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late CreateCategoryCommandOutputDataOutput$Response _value;
+    try {
+      _value = CreateCategoryCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<CategoryOutputDataOutput$Response> getApiCategoriesById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -105,6 +158,60 @@ class _CategoriesClient extends CategoriesClient {
     late CategoryOutputDataOutput$Response _value;
     try {
       _value = CategoryOutputDataOutput$Response.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<UpdateCategoryCommandOutputDataOutput$Response> putApiCategoriesById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateCategoryCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<UpdateCategoryCommandOutputDataOutput$Response>(
+          Options(
+                method: 'PUT',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/categories/${id}',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late UpdateCategoryCommandOutputDataOutput$Response _value;
+    try {
+      _value = UpdateCategoryCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -195,6 +302,64 @@ class _CategoriesClient extends CategoriesClient {
       _value = CategoryLifecycleCommandOutputDataOutput$Response.fromJson(
         _result.data!,
       );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ReassignCategoryTransactionsCommandOutputDataOutput$Response>
+  postApiCategoriesByIdReassign({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required ReassignCategoryTransactionsCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<
+          ReassignCategoryTransactionsCommandOutputDataOutput$Response
+        >(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/categories/${id}/reassign',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late ReassignCategoryTransactionsCommandOutputDataOutput$Response _value;
+    try {
+      _value =
+          ReassignCategoryTransactionsCommandOutputDataOutput$Response.fromJson(
+            _result.data!,
+          );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

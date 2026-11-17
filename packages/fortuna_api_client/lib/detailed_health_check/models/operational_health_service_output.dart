@@ -21,66 +21,36 @@ class OperationalHealthServiceOutput {
   factory OperationalHealthServiceOutput.fromJson(Map<String, Object?> json) =>
       _$OperationalHealthServiceOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: OperationalHealthServiceOutput._read_name,
-    toJson: OperationalHealthServiceOutput._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: OperationalHealthServiceOutput._read_oldestPendingSeconds,
     toJson: OperationalHealthServiceOutput._write_oldestPendingSeconds,
   )
-  final ({int? value})? oldestPendingSeconds;
+  final int? oldestPendingSeconds;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: OperationalHealthServiceOutput._read_queueDepth,
     toJson: OperationalHealthServiceOutput._write_queueDepth,
   )
-  final ({int? value})? queueDepth;
+  final int? queueDepth;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: OperationalHealthServiceOutput._read_reason,
-    toJson: OperationalHealthServiceOutput._write_reason,
-  )
-  final ({String? value})? reason;
+  @JsonKey(includeIfNull: false)
+  final String? reason;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: OperationalHealthServiceOutput._read_status,
-    toJson: OperationalHealthServiceOutput._write_status,
-  )
-  final ({String? value})? status;
+  @JsonKey(includeIfNull: false)
+  final String? status;
 
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
+  static int? _read_oldestPendingSeconds(Object? value) => value as int?;
 
-  static Object? _write_name(({String? value}) value) => value.value;
+  static Object? _write_oldestPendingSeconds(int? value) => value;
 
-  static ({int? value}) _read_oldestPendingSeconds(Object? value) =>
-      (value: value as int?);
+  static int? _read_queueDepth(Object? value) => value as int?;
 
-  static Object? _write_oldestPendingSeconds(({int? value}) value) =>
-      value.value;
-
-  static ({int? value}) _read_queueDepth(Object? value) =>
-      (value: value as int?);
-
-  static Object? _write_queueDepth(({int? value}) value) => value.value;
-
-  static ({String? value}) _read_reason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_reason(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_status(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_status(({String? value}) value) => value.value;
+  static Object? _write_queueDepth(int? value) => value;
 
   Map<String, Object?> toJson() => _$OperationalHealthServiceOutputToJson(this);
 }

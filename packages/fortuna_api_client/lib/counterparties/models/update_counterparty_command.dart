@@ -15,17 +15,8 @@ class UpdateCounterpartyCommand {
   factory UpdateCounterpartyCommand.fromJson(Map<String, Object?> json) =>
       _$UpdateCounterpartyCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateCounterpartyCommand._read_name,
-    toJson: UpdateCounterpartyCommand._write_name,
-  )
-  final ({String? value})? name;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   Map<String, Object?> toJson() => _$UpdateCounterpartyCommandToJson(this);
 }

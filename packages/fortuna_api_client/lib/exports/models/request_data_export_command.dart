@@ -26,114 +26,26 @@ class RequestDataExportCommand {
   factory RequestDataExportCommand.fromJson(Map<String, Object?> json) =>
       _$RequestDataExportCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommand._read_columns,
-    toJson: RequestDataExportCommand._write_columns,
-  )
-  final ({List<String>? value})? columns;
+  @JsonKey(includeIfNull: false)
+  final List<String>? columns;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommand._read_displayCurrencyCode,
-    toJson: RequestDataExportCommand._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommand._read_filters,
-    toJson: RequestDataExportCommand._write_filters,
-  )
-  final ({List<DataExportFilterInput>? value})? filters;
+  @JsonKey(includeIfNull: false)
+  final List<DataExportFilterInput>? filters;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommand._read_format,
-    toJson: RequestDataExportCommand._write_format,
-  )
-  final ({String? value})? format;
+  @JsonKey(includeIfNull: false)
+  final String? format;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommand._read_locale,
-    toJson: RequestDataExportCommand._write_locale,
-  )
-  final ({String? value})? locale;
+  @JsonKey(includeIfNull: false)
+  final String? locale;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommand._read_recordSet,
-    toJson: RequestDataExportCommand._write_recordSet,
-  )
-  final ({String? value})? recordSet;
+  @JsonKey(includeIfNull: false)
+  final String? recordSet;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestDataExportCommand._read_sorts,
-    toJson: RequestDataExportCommand._write_sorts,
-  )
-  final ({List<DataExportSortInput>? value})? sorts;
-
-  static ({List<String>? value}) _read_columns(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_columns(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({List<DataExportFilterInput>? value}) _read_filters(Object? value) =>
-      (
-        value: value == null
-            ? null
-            : (value as List<Object?>)
-                  .map(
-                    (item) => DataExportFilterInput.fromJson(
-                      item as Map<String, Object?>,
-                    ),
-                  )
-                  .toList(),
-      );
-
-  static Object? _write_filters(({List<DataExportFilterInput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_format(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_format(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_locale(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_locale(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_recordSet(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recordSet(({String? value}) value) => value.value;
-
-  static ({List<DataExportSortInput>? value}) _read_sorts(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    DataExportSortInput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_sorts(({List<DataExportSortInput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
+  @JsonKey(includeIfNull: false)
+  final List<DataExportSortInput>? sorts;
 
   Map<String, Object?> toJson() => _$RequestDataExportCommandToJson(this);
 }

@@ -41,56 +41,24 @@ _$RecordInvestmentMovementCommandOutputFromJson(Map<String, dynamic> json) {
   );
   return RecordInvestmentMovementCommandOutput(
     amount: json['amount'] as String?,
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : RecordInvestmentMovementCommandOutput._read_appliedRate(
-            json['appliedRate'],
-          ),
+    appliedRate: json['appliedRate'] as String?,
     createdAt: RecordInvestmentMovementCommandOutput._read_createdAt(
       json['createdAt'],
     ),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : RecordInvestmentMovementCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
-    financialAccountId: !json.containsKey('financialAccountId')
-        ? null
-        : RecordInvestmentMovementCommandOutput._read_financialAccountId(
-            json['financialAccountId'],
-          ),
-    fundingAmount: !json.containsKey('fundingAmount')
-        ? null
-        : RecordInvestmentMovementCommandOutput._read_fundingAmount(
-            json['fundingAmount'],
-          ),
-    fundingCurrencyCode: !json.containsKey('fundingCurrencyCode')
-        ? null
-        : RecordInvestmentMovementCommandOutput._read_fundingCurrencyCode(
-            json['fundingCurrencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
+    financialAccountId: json['financialAccountId'] as String?,
+    fundingAmount: json['fundingAmount'] as String?,
+    fundingCurrencyCode: json['fundingCurrencyCode'] as String?,
     id: json['id'] as String?,
     investmentId: json['investmentId'] as String?,
     movementType: RecordInvestmentMovementCommandOutput._read_movementType(
       json['movementType'],
     ),
     occurredOn: json['occurredOn'] as String?,
-    outboundTransactionId: !json.containsKey('outboundTransactionId')
-        ? null
-        : RecordInvestmentMovementCommandOutput._read_outboundTransactionId(
-            json['outboundTransactionId'],
-          ),
+    outboundTransactionId: json['outboundTransactionId'] as String?,
     position: json['position'] as String?,
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : RecordInvestmentMovementCommandOutput._read_rateDate(
-            json['rateDate'],
-          ),
-    transferId: !json.containsKey('transferId')
-        ? null
-        : RecordInvestmentMovementCommandOutput._read_transferId(
-            json['transferId'],
-          ),
+    rateDate: json['rateDate'] as String?,
+    transferId: json['transferId'] as String?,
     updatedAt: RecordInvestmentMovementCommandOutput._read_updatedAt(
       json['updatedAt'],
     ),
@@ -101,47 +69,24 @@ Map<String, dynamic> _$RecordInvestmentMovementCommandOutputToJson(
   RecordInvestmentMovementCommandOutput instance,
 ) => <String, dynamic>{
   'amount': ?instance.amount,
-  if (instance.appliedRate case final $value?)
-    'appliedRate': RecordInvestmentMovementCommandOutput._write_appliedRate(
-      $value,
-    ),
+  'appliedRate': ?instance.appliedRate,
   'createdAt': ?RecordInvestmentMovementCommandOutput._write_createdAt(
     instance.createdAt,
   ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': RecordInvestmentMovementCommandOutput._write_currencyCode(
-      $value,
-    ),
-  if (instance.financialAccountId case final $value?)
-    'financialAccountId':
-        RecordInvestmentMovementCommandOutput._write_financialAccountId($value),
-  if (instance.fundingAmount case final $value?)
-    'fundingAmount': RecordInvestmentMovementCommandOutput._write_fundingAmount(
-      $value,
-    ),
-  if (instance.fundingCurrencyCode case final $value?)
-    'fundingCurrencyCode':
-        RecordInvestmentMovementCommandOutput._write_fundingCurrencyCode(
-          $value,
-        ),
+  'currencyCode': ?instance.currencyCode,
+  'financialAccountId': ?instance.financialAccountId,
+  'fundingAmount': ?instance.fundingAmount,
+  'fundingCurrencyCode': ?instance.fundingCurrencyCode,
   'id': ?instance.id,
   'investmentId': ?instance.investmentId,
   'movementType': ?RecordInvestmentMovementCommandOutput._write_movementType(
     instance.movementType,
   ),
   'occurredOn': ?instance.occurredOn,
-  if (instance.outboundTransactionId case final $value?)
-    'outboundTransactionId':
-        RecordInvestmentMovementCommandOutput._write_outboundTransactionId(
-          $value,
-        ),
+  'outboundTransactionId': ?instance.outboundTransactionId,
   'position': ?instance.position,
-  if (instance.rateDate case final $value?)
-    'rateDate': RecordInvestmentMovementCommandOutput._write_rateDate($value),
-  if (instance.transferId case final $value?)
-    'transferId': RecordInvestmentMovementCommandOutput._write_transferId(
-      $value,
-    ),
+  'rateDate': ?instance.rateDate,
+  'transferId': ?instance.transferId,
   'updatedAt': ?RecordInvestmentMovementCommandOutput._write_updatedAt(
     instance.updatedAt,
   ),

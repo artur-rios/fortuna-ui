@@ -18,9 +18,7 @@ _$GoogleSignInThroughApiCommandOutputFromJson(Map<String, dynamic> json) {
     expiresAt: GoogleSignInThroughApiCommandOutput._read_expiresAt(
       json['expiresAt'],
     ),
-    token: !json.containsKey('token')
-        ? null
-        : GoogleSignInThroughApiCommandOutput._read_token(json['token']),
+    token: json['token'] as String?,
   );
 }
 
@@ -31,6 +29,5 @@ Map<String, dynamic> _$GoogleSignInThroughApiCommandOutputToJson(
   'expiresAt': ?GoogleSignInThroughApiCommandOutput._write_expiresAt(
     instance.expiresAt,
   ),
-  if (instance.token case final $value?)
-    'token': GoogleSignInThroughApiCommandOutput._write_token($value),
+  'token': ?instance.token,
 };

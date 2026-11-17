@@ -17,26 +17,8 @@ class DataSourceListOutput {
   factory DataSourceListOutput.fromJson(Map<String, Object?> json) =>
       _$DataSourceListOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataSourceListOutput._read_sources,
-    toJson: DataSourceListOutput._write_sources,
-  )
-  final ({List<DataSourceOutput>? value})? sources;
-
-  static ({List<DataSourceOutput>? value}) _read_sources(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    DataSourceOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_sources(({List<DataSourceOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
+  @JsonKey(includeIfNull: false)
+  final List<DataSourceOutput>? sources;
 
   Map<String, Object?> toJson() => _$DataSourceListOutputToJson(this);
 }

@@ -30,12 +30,8 @@ class RetrieveDataExportQueryOutput {
   factory RetrieveDataExportQueryOutput.fromJson(Map<String, Object?> json) =>
       _$RetrieveDataExportQueryOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RetrieveDataExportQueryOutput._read_contentType,
-    toJson: RetrieveDataExportQueryOutput._write_contentType,
-  )
-  final ({String? value})? contentType;
+  @JsonKey(includeIfNull: false)
+  final String? contentType;
 
   @JsonKey(
     disallowNullValue: true,
@@ -53,19 +49,11 @@ class RetrieveDataExportQueryOutput {
   )
   final DateTime? expiresAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RetrieveDataExportQueryOutput._read_failureReason,
-    toJson: RetrieveDataExportQueryOutput._write_failureReason,
-  )
-  final ({String? value})? failureReason;
+  @JsonKey(includeIfNull: false)
+  final String? failureReason;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RetrieveDataExportQueryOutput._read_fileName,
-    toJson: RetrieveDataExportQueryOutput._write_fileName,
-  )
-  final ({String? value})? fileName;
+  @JsonKey(includeIfNull: false)
+  final String? fileName;
 
   @JsonKey(
     disallowNullValue: true,
@@ -78,19 +66,15 @@ class RetrieveDataExportQueryOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RetrieveDataExportQueryOutput._read_jobId,
-    toJson: RetrieveDataExportQueryOutput._write_jobId,
-  )
-  final ({String? value})? jobId;
+  @JsonKey(includeIfNull: false)
+  final String? jobId;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: RetrieveDataExportQueryOutput._read_rowCount,
     toJson: RetrieveDataExportQueryOutput._write_rowCount,
   )
-  final ({int? value})? rowCount;
+  final int? rowCount;
 
   @JsonKey(
     disallowNullValue: true,
@@ -108,11 +92,6 @@ class RetrieveDataExportQueryOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_contentType(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_contentType(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
@@ -125,29 +104,14 @@ class RetrieveDataExportQueryOutput {
   static Object? _write_expiresAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
 
-  static ({String? value}) _read_failureReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_failureReason(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_fileName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_fileName(({String? value}) value) => value.value;
-
   static DataExportFormat? _read_format(Object? value) =>
       value == null ? null : DataExportFormat.fromJson(value);
 
   static Object? _write_format(DataExportFormat? value) => value?.toJson();
 
-  static ({String? value}) _read_jobId(Object? value) =>
-      (value: value as String?);
+  static int? _read_rowCount(Object? value) => value as int?;
 
-  static Object? _write_jobId(({String? value}) value) => value.value;
-
-  static ({int? value}) _read_rowCount(Object? value) => (value: value as int?);
-
-  static Object? _write_rowCount(({int? value}) value) => value.value;
+  static Object? _write_rowCount(int? value) => value;
 
   static DataExportStatus? _read_status(Object? value) =>
       value == null ? null : DataExportStatus.fromJson(value);

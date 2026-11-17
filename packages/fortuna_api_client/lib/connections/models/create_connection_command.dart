@@ -19,19 +19,11 @@ class CreateConnectionCommand {
   factory CreateConnectionCommand.fromJson(Map<String, Object?> json) =>
       _$CreateConnectionCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateConnectionCommand._read_dataSource,
-    toJson: CreateConnectionCommand._write_dataSource,
-  )
-  final ({String? value})? dataSource;
+  @JsonKey(includeIfNull: false)
+  final String? dataSource;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateConnectionCommand._read_externalReference,
-    toJson: CreateConnectionCommand._write_externalReference,
-  )
-  final ({String? value})? externalReference;
+  @JsonKey(includeIfNull: false)
+  final String? externalReference;
 
   static const _knownKeys = <String>{"dataSource", "externalReference"};
 
@@ -41,17 +33,6 @@ class CreateConnectionCommand {
     includeToJson: false,
   )
   final Map<String, Object?> additionalProperties;
-
-  static ({String? value}) _read_dataSource(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_dataSource(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_externalReference(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_externalReference(({String? value}) value) =>
-      value.value;
 
   static Object? _extras(Map map, String _) => {
     for (final entry in map.entries)

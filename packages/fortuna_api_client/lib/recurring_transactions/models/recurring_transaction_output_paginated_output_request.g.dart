@@ -30,26 +30,18 @@ _$RecurringTransactionOutputPaginatedOutput$RequestFromJson(
     ],
   );
   return RecurringTransactionOutputPaginatedOutput$Request(
-    data: !json.containsKey('data')
-        ? null
-        : RecurringTransactionOutputPaginatedOutput$Request._read_data(
-            json['data'],
-          ),
-    errors: !json.containsKey('errors')
-        ? null
-        : RecurringTransactionOutputPaginatedOutput$Request._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : RecurringTransactionOutputPaginatedOutput$Request._read_messages(
-            json['messages'],
-          ),
-    nextPageToken: !json.containsKey('nextPageToken')
-        ? null
-        : RecurringTransactionOutputPaginatedOutput$Request._read_nextPageToken(
-            json['nextPageToken'],
-          ),
+    data: (json['data'] as List<dynamic>?)
+        ?.map(
+          (e) => RecurringTransactionOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    nextPageToken: json['nextPageToken'] as String?,
     pageNumber:
         RecurringTransactionOutputPaginatedOutput$Request._read_pageNumber(
           json['pageNumber'],
@@ -71,24 +63,10 @@ _$RecurringTransactionOutputPaginatedOutput$RequestFromJson(
 Map<String, dynamic> _$RecurringTransactionOutputPaginatedOutput$RequestToJson(
   RecurringTransactionOutputPaginatedOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.data case final $value?)
-    'data': RecurringTransactionOutputPaginatedOutput$Request._write_data(
-      $value,
-    ),
-  if (instance.errors case final $value?)
-    'errors': RecurringTransactionOutputPaginatedOutput$Request._write_errors(
-      $value,
-    ),
-  if (instance.messages case final $value?)
-    'messages':
-        RecurringTransactionOutputPaginatedOutput$Request._write_messages(
-          $value,
-        ),
-  if (instance.nextPageToken case final $value?)
-    'nextPageToken':
-        RecurringTransactionOutputPaginatedOutput$Request._write_nextPageToken(
-          $value,
-        ),
+  'data': ?instance.data?.map((e) => e.toJson()).toList(),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
+  'nextPageToken': ?instance.nextPageToken,
   'pageNumber':
       ?RecurringTransactionOutputPaginatedOutput$Request._write_pageNumber(
         instance.pageNumber,

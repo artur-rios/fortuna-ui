@@ -15,17 +15,8 @@ class CreateCounterpartyCommand {
   factory CreateCounterpartyCommand.fromJson(Map<String, Object?> json) =>
       _$CreateCounterpartyCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateCounterpartyCommand._read_name,
-    toJson: CreateCounterpartyCommand._write_name,
-  )
-  final ({String? value})? name;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   Map<String, Object?> toJson() => _$CreateCounterpartyCommandToJson(this);
 }

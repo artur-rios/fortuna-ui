@@ -14,15 +14,12 @@ FigureAmountInput _$FigureAmountInputFromJson(Map<String, dynamic> json) {
   );
   return FigureAmountInput(
     amount: json['amount'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : FigureAmountInput._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
   );
 }
 
 Map<String, dynamic> _$FigureAmountInputToJson(FigureAmountInput instance) =>
     <String, dynamic>{
       'amount': ?instance.amount,
-      if (instance.currencyCode case final $value?)
-        'currencyCode': FigureAmountInput._write_currencyCode($value),
+      'currencyCode': ?instance.currencyCode,
     };

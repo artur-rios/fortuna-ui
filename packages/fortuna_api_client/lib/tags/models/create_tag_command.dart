@@ -15,17 +15,8 @@ class CreateTagCommand {
   factory CreateTagCommand.fromJson(Map<String, Object?> json) =>
       _$CreateTagCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateTagCommand._read_name,
-    toJson: CreateTagCommand._write_name,
-  )
-  final ({String? value})? name;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   Map<String, Object?> toJson() => _$CreateTagCommandToJson(this);
 }

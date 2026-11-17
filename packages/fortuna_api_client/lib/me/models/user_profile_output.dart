@@ -30,22 +30,14 @@ class UserProfileOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UserProfileOutput._read_displayCurrency,
-    toJson: UserProfileOutput._write_displayCurrency,
-  )
-  final ({String? value})? displayCurrency;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrency;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? displayCurrencyRequiresConfirmation;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UserProfileOutput._read_displayName,
-    toJson: UserProfileOutput._write_displayName,
-  )
-  final ({String? value})? displayName;
+  @JsonKey(includeIfNull: false)
+  final String? displayName;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -63,16 +55,6 @@ class UserProfileOutput {
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_displayCurrency(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrency(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayName(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

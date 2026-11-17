@@ -21,35 +21,17 @@ class CounterpartyCategorySuggestionOutput {
     Map<String, Object?> json,
   ) => _$CounterpartyCategorySuggestionOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CounterpartyCategorySuggestionOutput._read_categoryId,
-    toJson: CounterpartyCategorySuggestionOutput._write_categoryId,
-  )
-  final ({String? value})? categoryId;
+  @JsonKey(includeIfNull: false)
+  final String? categoryId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CounterpartyCategorySuggestionOutput._read_categoryName,
-    toJson: CounterpartyCategorySuggestionOutput._write_categoryName,
-  )
-  final ({String? value})? categoryName;
+  @JsonKey(includeIfNull: false)
+  final String? categoryName;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? counterpartyId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? hasSuggestion;
-
-  static ({String? value}) _read_categoryId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_categoryId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_categoryName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_categoryName(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() =>
       _$CounterpartyCategorySuggestionOutputToJson(this);

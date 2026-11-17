@@ -33,15 +33,9 @@ CreateConnectionCommandOutput _$CreateConnectionCommandOutputFromJson(
     dataSourceType: CreateConnectionCommandOutput._read_dataSourceType(
       json['dataSourceType'],
     ),
-    externalReference: !json.containsKey('externalReference')
-        ? null
-        : CreateConnectionCommandOutput._read_externalReference(
-            json['externalReference'],
-          ),
+    externalReference: json['externalReference'] as String?,
     id: json['id'] as String?,
-    institution: !json.containsKey('institution')
-        ? null
-        : CreateConnectionCommandOutput._read_institution(json['institution']),
+    institution: json['institution'] as String?,
     status: CreateConnectionCommandOutput._read_status(json['status']),
     updatedAt: CreateConnectionCommandOutput._read_updatedAt(json['updatedAt']),
   );
@@ -56,13 +50,9 @@ Map<String, dynamic> _$CreateConnectionCommandOutputToJson(
   'dataSourceType': ?CreateConnectionCommandOutput._write_dataSourceType(
     instance.dataSourceType,
   ),
-  if (instance.externalReference case final $value?)
-    'externalReference': CreateConnectionCommandOutput._write_externalReference(
-      $value,
-    ),
+  'externalReference': ?instance.externalReference,
   'id': ?instance.id,
-  if (instance.institution case final $value?)
-    'institution': CreateConnectionCommandOutput._write_institution($value),
+  'institution': ?instance.institution,
   'status': ?CreateConnectionCommandOutput._write_status(instance.status),
   'updatedAt': ?CreateConnectionCommandOutput._write_updatedAt(
     instance.updatedAt,

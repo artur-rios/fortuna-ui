@@ -18,17 +18,8 @@ class UpdateTransactionTagOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTransactionTagOutput._read_name,
-    toJson: UpdateTransactionTagOutput._write_name,
-  )
-  final ({String? value})? name;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   Map<String, Object?> toJson() => _$UpdateTransactionTagOutputToJson(this);
 }

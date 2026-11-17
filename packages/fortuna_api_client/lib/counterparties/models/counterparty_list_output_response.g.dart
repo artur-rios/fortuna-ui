@@ -26,11 +26,9 @@ CounterpartyListOutput$Response _$CounterpartyListOutput$ResponseFromJson(
     ],
   );
   return CounterpartyListOutput$Response(
-    counterparties: !json.containsKey('counterparties')
-        ? null
-        : CounterpartyListOutput$Response._read_counterparties(
-            json['counterparties'],
-          ),
+    counterparties: (json['counterparties'] as List<dynamic>?)
+        ?.map((e) => CounterpartyOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     pageNumber: CounterpartyListOutput$Response._read_pageNumber(
       json['pageNumber'],
     ),
@@ -47,10 +45,7 @@ CounterpartyListOutput$Response _$CounterpartyListOutput$ResponseFromJson(
 Map<String, dynamic> _$CounterpartyListOutput$ResponseToJson(
   CounterpartyListOutput$Response instance,
 ) => <String, dynamic>{
-  if (instance.counterparties case final $value?)
-    'counterparties': CounterpartyListOutput$Response._write_counterparties(
-      $value,
-    ),
+  'counterparties': ?instance.counterparties?.map((e) => e.toJson()).toList(),
   'pageNumber': ?CounterpartyListOutput$Response._write_pageNumber(
     instance.pageNumber,
   ),

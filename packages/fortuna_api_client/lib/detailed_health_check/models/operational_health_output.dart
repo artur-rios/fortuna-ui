@@ -17,42 +17,11 @@ class OperationalHealthOutput {
   factory OperationalHealthOutput.fromJson(Map<String, Object?> json) =>
       _$OperationalHealthOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: OperationalHealthOutput._read_services,
-    toJson: OperationalHealthOutput._write_services,
-  )
-  final ({List<OperationalHealthServiceOutput>? value})? services;
+  @JsonKey(includeIfNull: false)
+  final List<OperationalHealthServiceOutput>? services;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: OperationalHealthOutput._read_status,
-    toJson: OperationalHealthOutput._write_status,
-  )
-  final ({String? value})? status;
-
-  static ({List<OperationalHealthServiceOutput>? value}) _read_services(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => OperationalHealthServiceOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_services(
-    ({List<OperationalHealthServiceOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_status(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_status(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? status;
 
   Map<String, Object?> toJson() => _$OperationalHealthOutputToJson(this);
 }

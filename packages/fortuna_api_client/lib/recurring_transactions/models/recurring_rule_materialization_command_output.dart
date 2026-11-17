@@ -36,13 +36,8 @@ class RecurringRuleMaterializationCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isComplete;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringRuleMaterializationCommandOutput._read_occurrences,
-    toJson: RecurringRuleMaterializationCommandOutput._write_occurrences,
-  )
-  final ({List<RecurringOccurrenceMaterializationCommandOutput>? value})?
-  occurrences;
+  @JsonKey(includeIfNull: false)
+  final List<RecurringOccurrenceMaterializationCommandOutput>? occurrences;
 
   @JsonKey(
     disallowNullValue: true,
@@ -57,45 +52,18 @@ class RecurringRuleMaterializationCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? ruleId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringRuleMaterializationCommandOutput._read_skipReason,
-    toJson: RecurringRuleMaterializationCommandOutput._write_skipReason,
-  )
-  final ({String? value})? skipReason;
+  @JsonKey(includeIfNull: false)
+  final String? skipReason;
 
   static int? _read_createdCount(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_createdCount(int? value) => value;
 
-  static ({List<RecurringOccurrenceMaterializationCommandOutput>? value})
-  _read_occurrences(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    RecurringOccurrenceMaterializationCommandOutput.fromJson(
-                      item as Map<String, Object?>,
-                    ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_occurrences(
-    ({List<RecurringOccurrenceMaterializationCommandOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
   static int? _read_possibleDuplicateCount(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_possibleDuplicateCount(int? value) => value;
-
-  static ({String? value}) _read_skipReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_skipReason(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() =>
       _$RecurringRuleMaterializationCommandOutputToJson(this);

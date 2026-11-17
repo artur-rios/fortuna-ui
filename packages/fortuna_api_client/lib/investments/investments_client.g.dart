@@ -26,6 +26,59 @@ class _InvestmentsClient extends InvestmentsClient {
   final ParseErrorLogger? errorLogger;
 
   @override
+  Future<CreateInvestmentCommandOutputDataOutput$Response> postApiInvestments({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateInvestmentCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<CreateInvestmentCommandOutputDataOutput$Response>(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/investments',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late CreateInvestmentCommandOutputDataOutput$Response _value;
+    try {
+      _value = CreateInvestmentCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<InvestmentOutputDataOutput$Response> getApiInvestmentsById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -62,6 +115,61 @@ class _InvestmentsClient extends InvestmentsClient {
     late InvestmentOutputDataOutput$Response _value;
     try {
       _value = InvestmentOutputDataOutput$Response.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<UpdateInvestmentCommandOutputDataOutput$Response>
+  putApiInvestmentsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateInvestmentCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<UpdateInvestmentCommandOutputDataOutput$Response>(
+          Options(
+                method: 'PUT',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/investments/${id}',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late UpdateInvestmentCommandOutputDataOutput$Response _value;
+    try {
+      _value = UpdateInvestmentCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -152,6 +260,64 @@ class _InvestmentsClient extends InvestmentsClient {
       _value = InvestmentLifecycleCommandOutputDataOutput$Response.fromJson(
         _result.data!,
       );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<RecordInvestmentMovementCommandOutputDataOutput$Response>
+  postApiInvestmentsByIdMovements({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required RecordInvestmentMovementCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<
+          RecordInvestmentMovementCommandOutputDataOutput$Response
+        >(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/investments/${id}/movements',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late RecordInvestmentMovementCommandOutputDataOutput$Response _value;
+    try {
+      _value =
+          RecordInvestmentMovementCommandOutputDataOutput$Response.fromJson(
+            _result.data!,
+          );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -257,6 +423,64 @@ class _InvestmentsClient extends InvestmentsClient {
       _value = InvestmentValuationOutputPaginatedOutput$Response.fromJson(
         _result.data!,
       );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<RecordInvestmentValuationCommandOutputDataOutput$Response>
+  postApiInvestmentsByIdValuations({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required RecordInvestmentValuationCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<
+          RecordInvestmentValuationCommandOutputDataOutput$Response
+        >(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/investments/${id}/valuations',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late RecordInvestmentValuationCommandOutputDataOutput$Response _value;
+    try {
+      _value =
+          RecordInvestmentValuationCommandOutputDataOutput$Response.fromJson(
+            _result.data!,
+          );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

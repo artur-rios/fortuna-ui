@@ -38,135 +38,41 @@ class BudgetConsumptionDetailOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? budgetId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_conversions,
-    toJson: BudgetConsumptionDetailOutput._write_conversions,
-  )
-  final ({List<BudgetConversionOutput>? value})? conversions;
+  @JsonKey(includeIfNull: false)
+  final List<BudgetConversionOutput>? conversions;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_currencyCode,
-    toJson: BudgetConsumptionDetailOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isCovered;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_isExceeded,
-    toJson: BudgetConsumptionDetailOutput._write_isExceeded,
-  )
-  final ({bool? value})? isExceeded;
+  @JsonKey(includeIfNull: false)
+  final bool? isExceeded;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_overage,
-    toJson: BudgetConsumptionDetailOutput._write_overage,
-  )
-  final ({String? value})? overage;
+  @JsonKey(includeIfNull: false)
+  final String? overage;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_periodEnd,
-    toJson: BudgetConsumptionDetailOutput._write_periodEnd,
-  )
-  final ({String? value})? periodEnd;
+  @JsonKey(includeIfNull: false)
+  final String? periodEnd;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_periodStart,
-    toJson: BudgetConsumptionDetailOutput._write_periodStart,
-  )
-  final ({String? value})? periodStart;
+  @JsonKey(includeIfNull: false)
+  final String? periodStart;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_reason,
-    toJson: BudgetConsumptionDetailOutput._write_reason,
-  )
-  final ({String? value})? reason;
+  @JsonKey(includeIfNull: false)
+  final String? reason;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_remaining,
-    toJson: BudgetConsumptionDetailOutput._write_remaining,
-  )
-  final ({String? value})? remaining;
+  @JsonKey(includeIfNull: false)
+  final String? remaining;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? requestedDate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionDetailOutput._read_spent,
-    toJson: BudgetConsumptionDetailOutput._write_spent,
-  )
-  final ({String? value})? spent;
-
-  static ({List<BudgetConversionOutput>? value}) _read_conversions(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => BudgetConversionOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_conversions(
-    ({List<BudgetConversionOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({bool? value}) _read_isExceeded(Object? value) =>
-      (value: value as bool?);
-
-  static Object? _write_isExceeded(({bool? value}) value) => value.value;
-
-  static ({String? value}) _read_overage(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_overage(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_periodEnd(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodEnd(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_periodStart(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodStart(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_reason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_reason(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_remaining(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_remaining(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_spent(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_spent(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? spent;
 
   Map<String, Object?> toJson() => _$BudgetConsumptionDetailOutputToJson(this);
 }

@@ -19,32 +19,22 @@ class ReconcileTransactionCommand {
   factory ReconcileTransactionCommand.fromJson(Map<String, Object?> json) =>
       _$ReconcileTransactionCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ReconcileTransactionCommand._read_importJobId,
-    toJson: ReconcileTransactionCommand._write_importJobId,
-  )
-  final ({String? value})? importJobId;
+  @JsonKey(includeIfNull: false)
+  final String? importJobId;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: ReconcileTransactionCommand._read_importedRecordId,
     toJson: ReconcileTransactionCommand._write_importedRecordId,
   )
-  final ({int? value})? importedRecordId;
+  final int? importedRecordId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? unreconcile;
 
-  static ({String? value}) _read_importJobId(Object? value) =>
-      (value: value as String?);
+  static int? _read_importedRecordId(Object? value) => value as int?;
 
-  static Object? _write_importJobId(({String? value}) value) => value.value;
-
-  static ({int? value}) _read_importedRecordId(Object? value) =>
-      (value: value as int?);
-
-  static Object? _write_importedRecordId(({int? value}) value) => value.value;
+  static Object? _write_importedRecordId(int? value) => value;
 
   Map<String, Object?> toJson() => _$ReconcileTransactionCommandToJson(this);
 }

@@ -23,19 +23,11 @@ class CashFlowRateOutput {
   factory CashFlowRateOutput.fromJson(Map<String, Object?> json) =>
       _$CashFlowRateOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowRateOutput._read_baseCurrencyCode,
-    toJson: CashFlowRateOutput._write_baseCurrencyCode,
-  )
-  final ({String? value})? baseCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? baseCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowRateOutput._read_quoteCurrencyCode,
-    toJson: CashFlowRateOutput._write_quoteCurrencyCode,
-  )
-  final ({String? value})? quoteCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? quoteCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? rate;
@@ -50,18 +42,6 @@ class CashFlowRateOutput {
     toJson: CashFlowRateOutput._write_source,
   )
   final ExchangeRateSource? source;
-
-  static ({String? value}) _read_baseCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_baseCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_quoteCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_quoteCurrencyCode(({String? value}) value) =>
-      value.value;
 
   static ExchangeRateSource? _read_source(Object? value) =>
       value == null ? null : ExchangeRateSource.fromJson(value);

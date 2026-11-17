@@ -10,15 +10,10 @@ RequestPasswordRecoveryThroughApiCommand
 _$RequestPasswordRecoveryThroughApiCommandFromJson(Map<String, dynamic> json) {
   $checkKeys(json, allowedKeys: const ['email']);
   return RequestPasswordRecoveryThroughApiCommand(
-    email: !json.containsKey('email')
-        ? null
-        : RequestPasswordRecoveryThroughApiCommand._read_email(json['email']),
+    email: json['email'] as String?,
   );
 }
 
 Map<String, dynamic> _$RequestPasswordRecoveryThroughApiCommandToJson(
   RequestPasswordRecoveryThroughApiCommand instance,
-) => <String, dynamic>{
-  if (instance.email case final $value?)
-    'email': RequestPasswordRecoveryThroughApiCommand._write_email($value),
-};
+) => <String, dynamic>{'email': ?instance.email};

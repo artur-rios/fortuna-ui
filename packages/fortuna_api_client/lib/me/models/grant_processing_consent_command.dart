@@ -15,29 +15,11 @@ class GrantProcessingConsentCommand {
   factory GrantProcessingConsentCommand.fromJson(Map<String, Object?> json) =>
       _$GrantProcessingConsentCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GrantProcessingConsentCommand._read_purpose,
-    toJson: GrantProcessingConsentCommand._write_purpose,
-  )
-  final ({String? value})? purpose;
+  @JsonKey(includeIfNull: false)
+  final String? purpose;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GrantProcessingConsentCommand._read_version,
-    toJson: GrantProcessingConsentCommand._write_version,
-  )
-  final ({String? value})? version;
-
-  static ({String? value}) _read_purpose(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_purpose(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_version(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_version(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? version;
 
   Map<String, Object?> toJson() => _$GrantProcessingConsentCommandToJson(this);
 }

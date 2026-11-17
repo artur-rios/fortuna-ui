@@ -20,37 +20,17 @@ class RecordManualExchangeRateCommand {
   factory RecordManualExchangeRateCommand.fromJson(Map<String, Object?> json) =>
       _$RecordManualExchangeRateCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordManualExchangeRateCommand._read_baseCurrencyCode,
-    toJson: RecordManualExchangeRateCommand._write_baseCurrencyCode,
-  )
-  final ({String? value})? baseCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? baseCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordManualExchangeRateCommand._read_quoteCurrencyCode,
-    toJson: RecordManualExchangeRateCommand._write_quoteCurrencyCode,
-  )
-  final ({String? value})? quoteCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? quoteCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? rate;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? rateDate;
-
-  static ({String? value}) _read_baseCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_baseCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_quoteCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_quoteCurrencyCode(({String? value}) value) =>
-      value.value;
 
   Map<String, Object?> toJson() =>
       _$RecordManualExchangeRateCommandToJson(this);

@@ -26,30 +26,33 @@ CommittedObligationListOutput _$CommittedObligationListOutputFromJson(
   );
   return CommittedObligationListOutput(
     asOf: json['asOf'] as String?,
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : CommittedObligationListOutput._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
-          ),
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
     isFullyConverted: json['isFullyConverted'] as bool?,
-    items: !json.containsKey('items')
-        ? null
-        : CommittedObligationListOutput._read_items(json['items']),
-    missingRates: !json.containsKey('missingRates')
-        ? null
-        : CommittedObligationListOutput._read_missingRates(
-            json['missingRates'],
+    items: (json['items'] as List<dynamic>?)
+        ?.map(
+          (e) => CommittedObligationOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    missingRates: (json['missingRates'] as List<dynamic>?)
+        ?.map(
+          (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    periods: (json['periods'] as List<dynamic>?)
+        ?.map(
+          (e) => CommittedObligationPeriodOutput.fromJson(
+            e as Map<String, dynamic>,
           ),
-    periods: !json.containsKey('periods')
-        ? null
-        : CommittedObligationListOutput._read_periods(json['periods']),
-    rates: !json.containsKey('rates')
-        ? null
-        : CommittedObligationListOutput._read_rates(json['rates']),
+        )
+        .toList(),
+    rates: (json['rates'] as List<dynamic>?)
+        ?.map(
+          (e) =>
+              CommittedObligationRateOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
     through: json['through'] as String?,
-    total: !json.containsKey('total')
-        ? null
-        : CommittedObligationListOutput._read_total(json['total']),
+    total: json['total'] as String?,
   );
 }
 
@@ -57,19 +60,12 @@ Map<String, dynamic> _$CommittedObligationListOutputToJson(
   CommittedObligationListOutput instance,
 ) => <String, dynamic>{
   'asOf': ?instance.asOf,
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode':
-        CommittedObligationListOutput._write_displayCurrencyCode($value),
+  'displayCurrencyCode': ?instance.displayCurrencyCode,
   'isFullyConverted': ?instance.isFullyConverted,
-  if (instance.items case final $value?)
-    'items': CommittedObligationListOutput._write_items($value),
-  if (instance.missingRates case final $value?)
-    'missingRates': CommittedObligationListOutput._write_missingRates($value),
-  if (instance.periods case final $value?)
-    'periods': CommittedObligationListOutput._write_periods($value),
-  if (instance.rates case final $value?)
-    'rates': CommittedObligationListOutput._write_rates($value),
+  'items': ?instance.items?.map((e) => e.toJson()).toList(),
+  'missingRates': ?instance.missingRates?.map((e) => e.toJson()).toList(),
+  'periods': ?instance.periods?.map((e) => e.toJson()).toList(),
+  'rates': ?instance.rates?.map((e) => e.toJson()).toList(),
   'through': ?instance.through,
-  if (instance.total case final $value?)
-    'total': CommittedObligationListOutput._write_total($value),
+  'total': ?instance.total,
 };

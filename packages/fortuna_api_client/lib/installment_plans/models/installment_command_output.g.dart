@@ -34,29 +34,15 @@ InstallmentCommandOutput _$InstallmentCommandOutputFromJson(
   );
   return InstallmentCommandOutput(
     amount: json['amount'] as String?,
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : InstallmentCommandOutput._read_appliedRate(json['appliedRate']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : InstallmentCommandOutput._read_currencyCode(json['currencyCode']),
+    appliedRate: json['appliedRate'] as String?,
+    currencyCode: json['currencyCode'] as String?,
     isLateArriving: json['isLateArriving'] as bool?,
     number: InstallmentCommandOutput._read_number(json['number']),
     occurredOn: json['occurredOn'] as String?,
-    originalAmount: !json.containsKey('originalAmount')
-        ? null
-        : InstallmentCommandOutput._read_originalAmount(json['originalAmount']),
-    originalCurrencyCode: !json.containsKey('originalCurrencyCode')
-        ? null
-        : InstallmentCommandOutput._read_originalCurrencyCode(
-            json['originalCurrencyCode'],
-          ),
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : InstallmentCommandOutput._read_rateDate(json['rateDate']),
-    statementId: !json.containsKey('statementId')
-        ? null
-        : InstallmentCommandOutput._read_statementId(json['statementId']),
+    originalAmount: json['originalAmount'] as String?,
+    originalCurrencyCode: json['originalCurrencyCode'] as String?,
+    rateDate: json['rateDate'] as String?,
+    statementId: json['statementId'] as String?,
     transactionId: json['transactionId'] as String?,
   );
 }
@@ -65,21 +51,14 @@ Map<String, dynamic> _$InstallmentCommandOutputToJson(
   InstallmentCommandOutput instance,
 ) => <String, dynamic>{
   'amount': ?instance.amount,
-  if (instance.appliedRate case final $value?)
-    'appliedRate': InstallmentCommandOutput._write_appliedRate($value),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': InstallmentCommandOutput._write_currencyCode($value),
+  'appliedRate': ?instance.appliedRate,
+  'currencyCode': ?instance.currencyCode,
   'isLateArriving': ?instance.isLateArriving,
   'number': ?InstallmentCommandOutput._write_number(instance.number),
   'occurredOn': ?instance.occurredOn,
-  if (instance.originalAmount case final $value?)
-    'originalAmount': InstallmentCommandOutput._write_originalAmount($value),
-  if (instance.originalCurrencyCode case final $value?)
-    'originalCurrencyCode':
-        InstallmentCommandOutput._write_originalCurrencyCode($value),
-  if (instance.rateDate case final $value?)
-    'rateDate': InstallmentCommandOutput._write_rateDate($value),
-  if (instance.statementId case final $value?)
-    'statementId': InstallmentCommandOutput._write_statementId($value),
+  'originalAmount': ?instance.originalAmount,
+  'originalCurrencyCode': ?instance.originalCurrencyCode,
+  'rateDate': ?instance.rateDate,
+  'statementId': ?instance.statementId,
   'transactionId': ?instance.transactionId,
 };

@@ -17,9 +17,7 @@ _$AuthenticateLocalAccountCommandOutputFromJson(Map<String, dynamic> json) {
     expiresAt: AuthenticateLocalAccountCommandOutput._read_expiresAt(
       json['expiresAt'],
     ),
-    token: !json.containsKey('token')
-        ? null
-        : AuthenticateLocalAccountCommandOutput._read_token(json['token']),
+    token: json['token'] as String?,
   );
 }
 
@@ -29,6 +27,5 @@ Map<String, dynamic> _$AuthenticateLocalAccountCommandOutputToJson(
   'expiresAt': ?AuthenticateLocalAccountCommandOutput._write_expiresAt(
     instance.expiresAt,
   ),
-  if (instance.token case final $value?)
-    'token': AuthenticateLocalAccountCommandOutput._write_token($value),
+  'token': ?instance.token,
 };

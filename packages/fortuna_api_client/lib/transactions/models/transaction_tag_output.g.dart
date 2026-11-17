@@ -14,16 +14,10 @@ TransactionTagOutput _$TransactionTagOutputFromJson(Map<String, dynamic> json) {
   );
   return TransactionTagOutput(
     id: json['id'] as String?,
-    name: !json.containsKey('name')
-        ? null
-        : TransactionTagOutput._read_name(json['name']),
+    name: json['name'] as String?,
   );
 }
 
 Map<String, dynamic> _$TransactionTagOutputToJson(
   TransactionTagOutput instance,
-) => <String, dynamic>{
-  'id': ?instance.id,
-  if (instance.name case final $value?)
-    'name': TransactionTagOutput._write_name($value),
-};
+) => <String, dynamic>{'id': ?instance.id, 'name': ?instance.name};

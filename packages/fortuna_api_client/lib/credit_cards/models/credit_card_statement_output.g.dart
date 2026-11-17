@@ -53,9 +53,7 @@ CreditCardStatementOutput _$CreditCardStatementOutputFromJson(
     closingDate: json['closingDate'] as String?,
     createdAt: CreditCardStatementOutput._read_createdAt(json['createdAt']),
     creditCardId: json['creditCardId'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : CreditCardStatementOutput._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
     dueDate: json['dueDate'] as String?,
     foreignTaxTotal: json['foreignTaxTotal'] as String?,
     id: json['id'] as String?,
@@ -65,17 +63,15 @@ CreditCardStatementOutput _$CreditCardStatementOutputFromJson(
     periodStart: json['periodStart'] as String?,
     previousBalance: json['previousBalance'] as String?,
     purchaseTotal: json['purchaseTotal'] as String?,
-    settlementTransactionId: !json.containsKey('settlementTransactionId')
-        ? null
-        : CreditCardStatementOutput._read_settlementTransactionId(
-            json['settlementTransactionId'],
+    settlementTransactionId: json['settlementTransactionId'] as String?,
+    status: json['status'] as String?,
+    transactions: (json['transactions'] as List<dynamic>?)
+        ?.map(
+          (e) => CreditCardStatementTransactionOutput.fromJson(
+            e as Map<String, dynamic>,
           ),
-    status: !json.containsKey('status')
-        ? null
-        : CreditCardStatementOutput._read_status(json['status']),
-    transactions: !json.containsKey('transactions')
-        ? null
-        : CreditCardStatementOutput._read_transactions(json['transactions']),
+        )
+        .toList(),
     updatedAt: CreditCardStatementOutput._read_updatedAt(json['updatedAt']),
   );
 }
@@ -87,8 +83,7 @@ Map<String, dynamic> _$CreditCardStatementOutputToJson(
   'closingDate': ?instance.closingDate,
   'createdAt': ?CreditCardStatementOutput._write_createdAt(instance.createdAt),
   'creditCardId': ?instance.creditCardId,
-  if (instance.currencyCode case final $value?)
-    'currencyCode': CreditCardStatementOutput._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'dueDate': ?instance.dueDate,
   'foreignTaxTotal': ?instance.foreignTaxTotal,
   'id': ?instance.id,
@@ -98,12 +93,8 @@ Map<String, dynamic> _$CreditCardStatementOutputToJson(
   'periodStart': ?instance.periodStart,
   'previousBalance': ?instance.previousBalance,
   'purchaseTotal': ?instance.purchaseTotal,
-  if (instance.settlementTransactionId case final $value?)
-    'settlementTransactionId':
-        CreditCardStatementOutput._write_settlementTransactionId($value),
-  if (instance.status case final $value?)
-    'status': CreditCardStatementOutput._write_status($value),
-  if (instance.transactions case final $value?)
-    'transactions': CreditCardStatementOutput._write_transactions($value),
+  'settlementTransactionId': ?instance.settlementTransactionId,
+  'status': ?instance.status,
+  'transactions': ?instance.transactions?.map((e) => e.toJson()).toList(),
   'updatedAt': ?CreditCardStatementOutput._write_updatedAt(instance.updatedAt),
 };

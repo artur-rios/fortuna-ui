@@ -20,23 +20,14 @@ class CreditCardLifecycleCommandOutput {
     Map<String, Object?> json,
   ) => _$CreditCardLifecycleCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardLifecycleCommandOutput._read_currencyCode,
-    toJson: CreditCardLifecycleCommandOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? outstandingAmount;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() =>
       _$CreditCardLifecycleCommandOutputToJson(this);

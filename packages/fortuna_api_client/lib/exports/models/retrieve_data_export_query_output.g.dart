@@ -34,27 +34,15 @@ RetrieveDataExportQueryOutput _$RetrieveDataExportQueryOutputFromJson(
     ],
   );
   return RetrieveDataExportQueryOutput(
-    contentType: !json.containsKey('contentType')
-        ? null
-        : RetrieveDataExportQueryOutput._read_contentType(json['contentType']),
+    contentType: json['contentType'] as String?,
     createdAt: RetrieveDataExportQueryOutput._read_createdAt(json['createdAt']),
     expiresAt: RetrieveDataExportQueryOutput._read_expiresAt(json['expiresAt']),
-    failureReason: !json.containsKey('failureReason')
-        ? null
-        : RetrieveDataExportQueryOutput._read_failureReason(
-            json['failureReason'],
-          ),
-    fileName: !json.containsKey('fileName')
-        ? null
-        : RetrieveDataExportQueryOutput._read_fileName(json['fileName']),
+    failureReason: json['failureReason'] as String?,
+    fileName: json['fileName'] as String?,
     format: RetrieveDataExportQueryOutput._read_format(json['format']),
     id: json['id'] as String?,
-    jobId: !json.containsKey('jobId')
-        ? null
-        : RetrieveDataExportQueryOutput._read_jobId(json['jobId']),
-    rowCount: !json.containsKey('rowCount')
-        ? null
-        : RetrieveDataExportQueryOutput._read_rowCount(json['rowCount']),
+    jobId: json['jobId'] as String?,
+    rowCount: RetrieveDataExportQueryOutput._read_rowCount(json['rowCount']),
     status: RetrieveDataExportQueryOutput._read_status(json['status']),
     updatedAt: RetrieveDataExportQueryOutput._read_updatedAt(json['updatedAt']),
   );
@@ -63,24 +51,19 @@ RetrieveDataExportQueryOutput _$RetrieveDataExportQueryOutputFromJson(
 Map<String, dynamic> _$RetrieveDataExportQueryOutputToJson(
   RetrieveDataExportQueryOutput instance,
 ) => <String, dynamic>{
-  if (instance.contentType case final $value?)
-    'contentType': RetrieveDataExportQueryOutput._write_contentType($value),
+  'contentType': ?instance.contentType,
   'createdAt': ?RetrieveDataExportQueryOutput._write_createdAt(
     instance.createdAt,
   ),
   'expiresAt': ?RetrieveDataExportQueryOutput._write_expiresAt(
     instance.expiresAt,
   ),
-  if (instance.failureReason case final $value?)
-    'failureReason': RetrieveDataExportQueryOutput._write_failureReason($value),
-  if (instance.fileName case final $value?)
-    'fileName': RetrieveDataExportQueryOutput._write_fileName($value),
+  'failureReason': ?instance.failureReason,
+  'fileName': ?instance.fileName,
   'format': ?RetrieveDataExportQueryOutput._write_format(instance.format),
   'id': ?instance.id,
-  if (instance.jobId case final $value?)
-    'jobId': RetrieveDataExportQueryOutput._write_jobId($value),
-  if (instance.rowCount case final $value?)
-    'rowCount': RetrieveDataExportQueryOutput._write_rowCount($value),
+  'jobId': ?instance.jobId,
+  'rowCount': ?RetrieveDataExportQueryOutput._write_rowCount(instance.rowCount),
   'status': ?RetrieveDataExportQueryOutput._write_status(instance.status),
   'updatedAt': ?RetrieveDataExportQueryOutput._write_updatedAt(
     instance.updatedAt,

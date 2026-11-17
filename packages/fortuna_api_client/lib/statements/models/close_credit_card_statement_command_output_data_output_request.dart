@@ -27,26 +27,14 @@ class CloseCreditCardStatementCommandOutputDataOutput$Request {
         entry.key: entry.value,
   });
 
-  @JsonKey(disallowNullValue: true, includeIfNull: false)
+  @JsonKey(includeIfNull: false)
   final CloseCreditCardStatementCommandOutput? data;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson:
-        CloseCreditCardStatementCommandOutputDataOutput$Request._read_errors,
-    toJson:
-        CloseCreditCardStatementCommandOutputDataOutput$Request._write_errors,
-  )
-  final ({List<String>? value})? errors;
+  @JsonKey(includeIfNull: false)
+  final List<String>? errors;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson:
-        CloseCreditCardStatementCommandOutputDataOutput$Request._read_messages,
-    toJson:
-        CloseCreditCardStatementCommandOutputDataOutput$Request._write_messages,
-  )
-  final ({List<String>? value})? messages;
+  @JsonKey(includeIfNull: false)
+  final List<String>? messages;
 
   @JsonKey(
     disallowNullValue: true,
@@ -57,24 +45,6 @@ class CloseCreditCardStatementCommandOutputDataOutput$Request {
         ._write_timestamp,
   )
   final DateTime? timestamp;
-
-  static ({List<String>? value}) _read_errors(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_errors(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({List<String>? value}) _read_messages(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_messages(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
 
   static DateTime? _read_timestamp(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

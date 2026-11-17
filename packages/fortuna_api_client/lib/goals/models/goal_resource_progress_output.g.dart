@@ -25,88 +25,43 @@ GoalResourceProgressOutput _$GoalResourceProgressOutputFromJson(
       'sourceCurrencyCode',
       'unconvertedReason',
     ],
-    disallowNullValues: const [
-      'id',
-      'isIncluded',
-      'rateSource',
-      'resourceType',
-    ],
+    disallowNullValues: const ['id', 'isIncluded', 'resourceType'],
   );
   return GoalResourceProgressOutput(
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : GoalResourceProgressOutput._read_appliedRate(json['appliedRate']),
-    convertedAmount: !json.containsKey('convertedAmount')
-        ? null
-        : GoalResourceProgressOutput._read_convertedAmount(
-            json['convertedAmount'],
-          ),
-    exclusionReason: !json.containsKey('exclusionReason')
-        ? null
-        : GoalResourceProgressOutput._read_exclusionReason(
-            json['exclusionReason'],
-          ),
+    appliedRate: json['appliedRate'] as String?,
+    convertedAmount: json['convertedAmount'] as String?,
+    exclusionReason: json['exclusionReason'] as String?,
     id: json['id'] as String?,
     isIncluded: json['isIncluded'] as bool?,
-    name: !json.containsKey('name')
-        ? null
-        : GoalResourceProgressOutput._read_name(json['name']),
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : GoalResourceProgressOutput._read_rateDate(json['rateDate']),
+    name: json['name'] as String?,
+    rateDate: json['rateDate'] as String?,
     rateSource: GoalResourceProgressOutput._read_rateSource(json['rateSource']),
     resourceType: GoalResourceProgressOutput._read_resourceType(
       json['resourceType'],
     ),
-    sourceAmount: !json.containsKey('sourceAmount')
-        ? null
-        : GoalResourceProgressOutput._read_sourceAmount(json['sourceAmount']),
-    sourceCurrencyCode: !json.containsKey('sourceCurrencyCode')
-        ? null
-        : GoalResourceProgressOutput._read_sourceCurrencyCode(
-            json['sourceCurrencyCode'],
-          ),
-    unconvertedReason: !json.containsKey('unconvertedReason')
-        ? null
-        : GoalResourceProgressOutput._read_unconvertedReason(
-            json['unconvertedReason'],
-          ),
+    sourceAmount: json['sourceAmount'] as String?,
+    sourceCurrencyCode: json['sourceCurrencyCode'] as String?,
+    unconvertedReason: json['unconvertedReason'] as String?,
   );
 }
 
 Map<String, dynamic> _$GoalResourceProgressOutputToJson(
   GoalResourceProgressOutput instance,
 ) => <String, dynamic>{
-  if (instance.appliedRate case final $value?)
-    'appliedRate': GoalResourceProgressOutput._write_appliedRate($value),
-  if (instance.convertedAmount case final $value?)
-    'convertedAmount': GoalResourceProgressOutput._write_convertedAmount(
-      $value,
-    ),
-  if (instance.exclusionReason case final $value?)
-    'exclusionReason': GoalResourceProgressOutput._write_exclusionReason(
-      $value,
-    ),
+  'appliedRate': ?instance.appliedRate,
+  'convertedAmount': ?instance.convertedAmount,
+  'exclusionReason': ?instance.exclusionReason,
   'id': ?instance.id,
   'isIncluded': ?instance.isIncluded,
-  if (instance.name case final $value?)
-    'name': GoalResourceProgressOutput._write_name($value),
-  if (instance.rateDate case final $value?)
-    'rateDate': GoalResourceProgressOutput._write_rateDate($value),
+  'name': ?instance.name,
+  'rateDate': ?instance.rateDate,
   'rateSource': ?GoalResourceProgressOutput._write_rateSource(
     instance.rateSource,
   ),
   'resourceType': ?GoalResourceProgressOutput._write_resourceType(
     instance.resourceType,
   ),
-  if (instance.sourceAmount case final $value?)
-    'sourceAmount': GoalResourceProgressOutput._write_sourceAmount($value),
-  if (instance.sourceCurrencyCode case final $value?)
-    'sourceCurrencyCode': GoalResourceProgressOutput._write_sourceCurrencyCode(
-      $value,
-    ),
-  if (instance.unconvertedReason case final $value?)
-    'unconvertedReason': GoalResourceProgressOutput._write_unconvertedReason(
-      $value,
-    ),
+  'sourceAmount': ?instance.sourceAmount,
+  'sourceCurrencyCode': ?instance.sourceCurrencyCode,
+  'unconvertedReason': ?instance.unconvertedReason,
 };

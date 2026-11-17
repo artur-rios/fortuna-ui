@@ -15,17 +15,8 @@ class UpdateTagCommand {
   factory UpdateTagCommand.fromJson(Map<String, Object?> json) =>
       _$UpdateTagCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTagCommand._read_name,
-    toJson: UpdateTagCommand._write_name,
-  )
-  final ({String? value})? name;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   Map<String, Object?> toJson() => _$UpdateTagCommandToJson(this);
 }

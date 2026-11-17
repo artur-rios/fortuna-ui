@@ -36,35 +36,17 @@ class GrantProcessingConsentCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isCurrent;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GrantProcessingConsentCommandOutput._read_purpose,
-    toJson: GrantProcessingConsentCommandOutput._write_purpose,
-  )
-  final ({String? value})? purpose;
+  @JsonKey(includeIfNull: false)
+  final String? purpose;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GrantProcessingConsentCommandOutput._read_version,
-    toJson: GrantProcessingConsentCommandOutput._write_version,
-  )
-  final ({String? value})? version;
+  @JsonKey(includeIfNull: false)
+  final String? version;
 
   static DateTime? _read_grantedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_grantedAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_purpose(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_purpose(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_version(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_version(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() =>
       _$GrantProcessingConsentCommandOutputToJson(this);

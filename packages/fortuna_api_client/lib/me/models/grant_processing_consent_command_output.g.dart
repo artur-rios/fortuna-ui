@@ -19,12 +19,8 @@ _$GrantProcessingConsentCommandOutputFromJson(Map<String, dynamic> json) {
     ),
     id: json['id'] as String?,
     isCurrent: json['isCurrent'] as bool?,
-    purpose: !json.containsKey('purpose')
-        ? null
-        : GrantProcessingConsentCommandOutput._read_purpose(json['purpose']),
-    version: !json.containsKey('version')
-        ? null
-        : GrantProcessingConsentCommandOutput._read_version(json['version']),
+    purpose: json['purpose'] as String?,
+    version: json['version'] as String?,
   );
 }
 
@@ -36,8 +32,6 @@ Map<String, dynamic> _$GrantProcessingConsentCommandOutputToJson(
   ),
   'id': ?instance.id,
   'isCurrent': ?instance.isCurrent,
-  if (instance.purpose case final $value?)
-    'purpose': GrantProcessingConsentCommandOutput._write_purpose($value),
-  if (instance.version case final $value?)
-    'version': GrantProcessingConsentCommandOutput._write_version($value),
+  'purpose': ?instance.purpose,
+  'version': ?instance.version,
 };

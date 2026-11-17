@@ -14,16 +14,10 @@ BudgetCategoryOutput _$BudgetCategoryOutputFromJson(Map<String, dynamic> json) {
   );
   return BudgetCategoryOutput(
     id: json['id'] as String?,
-    name: !json.containsKey('name')
-        ? null
-        : BudgetCategoryOutput._read_name(json['name']),
+    name: json['name'] as String?,
   );
 }
 
 Map<String, dynamic> _$BudgetCategoryOutputToJson(
   BudgetCategoryOutput instance,
-) => <String, dynamic>{
-  'id': ?instance.id,
-  if (instance.name case final $value?)
-    'name': BudgetCategoryOutput._write_name($value),
-};
+) => <String, dynamic>{'id': ?instance.id, 'name': ?instance.name};

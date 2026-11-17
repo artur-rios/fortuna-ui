@@ -2,19 +2,35 @@
 
 import 'dart:convert' as convert;
 
-import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
+import 'package:dio/dio.dart'
+    show Dio, Options, ResponseType, CancelToken, RequestOptions;
+import 'package:retrofit/retrofit.dart'
+    show
+        RestApi,
+        Extras,
+        CancelRequest,
+        DELETE,
+        ParseErrorLogger,
+        Body,
+        Headers,
+        Path;
 
-import '../me/models/erase_user_command.dart' as models show EraseUserCommand;
+import '../me/models/erase_user_command.dart' show EraseUserCommand;
 import '../me/models/erase_user_command_output_data_output_response.dart'
-    as models
     show EraseUserCommandOutputDataOutput$Response;
 
-class UsersClient {
-  UsersClient(this._transport);
+part 'users_client.g.dart';
+
+@RestApi(headers: {'Accept': 'application/json'})
+abstract class UsersClient {
+  UsersClient._(this._transport);
+
+  factory UsersClient(Dio dio) => _UsersClientWithOptions(dio);
 
   final Dio _transport;
 
-  Future<models.EraseUserCommandOutputDataOutput$Response> deleteApiUsersById({
+  Future<EraseUserCommandOutputDataOutput$Response>
+  _deleteApiUsersByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -22,32 +38,74 @@ class UsersClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.EraseUserCommand body,
+    required EraseUserCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "DELETE",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/users/" + Uri.encodeComponent(id),
+      "/api/users/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.EraseUserCommandOutputDataOutput$Response.fromJson(
+    return EraseUserCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
+  }
+
+  @DELETE('/api/users/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<EraseUserCommandOutputDataOutput$Response> deleteApiUsersById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required EraseUserCommand body,
+  });
+}
+
+class _UsersClientWithOptions extends _UsersClient {
+  _UsersClientWithOptions(Dio dio) : super._(dio, dio);
+
+  @override
+  Future<EraseUserCommandOutputDataOutput$Response> deleteApiUsersById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required EraseUserCommand body,
+  }) {
+    return options == null
+        ? super.deleteApiUsersById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _deleteApiUsersByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          );
   }
 }

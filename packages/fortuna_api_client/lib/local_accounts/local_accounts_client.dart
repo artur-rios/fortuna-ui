@@ -5,32 +5,24 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart'
     show Dio, Options, ResponseType, CancelToken, RequestOptions;
 import 'package:retrofit/retrofit.dart'
-    show RestApi, Extras, CancelRequest, POST, ParseErrorLogger;
+    show RestApi, Extras, CancelRequest, POST, ParseErrorLogger, Body, Headers;
 
 import 'models/authenticate_local_account_command.dart'
-    as models
     show AuthenticateLocalAccountCommand;
 import 'models/authenticate_local_account_command_output_data_output_response.dart'
-    as models
     show AuthenticateLocalAccountCommandOutputDataOutput$Response;
 import 'models/create_local_account_command.dart'
-    as models
     show CreateLocalAccountCommand;
 import 'models/create_local_account_command_output_data_output_response.dart'
-    as models
     show CreateLocalAccountCommandOutputDataOutput$Response;
 import 'models/object_data_output_response.dart' show ObjectDataOutput$Response;
 import 'models/recover_local_account_command.dart'
-    as models
     show RecoverLocalAccountCommand;
 import 'models/recover_local_account_command_output_data_output_response.dart'
-    as models
     show RecoverLocalAccountCommandOutputDataOutput$Response;
 import 'models/regenerate_local_account_recovery_codes_command.dart'
-    as models
     show RegenerateLocalAccountRecoveryCodesCommand;
 import 'models/regenerate_local_account_recovery_codes_command_output_data_output_response.dart'
-    as models
     show RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response;
 
 part 'local_accounts_client.g.dart';
@@ -43,28 +35,27 @@ abstract class LocalAccountsClient {
 
   final Dio _transport;
 
-  Future<models.CreateLocalAccountCommandOutputDataOutput$Response>
-  postApiLocalAccounts({
+  Future<CreateLocalAccountCommandOutputDataOutput$Response>
+  _postApiLocalAccountsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateLocalAccountCommand body,
+    required CreateLocalAccountCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/local-accounts",
@@ -72,33 +63,45 @@ abstract class LocalAccountsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.CreateLocalAccountCommandOutputDataOutput$Response.fromJson(
+    return CreateLocalAccountCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.AuthenticateLocalAccountCommandOutputDataOutput$Response>
-  postApiLocalAccountsAuthenticate({
+  @POST('/api/local-accounts')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CreateLocalAccountCommandOutputDataOutput$Response>
+  postApiLocalAccounts({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateLocalAccountCommand body,
+  });
+  Future<AuthenticateLocalAccountCommandOutputDataOutput$Response>
+  _postApiLocalAccountsAuthenticateWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.AuthenticateLocalAccountCommand body,
+    required AuthenticateLocalAccountCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/local-accounts/authenticate",
@@ -106,12 +109,24 @@ abstract class LocalAccountsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .AuthenticateLocalAccountCommandOutputDataOutput$Response.fromJson(
+    return AuthenticateLocalAccountCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/local-accounts/authenticate')
+  @Headers({'Content-Type': 'application/json'})
+  Future<AuthenticateLocalAccountCommandOutputDataOutput$Response>
+  postApiLocalAccountsAuthenticate({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required AuthenticateLocalAccountCommand body,
+  });
   Future<ObjectDataOutput$Response>
   _postApiLocalAccountsPasswordResetWithOptions({
     Map<String, Object?> extra = const {
@@ -147,28 +162,27 @@ abstract class LocalAccountsClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
   });
-  Future<models.RecoverLocalAccountCommandOutputDataOutput$Response>
-  postApiLocalAccountsRecover({
+  Future<RecoverLocalAccountCommandOutputDataOutput$Response>
+  _postApiLocalAccountsRecoverWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RecoverLocalAccountCommand body,
+    required RecoverLocalAccountCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/local-accounts/recover",
@@ -176,35 +190,45 @@ abstract class LocalAccountsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.RecoverLocalAccountCommandOutputDataOutput$Response.fromJson(
+    return RecoverLocalAccountCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<
-    models.RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response
-  >
-  postApiLocalAccountsRecoveryCodesRegenerate({
+  @POST('/api/local-accounts/recover')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RecoverLocalAccountCommandOutputDataOutput$Response>
+  postApiLocalAccountsRecover({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RecoverLocalAccountCommand body,
+  });
+  Future<RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response>
+  _postApiLocalAccountsRecoveryCodesRegenerateWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RegenerateLocalAccountRecoveryCodesCommand body,
+    required RegenerateLocalAccountRecoveryCodesCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/local-accounts/recovery-codes/regenerate",
@@ -212,15 +236,80 @@ abstract class LocalAccountsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response.fromJson(
+    return RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
+
+  @POST('/api/local-accounts/recovery-codes/regenerate')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response>
+  postApiLocalAccountsRecoveryCodesRegenerate({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RegenerateLocalAccountRecoveryCodesCommand body,
+  });
 }
 
 class _LocalAccountsClientWithOptions extends _LocalAccountsClient {
   _LocalAccountsClientWithOptions(Dio dio) : super._(dio, dio);
+
+  @override
+  Future<CreateLocalAccountCommandOutputDataOutput$Response>
+  postApiLocalAccounts({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateLocalAccountCommand body,
+  }) {
+    return options == null
+        ? super.postApiLocalAccounts(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiLocalAccountsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<AuthenticateLocalAccountCommandOutputDataOutput$Response>
+  postApiLocalAccountsAuthenticate({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required AuthenticateLocalAccountCommand body,
+  }) {
+    return options == null
+        ? super.postApiLocalAccountsAuthenticate(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiLocalAccountsAuthenticateWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
 
   @override
   Future<ObjectDataOutput$Response> postApiLocalAccountsPasswordReset({
@@ -241,6 +330,58 @@ class _LocalAccountsClientWithOptions extends _LocalAccountsClient {
             extra: extra,
             cancelToken: cancelToken,
             options: options,
+          );
+  }
+
+  @override
+  Future<RecoverLocalAccountCommandOutputDataOutput$Response>
+  postApiLocalAccountsRecover({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RecoverLocalAccountCommand body,
+  }) {
+    return options == null
+        ? super.postApiLocalAccountsRecover(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiLocalAccountsRecoverWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response>
+  postApiLocalAccountsRecoveryCodesRegenerate({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RegenerateLocalAccountRecoveryCodesCommand body,
+  }) {
+    return options == null
+        ? super.postApiLocalAccountsRecoveryCodesRegenerate(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiLocalAccountsRecoveryCodesRegenerateWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
           );
   }
 }

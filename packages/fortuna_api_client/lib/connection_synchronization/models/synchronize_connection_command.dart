@@ -15,29 +15,11 @@ class SynchronizeConnectionCommand {
   factory SynchronizeConnectionCommand.fromJson(Map<String, Object?> json) =>
       _$SynchronizeConnectionCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SynchronizeConnectionCommand._read_periodEnd,
-    toJson: SynchronizeConnectionCommand._write_periodEnd,
-  )
-  final ({String? value})? periodEnd;
+  @JsonKey(includeIfNull: false)
+  final String? periodEnd;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SynchronizeConnectionCommand._read_periodStart,
-    toJson: SynchronizeConnectionCommand._write_periodStart,
-  )
-  final ({String? value})? periodStart;
-
-  static ({String? value}) _read_periodEnd(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodEnd(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_periodStart(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodStart(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? periodStart;
 
   Map<String, Object?> toJson() => _$SynchronizeConnectionCommandToJson(this);
 }

@@ -23,22 +23,14 @@ class BudgetConsumptionCommandOutput {
   factory BudgetConsumptionCommandOutput.fromJson(Map<String, Object?> json) =>
       _$BudgetConsumptionCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionCommandOutput._read_isExceeded,
-    toJson: BudgetConsumptionCommandOutput._write_isExceeded,
-  )
-  final ({bool? value})? isExceeded;
+  @JsonKey(includeIfNull: false)
+  final bool? isExceeded;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionCommandOutput._read_overage,
-    toJson: BudgetConsumptionCommandOutput._write_overage,
-  )
-  final ({String? value})? overage;
+  @JsonKey(includeIfNull: false)
+  final String? overage;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? periodEnd;
@@ -46,39 +38,11 @@ class BudgetConsumptionCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? periodStart;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionCommandOutput._read_remaining,
-    toJson: BudgetConsumptionCommandOutput._write_remaining,
-  )
-  final ({String? value})? remaining;
+  @JsonKey(includeIfNull: false)
+  final String? remaining;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetConsumptionCommandOutput._read_spent,
-    toJson: BudgetConsumptionCommandOutput._write_spent,
-  )
-  final ({String? value})? spent;
-
-  static ({bool? value}) _read_isExceeded(Object? value) =>
-      (value: value as bool?);
-
-  static Object? _write_isExceeded(({bool? value}) value) => value.value;
-
-  static ({String? value}) _read_overage(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_overage(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_remaining(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_remaining(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_spent(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_spent(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? spent;
 
   Map<String, Object?> toJson() => _$BudgetConsumptionCommandOutputToJson(this);
 }

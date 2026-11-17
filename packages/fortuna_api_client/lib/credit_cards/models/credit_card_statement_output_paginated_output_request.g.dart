@@ -30,26 +30,18 @@ _$CreditCardStatementOutputPaginatedOutput$RequestFromJson(
     ],
   );
   return CreditCardStatementOutputPaginatedOutput$Request(
-    data: !json.containsKey('data')
-        ? null
-        : CreditCardStatementOutputPaginatedOutput$Request._read_data(
-            json['data'],
-          ),
-    errors: !json.containsKey('errors')
-        ? null
-        : CreditCardStatementOutputPaginatedOutput$Request._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : CreditCardStatementOutputPaginatedOutput$Request._read_messages(
-            json['messages'],
-          ),
-    nextPageToken: !json.containsKey('nextPageToken')
-        ? null
-        : CreditCardStatementOutputPaginatedOutput$Request._read_nextPageToken(
-            json['nextPageToken'],
-          ),
+    data: (json['data'] as List<dynamic>?)
+        ?.map(
+          (e) => CreditCardStatementOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    nextPageToken: json['nextPageToken'] as String?,
     pageNumber:
         CreditCardStatementOutputPaginatedOutput$Request._read_pageNumber(
           json['pageNumber'],
@@ -70,24 +62,10 @@ _$CreditCardStatementOutputPaginatedOutput$RequestFromJson(
 Map<String, dynamic> _$CreditCardStatementOutputPaginatedOutput$RequestToJson(
   CreditCardStatementOutputPaginatedOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.data case final $value?)
-    'data': CreditCardStatementOutputPaginatedOutput$Request._write_data(
-      $value,
-    ),
-  if (instance.errors case final $value?)
-    'errors': CreditCardStatementOutputPaginatedOutput$Request._write_errors(
-      $value,
-    ),
-  if (instance.messages case final $value?)
-    'messages':
-        CreditCardStatementOutputPaginatedOutput$Request._write_messages(
-          $value,
-        ),
-  if (instance.nextPageToken case final $value?)
-    'nextPageToken':
-        CreditCardStatementOutputPaginatedOutput$Request._write_nextPageToken(
-          $value,
-        ),
+  'data': ?instance.data?.map((e) => e.toJson()).toList(),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
+  'nextPageToken': ?instance.nextPageToken,
   'pageNumber':
       ?CreditCardStatementOutputPaginatedOutput$Request._write_pageNumber(
         instance.pageNumber,

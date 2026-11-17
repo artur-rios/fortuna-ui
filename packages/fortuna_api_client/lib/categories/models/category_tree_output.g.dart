@@ -14,15 +14,14 @@ CategoryTreeOutput _$CategoryTreeOutputFromJson(Map<String, dynamic> json) {
   );
   return CategoryTreeOutput(
     canSeedDefaults: json['canSeedDefaults'] as bool?,
-    categories: !json.containsKey('categories')
-        ? null
-        : CategoryTreeOutput._read_categories(json['categories']),
+    categories: (json['categories'] as List<dynamic>?)
+        ?.map((e) => CategoryOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$CategoryTreeOutputToJson(CategoryTreeOutput instance) =>
     <String, dynamic>{
       'canSeedDefaults': ?instance.canSeedDefaults,
-      if (instance.categories case final $value?)
-        'categories': CategoryTreeOutput._write_categories($value),
+      'categories': ?instance.categories?.map((e) => e.toJson()).toList(),
     };

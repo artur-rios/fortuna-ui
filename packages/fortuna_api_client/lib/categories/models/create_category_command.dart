@@ -15,29 +15,11 @@ class CreateCategoryCommand {
   factory CreateCategoryCommand.fromJson(Map<String, Object?> json) =>
       _$CreateCategoryCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateCategoryCommand._read_name,
-    toJson: CreateCategoryCommand._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateCategoryCommand._read_parentId,
-    toJson: CreateCategoryCommand._write_parentId,
-  )
-  final ({String? value})? parentId;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_parentId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_parentId(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? parentId;
 
   Map<String, Object?> toJson() => _$CreateCategoryCommandToJson(this);
 }

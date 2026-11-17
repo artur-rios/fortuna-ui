@@ -29,12 +29,8 @@ class ReconcileTransactionCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ReconcileTransactionCommandOutput._read_currencyCode,
-    toJson: ReconcileTransactionCommandOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -45,7 +41,7 @@ class ReconcileTransactionCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
 
-  @JsonKey(disallowNullValue: true, includeIfNull: false)
+  @JsonKey(includeIfNull: false)
   final TransactionReconciliationOutput? reconciliation;
 
   @JsonKey(
@@ -55,11 +51,6 @@ class ReconcileTransactionCommandOutput {
     toJson: ReconcileTransactionCommandOutput._write_updatedAt,
   )
   final DateTime? updatedAt;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

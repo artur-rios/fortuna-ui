@@ -22,11 +22,7 @@ RecordInvestmentMovementCommand _$RecordInvestmentMovementCommandFromJson(
   );
   return RecordInvestmentMovementCommand(
     amount: json['amount'] as String?,
-    financialAccountId: !json.containsKey('financialAccountId')
-        ? null
-        : RecordInvestmentMovementCommand._read_financialAccountId(
-            json['financialAccountId'],
-          ),
+    financialAccountId: json['financialAccountId'] as String?,
     id: json['id'] as String?,
     movementType: RecordInvestmentMovementCommand._read_movementType(
       json['movementType'],
@@ -39,9 +35,7 @@ Map<String, dynamic> _$RecordInvestmentMovementCommandToJson(
   RecordInvestmentMovementCommand instance,
 ) => <String, dynamic>{
   'amount': ?instance.amount,
-  if (instance.financialAccountId case final $value?)
-    'financialAccountId':
-        RecordInvestmentMovementCommand._write_financialAccountId($value),
+  'financialAccountId': ?instance.financialAccountId,
   'id': ?instance.id,
   'movementType': ?RecordInvestmentMovementCommand._write_movementType(
     instance.movementType,

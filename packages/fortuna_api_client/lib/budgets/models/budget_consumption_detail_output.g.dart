@@ -38,38 +38,20 @@ BudgetConsumptionDetailOutput _$BudgetConsumptionDetailOutputFromJson(
   return BudgetConsumptionDetailOutput(
     budgetAmount: json['budgetAmount'] as String?,
     budgetId: json['budgetId'] as String?,
-    conversions: !json.containsKey('conversions')
-        ? null
-        : BudgetConsumptionDetailOutput._read_conversions(json['conversions']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : BudgetConsumptionDetailOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    conversions: (json['conversions'] as List<dynamic>?)
+        ?.map((e) => BudgetConversionOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    currencyCode: json['currencyCode'] as String?,
     isCovered: json['isCovered'] as bool?,
-    isExceeded: !json.containsKey('isExceeded')
-        ? null
-        : BudgetConsumptionDetailOutput._read_isExceeded(json['isExceeded']),
+    isExceeded: json['isExceeded'] as bool?,
     isFullyConverted: json['isFullyConverted'] as bool?,
-    overage: !json.containsKey('overage')
-        ? null
-        : BudgetConsumptionDetailOutput._read_overage(json['overage']),
-    periodEnd: !json.containsKey('periodEnd')
-        ? null
-        : BudgetConsumptionDetailOutput._read_periodEnd(json['periodEnd']),
-    periodStart: !json.containsKey('periodStart')
-        ? null
-        : BudgetConsumptionDetailOutput._read_periodStart(json['periodStart']),
-    reason: !json.containsKey('reason')
-        ? null
-        : BudgetConsumptionDetailOutput._read_reason(json['reason']),
-    remaining: !json.containsKey('remaining')
-        ? null
-        : BudgetConsumptionDetailOutput._read_remaining(json['remaining']),
+    overage: json['overage'] as String?,
+    periodEnd: json['periodEnd'] as String?,
+    periodStart: json['periodStart'] as String?,
+    reason: json['reason'] as String?,
+    remaining: json['remaining'] as String?,
     requestedDate: json['requestedDate'] as String?,
-    spent: !json.containsKey('spent')
-        ? null
-        : BudgetConsumptionDetailOutput._read_spent(json['spent']),
+    spent: json['spent'] as String?,
   );
 }
 
@@ -78,25 +60,16 @@ Map<String, dynamic> _$BudgetConsumptionDetailOutputToJson(
 ) => <String, dynamic>{
   'budgetAmount': ?instance.budgetAmount,
   'budgetId': ?instance.budgetId,
-  if (instance.conversions case final $value?)
-    'conversions': BudgetConsumptionDetailOutput._write_conversions($value),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': BudgetConsumptionDetailOutput._write_currencyCode($value),
+  'conversions': ?instance.conversions?.map((e) => e.toJson()).toList(),
+  'currencyCode': ?instance.currencyCode,
   'isCovered': ?instance.isCovered,
-  if (instance.isExceeded case final $value?)
-    'isExceeded': BudgetConsumptionDetailOutput._write_isExceeded($value),
+  'isExceeded': ?instance.isExceeded,
   'isFullyConverted': ?instance.isFullyConverted,
-  if (instance.overage case final $value?)
-    'overage': BudgetConsumptionDetailOutput._write_overage($value),
-  if (instance.periodEnd case final $value?)
-    'periodEnd': BudgetConsumptionDetailOutput._write_periodEnd($value),
-  if (instance.periodStart case final $value?)
-    'periodStart': BudgetConsumptionDetailOutput._write_periodStart($value),
-  if (instance.reason case final $value?)
-    'reason': BudgetConsumptionDetailOutput._write_reason($value),
-  if (instance.remaining case final $value?)
-    'remaining': BudgetConsumptionDetailOutput._write_remaining($value),
+  'overage': ?instance.overage,
+  'periodEnd': ?instance.periodEnd,
+  'periodStart': ?instance.periodStart,
+  'reason': ?instance.reason,
+  'remaining': ?instance.remaining,
   'requestedDate': ?instance.requestedDate,
-  if (instance.spent case final $value?)
-    'spent': BudgetConsumptionDetailOutput._write_spent($value),
+  'spent': ?instance.spent,
 };

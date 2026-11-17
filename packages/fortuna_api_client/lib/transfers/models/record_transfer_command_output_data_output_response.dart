@@ -24,22 +24,14 @@ class RecordTransferCommandOutputDataOutput$Response {
     Map<String, Object?> json,
   ) => _$RecordTransferCommandOutputDataOutput$ResponseFromJson(json);
 
-  @JsonKey(disallowNullValue: true, includeIfNull: false)
+  @JsonKey(includeIfNull: false)
   final RecordTransferCommandOutput? data;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommandOutputDataOutput$Response._read_errors,
-    toJson: RecordTransferCommandOutputDataOutput$Response._write_errors,
-  )
-  final ({List<String>? value})? errors;
+  @JsonKey(includeIfNull: false)
+  final List<String>? errors;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommandOutputDataOutput$Response._read_messages,
-    toJson: RecordTransferCommandOutputDataOutput$Response._write_messages,
-  )
-  final ({List<String>? value})? messages;
+  @JsonKey(includeIfNull: false)
+  final List<String>? messages;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? success;
@@ -51,24 +43,6 @@ class RecordTransferCommandOutputDataOutput$Response {
     toJson: RecordTransferCommandOutputDataOutput$Response._write_timestamp,
   )
   final DateTime? timestamp;
-
-  static ({List<String>? value}) _read_errors(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_errors(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({List<String>? value}) _read_messages(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_messages(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
 
   static DateTime? _read_timestamp(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

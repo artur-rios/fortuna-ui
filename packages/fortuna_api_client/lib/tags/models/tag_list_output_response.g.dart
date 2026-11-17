@@ -28,9 +28,9 @@ TagListOutput$Response _$TagListOutput$ResponseFromJson(
   return TagListOutput$Response(
     pageNumber: TagListOutput$Response._read_pageNumber(json['pageNumber']),
     pageSize: TagListOutput$Response._read_pageSize(json['pageSize']),
-    tags: !json.containsKey('tags')
-        ? null
-        : TagListOutput$Response._read_tags(json['tags']),
+    tags: (json['tags'] as List<dynamic>?)
+        ?.map((e) => TagOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     totalItems: TagListOutput$Response._read_totalItems(json['totalItems']),
     totalPages: TagListOutput$Response._read_totalPages(json['totalPages']),
   );
@@ -41,8 +41,7 @@ Map<String, dynamic> _$TagListOutput$ResponseToJson(
 ) => <String, dynamic>{
   'pageNumber': ?TagListOutput$Response._write_pageNumber(instance.pageNumber),
   'pageSize': ?TagListOutput$Response._write_pageSize(instance.pageSize),
-  if (instance.tags case final $value?)
-    'tags': TagListOutput$Response._write_tags($value),
+  'tags': ?instance.tags?.map((e) => e.toJson()).toList(),
   'totalItems': ?TagListOutput$Response._write_totalItems(instance.totalItems),
   'totalPages': ?TagListOutput$Response._write_totalPages(instance.totalPages),
 };

@@ -23,45 +23,33 @@ DataSourceOutput _$DataSourceOutputFromJson(Map<String, dynamic> json) {
     disallowNullValues: const ['isAvailable', 'isNetworkBacked', 'kind'],
   );
   return DataSourceOutput(
-    displayName: !json.containsKey('displayName')
-        ? null
-        : DataSourceOutput._read_displayName(json['displayName']),
+    displayName: json['displayName'] as String?,
     isAvailable: json['isAvailable'] as bool?,
     isNetworkBacked: json['isNetworkBacked'] as bool?,
     kind: DataSourceOutput._read_kind(json['kind']),
-    name: !json.containsKey('name')
-        ? null
-        : DataSourceOutput._read_name(json['name']),
-    requiredInputs: !json.containsKey('requiredInputs')
-        ? null
-        : DataSourceOutput._read_requiredInputs(json['requiredInputs']),
-    supportedFormats: !json.containsKey('supportedFormats')
-        ? null
-        : DataSourceOutput._read_supportedFormats(json['supportedFormats']),
-    supportedLayouts: !json.containsKey('supportedLayouts')
-        ? null
-        : DataSourceOutput._read_supportedLayouts(json['supportedLayouts']),
-    unavailableReason: !json.containsKey('unavailableReason')
-        ? null
-        : DataSourceOutput._read_unavailableReason(json['unavailableReason']),
+    name: json['name'] as String?,
+    requiredInputs: (json['requiredInputs'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    supportedFormats: (json['supportedFormats'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    supportedLayouts: (json['supportedLayouts'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    unavailableReason: json['unavailableReason'] as String?,
   );
 }
 
 Map<String, dynamic> _$DataSourceOutputToJson(DataSourceOutput instance) =>
     <String, dynamic>{
-      if (instance.displayName case final $value?)
-        'displayName': DataSourceOutput._write_displayName($value),
+      'displayName': ?instance.displayName,
       'isAvailable': ?instance.isAvailable,
       'isNetworkBacked': ?instance.isNetworkBacked,
       'kind': ?DataSourceOutput._write_kind(instance.kind),
-      if (instance.name case final $value?)
-        'name': DataSourceOutput._write_name($value),
-      if (instance.requiredInputs case final $value?)
-        'requiredInputs': DataSourceOutput._write_requiredInputs($value),
-      if (instance.supportedFormats case final $value?)
-        'supportedFormats': DataSourceOutput._write_supportedFormats($value),
-      if (instance.supportedLayouts case final $value?)
-        'supportedLayouts': DataSourceOutput._write_supportedLayouts($value),
-      if (instance.unavailableReason case final $value?)
-        'unavailableReason': DataSourceOutput._write_unavailableReason($value),
+      'name': ?instance.name,
+      'requiredInputs': ?instance.requiredInputs,
+      'supportedFormats': ?instance.supportedFormats,
+      'supportedLayouts': ?instance.supportedLayouts,
+      'unavailableReason': ?instance.unavailableReason,
     };

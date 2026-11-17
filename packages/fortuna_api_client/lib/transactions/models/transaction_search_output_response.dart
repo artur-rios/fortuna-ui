@@ -26,12 +26,8 @@ class TransactionSearchOutput$Response {
     Map<String, Object?> json,
   ) => _$TransactionSearchOutput$ResponseFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionSearchOutput$Response._read_items,
-    toJson: TransactionSearchOutput$Response._write_items,
-  )
-  final ({List<TransactionOutput>? value})? items;
+  @JsonKey(includeIfNull: false)
+  final List<TransactionOutput>? items;
 
   @JsonKey(
     disallowNullValue: true,
@@ -67,20 +63,6 @@ class TransactionSearchOutput$Response {
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final TransactionTotalsOutput$Response? totals;
-
-  static ({List<TransactionOutput>? value}) _read_items(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    TransactionOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_items(({List<TransactionOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;

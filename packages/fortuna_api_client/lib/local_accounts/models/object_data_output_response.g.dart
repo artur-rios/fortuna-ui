@@ -15,15 +15,13 @@ ObjectDataOutput$Response _$ObjectDataOutput$ResponseFromJson(
     disallowNullValues: const ['success', 'timestamp'],
   );
   return ObjectDataOutput$Response(
-    data: !json.containsKey('data')
-        ? null
-        : ObjectDataOutput$Response._read_data(json['data']),
-    errors: !json.containsKey('errors')
-        ? null
-        : ObjectDataOutput$Response._read_errors(json['errors']),
-    messages: !json.containsKey('messages')
-        ? null
-        : ObjectDataOutput$Response._read_messages(json['messages']),
+    data: json['data'],
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp: ObjectDataOutput$Response._read_timestamp(json['timestamp']),
   );
@@ -32,12 +30,9 @@ ObjectDataOutput$Response _$ObjectDataOutput$ResponseFromJson(
 Map<String, dynamic> _$ObjectDataOutput$ResponseToJson(
   ObjectDataOutput$Response instance,
 ) => <String, dynamic>{
-  if (instance.data case final $value?)
-    'data': ObjectDataOutput$Response._write_data($value),
-  if (instance.errors case final $value?)
-    'errors': ObjectDataOutput$Response._write_errors($value),
-  if (instance.messages case final $value?)
-    'messages': ObjectDataOutput$Response._write_messages($value),
+  'data': ?instance.data,
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp': ?ObjectDataOutput$Response._write_timestamp(instance.timestamp),
 };

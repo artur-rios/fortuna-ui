@@ -27,32 +27,19 @@ class TransactionAggregationConversionOutput {
     Map<String, Object?> json,
   ) => _$TransactionAggregationConversionOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationConversionOutput._read_appliedRate,
-    toJson: TransactionAggregationConversionOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationConversionOutput._read_displayAmount,
-    toJson: TransactionAggregationConversionOutput._write_displayAmount,
-  )
-  final ({String? value})? displayAmount;
+  @JsonKey(includeIfNull: false)
+  final String? displayAmount;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? figureDate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationConversionOutput._read_rateDate,
-    toJson: TransactionAggregationConversionOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
-    disallowNullValue: true,
     includeIfNull: false,
     fromJson: TransactionAggregationConversionOutput._read_rateSource,
     toJson: TransactionAggregationConversionOutput._write_rateSource,
@@ -62,52 +49,17 @@ class TransactionAggregationConversionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? sourceAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationConversionOutput._read_sourceCurrencyCode,
-    toJson: TransactionAggregationConversionOutput._write_sourceCurrencyCode,
-  )
-  final ({String? value})? sourceCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? sourceCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationConversionOutput._read_unconvertedReason,
-    toJson: TransactionAggregationConversionOutput._write_unconvertedReason,
-  )
-  final ({String? value})? unconvertedReason;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayAmount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? unconvertedReason;
 
   static ExchangeRateSource? _read_rateSource(Object? value) =>
       value == null ? null : ExchangeRateSource.fromJson(value);
 
   static Object? _write_rateSource(ExchangeRateSource? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_sourceCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_sourceCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_unconvertedReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_unconvertedReason(({String? value}) value) =>
-      value.value;
 
   Map<String, Object?> toJson() =>
       _$TransactionAggregationConversionOutputToJson(this);

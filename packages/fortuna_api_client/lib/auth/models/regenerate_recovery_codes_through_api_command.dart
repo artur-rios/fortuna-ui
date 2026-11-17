@@ -19,29 +19,11 @@ class RegenerateRecoveryCodesThroughApiCommand {
     Map<String, Object?> json,
   ) => _$RegenerateRecoveryCodesThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RegenerateRecoveryCodesThroughApiCommand._read_code,
-    toJson: RegenerateRecoveryCodesThroughApiCommand._write_code,
-  )
-  final ({String? value})? code;
+  @JsonKey(includeIfNull: false)
+  final String? code;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RegenerateRecoveryCodesThroughApiCommand._read_recoveryCode,
-    toJson: RegenerateRecoveryCodesThroughApiCommand._write_recoveryCode,
-  )
-  final ({String? value})? recoveryCode;
-
-  static ({String? value}) _read_code(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_code(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_recoveryCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recoveryCode(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? recoveryCode;
 
   Map<String, Object?> toJson() =>
       _$RegenerateRecoveryCodesThroughApiCommandToJson(this);

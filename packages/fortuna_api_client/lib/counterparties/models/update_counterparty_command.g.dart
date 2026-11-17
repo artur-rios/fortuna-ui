@@ -10,16 +10,9 @@ UpdateCounterpartyCommand _$UpdateCounterpartyCommandFromJson(
   Map<String, dynamic> json,
 ) {
   $checkKeys(json, allowedKeys: const ['name']);
-  return UpdateCounterpartyCommand(
-    name: !json.containsKey('name')
-        ? null
-        : UpdateCounterpartyCommand._read_name(json['name']),
-  );
+  return UpdateCounterpartyCommand(name: json['name'] as String?);
 }
 
 Map<String, dynamic> _$UpdateCounterpartyCommandToJson(
   UpdateCounterpartyCommand instance,
-) => <String, dynamic>{
-  if (instance.name case final $value?)
-    'name': UpdateCounterpartyCommand._write_name($value),
-};
+) => <String, dynamic>{'name': ?instance.name};

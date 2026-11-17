@@ -30,9 +30,7 @@ ConnectionOutput _$ConnectionOutputFromJson(Map<String, dynamic> json) {
     dataSourceType: ConnectionOutput._read_dataSourceType(
       json['dataSourceType'],
     ),
-    externalReference: !json.containsKey('externalReference')
-        ? null
-        : ConnectionOutput._read_externalReference(json['externalReference']),
+    externalReference: json['externalReference'] as String?,
     id: json['id'] as String?,
     status: ConnectionOutput._read_status(json['status']),
     updatedAt: ConnectionOutput._read_updatedAt(json['updatedAt']),
@@ -45,8 +43,7 @@ Map<String, dynamic> _$ConnectionOutputToJson(ConnectionOutput instance) =>
       'dataSourceType': ?ConnectionOutput._write_dataSourceType(
         instance.dataSourceType,
       ),
-      if (instance.externalReference case final $value?)
-        'externalReference': ConnectionOutput._write_externalReference($value),
+      'externalReference': ?instance.externalReference,
       'id': ?instance.id,
       'status': ?ConnectionOutput._write_status(instance.status),
       'updatedAt': ?ConnectionOutput._write_updatedAt(instance.updatedAt),

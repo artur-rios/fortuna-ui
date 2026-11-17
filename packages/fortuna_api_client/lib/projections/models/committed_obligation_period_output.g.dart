@@ -23,9 +23,7 @@ CommittedObligationPeriodOutput _$CommittedObligationPeriodOutputFromJson(
     isFullyConverted: json['isFullyConverted'] as bool?,
     periodEnd: json['periodEnd'] as String?,
     periodStart: json['periodStart'] as String?,
-    total: !json.containsKey('total')
-        ? null
-        : CommittedObligationPeriodOutput._read_total(json['total']),
+    total: json['total'] as String?,
   );
 }
 
@@ -35,6 +33,5 @@ Map<String, dynamic> _$CommittedObligationPeriodOutputToJson(
   'isFullyConverted': ?instance.isFullyConverted,
   'periodEnd': ?instance.periodEnd,
   'periodStart': ?instance.periodStart,
-  if (instance.total case final $value?)
-    'total': CommittedObligationPeriodOutput._write_total($value),
+  'total': ?instance.total,
 };

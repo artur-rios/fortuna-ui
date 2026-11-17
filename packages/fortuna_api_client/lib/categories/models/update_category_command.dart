@@ -15,29 +15,11 @@ class UpdateCategoryCommand {
   factory UpdateCategoryCommand.fromJson(Map<String, Object?> json) =>
       _$UpdateCategoryCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateCategoryCommand._read_name,
-    toJson: UpdateCategoryCommand._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateCategoryCommand._read_parentId,
-    toJson: UpdateCategoryCommand._write_parentId,
-  )
-  final ({String? value})? parentId;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_parentId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_parentId(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? parentId;
 
   Map<String, Object?> toJson() => _$UpdateCategoryCommandToJson(this);
 }

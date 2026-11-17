@@ -37,31 +37,17 @@ class SettleCreditCardStatementCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? appliedAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SettleCreditCardStatementCommandOutput._read_appliedRate,
-    toJson: SettleCreditCardStatementCommandOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SettleCreditCardStatementCommandOutput._read_carryStatementId,
-    toJson: SettleCreditCardStatementCommandOutput._write_carryStatementId,
-  )
-  final ({String? value})? carryStatementId;
+  @JsonKey(includeIfNull: false)
+  final String? carryStatementId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? creditAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson:
-        SettleCreditCardStatementCommandOutput._read_creditCardCurrencyCode,
-    toJson:
-        SettleCreditCardStatementCommandOutput._write_creditCardCurrencyCode,
-  )
-  final ({String? value})? creditCardCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? creditCardCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? financialAccountId;
@@ -78,22 +64,14 @@ class SettleCreditCardStatementCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? paymentAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SettleCreditCardStatementCommandOutput._read_paymentCurrencyCode,
-    toJson: SettleCreditCardStatementCommandOutput._write_paymentCurrencyCode,
-  )
-  final ({String? value})? paymentCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? paymentCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? paymentDate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SettleCreditCardStatementCommandOutput._read_rateDate,
-    toJson: SettleCreditCardStatementCommandOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? remainingBalance;
@@ -101,48 +79,11 @@ class SettleCreditCardStatementCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? statementAmountDue;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SettleCreditCardStatementCommandOutput._read_status,
-    toJson: SettleCreditCardStatementCommandOutput._write_status,
-  )
-  final ({String? value})? status;
+  @JsonKey(includeIfNull: false)
+  final String? status;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? transferId;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_carryStatementId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_carryStatementId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_creditCardCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_creditCardCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_paymentCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_paymentCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_status(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_status(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() =>
       _$SettleCreditCardStatementCommandOutputToJson(this);

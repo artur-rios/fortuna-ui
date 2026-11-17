@@ -36,27 +36,19 @@ _$InvestmentValuationOutputPaginatedOutput$ResponseFromJson(
     ],
   );
   return InvestmentValuationOutputPaginatedOutput$Response(
-    data: !json.containsKey('data')
-        ? null
-        : InvestmentValuationOutputPaginatedOutput$Response._read_data(
-            json['data'],
-          ),
-    errors: !json.containsKey('errors')
-        ? null
-        : InvestmentValuationOutputPaginatedOutput$Response._read_errors(
-            json['errors'],
-          ),
+    data: (json['data'] as List<dynamic>?)
+        ?.map(
+          (e) => InvestmentValuationOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     hasNextPage: json['hasNextPage'] as bool?,
-    messages: !json.containsKey('messages')
-        ? null
-        : InvestmentValuationOutputPaginatedOutput$Response._read_messages(
-            json['messages'],
-          ),
-    nextPageToken: !json.containsKey('nextPageToken')
-        ? null
-        : InvestmentValuationOutputPaginatedOutput$Response._read_nextPageToken(
-            json['nextPageToken'],
-          ),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    nextPageToken: json['nextPageToken'] as String?,
     pageNumber:
         InvestmentValuationOutputPaginatedOutput$Response._read_pageNumber(
           json['pageNumber'],
@@ -83,25 +75,11 @@ _$InvestmentValuationOutputPaginatedOutput$ResponseFromJson(
 Map<String, dynamic> _$InvestmentValuationOutputPaginatedOutput$ResponseToJson(
   InvestmentValuationOutputPaginatedOutput$Response instance,
 ) => <String, dynamic>{
-  if (instance.data case final $value?)
-    'data': InvestmentValuationOutputPaginatedOutput$Response._write_data(
-      $value,
-    ),
-  if (instance.errors case final $value?)
-    'errors': InvestmentValuationOutputPaginatedOutput$Response._write_errors(
-      $value,
-    ),
+  'data': ?instance.data?.map((e) => e.toJson()).toList(),
+  'errors': ?instance.errors,
   'hasNextPage': ?instance.hasNextPage,
-  if (instance.messages case final $value?)
-    'messages':
-        InvestmentValuationOutputPaginatedOutput$Response._write_messages(
-          $value,
-        ),
-  if (instance.nextPageToken case final $value?)
-    'nextPageToken':
-        InvestmentValuationOutputPaginatedOutput$Response._write_nextPageToken(
-          $value,
-        ),
+  'messages': ?instance.messages,
+  'nextPageToken': ?instance.nextPageToken,
   'pageNumber':
       ?InvestmentValuationOutputPaginatedOutput$Response._write_pageNumber(
         instance.pageNumber,

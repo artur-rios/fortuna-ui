@@ -5,85 +5,68 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart'
     show Dio, Options, ResponseType, CancelToken, RequestOptions;
 import 'package:retrofit/retrofit.dart'
-    show RestApi, Extras, CancelRequest, GET, POST, ParseErrorLogger;
+    show
+        RestApi,
+        Extras,
+        CancelRequest,
+        GET,
+        POST,
+        ParseErrorLogger,
+        Body,
+        Headers;
 
 import 'models/confirm_two_factor_through_api_command.dart'
-    as models
     show ConfirmTwoFactorThroughApiCommand;
 import 'models/confirm_two_factor_through_api_command_output_data_output_response.dart'
-    as models
     show ConfirmTwoFactorThroughApiCommandOutputDataOutput$Response;
 import 'models/disable_two_factor_through_api_command.dart'
-    as models
     show DisableTwoFactorThroughApiCommand;
 import 'models/disable_two_factor_through_api_command_output_data_output_response.dart'
-    as models
     show DisableTwoFactorThroughApiCommandOutputDataOutput$Response;
 import 'models/enable_two_factor_through_api_command.dart'
-    as models
     show EnableTwoFactorThroughApiCommand;
 import 'models/enable_two_factor_through_api_command_output_data_output_response.dart'
-    as models
     show EnableTwoFactorThroughApiCommandOutputDataOutput$Response;
 import 'models/get_two_factor_status_through_api_command_output_data_output_response.dart'
     show GetTwoFactorStatusThroughApiCommandOutputDataOutput$Response;
 import 'models/google_sign_in_through_api_command.dart'
-    as models
     show GoogleSignInThroughApiCommand;
 import 'models/google_sign_in_through_api_command_output_data_output_response.dart'
-    as models
     show GoogleSignInThroughApiCommandOutputDataOutput$Response;
 import 'models/google_sign_out_through_api_command_output_data_output_response.dart'
     show GoogleSignOutThroughApiCommandOutputDataOutput$Response;
-import 'models/login_through_api_command.dart'
-    as models
-    show LoginThroughApiCommand;
+import 'models/login_through_api_command.dart' show LoginThroughApiCommand;
 import 'models/login_through_api_command_output_data_output_response.dart'
-    as models
     show LoginThroughApiCommandOutputDataOutput$Response;
 import 'models/regenerate_recovery_codes_through_api_command.dart'
-    as models
     show RegenerateRecoveryCodesThroughApiCommand;
 import 'models/regenerate_recovery_codes_through_api_command_output_data_output_response.dart'
-    as models
     show RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Response;
 import 'models/register_through_api_command.dart'
-    as models
     show RegisterThroughApiCommand;
 import 'models/register_through_api_command_output_data_output_response.dart'
-    as models
     show RegisterThroughApiCommandOutputDataOutput$Response;
 import 'models/request_password_recovery_through_api_command.dart'
-    as models
     show RequestPasswordRecoveryThroughApiCommand;
 import 'models/request_password_recovery_through_api_command_output_data_output_response.dart'
-    as models
     show RequestPasswordRecoveryThroughApiCommandOutputDataOutput$Response;
 import 'models/resend_two_factor_challenge_code_through_api_command.dart'
-    as models
     show ResendTwoFactorChallengeCodeThroughApiCommand;
 import 'models/resend_two_factor_challenge_code_through_api_command_output_data_output_response.dart'
-    as models
     show ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput$Response;
 import 'models/resend_verification_through_api_command_output_data_output_response.dart'
     show ResendVerificationThroughApiCommandOutputDataOutput$Response;
 import 'models/reset_password_through_api_command.dart'
-    as models
     show ResetPasswordThroughApiCommand;
 import 'models/reset_password_through_api_command_output_data_output_response.dart'
-    as models
     show ResetPasswordThroughApiCommandOutputDataOutput$Response;
 import 'models/verify_email_through_api_command.dart'
-    as models
     show VerifyEmailThroughApiCommand;
 import 'models/verify_email_through_api_command_output_data_output_response.dart'
-    as models
     show VerifyEmailThroughApiCommandOutputDataOutput$Response;
 import 'models/verify_two_factor_through_api_command.dart'
-    as models
     show VerifyTwoFactorThroughApiCommand;
 import 'models/verify_two_factor_through_api_command_output_data_output_response.dart'
-    as models
     show VerifyTwoFactorThroughApiCommandOutputDataOutput$Response;
 
 part 'auth_client.g.dart';
@@ -132,30 +115,27 @@ abstract class AuthClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
   });
-  Future<
-    models.ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput$Response
-  >
-  postApiAuth2faChallengeResend({
+  Future<ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput$Response>
+  _postApiAuth2faChallengeResendWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.ResendTwoFactorChallengeCodeThroughApiCommand body,
+    required ResendTwoFactorChallengeCodeThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/2fa/challenge/resend",
@@ -163,34 +143,45 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput$Response.fromJson(
+    return ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.ConfirmTwoFactorThroughApiCommandOutputDataOutput$Response>
-  postApiAuth2faConfirm({
+  @POST('/api/auth/2fa/challenge/resend')
+  @Headers({'Content-Type': 'application/json'})
+  Future<ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faChallengeResend({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required ResendTwoFactorChallengeCodeThroughApiCommand body,
+  });
+  Future<ConfirmTwoFactorThroughApiCommandOutputDataOutput$Response>
+  _postApiAuth2faConfirmWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.ConfirmTwoFactorThroughApiCommand body,
+    required ConfirmTwoFactorThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/2fa/confirm",
@@ -198,34 +189,45 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .ConfirmTwoFactorThroughApiCommandOutputDataOutput$Response.fromJson(
+    return ConfirmTwoFactorThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.DisableTwoFactorThroughApiCommandOutputDataOutput$Response>
-  postApiAuth2faDisable({
+  @POST('/api/auth/2fa/confirm')
+  @Headers({'Content-Type': 'application/json'})
+  Future<ConfirmTwoFactorThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faConfirm({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required ConfirmTwoFactorThroughApiCommand body,
+  });
+  Future<DisableTwoFactorThroughApiCommandOutputDataOutput$Response>
+  _postApiAuth2faDisableWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.DisableTwoFactorThroughApiCommand body,
+    required DisableTwoFactorThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/2fa/disable",
@@ -233,34 +235,45 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .DisableTwoFactorThroughApiCommandOutputDataOutput$Response.fromJson(
+    return DisableTwoFactorThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.EnableTwoFactorThroughApiCommandOutputDataOutput$Response>
-  postApiAuth2faEnable({
+  @POST('/api/auth/2fa/disable')
+  @Headers({'Content-Type': 'application/json'})
+  Future<DisableTwoFactorThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faDisable({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required DisableTwoFactorThroughApiCommand body,
+  });
+  Future<EnableTwoFactorThroughApiCommandOutputDataOutput$Response>
+  _postApiAuth2faEnableWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.EnableTwoFactorThroughApiCommand body,
+    required EnableTwoFactorThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/2fa/enable",
@@ -268,36 +281,45 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .EnableTwoFactorThroughApiCommandOutputDataOutput$Response.fromJson(
+    return EnableTwoFactorThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<
-    models.RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Response
-  >
-  postApiAuth2faRecoveryCodesRegenerate({
+  @POST('/api/auth/2fa/enable')
+  @Headers({'Content-Type': 'application/json'})
+  Future<EnableTwoFactorThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faEnable({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required EnableTwoFactorThroughApiCommand body,
+  });
+  Future<RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Response>
+  _postApiAuth2faRecoveryCodesRegenerateWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RegenerateRecoveryCodesThroughApiCommand body,
+    required RegenerateRecoveryCodesThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/2fa/recovery-codes/regenerate",
@@ -305,34 +327,45 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Response.fromJson(
+    return RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.VerifyTwoFactorThroughApiCommandOutputDataOutput$Response>
-  postApiAuth2faVerify({
+  @POST('/api/auth/2fa/recovery-codes/regenerate')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faRecoveryCodesRegenerate({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RegenerateRecoveryCodesThroughApiCommand body,
+  });
+  Future<VerifyTwoFactorThroughApiCommandOutputDataOutput$Response>
+  _postApiAuth2faVerifyWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.VerifyTwoFactorThroughApiCommand body,
+    required VerifyTwoFactorThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/2fa/verify",
@@ -340,34 +373,45 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .VerifyTwoFactorThroughApiCommandOutputDataOutput$Response.fromJson(
+    return VerifyTwoFactorThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.GoogleSignInThroughApiCommandOutputDataOutput$Response>
-  postApiAuthGoogle({
+  @POST('/api/auth/2fa/verify')
+  @Headers({'Content-Type': 'application/json'})
+  Future<VerifyTwoFactorThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faVerify({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required VerifyTwoFactorThroughApiCommand body,
+  });
+  Future<GoogleSignInThroughApiCommandOutputDataOutput$Response>
+  _postApiAuthGoogleWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.GoogleSignInThroughApiCommand body,
+    required GoogleSignInThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/google",
@@ -375,12 +419,24 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .GoogleSignInThroughApiCommandOutputDataOutput$Response.fromJson(
+    return GoogleSignInThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/auth/google')
+  @Headers({'Content-Type': 'application/json'})
+  Future<GoogleSignInThroughApiCommandOutputDataOutput$Response>
+  postApiAuthGoogle({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required GoogleSignInThroughApiCommand body,
+  });
   Future<GoogleSignOutThroughApiCommandOutputDataOutput$Response>
   _postApiAuthGoogleSignOutWithOptions({
     Map<String, Object?> extra = const {
@@ -417,28 +473,27 @@ abstract class AuthClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
   });
-  Future<models.LoginThroughApiCommandOutputDataOutput$Response>
-  postApiAuthLogin({
+  Future<LoginThroughApiCommandOutputDataOutput$Response>
+  _postApiAuthLoginWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.LoginThroughApiCommand body,
+    required LoginThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/login",
@@ -446,35 +501,44 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.LoginThroughApiCommandOutputDataOutput$Response.fromJson(
+    return LoginThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<
-    models.RequestPasswordRecoveryThroughApiCommandOutputDataOutput$Response
-  >
-  postApiAuthPasswordRecovery({
+  @POST('/api/auth/login')
+  @Headers({'Content-Type': 'application/json'})
+  Future<LoginThroughApiCommandOutputDataOutput$Response> postApiAuthLogin({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required LoginThroughApiCommand body,
+  });
+  Future<RequestPasswordRecoveryThroughApiCommandOutputDataOutput$Response>
+  _postApiAuthPasswordRecoveryWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RequestPasswordRecoveryThroughApiCommand body,
+    required RequestPasswordRecoveryThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/password-recovery",
@@ -482,34 +546,45 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .RequestPasswordRecoveryThroughApiCommandOutputDataOutput$Response.fromJson(
+    return RequestPasswordRecoveryThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.ResetPasswordThroughApiCommandOutputDataOutput$Response>
-  postApiAuthPasswordReset({
+  @POST('/api/auth/password-recovery')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RequestPasswordRecoveryThroughApiCommandOutputDataOutput$Response>
+  postApiAuthPasswordRecovery({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RequestPasswordRecoveryThroughApiCommand body,
+  });
+  Future<ResetPasswordThroughApiCommandOutputDataOutput$Response>
+  _postApiAuthPasswordResetWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.ResetPasswordThroughApiCommand body,
+    required ResetPasswordThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/password-reset",
@@ -517,34 +592,45 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .ResetPasswordThroughApiCommandOutputDataOutput$Response.fromJson(
+    return ResetPasswordThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.RegisterThroughApiCommandOutputDataOutput$Response>
-  postApiAuthRegister({
+  @POST('/api/auth/password-reset')
+  @Headers({'Content-Type': 'application/json'})
+  Future<ResetPasswordThroughApiCommandOutputDataOutput$Response>
+  postApiAuthPasswordReset({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required ResetPasswordThroughApiCommand body,
+  });
+  Future<RegisterThroughApiCommandOutputDataOutput$Response>
+  _postApiAuthRegisterWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RegisterThroughApiCommand body,
+    required RegisterThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 202),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/register",
@@ -552,11 +638,24 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.RegisterThroughApiCommandOutputDataOutput$Response.fromJson(
+    return RegisterThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/auth/register')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RegisterThroughApiCommandOutputDataOutput$Response>
+  postApiAuthRegister({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RegisterThroughApiCommand body,
+  });
   Future<ResendVerificationThroughApiCommandOutputDataOutput$Response>
   _postApiAuthResendVerificationWithOptions({
     Map<String, Object?> extra = const {
@@ -593,28 +692,27 @@ abstract class AuthClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
   });
-  Future<models.VerifyEmailThroughApiCommandOutputDataOutput$Response>
-  postApiAuthVerifyEmail({
+  Future<VerifyEmailThroughApiCommandOutputDataOutput$Response>
+  _postApiAuthVerifyEmailWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.VerifyEmailThroughApiCommand body,
+    required VerifyEmailThroughApiCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/auth/verify-email",
@@ -622,11 +720,24 @@ abstract class AuthClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .VerifyEmailThroughApiCommandOutputDataOutput$Response.fromJson(
+    return VerifyEmailThroughApiCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
+
+  @POST('/api/auth/verify-email')
+  @Headers({'Content-Type': 'application/json'})
+  Future<VerifyEmailThroughApiCommandOutputDataOutput$Response>
+  postApiAuthVerifyEmail({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required VerifyEmailThroughApiCommand body,
+  });
 }
 
 class _AuthClientWithOptions extends _AuthClient {
@@ -656,6 +767,188 @@ class _AuthClientWithOptions extends _AuthClient {
   }
 
   @override
+  Future<ResendTwoFactorChallengeCodeThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faChallengeResend({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required ResendTwoFactorChallengeCodeThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuth2faChallengeResend(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuth2faChallengeResendWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<ConfirmTwoFactorThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faConfirm({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required ConfirmTwoFactorThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuth2faConfirm(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuth2faConfirmWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<DisableTwoFactorThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faDisable({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required DisableTwoFactorThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuth2faDisable(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuth2faDisableWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<EnableTwoFactorThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faEnable({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required EnableTwoFactorThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuth2faEnable(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuth2faEnableWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faRecoveryCodesRegenerate({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RegenerateRecoveryCodesThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuth2faRecoveryCodesRegenerate(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuth2faRecoveryCodesRegenerateWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<VerifyTwoFactorThroughApiCommandOutputDataOutput$Response>
+  postApiAuth2faVerify({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required VerifyTwoFactorThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuth2faVerify(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuth2faVerifyWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<GoogleSignInThroughApiCommandOutputDataOutput$Response>
+  postApiAuthGoogle({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required GoogleSignInThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuthGoogle(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuthGoogleWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<GoogleSignOutThroughApiCommandOutputDataOutput$Response>
   postApiAuthGoogleSignOut({
     Map<String, Object?> extra = const {
@@ -679,6 +972,109 @@ class _AuthClientWithOptions extends _AuthClient {
   }
 
   @override
+  Future<LoginThroughApiCommandOutputDataOutput$Response> postApiAuthLogin({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required LoginThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuthLogin(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuthLoginWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<RequestPasswordRecoveryThroughApiCommandOutputDataOutput$Response>
+  postApiAuthPasswordRecovery({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RequestPasswordRecoveryThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuthPasswordRecovery(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuthPasswordRecoveryWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<ResetPasswordThroughApiCommandOutputDataOutput$Response>
+  postApiAuthPasswordReset({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required ResetPasswordThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuthPasswordReset(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuthPasswordResetWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<RegisterThroughApiCommandOutputDataOutput$Response>
+  postApiAuthRegister({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RegisterThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuthRegister(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuthRegisterWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<ResendVerificationThroughApiCommandOutputDataOutput$Response>
   postApiAuthResendVerification({
     Map<String, Object?> extra = const {
@@ -698,6 +1094,32 @@ class _AuthClientWithOptions extends _AuthClient {
             extra: extra,
             cancelToken: cancelToken,
             options: options,
+          );
+  }
+
+  @override
+  Future<VerifyEmailThroughApiCommandOutputDataOutput$Response>
+  postApiAuthVerifyEmail({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required VerifyEmailThroughApiCommand body,
+  }) {
+    return options == null
+        ? super.postApiAuthVerifyEmail(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAuthVerifyEmailWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
           );
   }
 }

@@ -27,101 +27,29 @@ class TransactionAggregationOutput {
   factory TransactionAggregationOutput.fromJson(Map<String, Object?> json) =>
       _$TransactionAggregationOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationOutput._read_buckets,
-    toJson: TransactionAggregationOutput._write_buckets,
-  )
-  final ({List<TransactionAggregationBucketOutput>? value})? buckets;
+  @JsonKey(includeIfNull: false)
+  final List<TransactionAggregationBucketOutput>? buckets;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationOutput._read_dimension,
-    toJson: TransactionAggregationOutput._write_dimension,
-  )
-  final ({String? value})? dimension;
+  @JsonKey(includeIfNull: false)
+  final String? dimension;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationOutput._read_displayCurrencyCode,
-    toJson: TransactionAggregationOutput._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? from;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationOutput._read_granularity,
-    toJson: TransactionAggregationOutput._write_granularity,
-  )
-  final ({String? value})? granularity;
+  @JsonKey(includeIfNull: false)
+  final String? granularity;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationOutput._read_missingRates,
-    toJson: TransactionAggregationOutput._write_missingRates,
-  )
-  final ({List<MissingExchangeRateOutput>? value})? missingRates;
+  @JsonKey(includeIfNull: false)
+  final List<MissingExchangeRateOutput>? missingRates;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? to;
-
-  static ({List<TransactionAggregationBucketOutput>? value}) _read_buckets(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => TransactionAggregationBucketOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_buckets(
-    ({List<TransactionAggregationBucketOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_dimension(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_dimension(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_granularity(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_granularity(({String? value}) value) => value.value;
-
-  static ({List<MissingExchangeRateOutput>? value}) _read_missingRates(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => MissingExchangeRateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_missingRates(
-    ({List<MissingExchangeRateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
 
   Map<String, Object?> toJson() => _$TransactionAggregationOutputToJson(this);
 }

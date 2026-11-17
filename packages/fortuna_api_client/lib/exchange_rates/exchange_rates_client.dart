@@ -2,17 +2,17 @@
 
 import 'dart:convert' as convert;
 
-import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
+import 'package:dio/dio.dart'
+    show Dio, Options, ResponseType, CancelToken, RequestOptions;
+import 'package:retrofit/retrofit.dart'
+    show RestApi, Extras, CancelRequest, POST, ParseErrorLogger, Body, Headers;
 
-import 'models/convert_figure_query.dart' as models show ConvertFigureQuery;
+import 'models/convert_figure_query.dart' show ConvertFigureQuery;
 import 'models/convert_figure_query_output_data_output_response.dart'
-    as models
     show ConvertFigureQueryOutputDataOutput$Response;
 import 'models/record_manual_exchange_rate_command.dart'
-    as models
     show RecordManualExchangeRateCommand;
 import 'models/record_manual_exchange_rate_command_output_data_output_response.dart'
-    as models
     show RecordManualExchangeRateCommandOutputDataOutput$Response;
 import 'models/synchronize_exchange_rates_command.dart'
     as models
@@ -21,33 +21,37 @@ import 'models/synchronize_exchange_rates_command_output_data_output_response.da
     as models
     show SynchronizeExchangeRatesCommandOutputDataOutput$Response;
 
-class ExchangeRatesClient {
-  ExchangeRatesClient(this._transport);
+part 'exchange_rates_client.g.dart';
+
+@RestApi(headers: {'Accept': 'application/json'})
+abstract class ExchangeRatesClient {
+  ExchangeRatesClient._(this._transport);
+
+  factory ExchangeRatesClient(Dio dio) => _ExchangeRatesClientWithOptions(dio);
 
   final Dio _transport;
 
-  Future<models.RecordManualExchangeRateCommandOutputDataOutput$Response>
-  postApiExchangeRates({
+  Future<RecordManualExchangeRateCommandOutputDataOutput$Response>
+  _postApiExchangeRatesWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RecordManualExchangeRateCommand body,
+    required RecordManualExchangeRateCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/exchange-rates",
@@ -55,34 +59,45 @@ class ExchangeRatesClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .RecordManualExchangeRateCommandOutputDataOutput$Response.fromJson(
+    return RecordManualExchangeRateCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<models.ConvertFigureQueryOutputDataOutput$Response>
-  postApiExchangeRatesConvert({
+  @POST('/api/exchange-rates')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RecordManualExchangeRateCommandOutputDataOutput$Response>
+  postApiExchangeRates({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RecordManualExchangeRateCommand body,
+  });
+  Future<ConvertFigureQueryOutputDataOutput$Response>
+  _postApiExchangeRatesConvertWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.ConvertFigureQuery body,
+    required ConvertFigureQuery body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/exchange-rates/convert",
@@ -90,11 +105,24 @@ class ExchangeRatesClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.ConvertFigureQueryOutputDataOutput$Response.fromJson(
+    return ConvertFigureQueryOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/exchange-rates/convert')
+  @Headers({'Content-Type': 'application/json'})
+  Future<ConvertFigureQueryOutputDataOutput$Response>
+  postApiExchangeRatesConvert({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required ConvertFigureQuery body,
+  });
   Future<models.SynchronizeExchangeRatesCommandOutputDataOutput$Response>
   postApiExchangeRatesSync({
     Map<String, Object?> extra = const {
@@ -109,7 +137,7 @@ class ExchangeRatesClient {
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
@@ -128,5 +156,61 @@ class ExchangeRatesClient {
         .SynchronizeExchangeRatesCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
+  }
+}
+
+class _ExchangeRatesClientWithOptions extends _ExchangeRatesClient {
+  _ExchangeRatesClientWithOptions(Dio dio) : super._(dio, dio);
+
+  @override
+  Future<RecordManualExchangeRateCommandOutputDataOutput$Response>
+  postApiExchangeRates({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RecordManualExchangeRateCommand body,
+  }) {
+    return options == null
+        ? super.postApiExchangeRates(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiExchangeRatesWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<ConvertFigureQueryOutputDataOutput$Response>
+  postApiExchangeRatesConvert({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required ConvertFigureQuery body,
+  }) {
+    return options == null
+        ? super.postApiExchangeRatesConvert(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiExchangeRatesConvertWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
   }
 }

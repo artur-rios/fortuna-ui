@@ -26,19 +26,11 @@ class SynchronizeConnectionCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? importJobId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SynchronizeConnectionCommandOutput._read_periodEnd,
-    toJson: SynchronizeConnectionCommandOutput._write_periodEnd,
-  )
-  final ({String? value})? periodEnd;
+  @JsonKey(includeIfNull: false)
+  final String? periodEnd;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SynchronizeConnectionCommandOutput._read_periodStart,
-    toJson: SynchronizeConnectionCommandOutput._write_periodStart,
-  )
-  final ({String? value})? periodStart;
+  @JsonKey(includeIfNull: false)
+  final String? periodStart;
 
   @JsonKey(
     disallowNullValue: true,
@@ -47,16 +39,6 @@ class SynchronizeConnectionCommandOutput {
     toJson: SynchronizeConnectionCommandOutput._write_status,
   )
   final ImportJobStatus? status;
-
-  static ({String? value}) _read_periodEnd(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodEnd(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_periodStart(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodStart(({String? value}) value) => value.value;
 
   static ImportJobStatus? _read_status(Object? value) =>
       value == null ? null : ImportJobStatus.fromJson(value);

@@ -45,43 +45,21 @@ _$SettleCreditCardStatementCommandOutputFromJson(Map<String, dynamic> json) {
   );
   return SettleCreditCardStatementCommandOutput(
     appliedAmount: json['appliedAmount'] as String?,
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : SettleCreditCardStatementCommandOutput._read_appliedRate(
-            json['appliedRate'],
-          ),
-    carryStatementId: !json.containsKey('carryStatementId')
-        ? null
-        : SettleCreditCardStatementCommandOutput._read_carryStatementId(
-            json['carryStatementId'],
-          ),
+    appliedRate: json['appliedRate'] as String?,
+    carryStatementId: json['carryStatementId'] as String?,
     creditAmount: json['creditAmount'] as String?,
-    creditCardCurrencyCode: !json.containsKey('creditCardCurrencyCode')
-        ? null
-        : SettleCreditCardStatementCommandOutput._read_creditCardCurrencyCode(
-            json['creditCardCurrencyCode'],
-          ),
+    creditCardCurrencyCode: json['creditCardCurrencyCode'] as String?,
     financialAccountId: json['financialAccountId'] as String?,
     id: json['id'] as String?,
     inboundTransactionId: json['inboundTransactionId'] as String?,
     outboundTransactionId: json['outboundTransactionId'] as String?,
     paymentAmount: json['paymentAmount'] as String?,
-    paymentCurrencyCode: !json.containsKey('paymentCurrencyCode')
-        ? null
-        : SettleCreditCardStatementCommandOutput._read_paymentCurrencyCode(
-            json['paymentCurrencyCode'],
-          ),
+    paymentCurrencyCode: json['paymentCurrencyCode'] as String?,
     paymentDate: json['paymentDate'] as String?,
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : SettleCreditCardStatementCommandOutput._read_rateDate(
-            json['rateDate'],
-          ),
+    rateDate: json['rateDate'] as String?,
     remainingBalance: json['remainingBalance'] as String?,
     statementAmountDue: json['statementAmountDue'] as String?,
-    status: !json.containsKey('status')
-        ? null
-        : SettleCreditCardStatementCommandOutput._read_status(json['status']),
+    status: json['status'] as String?,
     transferId: json['transferId'] as String?,
   );
 }
@@ -90,35 +68,20 @@ Map<String, dynamic> _$SettleCreditCardStatementCommandOutputToJson(
   SettleCreditCardStatementCommandOutput instance,
 ) => <String, dynamic>{
   'appliedAmount': ?instance.appliedAmount,
-  if (instance.appliedRate case final $value?)
-    'appliedRate': SettleCreditCardStatementCommandOutput._write_appliedRate(
-      $value,
-    ),
-  if (instance.carryStatementId case final $value?)
-    'carryStatementId':
-        SettleCreditCardStatementCommandOutput._write_carryStatementId($value),
+  'appliedRate': ?instance.appliedRate,
+  'carryStatementId': ?instance.carryStatementId,
   'creditAmount': ?instance.creditAmount,
-  if (instance.creditCardCurrencyCode case final $value?)
-    'creditCardCurrencyCode':
-        SettleCreditCardStatementCommandOutput._write_creditCardCurrencyCode(
-          $value,
-        ),
+  'creditCardCurrencyCode': ?instance.creditCardCurrencyCode,
   'financialAccountId': ?instance.financialAccountId,
   'id': ?instance.id,
   'inboundTransactionId': ?instance.inboundTransactionId,
   'outboundTransactionId': ?instance.outboundTransactionId,
   'paymentAmount': ?instance.paymentAmount,
-  if (instance.paymentCurrencyCode case final $value?)
-    'paymentCurrencyCode':
-        SettleCreditCardStatementCommandOutput._write_paymentCurrencyCode(
-          $value,
-        ),
+  'paymentCurrencyCode': ?instance.paymentCurrencyCode,
   'paymentDate': ?instance.paymentDate,
-  if (instance.rateDate case final $value?)
-    'rateDate': SettleCreditCardStatementCommandOutput._write_rateDate($value),
+  'rateDate': ?instance.rateDate,
   'remainingBalance': ?instance.remainingBalance,
   'statementAmountDue': ?instance.statementAmountDue,
-  if (instance.status case final $value?)
-    'status': SettleCreditCardStatementCommandOutput._write_status($value),
+  'status': ?instance.status,
   'transferId': ?instance.transferId,
 };

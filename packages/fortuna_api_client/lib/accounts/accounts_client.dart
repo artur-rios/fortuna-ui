@@ -9,18 +9,19 @@ import 'package:retrofit/retrofit.dart'
         RestApi,
         Extras,
         CancelRequest,
-        GET,
-        DELETE,
         POST,
+        GET,
+        PUT,
+        DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
 import 'models/create_financial_account_command.dart'
-    as models
     show CreateFinancialAccountCommand;
 import 'models/create_financial_account_command_output_data_output_response.dart'
-    as models
     show CreateFinancialAccountCommandOutputDataOutput$Response;
 import 'models/financial_account_balance_output_data_output_response.dart'
     show FinancialAccountBalanceOutputDataOutput$Response;
@@ -33,10 +34,8 @@ import 'models/financial_account_output_paginated_output_response.dart'
     show FinancialAccountOutputPaginatedOutput$Response;
 import 'models/financial_account_type.dart' as models show FinancialAccountType;
 import 'models/update_financial_account_command.dart'
-    as models
     show UpdateFinancialAccountCommand;
 import 'models/update_financial_account_command_output_data_output_response.dart'
-    as models
     show UpdateFinancialAccountCommandOutputDataOutput$Response;
 
 part 'accounts_client.g.dart';
@@ -96,28 +95,27 @@ abstract class AccountsClient {
     );
   }
 
-  Future<models.CreateFinancialAccountCommandOutputDataOutput$Response>
-  postApiAccounts({
+  Future<CreateFinancialAccountCommandOutputDataOutput$Response>
+  _postApiAccountsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateFinancialAccountCommand body,
+    required CreateFinancialAccountCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/accounts",
@@ -125,12 +123,24 @@ abstract class AccountsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .CreateFinancialAccountCommandOutputDataOutput$Response.fromJson(
+    return CreateFinancialAccountCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/accounts')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CreateFinancialAccountCommandOutputDataOutput$Response>
+  postApiAccounts({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateFinancialAccountCommand body,
+  });
   Future<FinancialAccountOutputDataOutput$Response>
   _getApiAccountsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -173,8 +183,8 @@ abstract class AccountsClient {
     @Path('id') required String id,
     @Query('includeDeleted') bool? includeDeleted,
   });
-  Future<models.UpdateFinancialAccountCommandOutputDataOutput$Response>
-  putApiAccountsById({
+  Future<UpdateFinancialAccountCommandOutputDataOutput$Response>
+  _putApiAccountsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -182,36 +192,45 @@ abstract class AccountsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateFinancialAccountCommand body,
+    required UpdateFinancialAccountCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/accounts/" + Uri.encodeComponent(id),
+      "/api/accounts/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .UpdateFinancialAccountCommandOutputDataOutput$Response.fromJson(
+    return UpdateFinancialAccountCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @PUT('/api/accounts/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<UpdateFinancialAccountCommandOutputDataOutput$Response>
+  putApiAccountsById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateFinancialAccountCommand body,
+  });
   Future<FinancialAccountLifecycleCommandOutputDataOutput$Response>
   _deleteApiAccountsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -373,6 +392,32 @@ class _AccountsClientWithOptions extends _AccountsClient {
   _AccountsClientWithOptions(Dio dio) : super._(dio, dio);
 
   @override
+  Future<CreateFinancialAccountCommandOutputDataOutput$Response>
+  postApiAccounts({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateFinancialAccountCommand body,
+  }) {
+    return options == null
+        ? super.postApiAccounts(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiAccountsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<FinancialAccountOutputDataOutput$Response> getApiAccountsById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -397,6 +442,35 @@ class _AccountsClientWithOptions extends _AccountsClient {
             options: options,
             id: id,
             includeDeleted: includeDeleted,
+          );
+  }
+
+  @override
+  Future<UpdateFinancialAccountCommandOutputDataOutput$Response>
+  putApiAccountsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateFinancialAccountCommand body,
+  }) {
+    return options == null
+        ? super.putApiAccountsById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiAccountsByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

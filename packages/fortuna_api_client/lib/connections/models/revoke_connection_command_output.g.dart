@@ -36,11 +36,7 @@ RevokeConnectionCommandOutput _$RevokeConnectionCommandOutputFromJson(
     dataSourceType: RevokeConnectionCommandOutput._read_dataSourceType(
       json['dataSourceType'],
     ),
-    externalReference: !json.containsKey('externalReference')
-        ? null
-        : RevokeConnectionCommandOutput._read_externalReference(
-            json['externalReference'],
-          ),
+    externalReference: json['externalReference'] as String?,
     id: json['id'] as String?,
     importedDataRetained: json['importedDataRetained'] as bool?,
     status: RevokeConnectionCommandOutput._read_status(json['status']),
@@ -61,10 +57,7 @@ Map<String, dynamic> _$RevokeConnectionCommandOutputToJson(
   'dataSourceType': ?RevokeConnectionCommandOutput._write_dataSourceType(
     instance.dataSourceType,
   ),
-  if (instance.externalReference case final $value?)
-    'externalReference': RevokeConnectionCommandOutput._write_externalReference(
-      $value,
-    ),
+  'externalReference': ?instance.externalReference,
   'id': ?instance.id,
   'importedDataRetained': ?instance.importedDataRetained,
   'status': ?RevokeConnectionCommandOutput._write_status(instance.status),

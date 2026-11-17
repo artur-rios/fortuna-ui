@@ -27,60 +27,36 @@ NetPositionCurrencyOutput _$NetPositionCurrencyOutputFromJson(
       'creditCards',
       'financialAccounts',
       'investments',
-      'rateSource',
       'sourceNet',
     ],
   );
   return NetPositionCurrencyOutput(
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : NetPositionCurrencyOutput._read_appliedRate(json['appliedRate']),
+    appliedRate: json['appliedRate'] as String?,
     creditCards: json['creditCards'] as String?,
-    displayNet: !json.containsKey('displayNet')
-        ? null
-        : NetPositionCurrencyOutput._read_displayNet(json['displayNet']),
+    displayNet: json['displayNet'] as String?,
     financialAccounts: json['financialAccounts'] as String?,
     investments: json['investments'] as String?,
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : NetPositionCurrencyOutput._read_rateDate(json['rateDate']),
+    rateDate: json['rateDate'] as String?,
     rateSource: NetPositionCurrencyOutput._read_rateSource(json['rateSource']),
-    sourceCurrencyCode: !json.containsKey('sourceCurrencyCode')
-        ? null
-        : NetPositionCurrencyOutput._read_sourceCurrencyCode(
-            json['sourceCurrencyCode'],
-          ),
+    sourceCurrencyCode: json['sourceCurrencyCode'] as String?,
     sourceNet: json['sourceNet'] as String?,
-    unconvertedReason: !json.containsKey('unconvertedReason')
-        ? null
-        : NetPositionCurrencyOutput._read_unconvertedReason(
-            json['unconvertedReason'],
-          ),
+    unconvertedReason: json['unconvertedReason'] as String?,
   );
 }
 
 Map<String, dynamic> _$NetPositionCurrencyOutputToJson(
   NetPositionCurrencyOutput instance,
 ) => <String, dynamic>{
-  if (instance.appliedRate case final $value?)
-    'appliedRate': NetPositionCurrencyOutput._write_appliedRate($value),
+  'appliedRate': ?instance.appliedRate,
   'creditCards': ?instance.creditCards,
-  if (instance.displayNet case final $value?)
-    'displayNet': NetPositionCurrencyOutput._write_displayNet($value),
+  'displayNet': ?instance.displayNet,
   'financialAccounts': ?instance.financialAccounts,
   'investments': ?instance.investments,
-  if (instance.rateDate case final $value?)
-    'rateDate': NetPositionCurrencyOutput._write_rateDate($value),
+  'rateDate': ?instance.rateDate,
   'rateSource': ?NetPositionCurrencyOutput._write_rateSource(
     instance.rateSource,
   ),
-  if (instance.sourceCurrencyCode case final $value?)
-    'sourceCurrencyCode': NetPositionCurrencyOutput._write_sourceCurrencyCode(
-      $value,
-    ),
+  'sourceCurrencyCode': ?instance.sourceCurrencyCode,
   'sourceNet': ?instance.sourceNet,
-  if (instance.unconvertedReason case final $value?)
-    'unconvertedReason': NetPositionCurrencyOutput._write_unconvertedReason(
-      $value,
-    ),
+  'unconvertedReason': ?instance.unconvertedReason,
 };

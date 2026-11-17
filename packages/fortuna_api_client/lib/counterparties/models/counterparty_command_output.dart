@@ -36,12 +36,8 @@ class CounterpartyCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isDeleted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CounterpartyCommandOutput._read_name,
-    toJson: CounterpartyCommandOutput._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? reused;
@@ -59,11 +55,6 @@ class CounterpartyCommandOutput {
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

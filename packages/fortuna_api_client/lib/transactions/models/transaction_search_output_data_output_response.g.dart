@@ -13,7 +13,7 @@ _$TransactionSearchOutputDataOutput$ResponseFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'success', 'timestamp'],
-    disallowNullValues: const ['data', 'success', 'timestamp'],
+    disallowNullValues: const ['success', 'timestamp'],
   );
   return TransactionSearchOutputDataOutput$Response(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$TransactionSearchOutputDataOutput$ResponseFromJson(
         : TransactionSearchOutput$Response.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : TransactionSearchOutputDataOutput$Response._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : TransactionSearchOutputDataOutput$Response._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp: TransactionSearchOutputDataOutput$Response._read_timestamp(
       json['timestamp'],
@@ -42,12 +38,8 @@ Map<String, dynamic> _$TransactionSearchOutputDataOutput$ResponseToJson(
   TransactionSearchOutputDataOutput$Response instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors': TransactionSearchOutputDataOutput$Response._write_errors($value),
-  if (instance.messages case final $value?)
-    'messages': TransactionSearchOutputDataOutput$Response._write_messages(
-      $value,
-    ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp': ?TransactionSearchOutputDataOutput$Response._write_timestamp(
     instance.timestamp,

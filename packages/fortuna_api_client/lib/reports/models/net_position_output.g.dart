@@ -21,21 +21,19 @@ NetPositionOutput _$NetPositionOutputFromJson(Map<String, dynamic> json) {
   );
   return NetPositionOutput(
     asOf: json['asOf'] as String?,
-    currencyGroups: !json.containsKey('currencyGroups')
-        ? null
-        : NetPositionOutput._read_currencyGroups(json['currencyGroups']),
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : NetPositionOutput._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
-          ),
+    currencyGroups: (json['currencyGroups'] as List<dynamic>?)
+        ?.map(
+          (e) => NetPositionCurrencyOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
     isFullyConverted: json['isFullyConverted'] as bool?,
-    missingRates: !json.containsKey('missingRates')
-        ? null
-        : NetPositionOutput._read_missingRates(json['missingRates']),
-    total: !json.containsKey('total')
-        ? null
-        : NetPositionOutput._read_total(json['total']),
+    missingRates: (json['missingRates'] as List<dynamic>?)
+        ?.map(
+          (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    total: json['total'] as String?,
   );
 }
 
@@ -43,13 +41,9 @@ Map<String, dynamic> _$NetPositionOutputToJson(
   NetPositionOutput instance,
 ) => <String, dynamic>{
   'asOf': ?instance.asOf,
-  if (instance.currencyGroups case final $value?)
-    'currencyGroups': NetPositionOutput._write_currencyGroups($value),
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode': NetPositionOutput._write_displayCurrencyCode($value),
+  'currencyGroups': ?instance.currencyGroups?.map((e) => e.toJson()).toList(),
+  'displayCurrencyCode': ?instance.displayCurrencyCode,
   'isFullyConverted': ?instance.isFullyConverted,
-  if (instance.missingRates case final $value?)
-    'missingRates': NetPositionOutput._write_missingRates($value),
-  if (instance.total case final $value?)
-    'total': NetPositionOutput._write_total($value),
+  'missingRates': ?instance.missingRates?.map((e) => e.toJson()).toList(),
+  'total': ?instance.total,
 };

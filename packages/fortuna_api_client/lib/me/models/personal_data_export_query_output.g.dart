@@ -32,19 +32,11 @@ PersonalDataExportQueryOutput _$PersonalDataExportQueryOutputFromJson(
     ],
   );
   return PersonalDataExportQueryOutput(
-    contentType: !json.containsKey('contentType')
-        ? null
-        : PersonalDataExportQueryOutput._read_contentType(json['contentType']),
+    contentType: json['contentType'] as String?,
     createdAt: PersonalDataExportQueryOutput._read_createdAt(json['createdAt']),
     expiresAt: PersonalDataExportQueryOutput._read_expiresAt(json['expiresAt']),
-    failureReason: !json.containsKey('failureReason')
-        ? null
-        : PersonalDataExportQueryOutput._read_failureReason(
-            json['failureReason'],
-          ),
-    fileName: !json.containsKey('fileName')
-        ? null
-        : PersonalDataExportQueryOutput._read_fileName(json['fileName']),
+    failureReason: json['failureReason'] as String?,
+    fileName: json['fileName'] as String?,
     jobId: json['jobId'] as String?,
     progress: PersonalDataExportQueryOutput._read_progress(json['progress']),
     status: PersonalDataExportQueryOutput._read_status(json['status']),
@@ -55,18 +47,15 @@ PersonalDataExportQueryOutput _$PersonalDataExportQueryOutputFromJson(
 Map<String, dynamic> _$PersonalDataExportQueryOutputToJson(
   PersonalDataExportQueryOutput instance,
 ) => <String, dynamic>{
-  if (instance.contentType case final $value?)
-    'contentType': PersonalDataExportQueryOutput._write_contentType($value),
+  'contentType': ?instance.contentType,
   'createdAt': ?PersonalDataExportQueryOutput._write_createdAt(
     instance.createdAt,
   ),
   'expiresAt': ?PersonalDataExportQueryOutput._write_expiresAt(
     instance.expiresAt,
   ),
-  if (instance.failureReason case final $value?)
-    'failureReason': PersonalDataExportQueryOutput._write_failureReason($value),
-  if (instance.fileName case final $value?)
-    'fileName': PersonalDataExportQueryOutput._write_fileName($value),
+  'failureReason': ?instance.failureReason,
+  'fileName': ?instance.fileName,
   'jobId': ?instance.jobId,
   'progress': ?PersonalDataExportQueryOutput._write_progress(instance.progress),
   'status': ?PersonalDataExportQueryOutput._write_status(instance.status),

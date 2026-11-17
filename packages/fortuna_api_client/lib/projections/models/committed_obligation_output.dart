@@ -36,33 +36,17 @@ class CommittedObligationOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationOutput._read_appliedRate,
-    toJson: CommittedObligationOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationOutput._read_currencyCode,
-    toJson: CommittedObligationOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationOutput._read_cycleEnd,
-    toJson: CommittedObligationOutput._write_cycleEnd,
-  )
-  final ({String? value})? cycleEnd;
+  @JsonKey(includeIfNull: false)
+  final String? cycleEnd;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationOutput._read_cycleStart,
-    toJson: CommittedObligationOutput._write_cycleStart,
-  )
-  final ({String? value})? cycleStart;
+  @JsonKey(includeIfNull: false)
+  final String? cycleStart;
 
   @JsonKey(
     disallowNullValue: true,
@@ -72,12 +56,8 @@ class CommittedObligationOutput {
   )
   final int? daysOverdue;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationOutput._read_displayAmount,
-    toJson: CommittedObligationOutput._write_displayAmount,
-  )
-  final ({String? value})? displayAmount;
+  @JsonKey(includeIfNull: false)
+  final String? displayAmount;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? dueDate;
@@ -96,79 +76,34 @@ class CommittedObligationOutput {
   )
   final CommittedObligationKind? kind;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationOutput._read_rateDate,
-    toJson: CommittedObligationOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
-    disallowNullValue: true,
     includeIfNull: false,
     fromJson: CommittedObligationOutput._read_rateSource,
     toJson: CommittedObligationOutput._write_rateSource,
   )
   final ExchangeRateSource? rateSource;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationOutput._read_unconvertedReason,
-    toJson: CommittedObligationOutput._write_unconvertedReason,
-  )
-  final ({String? value})? unconvertedReason;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_cycleEnd(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_cycleEnd(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_cycleStart(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_cycleStart(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? unconvertedReason;
 
   static int? _read_daysOverdue(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_daysOverdue(int? value) => value;
 
-  static ({String? value}) _read_displayAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayAmount(({String? value}) value) => value.value;
-
   static CommittedObligationKind? _read_kind(Object? value) =>
       value == null ? null : CommittedObligationKind.fromJson(value);
 
   static Object? _write_kind(CommittedObligationKind? value) => value?.toJson();
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
 
   static ExchangeRateSource? _read_rateSource(Object? value) =>
       value == null ? null : ExchangeRateSource.fromJson(value);
 
   static Object? _write_rateSource(ExchangeRateSource? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_unconvertedReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_unconvertedReason(({String? value}) value) =>
-      value.value;
 
   Map<String, Object?> toJson() => _$CommittedObligationOutputToJson(this);
 }

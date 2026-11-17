@@ -34,11 +34,13 @@ _$MaterializeRecurringTransactionsCommandOutputFromJson(
         MaterializeRecurringTransactionsCommandOutput._read_possibleDuplicateCount(
           json['possibleDuplicateCount'],
         ),
-    rules: !json.containsKey('rules')
-        ? null
-        : MaterializeRecurringTransactionsCommandOutput._read_rules(
-            json['rules'],
+    rules: (json['rules'] as List<dynamic>?)
+        ?.map(
+          (e) => RecurringRuleMaterializationCommandOutput.fromJson(
+            e as Map<String, dynamic>,
           ),
+        )
+        .toList(),
   );
 }
 
@@ -54,6 +56,5 @@ Map<String, dynamic> _$MaterializeRecurringTransactionsCommandOutputToJson(
       ?MaterializeRecurringTransactionsCommandOutput._write_possibleDuplicateCount(
         instance.possibleDuplicateCount,
       ),
-  if (instance.rules case final $value?)
-    'rules': MaterializeRecurringTransactionsCommandOutput._write_rules($value),
+  'rules': ?instance.rules?.map((e) => e.toJson()).toList(),
 };

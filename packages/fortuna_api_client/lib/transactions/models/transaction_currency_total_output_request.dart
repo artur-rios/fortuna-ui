@@ -33,47 +33,23 @@ class TransactionCurrencyTotalOutput$Request {
       if (!const <String>{"net"}.contains(entry.key)) entry.key: entry.value,
   });
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionCurrencyTotalOutput$Request._read_appliedRate,
-    toJson: TransactionCurrencyTotalOutput$Request._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionCurrencyTotalOutput$Request._read_currencyCode,
-    toJson: TransactionCurrencyTotalOutput$Request._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionCurrencyTotalOutput$Request._read_displayCurrencyCode,
-    toJson: TransactionCurrencyTotalOutput$Request._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionCurrencyTotalOutput$Request._read_displayEarning,
-    toJson: TransactionCurrencyTotalOutput$Request._write_displayEarning,
-  )
-  final ({String? value})? displayEarning;
+  @JsonKey(includeIfNull: false)
+  final String? displayEarning;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionCurrencyTotalOutput$Request._read_displayExpense,
-    toJson: TransactionCurrencyTotalOutput$Request._write_displayExpense,
-  )
-  final ({String? value})? displayExpense;
+  @JsonKey(includeIfNull: false)
+  final String? displayExpense;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionCurrencyTotalOutput$Request._read_displayNet,
-    toJson: TransactionCurrencyTotalOutput$Request._write_displayNet,
-  )
-  final ({String? value})? displayNet;
+  @JsonKey(includeIfNull: false)
+  final String? displayNet;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? earning;
@@ -81,75 +57,24 @@ class TransactionCurrencyTotalOutput$Request {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? expense;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionCurrencyTotalOutput$Request._read_rateDate,
-    toJson: TransactionCurrencyTotalOutput$Request._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
-    disallowNullValue: true,
     includeIfNull: false,
     fromJson: TransactionCurrencyTotalOutput$Request._read_rateSource,
     toJson: TransactionCurrencyTotalOutput$Request._write_rateSource,
   )
   final ExchangeRateSource? rateSource;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionCurrencyTotalOutput$Request._read_unconvertedReason,
-    toJson: TransactionCurrencyTotalOutput$Request._write_unconvertedReason,
-  )
-  final ({String? value})? unconvertedReason;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_displayEarning(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayEarning(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayExpense(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayExpense(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayNet(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayNet(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? unconvertedReason;
 
   static ExchangeRateSource? _read_rateSource(Object? value) =>
       value == null ? null : ExchangeRateSource.fromJson(value);
 
   static Object? _write_rateSource(ExchangeRateSource? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_unconvertedReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_unconvertedReason(({String? value}) value) =>
-      value.value;
 
   Map<String, Object?> toJson() =>
       _$TransactionCurrencyTotalOutput$RequestToJson(this);

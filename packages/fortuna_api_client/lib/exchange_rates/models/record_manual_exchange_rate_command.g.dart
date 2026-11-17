@@ -20,16 +20,8 @@ RecordManualExchangeRateCommand _$RecordManualExchangeRateCommandFromJson(
     disallowNullValues: const ['rate', 'rateDate'],
   );
   return RecordManualExchangeRateCommand(
-    baseCurrencyCode: !json.containsKey('baseCurrencyCode')
-        ? null
-        : RecordManualExchangeRateCommand._read_baseCurrencyCode(
-            json['baseCurrencyCode'],
-          ),
-    quoteCurrencyCode: !json.containsKey('quoteCurrencyCode')
-        ? null
-        : RecordManualExchangeRateCommand._read_quoteCurrencyCode(
-            json['quoteCurrencyCode'],
-          ),
+    baseCurrencyCode: json['baseCurrencyCode'] as String?,
+    quoteCurrencyCode: json['quoteCurrencyCode'] as String?,
     rate: json['rate'] as String?,
     rateDate: json['rateDate'] as String?,
   );
@@ -38,13 +30,8 @@ RecordManualExchangeRateCommand _$RecordManualExchangeRateCommandFromJson(
 Map<String, dynamic> _$RecordManualExchangeRateCommandToJson(
   RecordManualExchangeRateCommand instance,
 ) => <String, dynamic>{
-  if (instance.baseCurrencyCode case final $value?)
-    'baseCurrencyCode': RecordManualExchangeRateCommand._write_baseCurrencyCode(
-      $value,
-    ),
-  if (instance.quoteCurrencyCode case final $value?)
-    'quoteCurrencyCode':
-        RecordManualExchangeRateCommand._write_quoteCurrencyCode($value),
+  'baseCurrencyCode': ?instance.baseCurrencyCode,
+  'quoteCurrencyCode': ?instance.quoteCurrencyCode,
   'rate': ?instance.rate,
   'rateDate': ?instance.rateDate,
 };

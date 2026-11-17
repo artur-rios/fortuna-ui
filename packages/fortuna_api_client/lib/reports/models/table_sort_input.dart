@@ -18,17 +18,8 @@ class TableSortInput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? descending;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableSortInput._read_field,
-    toJson: TableSortInput._write_field,
-  )
-  final ({String? value})? field;
-
-  static ({String? value}) _read_field(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_field(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? field;
 
   Map<String, Object?> toJson() => _$TableSortInputToJson(this);
 }

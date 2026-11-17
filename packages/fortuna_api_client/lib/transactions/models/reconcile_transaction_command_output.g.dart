@@ -25,17 +25,12 @@ ReconcileTransactionCommandOutput _$ReconcileTransactionCommandOutputFromJson(
       'id',
       'isReconciled',
       'occurredOn',
-      'reconciliation',
       'updatedAt',
     ],
   );
   return ReconcileTransactionCommandOutput(
     amount: json['amount'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : ReconcileTransactionCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
     isReconciled: json['isReconciled'] as bool?,
     occurredOn: json['occurredOn'] as String?,
@@ -54,10 +49,7 @@ Map<String, dynamic> _$ReconcileTransactionCommandOutputToJson(
   ReconcileTransactionCommandOutput instance,
 ) => <String, dynamic>{
   'amount': ?instance.amount,
-  if (instance.currencyCode case final $value?)
-    'currencyCode': ReconcileTransactionCommandOutput._write_currencyCode(
-      $value,
-    ),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
   'isReconciled': ?instance.isReconciled,
   'occurredOn': ?instance.occurredOn,

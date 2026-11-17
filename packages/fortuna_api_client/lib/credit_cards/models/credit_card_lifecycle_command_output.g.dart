@@ -15,11 +15,7 @@ CreditCardLifecycleCommandOutput _$CreditCardLifecycleCommandOutputFromJson(
     disallowNullValues: const ['id', 'outstandingAmount'],
   );
   return CreditCardLifecycleCommandOutput(
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : CreditCardLifecycleCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
     outstandingAmount: json['outstandingAmount'] as String?,
   );
@@ -28,10 +24,7 @@ CreditCardLifecycleCommandOutput _$CreditCardLifecycleCommandOutputFromJson(
 Map<String, dynamic> _$CreditCardLifecycleCommandOutputToJson(
   CreditCardLifecycleCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.currencyCode case final $value?)
-    'currencyCode': CreditCardLifecycleCommandOutput._write_currencyCode(
-      $value,
-    ),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
   'outstandingAmount': ?instance.outstandingAmount,
 };

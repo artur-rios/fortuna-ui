@@ -13,7 +13,7 @@ _$ListSupportedCurrenciesQueryOutputDataOutput$ResponseFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'success', 'timestamp'],
-    disallowNullValues: const ['data', 'success', 'timestamp'],
+    disallowNullValues: const ['success', 'timestamp'],
   );
   return ListSupportedCurrenciesQueryOutputDataOutput$Response(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$ListSupportedCurrenciesQueryOutputDataOutput$ResponseFromJson(
         : ListSupportedCurrenciesQueryOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : ListSupportedCurrenciesQueryOutputDataOutput$Response._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : ListSupportedCurrenciesQueryOutputDataOutput$Response._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp:
         ListSupportedCurrenciesQueryOutputDataOutput$Response._read_timestamp(
@@ -44,16 +40,8 @@ _$ListSupportedCurrenciesQueryOutputDataOutput$ResponseToJson(
   ListSupportedCurrenciesQueryOutputDataOutput$Response instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors':
-        ListSupportedCurrenciesQueryOutputDataOutput$Response._write_errors(
-          $value,
-        ),
-  if (instance.messages case final $value?)
-    'messages':
-        ListSupportedCurrenciesQueryOutputDataOutput$Response._write_messages(
-          $value,
-        ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp':
       ?ListSupportedCurrenciesQueryOutputDataOutput$Response._write_timestamp(

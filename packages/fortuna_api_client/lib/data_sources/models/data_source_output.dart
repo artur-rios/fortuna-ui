@@ -27,12 +27,8 @@ class DataSourceOutput {
   factory DataSourceOutput.fromJson(Map<String, Object?> json) =>
       _$DataSourceOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataSourceOutput._read_displayName,
-    toJson: DataSourceOutput._write_displayName,
-  )
-  final ({String? value})? displayName;
+  @JsonKey(includeIfNull: false)
+  final String? displayName;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isAvailable;
@@ -48,88 +44,25 @@ class DataSourceOutput {
   )
   final DataSourceKind? kind;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataSourceOutput._read_name,
-    toJson: DataSourceOutput._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataSourceOutput._read_requiredInputs,
-    toJson: DataSourceOutput._write_requiredInputs,
-  )
-  final ({List<String>? value})? requiredInputs;
+  @JsonKey(includeIfNull: false)
+  final List<String>? requiredInputs;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataSourceOutput._read_supportedFormats,
-    toJson: DataSourceOutput._write_supportedFormats,
-  )
-  final ({List<String>? value})? supportedFormats;
+  @JsonKey(includeIfNull: false)
+  final List<String>? supportedFormats;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataSourceOutput._read_supportedLayouts,
-    toJson: DataSourceOutput._write_supportedLayouts,
-  )
-  final ({List<String>? value})? supportedLayouts;
+  @JsonKey(includeIfNull: false)
+  final List<String>? supportedLayouts;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataSourceOutput._read_unavailableReason,
-    toJson: DataSourceOutput._write_unavailableReason,
-  )
-  final ({String? value})? unavailableReason;
-
-  static ({String? value}) _read_displayName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayName(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? unavailableReason;
 
   static DataSourceKind? _read_kind(Object? value) =>
       value == null ? null : DataSourceKind.fromJson(value);
 
   static Object? _write_kind(DataSourceKind? value) => value?.toJson();
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
-
-  static ({List<String>? value}) _read_requiredInputs(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_requiredInputs(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({List<String>? value}) _read_supportedFormats(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_supportedFormats(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({List<String>? value}) _read_supportedLayouts(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_supportedLayouts(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_unavailableReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_unavailableReason(({String? value}) value) =>
-      value.value;
 
   Map<String, Object?> toJson() => _$DataSourceOutputToJson(this);
 }

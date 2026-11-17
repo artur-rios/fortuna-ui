@@ -37,24 +37,16 @@ ImportJobOutput _$ImportJobOutputFromJson(Map<String, dynamic> json) {
     ],
   );
   return ImportJobOutput(
-    connectionId: !json.containsKey('connectionId')
-        ? null
-        : ImportJobOutput._read_connectionId(json['connectionId']),
+    connectionId: json['connectionId'] as String?,
     createdAt: ImportJobOutput._read_createdAt(json['createdAt']),
     duplicateCount: ImportJobOutput._read_duplicateCount(
       json['duplicateCount'],
     ),
-    failureReason: !json.containsKey('failureReason')
-        ? null
-        : ImportJobOutput._read_failureReason(json['failureReason']),
+    failureReason: json['failureReason'] as String?,
     id: json['id'] as String?,
     importedCount: ImportJobOutput._read_importedCount(json['importedCount']),
-    periodEnd: !json.containsKey('periodEnd')
-        ? null
-        : ImportJobOutput._read_periodEnd(json['periodEnd']),
-    periodStart: !json.containsKey('periodStart')
-        ? null
-        : ImportJobOutput._read_periodStart(json['periodStart']),
+    periodEnd: json['periodEnd'] as String?,
+    periodStart: json['periodStart'] as String?,
     processedCount: ImportJobOutput._read_processedCount(
       json['processedCount'],
     ),
@@ -67,22 +59,18 @@ ImportJobOutput _$ImportJobOutputFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$ImportJobOutputToJson(ImportJobOutput instance) =>
     <String, dynamic>{
-      if (instance.connectionId case final $value?)
-        'connectionId': ImportJobOutput._write_connectionId($value),
+      'connectionId': ?instance.connectionId,
       'createdAt': ?ImportJobOutput._write_createdAt(instance.createdAt),
       'duplicateCount': ?ImportJobOutput._write_duplicateCount(
         instance.duplicateCount,
       ),
-      if (instance.failureReason case final $value?)
-        'failureReason': ImportJobOutput._write_failureReason($value),
+      'failureReason': ?instance.failureReason,
       'id': ?instance.id,
       'importedCount': ?ImportJobOutput._write_importedCount(
         instance.importedCount,
       ),
-      if (instance.periodEnd case final $value?)
-        'periodEnd': ImportJobOutput._write_periodEnd($value),
-      if (instance.periodStart case final $value?)
-        'periodStart': ImportJobOutput._write_periodStart($value),
+      'periodEnd': ?instance.periodEnd,
+      'periodStart': ?instance.periodStart,
       'processedCount': ?ImportJobOutput._write_processedCount(
         instance.processedCount,
       ),

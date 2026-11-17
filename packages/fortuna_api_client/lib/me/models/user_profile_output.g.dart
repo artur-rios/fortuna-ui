@@ -26,14 +26,10 @@ UserProfileOutput _$UserProfileOutputFromJson(Map<String, dynamic> json) {
   );
   return UserProfileOutput(
     createdAt: UserProfileOutput._read_createdAt(json['createdAt']),
-    displayCurrency: !json.containsKey('displayCurrency')
-        ? null
-        : UserProfileOutput._read_displayCurrency(json['displayCurrency']),
+    displayCurrency: json['displayCurrency'] as String?,
     displayCurrencyRequiresConfirmation:
         json['displayCurrencyRequiresConfirmation'] as bool?,
-    displayName: !json.containsKey('displayName')
-        ? null
-        : UserProfileOutput._read_displayName(json['displayName']),
+    displayName: json['displayName'] as String?,
     id: json['id'] as String?,
     updatedAt: UserProfileOutput._read_updatedAt(json['updatedAt']),
   );
@@ -42,12 +38,10 @@ UserProfileOutput _$UserProfileOutputFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$UserProfileOutputToJson(UserProfileOutput instance) =>
     <String, dynamic>{
       'createdAt': ?UserProfileOutput._write_createdAt(instance.createdAt),
-      if (instance.displayCurrency case final $value?)
-        'displayCurrency': UserProfileOutput._write_displayCurrency($value),
+      'displayCurrency': ?instance.displayCurrency,
       'displayCurrencyRequiresConfirmation':
           ?instance.displayCurrencyRequiresConfirmation,
-      if (instance.displayName case final $value?)
-        'displayName': UserProfileOutput._write_displayName($value),
+      'displayName': ?instance.displayName,
       'id': ?instance.id,
       'updatedAt': ?UserProfileOutput._write_updatedAt(instance.updatedAt),
     };

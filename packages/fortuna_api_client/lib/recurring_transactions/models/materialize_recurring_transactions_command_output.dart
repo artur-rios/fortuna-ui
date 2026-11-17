@@ -44,12 +44,8 @@ class MaterializeRecurringTransactionsCommandOutput {
   )
   final int? possibleDuplicateCount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: MaterializeRecurringTransactionsCommandOutput._read_rules,
-    toJson: MaterializeRecurringTransactionsCommandOutput._write_rules,
-  )
-  final ({List<RecurringRuleMaterializationCommandOutput>? value})? rules;
+  @JsonKey(includeIfNull: false)
+  final List<RecurringRuleMaterializationCommandOutput>? rules;
 
   static int? _read_createdCount(Object? value) =>
       value == null ? null : value as int;
@@ -60,24 +56,6 @@ class MaterializeRecurringTransactionsCommandOutput {
       value == null ? null : value as int;
 
   static Object? _write_possibleDuplicateCount(int? value) => value;
-
-  static ({List<RecurringRuleMaterializationCommandOutput>? value}) _read_rules(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => RecurringRuleMaterializationCommandOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_rules(
-    ({List<RecurringRuleMaterializationCommandOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
 
   Map<String, Object?> toJson() =>
       _$MaterializeRecurringTransactionsCommandOutputToJson(this);

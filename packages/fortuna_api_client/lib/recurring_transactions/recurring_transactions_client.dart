@@ -10,22 +10,22 @@ import 'package:retrofit/retrofit.dart'
         Extras,
         CancelRequest,
         GET,
+        POST,
+        PUT,
         DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
 import 'models/define_recurring_transaction_command.dart'
-    as models
     show DefineRecurringTransactionCommand;
 import 'models/define_recurring_transaction_command_output_data_output_response.dart'
-    as models
     show DefineRecurringTransactionCommandOutputDataOutput$Response;
 import 'models/materialize_recurring_transactions_command.dart'
-    as models
     show MaterializeRecurringTransactionsCommand;
 import 'models/materialize_recurring_transactions_command_output_data_output_response.dart'
-    as models
     show MaterializeRecurringTransactionsCommandOutputDataOutput$Response;
 import 'models/recurring_transaction_lifecycle_command_output_data_output_response.dart'
     show RecurringTransactionLifecycleCommandOutputDataOutput$Response;
@@ -34,10 +34,8 @@ import 'models/recurring_transaction_output_data_output_response.dart'
 import 'models/recurring_transaction_output_paginated_output_response.dart'
     show RecurringTransactionOutputPaginatedOutput$Response;
 import 'models/update_recurring_transaction_command.dart'
-    as models
     show UpdateRecurringTransactionCommand;
 import 'models/update_recurring_transaction_command_output_data_output_response.dart'
-    as models
     show UpdateRecurringTransactionCommandOutputDataOutput$Response;
 
 part 'recurring_transactions_client.g.dart';
@@ -107,28 +105,27 @@ abstract class RecurringTransactionsClient {
     @Query('PageNumber') int? pageNumber,
     @Query('PageSize') int? pageSize,
   });
-  Future<models.DefineRecurringTransactionCommandOutputDataOutput$Response>
-  postApiRecurringTransactions({
+  Future<DefineRecurringTransactionCommandOutputDataOutput$Response>
+  _postApiRecurringTransactionsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.DefineRecurringTransactionCommand body,
+    required DefineRecurringTransactionCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/recurring-transactions",
@@ -136,36 +133,45 @@ abstract class RecurringTransactionsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .DefineRecurringTransactionCommandOutputDataOutput$Response.fromJson(
+    return DefineRecurringTransactionCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
-  Future<
-    models.MaterializeRecurringTransactionsCommandOutputDataOutput$Response
-  >
-  postApiRecurringTransactionsMaterialize({
+  @POST('/api/recurring-transactions')
+  @Headers({'Content-Type': 'application/json'})
+  Future<DefineRecurringTransactionCommandOutputDataOutput$Response>
+  postApiRecurringTransactions({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required DefineRecurringTransactionCommand body,
+  });
+  Future<MaterializeRecurringTransactionsCommandOutputDataOutput$Response>
+  _postApiRecurringTransactionsMaterializeWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.MaterializeRecurringTransactionsCommand body,
+    required MaterializeRecurringTransactionsCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/recurring-transactions/materialize",
@@ -173,12 +179,24 @@ abstract class RecurringTransactionsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .MaterializeRecurringTransactionsCommandOutputDataOutput$Response.fromJson(
+    return MaterializeRecurringTransactionsCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/recurring-transactions/materialize')
+  @Headers({'Content-Type': 'application/json'})
+  Future<MaterializeRecurringTransactionsCommandOutputDataOutput$Response>
+  postApiRecurringTransactionsMaterialize({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required MaterializeRecurringTransactionsCommand body,
+  });
   Future<RecurringTransactionOutputDataOutput$Response>
   _getApiRecurringTransactionsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -217,8 +235,8 @@ abstract class RecurringTransactionsClient {
     Options? options,
     @Path('id') required String id,
   });
-  Future<models.UpdateRecurringTransactionCommandOutputDataOutput$Response>
-  putApiRecurringTransactionsById({
+  Future<UpdateRecurringTransactionCommandOutputDataOutput$Response>
+  _putApiRecurringTransactionsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -226,36 +244,45 @@ abstract class RecurringTransactionsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateRecurringTransactionCommand body,
+    required UpdateRecurringTransactionCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/recurring-transactions/" + Uri.encodeComponent(id),
+      "/api/recurring-transactions/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .UpdateRecurringTransactionCommandOutputDataOutput$Response.fromJson(
+    return UpdateRecurringTransactionCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @PUT('/api/recurring-transactions/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<UpdateRecurringTransactionCommandOutputDataOutput$Response>
+  putApiRecurringTransactionsById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateRecurringTransactionCommand body,
+  });
   Future<RecurringTransactionLifecycleCommandOutputDataOutput$Response>
   _deleteApiRecurringTransactionsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -342,6 +369,58 @@ class _RecurringTransactionsClientWithOptions
   }
 
   @override
+  Future<DefineRecurringTransactionCommandOutputDataOutput$Response>
+  postApiRecurringTransactions({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required DefineRecurringTransactionCommand body,
+  }) {
+    return options == null
+        ? super.postApiRecurringTransactions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiRecurringTransactionsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<MaterializeRecurringTransactionsCommandOutputDataOutput$Response>
+  postApiRecurringTransactionsMaterialize({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required MaterializeRecurringTransactionsCommand body,
+  }) {
+    return options == null
+        ? super.postApiRecurringTransactionsMaterialize(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiRecurringTransactionsMaterializeWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<RecurringTransactionOutputDataOutput$Response>
   getApiRecurringTransactionsById({
     Map<String, Object?> extra = const {
@@ -364,6 +443,35 @@ class _RecurringTransactionsClientWithOptions
             cancelToken: cancelToken,
             options: options,
             id: id,
+          );
+  }
+
+  @override
+  Future<UpdateRecurringTransactionCommandOutputDataOutput$Response>
+  putApiRecurringTransactionsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateRecurringTransactionCommand body,
+  }) {
+    return options == null
+        ? super.putApiRecurringTransactionsById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiRecurringTransactionsByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

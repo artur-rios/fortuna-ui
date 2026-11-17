@@ -20,12 +20,8 @@ class WithdrawProcessingConsentCommandOutput {
     Map<String, Object?> json,
   ) => _$WithdrawProcessingConsentCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: WithdrawProcessingConsentCommandOutput._read_purpose,
-    toJson: WithdrawProcessingConsentCommandOutput._write_purpose,
-  )
-  final ({String? value})? purpose;
+  @JsonKey(includeIfNull: false)
+  final String? purpose;
 
   @JsonKey(
     disallowNullValue: true,
@@ -44,11 +40,6 @@ class WithdrawProcessingConsentCommandOutput {
         WithdrawProcessingConsentCommandOutput._write_stoppedSynchronizations,
   )
   final int? stoppedSynchronizations;
-
-  static ({String? value}) _read_purpose(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_purpose(({String? value}) value) => value.value;
 
   static int? _read_revokedConnections(Object? value) =>
       value == null ? null : value as int;

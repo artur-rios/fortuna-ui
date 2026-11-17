@@ -5,18 +5,24 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart'
     show Dio, Options, ResponseType, CancelToken, RequestOptions;
 import 'package:retrofit/retrofit.dart'
-    show RestApi, Extras, CancelRequest, GET, ParseErrorLogger, Query;
+    show
+        RestApi,
+        Extras,
+        CancelRequest,
+        GET,
+        POST,
+        ParseErrorLogger,
+        Body,
+        Headers,
+        Query;
 
 import '../recurring_transactions/models/transaction_direction.dart'
     as models
     show TransactionDirection;
 import 'models/net_position_output_data_output_response.dart'
     show NetPositionOutputDataOutput$Response;
-import 'models/query_records_as_table_query.dart'
-    as models
-    show QueryRecordsAsTableQuery;
+import 'models/query_records_as_table_query.dart' show QueryRecordsAsTableQuery;
 import 'models/table_report_output_data_output_response.dart'
-    as models
     show TableReportOutputDataOutput$Response;
 import 'models/transaction_aggregation_output_data_output_response.dart'
     as models
@@ -197,27 +203,26 @@ abstract class ReportsClient {
     @Query('PageNumber') int? pageNumber,
     @Query('PageSize') int? pageSize,
   });
-  Future<models.TableReportOutputDataOutput$Response> postApiReportsTable({
+  Future<TableReportOutputDataOutput$Response> _postApiReportsTableWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.QueryRecordsAsTableQuery body,
+    required QueryRecordsAsTableQuery body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/reports/table",
@@ -225,10 +230,23 @@ abstract class ReportsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.TableReportOutputDataOutput$Response.fromJson(
+    return TableReportOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
+
+  @POST('/api/reports/table')
+  @Headers({'Content-Type': 'application/json'})
+  Future<TableReportOutputDataOutput$Response> postApiReportsTable({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required QueryRecordsAsTableQuery body,
+  });
 }
 
 class _ReportsClientWithOptions extends _ReportsClient {
@@ -299,6 +317,31 @@ class _ReportsClientWithOptions extends _ReportsClient {
             asOf: asOf,
             pageNumber: pageNumber,
             pageSize: pageSize,
+          );
+  }
+
+  @override
+  Future<TableReportOutputDataOutput$Response> postApiReportsTable({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required QueryRecordsAsTableQuery body,
+  }) {
+    return options == null
+        ? super.postApiReportsTable(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiReportsTableWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
           );
   }
 }

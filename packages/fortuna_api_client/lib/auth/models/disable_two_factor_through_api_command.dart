@@ -20,41 +20,14 @@ class DisableTwoFactorThroughApiCommand {
     Map<String, Object?> json,
   ) => _$DisableTwoFactorThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DisableTwoFactorThroughApiCommand._read_code,
-    toJson: DisableTwoFactorThroughApiCommand._write_code,
-  )
-  final ({String? value})? code;
+  @JsonKey(includeIfNull: false)
+  final String? code;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DisableTwoFactorThroughApiCommand._read_password,
-    toJson: DisableTwoFactorThroughApiCommand._write_password,
-  )
-  final ({String? value})? password;
+  @JsonKey(includeIfNull: false)
+  final String? password;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DisableTwoFactorThroughApiCommand._read_recoveryCode,
-    toJson: DisableTwoFactorThroughApiCommand._write_recoveryCode,
-  )
-  final ({String? value})? recoveryCode;
-
-  static ({String? value}) _read_code(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_code(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_password(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_password(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_recoveryCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recoveryCode(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? recoveryCode;
 
   Map<String, Object?> toJson() =>
       _$DisableTwoFactorThroughApiCommandToJson(this);

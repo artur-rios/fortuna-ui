@@ -10,16 +10,9 @@ CreateCounterpartyCommand _$CreateCounterpartyCommandFromJson(
   Map<String, dynamic> json,
 ) {
   $checkKeys(json, allowedKeys: const ['name']);
-  return CreateCounterpartyCommand(
-    name: !json.containsKey('name')
-        ? null
-        : CreateCounterpartyCommand._read_name(json['name']),
-  );
+  return CreateCounterpartyCommand(name: json['name'] as String?);
 }
 
 Map<String, dynamic> _$CreateCounterpartyCommandToJson(
   CreateCounterpartyCommand instance,
-) => <String, dynamic>{
-  if (instance.name case final $value?)
-    'name': CreateCounterpartyCommand._write_name($value),
-};
+) => <String, dynamic>{'name': ?instance.name};

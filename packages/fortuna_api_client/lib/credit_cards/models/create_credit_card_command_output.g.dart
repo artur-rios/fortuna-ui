@@ -38,24 +38,12 @@ CreateCreditCardCommandOutput _$CreateCreditCardCommandOutputFromJson(
     ),
     createdAt: CreateCreditCardCommandOutput._read_createdAt(json['createdAt']),
     creditLimit: json['creditLimit'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : CreateCreditCardCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
     dueDay: CreateCreditCardCommandOutput._read_dueDay(json['dueDay']),
     id: json['id'] as String?,
-    issuer: !json.containsKey('issuer')
-        ? null
-        : CreateCreditCardCommandOutput._read_issuer(json['issuer']),
-    lastFourDigits: !json.containsKey('lastFourDigits')
-        ? null
-        : CreateCreditCardCommandOutput._read_lastFourDigits(
-            json['lastFourDigits'],
-          ),
-    name: !json.containsKey('name')
-        ? null
-        : CreateCreditCardCommandOutput._read_name(json['name']),
+    issuer: json['issuer'] as String?,
+    lastFourDigits: json['lastFourDigits'] as String?,
+    name: json['name'] as String?,
     updatedAt: CreateCreditCardCommandOutput._read_updatedAt(json['updatedAt']),
   );
 }
@@ -70,18 +58,12 @@ Map<String, dynamic> _$CreateCreditCardCommandOutputToJson(
     instance.createdAt,
   ),
   'creditLimit': ?instance.creditLimit,
-  if (instance.currencyCode case final $value?)
-    'currencyCode': CreateCreditCardCommandOutput._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'dueDay': ?CreateCreditCardCommandOutput._write_dueDay(instance.dueDay),
   'id': ?instance.id,
-  if (instance.issuer case final $value?)
-    'issuer': CreateCreditCardCommandOutput._write_issuer($value),
-  if (instance.lastFourDigits case final $value?)
-    'lastFourDigits': CreateCreditCardCommandOutput._write_lastFourDigits(
-      $value,
-    ),
-  if (instance.name case final $value?)
-    'name': CreateCreditCardCommandOutput._write_name($value),
+  'issuer': ?instance.issuer,
+  'lastFourDigits': ?instance.lastFourDigits,
+  'name': ?instance.name,
   'updatedAt': ?CreateCreditCardCommandOutput._write_updatedAt(
     instance.updatedAt,
   ),

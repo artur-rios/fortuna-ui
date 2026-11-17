@@ -57,87 +57,41 @@ UpdateTransactionCommandOutput _$UpdateTransactionCommandOutputFromJson(
   );
   return UpdateTransactionCommandOutput(
     amount: json['amount'] as String?,
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : UpdateTransactionCommandOutput._read_appliedRate(json['appliedRate']),
+    appliedRate: json['appliedRate'] as String?,
     categoryId: json['categoryId'] as String?,
-    categoryName: !json.containsKey('categoryName')
-        ? null
-        : UpdateTransactionCommandOutput._read_categoryName(
-            json['categoryName'],
-          ),
-    counterpartyId: !json.containsKey('counterpartyId')
-        ? null
-        : UpdateTransactionCommandOutput._read_counterpartyId(
-            json['counterpartyId'],
-          ),
-    counterpartyName: !json.containsKey('counterpartyName')
-        ? null
-        : UpdateTransactionCommandOutput._read_counterpartyName(
-            json['counterpartyName'],
-          ),
+    categoryName: json['categoryName'] as String?,
+    counterpartyId: json['counterpartyId'] as String?,
+    counterpartyName: json['counterpartyName'] as String?,
     createdAt: UpdateTransactionCommandOutput._read_createdAt(
       json['createdAt'],
     ),
-    creditCardId: !json.containsKey('creditCardId')
-        ? null
-        : UpdateTransactionCommandOutput._read_creditCardId(
-            json['creditCardId'],
-          ),
-    creditCardName: !json.containsKey('creditCardName')
-        ? null
-        : UpdateTransactionCommandOutput._read_creditCardName(
-            json['creditCardName'],
-          ),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : UpdateTransactionCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
-    description: !json.containsKey('description')
-        ? null
-        : UpdateTransactionCommandOutput._read_description(json['description']),
+    creditCardId: json['creditCardId'] as String?,
+    creditCardName: json['creditCardName'] as String?,
+    currencyCode: json['currencyCode'] as String?,
+    description: json['description'] as String?,
     direction: UpdateTransactionCommandOutput._read_direction(
       json['direction'],
     ),
-    financialAccountId: !json.containsKey('financialAccountId')
-        ? null
-        : UpdateTransactionCommandOutput._read_financialAccountId(
-            json['financialAccountId'],
-          ),
-    financialAccountName: !json.containsKey('financialAccountName')
-        ? null
-        : UpdateTransactionCommandOutput._read_financialAccountName(
-            json['financialAccountName'],
-          ),
+    financialAccountId: json['financialAccountId'] as String?,
+    financialAccountName: json['financialAccountName'] as String?,
     id: json['id'] as String?,
     isLateArriving: json['isLateArriving'] as bool?,
     isManuallyCorrected: json['isManuallyCorrected'] as bool?,
     isReconciled: json['isReconciled'] as bool?,
     isTransfer: json['isTransfer'] as bool?,
     occurredOn: json['occurredOn'] as String?,
-    originalAmount: !json.containsKey('originalAmount')
-        ? null
-        : UpdateTransactionCommandOutput._read_originalAmount(
-            json['originalAmount'],
-          ),
-    originalCurrencyCode: !json.containsKey('originalCurrencyCode')
-        ? null
-        : UpdateTransactionCommandOutput._read_originalCurrencyCode(
-            json['originalCurrencyCode'],
-          ),
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : UpdateTransactionCommandOutput._read_rateDate(json['rateDate']),
+    originalAmount: json['originalAmount'] as String?,
+    originalCurrencyCode: json['originalCurrencyCode'] as String?,
+    rateDate: json['rateDate'] as String?,
     sourceType: UpdateTransactionCommandOutput._read_sourceType(
       json['sourceType'],
     ),
-    statementId: !json.containsKey('statementId')
-        ? null
-        : UpdateTransactionCommandOutput._read_statementId(json['statementId']),
-    tags: !json.containsKey('tags')
-        ? null
-        : UpdateTransactionCommandOutput._read_tags(json['tags']),
+    statementId: json['statementId'] as String?,
+    tags: (json['tags'] as List<dynamic>?)
+        ?.map(
+          (e) => UpdateTransactionTagOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
     updatedAt: UpdateTransactionCommandOutput._read_updatedAt(
       json['updatedAt'],
     ),
@@ -148,63 +102,37 @@ Map<String, dynamic> _$UpdateTransactionCommandOutputToJson(
   UpdateTransactionCommandOutput instance,
 ) => <String, dynamic>{
   'amount': ?instance.amount,
-  if (instance.appliedRate case final $value?)
-    'appliedRate': UpdateTransactionCommandOutput._write_appliedRate($value),
+  'appliedRate': ?instance.appliedRate,
   'categoryId': ?instance.categoryId,
-  if (instance.categoryName case final $value?)
-    'categoryName': UpdateTransactionCommandOutput._write_categoryName($value),
-  if (instance.counterpartyId case final $value?)
-    'counterpartyId': UpdateTransactionCommandOutput._write_counterpartyId(
-      $value,
-    ),
-  if (instance.counterpartyName case final $value?)
-    'counterpartyName': UpdateTransactionCommandOutput._write_counterpartyName(
-      $value,
-    ),
+  'categoryName': ?instance.categoryName,
+  'counterpartyId': ?instance.counterpartyId,
+  'counterpartyName': ?instance.counterpartyName,
   'createdAt': ?UpdateTransactionCommandOutput._write_createdAt(
     instance.createdAt,
   ),
-  if (instance.creditCardId case final $value?)
-    'creditCardId': UpdateTransactionCommandOutput._write_creditCardId($value),
-  if (instance.creditCardName case final $value?)
-    'creditCardName': UpdateTransactionCommandOutput._write_creditCardName(
-      $value,
-    ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': UpdateTransactionCommandOutput._write_currencyCode($value),
-  if (instance.description case final $value?)
-    'description': UpdateTransactionCommandOutput._write_description($value),
+  'creditCardId': ?instance.creditCardId,
+  'creditCardName': ?instance.creditCardName,
+  'currencyCode': ?instance.currencyCode,
+  'description': ?instance.description,
   'direction': ?UpdateTransactionCommandOutput._write_direction(
     instance.direction,
   ),
-  if (instance.financialAccountId case final $value?)
-    'financialAccountId':
-        UpdateTransactionCommandOutput._write_financialAccountId($value),
-  if (instance.financialAccountName case final $value?)
-    'financialAccountName':
-        UpdateTransactionCommandOutput._write_financialAccountName($value),
+  'financialAccountId': ?instance.financialAccountId,
+  'financialAccountName': ?instance.financialAccountName,
   'id': ?instance.id,
   'isLateArriving': ?instance.isLateArriving,
   'isManuallyCorrected': ?instance.isManuallyCorrected,
   'isReconciled': ?instance.isReconciled,
   'isTransfer': ?instance.isTransfer,
   'occurredOn': ?instance.occurredOn,
-  if (instance.originalAmount case final $value?)
-    'originalAmount': UpdateTransactionCommandOutput._write_originalAmount(
-      $value,
-    ),
-  if (instance.originalCurrencyCode case final $value?)
-    'originalCurrencyCode':
-        UpdateTransactionCommandOutput._write_originalCurrencyCode($value),
-  if (instance.rateDate case final $value?)
-    'rateDate': UpdateTransactionCommandOutput._write_rateDate($value),
+  'originalAmount': ?instance.originalAmount,
+  'originalCurrencyCode': ?instance.originalCurrencyCode,
+  'rateDate': ?instance.rateDate,
   'sourceType': ?UpdateTransactionCommandOutput._write_sourceType(
     instance.sourceType,
   ),
-  if (instance.statementId case final $value?)
-    'statementId': UpdateTransactionCommandOutput._write_statementId($value),
-  if (instance.tags case final $value?)
-    'tags': UpdateTransactionCommandOutput._write_tags($value),
+  'statementId': ?instance.statementId,
+  'tags': ?instance.tags?.map((e) => e.toJson()).toList(),
   'updatedAt': ?UpdateTransactionCommandOutput._write_updatedAt(
     instance.updatedAt,
   ),

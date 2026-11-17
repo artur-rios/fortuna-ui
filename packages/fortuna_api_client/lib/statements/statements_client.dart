@@ -5,17 +5,24 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart'
     show Dio, Options, ResponseType, CancelToken, RequestOptions;
 import 'package:retrofit/retrofit.dart'
-    show RestApi, Extras, CancelRequest, GET, POST, ParseErrorLogger, Path;
+    show
+        RestApi,
+        Extras,
+        CancelRequest,
+        GET,
+        POST,
+        ParseErrorLogger,
+        Body,
+        Headers,
+        Path;
 
 import 'models/close_credit_card_statement_command_output_data_output_response.dart'
     show CloseCreditCardStatementCommandOutputDataOutput$Response;
 import 'models/credit_card_statement_output_data_output_response.dart'
     show CreditCardStatementOutputDataOutput$Response;
 import 'models/settle_credit_card_statement_command.dart'
-    as models
     show SettleCreditCardStatementCommand;
 import 'models/settle_credit_card_statement_command_output_data_output_response.dart'
-    as models
     show SettleCreditCardStatementCommandOutputDataOutput$Response;
 
 part 'statements_client.g.dart';
@@ -103,8 +110,8 @@ abstract class StatementsClient {
     Options? options,
     @Path('id') required String id,
   });
-  Future<models.SettleCreditCardStatementCommandOutputDataOutput$Response>
-  postApiStatementsByIdSettle({
+  Future<SettleCreditCardStatementCommandOutputDataOutput$Response>
+  _postApiStatementsByIdSettleWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -112,35 +119,45 @@ abstract class StatementsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.SettleCreditCardStatementCommand body,
+    required SettleCreditCardStatementCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/statements/" + Uri.encodeComponent(id) + "/settle",
+      "/api/statements/" + id.toString() + "/settle",
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .SettleCreditCardStatementCommandOutputDataOutput$Response.fromJson(
+    return SettleCreditCardStatementCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
+
+  @POST('/api/statements/{id}/settle')
+  @Headers({'Content-Type': 'application/json'})
+  Future<SettleCreditCardStatementCommandOutputDataOutput$Response>
+  postApiStatementsByIdSettle({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required SettleCreditCardStatementCommand body,
+  });
 }
 
 class _StatementsClientWithOptions extends _StatementsClient {
@@ -194,6 +211,35 @@ class _StatementsClientWithOptions extends _StatementsClient {
             cancelToken: cancelToken,
             options: options,
             id: id,
+          );
+  }
+
+  @override
+  Future<SettleCreditCardStatementCommandOutputDataOutput$Response>
+  postApiStatementsByIdSettle({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required SettleCreditCardStatementCommand body,
+  }) {
+    return options == null
+        ? super.postApiStatementsByIdSettle(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _postApiStatementsByIdSettleWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 }

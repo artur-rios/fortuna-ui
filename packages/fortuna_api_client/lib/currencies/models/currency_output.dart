@@ -15,12 +15,8 @@ class CurrencyOutput {
   factory CurrencyOutput.fromJson(Map<String, Object?> json) =>
       _$CurrencyOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CurrencyOutput._read_code,
-    toJson: CurrencyOutput._write_code,
-  )
-  final ({String? value})? code;
+  @JsonKey(includeIfNull: false)
+  final String? code;
 
   @JsonKey(
     disallowNullValue: true,
@@ -30,27 +26,13 @@ class CurrencyOutput {
   )
   final int? minorUnitDigits;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CurrencyOutput._read_name,
-    toJson: CurrencyOutput._write_name,
-  )
-  final ({String? value})? name;
-
-  static ({String? value}) _read_code(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_code(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   static int? _read_minorUnitDigits(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_minorUnitDigits(int? value) => value;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$CurrencyOutputToJson(this);
 }

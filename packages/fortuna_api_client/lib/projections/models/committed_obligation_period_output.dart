@@ -29,17 +29,8 @@ class CommittedObligationPeriodOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? periodStart;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationPeriodOutput._read_total,
-    toJson: CommittedObligationPeriodOutput._write_total,
-  )
-  final ({String? value})? total;
-
-  static ({String? value}) _read_total(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_total(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? total;
 
   Map<String, Object?> toJson() =>
       _$CommittedObligationPeriodOutputToJson(this);

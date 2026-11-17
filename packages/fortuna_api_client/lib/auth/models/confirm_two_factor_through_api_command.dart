@@ -16,29 +16,11 @@ class ConfirmTwoFactorThroughApiCommand {
     Map<String, Object?> json,
   ) => _$ConfirmTwoFactorThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConfirmTwoFactorThroughApiCommand._read_appCode,
-    toJson: ConfirmTwoFactorThroughApiCommand._write_appCode,
-  )
-  final ({String? value})? appCode;
+  @JsonKey(includeIfNull: false)
+  final String? appCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConfirmTwoFactorThroughApiCommand._read_emailCode,
-    toJson: ConfirmTwoFactorThroughApiCommand._write_emailCode,
-  )
-  final ({String? value})? emailCode;
-
-  static ({String? value}) _read_appCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_emailCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_emailCode(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? emailCode;
 
   Map<String, Object?> toJson() =>
       _$ConfirmTwoFactorThroughApiCommandToJson(this);

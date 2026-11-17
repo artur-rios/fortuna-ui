@@ -12,18 +12,18 @@ InvestmentOutputDataOutput$Request _$InvestmentOutputDataOutput$RequestFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'timestamp'],
-    disallowNullValues: const ['data', 'timestamp'],
+    disallowNullValues: const ['timestamp'],
   );
   return InvestmentOutputDataOutput$Request(
     data: json['data'] == null
         ? null
         : InvestmentOutput.fromJson(json['data'] as Map<String, dynamic>),
-    errors: !json.containsKey('errors')
-        ? null
-        : InvestmentOutputDataOutput$Request._read_errors(json['errors']),
-    messages: !json.containsKey('messages')
-        ? null
-        : InvestmentOutputDataOutput$Request._read_messages(json['messages']),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     timestamp: InvestmentOutputDataOutput$Request._read_timestamp(
       json['timestamp'],
     ),
@@ -34,10 +34,8 @@ Map<String, dynamic> _$InvestmentOutputDataOutput$RequestToJson(
   InvestmentOutputDataOutput$Request instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors': InvestmentOutputDataOutput$Request._write_errors($value),
-  if (instance.messages case final $value?)
-    'messages': InvestmentOutputDataOutput$Request._write_messages($value),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'timestamp': ?InvestmentOutputDataOutput$Request._write_timestamp(
     instance.timestamp,
   ),

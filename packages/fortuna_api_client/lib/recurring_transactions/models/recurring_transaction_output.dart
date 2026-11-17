@@ -43,19 +43,11 @@ class RecurringTransactionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? categoryId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_counterpartyId,
-    toJson: RecurringTransactionOutput._write_counterpartyId,
-  )
-  final ({String? value})? counterpartyId;
+  @JsonKey(includeIfNull: false)
+  final String? counterpartyId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_counterpartyName,
-    toJson: RecurringTransactionOutput._write_counterpartyName,
-  )
-  final ({String? value})? counterpartyName;
+  @JsonKey(includeIfNull: false)
+  final String? counterpartyName;
 
   @JsonKey(
     disallowNullValue: true,
@@ -65,26 +57,14 @@ class RecurringTransactionOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_creditCardId,
-    toJson: RecurringTransactionOutput._write_creditCardId,
-  )
-  final ({String? value})? creditCardId;
+  @JsonKey(includeIfNull: false)
+  final String? creditCardId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_currencyCode,
-    toJson: RecurringTransactionOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_description,
-    toJson: RecurringTransactionOutput._write_description,
-  )
-  final ({String? value})? description;
+  @JsonKey(includeIfNull: false)
+  final String? description;
 
   @JsonKey(
     disallowNullValue: true,
@@ -94,19 +74,11 @@ class RecurringTransactionOutput {
   )
   final TransactionDirection? direction;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_endsOn,
-    toJson: RecurringTransactionOutput._write_endsOn,
-  )
-  final ({String? value})? endsOn;
+  @JsonKey(includeIfNull: false)
+  final String? endsOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_financialAccountId,
-    toJson: RecurringTransactionOutput._write_financialAccountId,
-  )
-  final ({String? value})? financialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? financialAccountId;
 
   @JsonKey(
     disallowNullValue: true,
@@ -122,19 +94,11 @@ class RecurringTransactionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isDeleted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_lastMaterializedOn,
-    toJson: RecurringTransactionOutput._write_lastMaterializedOn,
-  )
-  final ({String? value})? lastMaterializedOn;
+  @JsonKey(includeIfNull: false)
+  final String? lastMaterializedOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringTransactionOutput._read_nextOccurrences,
-    toJson: RecurringTransactionOutput._write_nextOccurrences,
-  )
-  final ({List<String>? value})? nextOccurrences;
+  @JsonKey(includeIfNull: false)
+  final List<String>? nextOccurrences;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? startsOn;
@@ -147,37 +111,11 @@ class RecurringTransactionOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_counterpartyId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_counterpartyId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_counterpartyName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_counterpartyName(({String? value}) value) =>
-      value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_creditCardId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_creditCardId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_description(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_description(({String? value}) value) => value.value;
 
   static TransactionDirection? _read_direction(Object? value) =>
       value == null ? null : TransactionDirection.fromJson(value);
@@ -185,37 +123,11 @@ class RecurringTransactionOutput {
   static Object? _write_direction(TransactionDirection? value) =>
       value?.toJson();
 
-  static ({String? value}) _read_endsOn(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_endsOn(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_financialAccountId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_financialAccountId(({String? value}) value) =>
-      value.value;
-
   static RecurrenceFrequency? _read_frequency(Object? value) =>
       value == null ? null : RecurrenceFrequency.fromJson(value);
 
   static Object? _write_frequency(RecurrenceFrequency? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_lastMaterializedOn(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_lastMaterializedOn(({String? value}) value) =>
-      value.value;
-
-  static ({List<String>? value}) _read_nextOccurrences(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_nextOccurrences(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

@@ -18,25 +18,8 @@ class ListSupportedCurrenciesQueryOutput {
     Map<String, Object?> json,
   ) => _$ListSupportedCurrenciesQueryOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ListSupportedCurrenciesQueryOutput._read_currencies,
-    toJson: ListSupportedCurrenciesQueryOutput._write_currencies,
-  )
-  final ({List<CurrencyOutput>? value})? currencies;
-
-  static ({List<CurrencyOutput>? value}) _read_currencies(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => CurrencyOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_currencies(({List<CurrencyOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
+  @JsonKey(includeIfNull: false)
+  final List<CurrencyOutput>? currencies;
 
   Map<String, Object?> toJson() =>
       _$ListSupportedCurrenciesQueryOutputToJson(this);

@@ -32,12 +32,8 @@ class ImportJobOutput {
   factory ImportJobOutput.fromJson(Map<String, Object?> json) =>
       _$ImportJobOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportJobOutput._read_connectionId,
-    toJson: ImportJobOutput._write_connectionId,
-  )
-  final ({String? value})? connectionId;
+  @JsonKey(includeIfNull: false)
+  final String? connectionId;
 
   @JsonKey(
     disallowNullValue: true,
@@ -55,12 +51,8 @@ class ImportJobOutput {
   )
   final int? duplicateCount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportJobOutput._read_failureReason,
-    toJson: ImportJobOutput._write_failureReason,
-  )
-  final ({String? value})? failureReason;
+  @JsonKey(includeIfNull: false)
+  final String? failureReason;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -73,19 +65,11 @@ class ImportJobOutput {
   )
   final int? importedCount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportJobOutput._read_periodEnd,
-    toJson: ImportJobOutput._write_periodEnd,
-  )
-  final ({String? value})? periodEnd;
+  @JsonKey(includeIfNull: false)
+  final String? periodEnd;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportJobOutput._read_periodStart,
-    toJson: ImportJobOutput._write_periodStart,
-  )
-  final ({String? value})? periodStart;
+  @JsonKey(includeIfNull: false)
+  final String? periodStart;
 
   @JsonKey(
     disallowNullValue: true,
@@ -127,11 +111,6 @@ class ImportJobOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_connectionId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_connectionId(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
@@ -143,25 +122,10 @@ class ImportJobOutput {
 
   static Object? _write_duplicateCount(int? value) => value;
 
-  static ({String? value}) _read_failureReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_failureReason(({String? value}) value) => value.value;
-
   static int? _read_importedCount(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_importedCount(int? value) => value;
-
-  static ({String? value}) _read_periodEnd(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodEnd(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_periodStart(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodStart(({String? value}) value) => value.value;
 
   static int? _read_processedCount(Object? value) =>
       value == null ? null : value as int;

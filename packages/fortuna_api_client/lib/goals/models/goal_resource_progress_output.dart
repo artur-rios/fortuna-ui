@@ -31,26 +31,14 @@ class GoalResourceProgressOutput {
   factory GoalResourceProgressOutput.fromJson(Map<String, Object?> json) =>
       _$GoalResourceProgressOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalResourceProgressOutput._read_appliedRate,
-    toJson: GoalResourceProgressOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalResourceProgressOutput._read_convertedAmount,
-    toJson: GoalResourceProgressOutput._write_convertedAmount,
-  )
-  final ({String? value})? convertedAmount;
+  @JsonKey(includeIfNull: false)
+  final String? convertedAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalResourceProgressOutput._read_exclusionReason,
-    toJson: GoalResourceProgressOutput._write_exclusionReason,
-  )
-  final ({String? value})? exclusionReason;
+  @JsonKey(includeIfNull: false)
+  final String? exclusionReason;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -58,22 +46,13 @@ class GoalResourceProgressOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isIncluded;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalResourceProgressOutput._read_name,
-    toJson: GoalResourceProgressOutput._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
+
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalResourceProgressOutput._read_rateDate,
-    toJson: GoalResourceProgressOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
-
-  @JsonKey(
-    disallowNullValue: true,
     includeIfNull: false,
     fromJson: GoalResourceProgressOutput._read_rateSource,
     toJson: GoalResourceProgressOutput._write_rateSource,
@@ -88,51 +67,14 @@ class GoalResourceProgressOutput {
   )
   final GoalResourceType? resourceType;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalResourceProgressOutput._read_sourceAmount,
-    toJson: GoalResourceProgressOutput._write_sourceAmount,
-  )
-  final ({String? value})? sourceAmount;
+  @JsonKey(includeIfNull: false)
+  final String? sourceAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalResourceProgressOutput._read_sourceCurrencyCode,
-    toJson: GoalResourceProgressOutput._write_sourceCurrencyCode,
-  )
-  final ({String? value})? sourceCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? sourceCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalResourceProgressOutput._read_unconvertedReason,
-    toJson: GoalResourceProgressOutput._write_unconvertedReason,
-  )
-  final ({String? value})? unconvertedReason;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_convertedAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_convertedAmount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_exclusionReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_exclusionReason(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? unconvertedReason;
 
   static ExchangeRateSource? _read_rateSource(Object? value) =>
       value == null ? null : ExchangeRateSource.fromJson(value);
@@ -145,23 +87,6 @@ class GoalResourceProgressOutput {
 
   static Object? _write_resourceType(GoalResourceType? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_sourceAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_sourceAmount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_sourceCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_sourceCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_unconvertedReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_unconvertedReason(({String? value}) value) =>
-      value.value;
 
   Map<String, Object?> toJson() => _$GoalResourceProgressOutputToJson(this);
 }

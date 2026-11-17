@@ -15,17 +15,8 @@ class EraseUserCommand {
   factory EraseUserCommand.fromJson(Map<String, Object?> json) =>
       _$EraseUserCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: EraseUserCommand._read_confirmation,
-    toJson: EraseUserCommand._write_confirmation,
-  )
-  final ({String? value})? confirmation;
-
-  static ({String? value}) _read_confirmation(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_confirmation(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? confirmation;
 
   Map<String, Object?> toJson() => _$EraseUserCommandToJson(this);
 }

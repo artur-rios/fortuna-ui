@@ -11,17 +11,14 @@ ListSupportedCurrenciesQueryOutput _$ListSupportedCurrenciesQueryOutputFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['currencies']);
   return ListSupportedCurrenciesQueryOutput(
-    currencies: !json.containsKey('currencies')
-        ? null
-        : ListSupportedCurrenciesQueryOutput._read_currencies(
-            json['currencies'],
-          ),
+    currencies: (json['currencies'] as List<dynamic>?)
+        ?.map((e) => CurrencyOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$ListSupportedCurrenciesQueryOutputToJson(
   ListSupportedCurrenciesQueryOutput instance,
 ) => <String, dynamic>{
-  if (instance.currencies case final $value?)
-    'currencies': ListSupportedCurrenciesQueryOutput._write_currencies($value),
+  'currencies': ?instance.currencies?.map((e) => e.toJson()).toList(),
 };

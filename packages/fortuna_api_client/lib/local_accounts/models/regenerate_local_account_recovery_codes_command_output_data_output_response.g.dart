@@ -13,7 +13,7 @@ _$RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$ResponseFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'success', 'timestamp'],
-    disallowNullValues: const ['data', 'success', 'timestamp'],
+    disallowNullValues: const ['success', 'timestamp'],
   );
   return RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$ResponseFromJson(
         : RegenerateLocalAccountRecoveryCodesCommandOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp:
         RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response._read_timestamp(
@@ -44,16 +40,8 @@ _$RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$ResponseToJson(
   RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors':
-        RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response._write_errors(
-          $value,
-        ),
-  if (instance.messages case final $value?)
-    'messages':
-        RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response._write_messages(
-          $value,
-        ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp':
       ?RegenerateLocalAccountRecoveryCodesCommandOutputDataOutput$Response._write_timestamp(

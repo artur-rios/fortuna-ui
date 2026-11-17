@@ -11,28 +11,14 @@ SynchronizeExchangeRatesCommand _$SynchronizeExchangeRatesCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['correlationId', 'requestedDate']);
   return SynchronizeExchangeRatesCommand(
-    correlationId: !json.containsKey('correlationId')
-        ? null
-        : SynchronizeExchangeRatesCommand._read_correlationId(
-            json['correlationId'],
-          ),
-    requestedDate: !json.containsKey('requestedDate')
-        ? null
-        : SynchronizeExchangeRatesCommand._read_requestedDate(
-            json['requestedDate'],
-          ),
+    correlationId: json['correlationId'] as String?,
+    requestedDate: json['requestedDate'] as String?,
   );
 }
 
 Map<String, dynamic> _$SynchronizeExchangeRatesCommandToJson(
   SynchronizeExchangeRatesCommand instance,
 ) => <String, dynamic>{
-  if (instance.correlationId case final $value?)
-    'correlationId': SynchronizeExchangeRatesCommand._write_correlationId(
-      $value,
-    ),
-  if (instance.requestedDate case final $value?)
-    'requestedDate': SynchronizeExchangeRatesCommand._write_requestedDate(
-      $value,
-    ),
+  'correlationId': ?instance.correlationId,
+  'requestedDate': ?instance.requestedDate,
 };

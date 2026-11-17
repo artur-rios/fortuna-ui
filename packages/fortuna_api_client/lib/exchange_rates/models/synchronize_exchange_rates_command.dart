@@ -18,29 +18,11 @@ class SynchronizeExchangeRatesCommand {
   factory SynchronizeExchangeRatesCommand.fromJson(Map<String, Object?> json) =>
       _$SynchronizeExchangeRatesCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SynchronizeExchangeRatesCommand._read_correlationId,
-    toJson: SynchronizeExchangeRatesCommand._write_correlationId,
-  )
-  final ({String? value})? correlationId;
+  @JsonKey(includeIfNull: false)
+  final String? correlationId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: SynchronizeExchangeRatesCommand._read_requestedDate,
-    toJson: SynchronizeExchangeRatesCommand._write_requestedDate,
-  )
-  final ({String? value})? requestedDate;
-
-  static ({String? value}) _read_correlationId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_correlationId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_requestedDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_requestedDate(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? requestedDate;
 
   Map<String, Object?> toJson() =>
       _$SynchronizeExchangeRatesCommandToJson(this);

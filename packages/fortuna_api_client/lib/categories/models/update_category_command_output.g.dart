@@ -17,12 +17,8 @@ UpdateCategoryCommandOutput _$UpdateCategoryCommandOutputFromJson(
   return UpdateCategoryCommandOutput(
     createdAt: UpdateCategoryCommandOutput._read_createdAt(json['createdAt']),
     id: json['id'] as String?,
-    name: !json.containsKey('name')
-        ? null
-        : UpdateCategoryCommandOutput._read_name(json['name']),
-    parentId: !json.containsKey('parentId')
-        ? null
-        : UpdateCategoryCommandOutput._read_parentId(json['parentId']),
+    name: json['name'] as String?,
+    parentId: json['parentId'] as String?,
     updatedAt: UpdateCategoryCommandOutput._read_updatedAt(json['updatedAt']),
   );
 }
@@ -34,10 +30,8 @@ Map<String, dynamic> _$UpdateCategoryCommandOutputToJson(
     instance.createdAt,
   ),
   'id': ?instance.id,
-  if (instance.name case final $value?)
-    'name': UpdateCategoryCommandOutput._write_name($value),
-  if (instance.parentId case final $value?)
-    'parentId': UpdateCategoryCommandOutput._write_parentId($value),
+  'name': ?instance.name,
+  'parentId': ?instance.parentId,
   'updatedAt': ?UpdateCategoryCommandOutput._write_updatedAt(
     instance.updatedAt,
   ),

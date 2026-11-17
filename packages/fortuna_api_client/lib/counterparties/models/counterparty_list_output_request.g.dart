@@ -20,11 +20,9 @@ CounterpartyListOutput$Request _$CounterpartyListOutput$RequestFromJson(
     disallowNullValues: const ['pageNumber', 'pageSize', 'totalItems'],
   );
   return CounterpartyListOutput$Request(
-    counterparties: !json.containsKey('counterparties')
-        ? null
-        : CounterpartyListOutput$Request._read_counterparties(
-            json['counterparties'],
-          ),
+    counterparties: (json['counterparties'] as List<dynamic>?)
+        ?.map((e) => CounterpartyOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     pageNumber: CounterpartyListOutput$Request._read_pageNumber(
       json['pageNumber'],
     ),
@@ -38,10 +36,7 @@ CounterpartyListOutput$Request _$CounterpartyListOutput$RequestFromJson(
 Map<String, dynamic> _$CounterpartyListOutput$RequestToJson(
   CounterpartyListOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.counterparties case final $value?)
-    'counterparties': CounterpartyListOutput$Request._write_counterparties(
-      $value,
-    ),
+  'counterparties': ?instance.counterparties?.map((e) => e.toJson()).toList(),
   'pageNumber': ?CounterpartyListOutput$Request._write_pageNumber(
     instance.pageNumber,
   ),

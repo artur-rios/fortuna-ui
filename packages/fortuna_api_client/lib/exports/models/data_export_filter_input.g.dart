@@ -11,25 +11,16 @@ DataExportFilterInput _$DataExportFilterInputFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['field', 'operator', 'value']);
   return DataExportFilterInput(
-    field: !json.containsKey('field')
-        ? null
-        : DataExportFilterInput._read_field(json['field']),
-    operator2: !json.containsKey('operator')
-        ? null
-        : DataExportFilterInput._read_operator2(json['operator']),
-    value: !json.containsKey('value')
-        ? null
-        : DataExportFilterInput._read_value(json['value']),
+    field: json['field'] as String?,
+    operator2: json['operator'] as String?,
+    value: json['value'] as String?,
   );
 }
 
 Map<String, dynamic> _$DataExportFilterInputToJson(
   DataExportFilterInput instance,
 ) => <String, dynamic>{
-  if (instance.field case final $value?)
-    'field': DataExportFilterInput._write_field($value),
-  if (instance.operator2 case final $value?)
-    'operator': DataExportFilterInput._write_operator2($value),
-  if (instance.value case final $value?)
-    'value': DataExportFilterInput._write_value($value),
+  'field': ?instance.field,
+  'operator': ?instance.operator2,
+  'value': ?instance.value,
 };

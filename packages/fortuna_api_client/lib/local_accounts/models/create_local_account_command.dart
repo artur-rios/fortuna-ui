@@ -21,19 +21,11 @@ class CreateLocalAccountCommand {
   factory CreateLocalAccountCommand.fromJson(Map<String, Object?> json) =>
       _$CreateLocalAccountCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateLocalAccountCommand._read_displayName,
-    toJson: CreateLocalAccountCommand._write_displayName,
-  )
-  final ({String? value})? displayName;
+  @JsonKey(includeIfNull: false)
+  final String? displayName;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateLocalAccountCommand._read_secret,
-    toJson: CreateLocalAccountCommand._write_secret,
-  )
-  final ({String? value})? secret;
+  @JsonKey(includeIfNull: false)
+  final String? secret;
 
   @JsonKey(
     disallowNullValue: true,
@@ -42,16 +34,6 @@ class CreateLocalAccountCommand {
     toJson: CreateLocalAccountCommand._write_storageMode,
   )
   final LocalAccountStorageMode? storageMode;
-
-  static ({String? value}) _read_displayName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayName(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_secret(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_secret(({String? value}) value) => value.value;
 
   static LocalAccountStorageMode? _read_storageMode(Object? value) =>
       value == null ? null : LocalAccountStorageMode.fromJson(value);

@@ -24,12 +24,8 @@ class CategoryOutput {
   factory CategoryOutput.fromJson(Map<String, Object?> json) =>
       _$CategoryOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CategoryOutput._read_children,
-    toJson: CategoryOutput._write_children,
-  )
-  final ({List<CategoryOutput>? value})? children;
+  @JsonKey(includeIfNull: false)
+  final List<CategoryOutput>? children;
 
   @JsonKey(
     disallowNullValue: true,
@@ -45,19 +41,11 @@ class CategoryOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isDeleted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CategoryOutput._read_name,
-    toJson: CategoryOutput._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CategoryOutput._read_parentId,
-    toJson: CategoryOutput._write_parentId,
-  )
-  final ({String? value})? parentId;
+  @JsonKey(includeIfNull: false)
+  final String? parentId;
 
   @JsonKey(
     disallowNullValue: true,
@@ -68,24 +56,11 @@ class CategoryOutput {
   final DateTime? updatedAt;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: CategoryOutput._read_usageCount,
     toJson: CategoryOutput._write_usageCount,
   )
-  final ({int? value})? usageCount;
-
-  static ({List<CategoryOutput>? value}) _read_children(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => CategoryOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_children(({List<CategoryOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
+  final int? usageCount;
 
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
@@ -93,26 +68,15 @@ class CategoryOutput {
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
 
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_parentId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_parentId(({String? value}) value) => value.value;
-
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_updatedAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
 
-  static ({int? value}) _read_usageCount(Object? value) =>
-      (value: value as int?);
+  static int? _read_usageCount(Object? value) => value as int?;
 
-  static Object? _write_usageCount(({int? value}) value) => value.value;
+  static Object? _write_usageCount(int? value) => value;
 
   Map<String, Object?> toJson() => _$CategoryOutputToJson(this);
 }

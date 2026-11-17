@@ -15,9 +15,7 @@ EraseUserCommandOutput$Request _$EraseUserCommandOutput$RequestFromJson(
     disallowNullValues: const ['revokedConnections'],
   );
   return EraseUserCommandOutput$Request(
-    erased: !json.containsKey('erased')
-        ? null
-        : EraseUserCommandOutput$Request._read_erased(json['erased']),
+    erased: EraseUserCommandOutput$Request._read_erased(json['erased']),
     revokedConnections: EraseUserCommandOutput$Request._read_revokedConnections(
       json['revokedConnections'],
     ),
@@ -27,8 +25,7 @@ EraseUserCommandOutput$Request _$EraseUserCommandOutput$RequestFromJson(
 Map<String, dynamic> _$EraseUserCommandOutput$RequestToJson(
   EraseUserCommandOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.erased case final $value?)
-    'erased': EraseUserCommandOutput$Request._write_erased($value),
+  'erased': ?EraseUserCommandOutput$Request._write_erased(instance.erased),
   'revokedConnections':
       ?EraseUserCommandOutput$Request._write_revokedConnections(
         instance.revokedConnections,

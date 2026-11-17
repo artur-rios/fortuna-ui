@@ -30,21 +30,19 @@ _$RecurringRuleMaterializationCommandOutputFromJson(Map<String, dynamic> json) {
       json['createdCount'],
     ),
     isComplete: json['isComplete'] as bool?,
-    occurrences: !json.containsKey('occurrences')
-        ? null
-        : RecurringRuleMaterializationCommandOutput._read_occurrences(
-            json['occurrences'],
+    occurrences: (json['occurrences'] as List<dynamic>?)
+        ?.map(
+          (e) => RecurringOccurrenceMaterializationCommandOutput.fromJson(
+            e as Map<String, dynamic>,
           ),
+        )
+        .toList(),
     possibleDuplicateCount:
         RecurringRuleMaterializationCommandOutput._read_possibleDuplicateCount(
           json['possibleDuplicateCount'],
         ),
     ruleId: json['ruleId'] as String?,
-    skipReason: !json.containsKey('skipReason')
-        ? null
-        : RecurringRuleMaterializationCommandOutput._read_skipReason(
-            json['skipReason'],
-          ),
+    skipReason: json['skipReason'] as String?,
   );
 }
 
@@ -56,17 +54,11 @@ Map<String, dynamic> _$RecurringRuleMaterializationCommandOutputToJson(
         instance.createdCount,
       ),
   'isComplete': ?instance.isComplete,
-  if (instance.occurrences case final $value?)
-    'occurrences': RecurringRuleMaterializationCommandOutput._write_occurrences(
-      $value,
-    ),
+  'occurrences': ?instance.occurrences?.map((e) => e.toJson()).toList(),
   'possibleDuplicateCount':
       ?RecurringRuleMaterializationCommandOutput._write_possibleDuplicateCount(
         instance.possibleDuplicateCount,
       ),
   'ruleId': ?instance.ruleId,
-  if (instance.skipReason case final $value?)
-    'skipReason': RecurringRuleMaterializationCommandOutput._write_skipReason(
-      $value,
-    ),
+  'skipReason': ?instance.skipReason,
 };

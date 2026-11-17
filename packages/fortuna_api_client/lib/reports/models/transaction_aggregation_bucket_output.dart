@@ -27,104 +27,29 @@ class TransactionAggregationBucketOutput {
     Map<String, Object?> json,
   ) => _$TransactionAggregationBucketOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationBucketOutput._read_conversions,
-    toJson: TransactionAggregationBucketOutput._write_conversions,
-  )
-  final ({List<TransactionAggregationConversionOutput>? value})? conversions;
+  @JsonKey(includeIfNull: false)
+  final List<TransactionAggregationConversionOutput>? conversions;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationBucketOutput._read_drillDownKey,
-    toJson: TransactionAggregationBucketOutput._write_drillDownKey,
-  )
-  final ({String? value})? drillDownKey;
+  @JsonKey(includeIfNull: false)
+  final String? drillDownKey;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationBucketOutput._read_label,
-    toJson: TransactionAggregationBucketOutput._write_label,
-  )
-  final ({String? value})? label;
+  @JsonKey(includeIfNull: false)
+  final String? label;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationBucketOutput._read_periodEnd,
-    toJson: TransactionAggregationBucketOutput._write_periodEnd,
-  )
-  final ({String? value})? periodEnd;
+  @JsonKey(includeIfNull: false)
+  final String? periodEnd;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationBucketOutput._read_periodStart,
-    toJson: TransactionAggregationBucketOutput._write_periodStart,
-  )
-  final ({String? value})? periodStart;
+  @JsonKey(includeIfNull: false)
+  final String? periodStart;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationBucketOutput._read_share,
-    toJson: TransactionAggregationBucketOutput._write_share,
-  )
-  final ({String? value})? share;
+  @JsonKey(includeIfNull: false)
+  final String? share;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionAggregationBucketOutput._read_total,
-    toJson: TransactionAggregationBucketOutput._write_total,
-  )
-  final ({String? value})? total;
-
-  static ({List<TransactionAggregationConversionOutput>? value})
-  _read_conversions(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => TransactionAggregationConversionOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_conversions(
-    ({List<TransactionAggregationConversionOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_drillDownKey(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_drillDownKey(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_label(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_label(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_periodEnd(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodEnd(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_periodStart(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodStart(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_share(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_share(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_total(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_total(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? total;
 
   Map<String, Object?> toJson() =>
       _$TransactionAggregationBucketOutputToJson(this);

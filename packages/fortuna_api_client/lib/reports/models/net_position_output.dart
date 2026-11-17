@@ -28,83 +28,20 @@ class NetPositionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? asOf;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionOutput._read_currencyGroups,
-    toJson: NetPositionOutput._write_currencyGroups,
-  )
-  final ({List<NetPositionCurrencyOutput>? value})? currencyGroups;
+  @JsonKey(includeIfNull: false)
+  final List<NetPositionCurrencyOutput>? currencyGroups;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionOutput._read_displayCurrencyCode,
-    toJson: NetPositionOutput._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionOutput._read_missingRates,
-    toJson: NetPositionOutput._write_missingRates,
-  )
-  final ({List<MissingExchangeRateOutput>? value})? missingRates;
+  @JsonKey(includeIfNull: false)
+  final List<MissingExchangeRateOutput>? missingRates;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: NetPositionOutput._read_total,
-    toJson: NetPositionOutput._write_total,
-  )
-  final ({String? value})? total;
-
-  static ({List<NetPositionCurrencyOutput>? value}) _read_currencyGroups(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => NetPositionCurrencyOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_currencyGroups(
-    ({List<NetPositionCurrencyOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({List<MissingExchangeRateOutput>? value}) _read_missingRates(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => MissingExchangeRateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_missingRates(
-    ({List<MissingExchangeRateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_total(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_total(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? total;
 
   Map<String, Object?> toJson() => _$NetPositionOutputToJson(this);
 }

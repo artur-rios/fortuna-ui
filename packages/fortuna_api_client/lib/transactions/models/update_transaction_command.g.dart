@@ -34,31 +34,15 @@ UpdateTransactionCommand _$UpdateTransactionCommandFromJson(
   return UpdateTransactionCommand(
     amount: json['amount'] as String?,
     categoryId: json['categoryId'] as String?,
-    counterparty: !json.containsKey('counterparty')
-        ? null
-        : UpdateTransactionCommand._read_counterparty(json['counterparty']),
-    creditCardId: !json.containsKey('creditCardId')
-        ? null
-        : UpdateTransactionCommand._read_creditCardId(json['creditCardId']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : UpdateTransactionCommand._read_currencyCode(json['currencyCode']),
-    description: !json.containsKey('description')
-        ? null
-        : UpdateTransactionCommand._read_description(json['description']),
+    counterparty: json['counterparty'] as String?,
+    creditCardId: json['creditCardId'] as String?,
+    currencyCode: json['currencyCode'] as String?,
+    description: json['description'] as String?,
     direction: UpdateTransactionCommand._read_direction(json['direction']),
-    financialAccountId: !json.containsKey('financialAccountId')
-        ? null
-        : UpdateTransactionCommand._read_financialAccountId(
-            json['financialAccountId'],
-          ),
+    financialAccountId: json['financialAccountId'] as String?,
     occurredOn: json['occurredOn'] as String?,
-    ownerId: !json.containsKey('ownerId')
-        ? null
-        : UpdateTransactionCommand._read_ownerId(json['ownerId']),
-    tags: !json.containsKey('tags')
-        ? null
-        : UpdateTransactionCommand._read_tags(json['tags']),
+    ownerId: json['ownerId'] as String?,
+    tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
   );
 }
 
@@ -67,22 +51,13 @@ Map<String, dynamic> _$UpdateTransactionCommandToJson(
 ) => <String, dynamic>{
   'amount': ?instance.amount,
   'categoryId': ?instance.categoryId,
-  if (instance.counterparty case final $value?)
-    'counterparty': UpdateTransactionCommand._write_counterparty($value),
-  if (instance.creditCardId case final $value?)
-    'creditCardId': UpdateTransactionCommand._write_creditCardId($value),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': UpdateTransactionCommand._write_currencyCode($value),
-  if (instance.description case final $value?)
-    'description': UpdateTransactionCommand._write_description($value),
+  'counterparty': ?instance.counterparty,
+  'creditCardId': ?instance.creditCardId,
+  'currencyCode': ?instance.currencyCode,
+  'description': ?instance.description,
   'direction': ?UpdateTransactionCommand._write_direction(instance.direction),
-  if (instance.financialAccountId case final $value?)
-    'financialAccountId': UpdateTransactionCommand._write_financialAccountId(
-      $value,
-    ),
+  'financialAccountId': ?instance.financialAccountId,
   'occurredOn': ?instance.occurredOn,
-  if (instance.ownerId case final $value?)
-    'ownerId': UpdateTransactionCommand._write_ownerId($value),
-  if (instance.tags case final $value?)
-    'tags': UpdateTransactionCommand._write_tags($value),
+  'ownerId': ?instance.ownerId,
+  'tags': ?instance.tags,
 };

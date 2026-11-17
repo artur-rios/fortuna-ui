@@ -40,24 +40,12 @@ _$RecordInvestmentValuationCommandOutputFromJson(Map<String, dynamic> json) {
     createdAt: RecordInvestmentValuationCommandOutput._read_createdAt(
       json['createdAt'],
     ),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : RecordInvestmentValuationCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
     investmentId: json['investmentId'] as String?,
     isIndependentlyValued: json['isIndependentlyValued'] as bool?,
-    latestValuationDate: !json.containsKey('latestValuationDate')
-        ? null
-        : RecordInvestmentValuationCommandOutput._read_latestValuationDate(
-            json['latestValuationDate'],
-          ),
-    latestValuationValue: !json.containsKey('latestValuationValue')
-        ? null
-        : RecordInvestmentValuationCommandOutput._read_latestValuationValue(
-            json['latestValuationValue'],
-          ),
+    latestValuationDate: json['latestValuationDate'] as String?,
+    latestValuationValue: json['latestValuationValue'] as String?,
     position: json['position'] as String?,
     replacedExisting: json['replacedExisting'] as bool?,
     updatedAt: RecordInvestmentValuationCommandOutput._read_updatedAt(
@@ -74,23 +62,12 @@ Map<String, dynamic> _$RecordInvestmentValuationCommandOutputToJson(
   'createdAt': ?RecordInvestmentValuationCommandOutput._write_createdAt(
     instance.createdAt,
   ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': RecordInvestmentValuationCommandOutput._write_currencyCode(
-      $value,
-    ),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
   'investmentId': ?instance.investmentId,
   'isIndependentlyValued': ?instance.isIndependentlyValued,
-  if (instance.latestValuationDate case final $value?)
-    'latestValuationDate':
-        RecordInvestmentValuationCommandOutput._write_latestValuationDate(
-          $value,
-        ),
-  if (instance.latestValuationValue case final $value?)
-    'latestValuationValue':
-        RecordInvestmentValuationCommandOutput._write_latestValuationValue(
-          $value,
-        ),
+  'latestValuationDate': ?instance.latestValuationDate,
+  'latestValuationValue': ?instance.latestValuationValue,
   'position': ?instance.position,
   'replacedExisting': ?instance.replacedExisting,
   'updatedAt': ?RecordInvestmentValuationCommandOutput._write_updatedAt(

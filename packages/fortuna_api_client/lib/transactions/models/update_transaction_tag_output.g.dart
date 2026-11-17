@@ -16,16 +16,10 @@ UpdateTransactionTagOutput _$UpdateTransactionTagOutputFromJson(
   );
   return UpdateTransactionTagOutput(
     id: json['id'] as String?,
-    name: !json.containsKey('name')
-        ? null
-        : UpdateTransactionTagOutput._read_name(json['name']),
+    name: json['name'] as String?,
   );
 }
 
 Map<String, dynamic> _$UpdateTransactionTagOutputToJson(
   UpdateTransactionTagOutput instance,
-) => <String, dynamic>{
-  'id': ?instance.id,
-  if (instance.name case final $value?)
-    'name': UpdateTransactionTagOutput._write_name($value),
-};
+) => <String, dynamic>{'id': ?instance.id, 'name': ?instance.name};

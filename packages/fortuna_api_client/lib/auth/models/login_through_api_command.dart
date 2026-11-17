@@ -15,29 +15,11 @@ class LoginThroughApiCommand {
   factory LoginThroughApiCommand.fromJson(Map<String, Object?> json) =>
       _$LoginThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: LoginThroughApiCommand._read_email,
-    toJson: LoginThroughApiCommand._write_email,
-  )
-  final ({String? value})? email;
+  @JsonKey(includeIfNull: false)
+  final String? email;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: LoginThroughApiCommand._read_password,
-    toJson: LoginThroughApiCommand._write_password,
-  )
-  final ({String? value})? password;
-
-  static ({String? value}) _read_email(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_email(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_password(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_password(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? password;
 
   Map<String, Object?> toJson() => _$LoginThroughApiCommandToJson(this);
 }

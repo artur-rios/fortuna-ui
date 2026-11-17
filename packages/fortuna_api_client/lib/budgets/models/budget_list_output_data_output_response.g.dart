@@ -11,7 +11,7 @@ _$BudgetListOutputDataOutput$ResponseFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'success', 'timestamp'],
-    disallowNullValues: const ['data', 'success', 'timestamp'],
+    disallowNullValues: const ['success', 'timestamp'],
   );
   return BudgetListOutputDataOutput$Response(
     data: json['data'] == null
@@ -19,12 +19,12 @@ _$BudgetListOutputDataOutput$ResponseFromJson(Map<String, dynamic> json) {
         : BudgetListOutput$Response.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : BudgetListOutputDataOutput$Response._read_errors(json['errors']),
-    messages: !json.containsKey('messages')
-        ? null
-        : BudgetListOutputDataOutput$Response._read_messages(json['messages']),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp: BudgetListOutputDataOutput$Response._read_timestamp(
       json['timestamp'],
@@ -36,10 +36,8 @@ Map<String, dynamic> _$BudgetListOutputDataOutput$ResponseToJson(
   BudgetListOutputDataOutput$Response instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors': BudgetListOutputDataOutput$Response._write_errors($value),
-  if (instance.messages case final $value?)
-    'messages': BudgetListOutputDataOutput$Response._write_messages($value),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp': ?BudgetListOutputDataOutput$Response._write_timestamp(
     instance.timestamp,

@@ -33,12 +33,8 @@ class UpdateCreditCardCommand {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? creditLimit;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateCreditCardCommand._read_currencyCode,
-    toJson: UpdateCreditCardCommand._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(
     disallowNullValue: true,
@@ -48,44 +44,21 @@ class UpdateCreditCardCommand {
   )
   final int? dueDay;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateCreditCardCommand._read_issuer,
-    toJson: UpdateCreditCardCommand._write_issuer,
-  )
-  final ({String? value})? issuer;
+  @JsonKey(includeIfNull: false)
+  final String? issuer;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateCreditCardCommand._read_name,
-    toJson: UpdateCreditCardCommand._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   static int? _read_closingDay(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_closingDay(int? value) => value;
 
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
   static int? _read_dueDay(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_dueDay(int? value) => value;
-
-  static ({String? value}) _read_issuer(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_issuer(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$UpdateCreditCardCommandToJson(this);
 }

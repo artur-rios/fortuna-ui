@@ -15,11 +15,9 @@ _$ConfirmTwoFactorThroughApiCommandOutputFromJson(Map<String, dynamic> json) {
   );
   return ConfirmTwoFactorThroughApiCommandOutput(
     enabled: json['enabled'] as bool?,
-    recoveryCodes: !json.containsKey('recoveryCodes')
-        ? null
-        : ConfirmTwoFactorThroughApiCommandOutput._read_recoveryCodes(
-            json['recoveryCodes'],
-          ),
+    recoveryCodes: (json['recoveryCodes'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
   );
 }
 
@@ -27,7 +25,5 @@ Map<String, dynamic> _$ConfirmTwoFactorThroughApiCommandOutputToJson(
   ConfirmTwoFactorThroughApiCommandOutput instance,
 ) => <String, dynamic>{
   'enabled': ?instance.enabled,
-  if (instance.recoveryCodes case final $value?)
-    'recoveryCodes':
-        ConfirmTwoFactorThroughApiCommandOutput._write_recoveryCodes($value),
+  'recoveryCodes': ?instance.recoveryCodes,
 };

@@ -18,9 +18,7 @@ _$VerifyTwoFactorThroughApiCommandOutputFromJson(Map<String, dynamic> json) {
     expiresAt: VerifyTwoFactorThroughApiCommandOutput._read_expiresAt(
       json['expiresAt'],
     ),
-    token: !json.containsKey('token')
-        ? null
-        : VerifyTwoFactorThroughApiCommandOutput._read_token(json['token']),
+    token: json['token'] as String?,
   );
 }
 
@@ -31,6 +29,5 @@ Map<String, dynamic> _$VerifyTwoFactorThroughApiCommandOutputToJson(
   'expiresAt': ?VerifyTwoFactorThroughApiCommandOutput._write_expiresAt(
     instance.expiresAt,
   ),
-  if (instance.token case final $value?)
-    'token': VerifyTwoFactorThroughApiCommandOutput._write_token($value),
+  'token': ?instance.token,
 };

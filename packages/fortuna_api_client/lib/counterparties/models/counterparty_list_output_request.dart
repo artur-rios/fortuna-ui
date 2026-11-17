@@ -26,12 +26,8 @@ class CounterpartyListOutput$Request {
             entry.key: entry.value,
       });
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CounterpartyListOutput$Request._read_counterparties,
-    toJson: CounterpartyListOutput$Request._write_counterparties,
-  )
-  final ({List<CounterpartyOutput>? value})? counterparties;
+  @JsonKey(includeIfNull: false)
+  final List<CounterpartyOutput>? counterparties;
 
   @JsonKey(
     disallowNullValue: true,
@@ -56,23 +52,6 @@ class CounterpartyListOutput$Request {
     toJson: CounterpartyListOutput$Request._write_totalItems,
   )
   final int? totalItems;
-
-  static ({List<CounterpartyOutput>? value}) _read_counterparties(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    CounterpartyOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_counterparties(
-    ({List<CounterpartyOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;

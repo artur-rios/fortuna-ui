@@ -10,17 +10,10 @@ MaterializeRecurringTransactionsCommand
 _$MaterializeRecurringTransactionsCommandFromJson(Map<String, dynamic> json) {
   $checkKeys(json, allowedKeys: const ['ownerId']);
   return MaterializeRecurringTransactionsCommand(
-    ownerId: !json.containsKey('ownerId')
-        ? null
-        : MaterializeRecurringTransactionsCommand._read_ownerId(
-            json['ownerId'],
-          ),
+    ownerId: json['ownerId'] as String?,
   );
 }
 
 Map<String, dynamic> _$MaterializeRecurringTransactionsCommandToJson(
   MaterializeRecurringTransactionsCommand instance,
-) => <String, dynamic>{
-  if (instance.ownerId case final $value?)
-    'ownerId': MaterializeRecurringTransactionsCommand._write_ownerId($value),
-};
+) => <String, dynamic>{'ownerId': ?instance.ownerId};

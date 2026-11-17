@@ -23,12 +23,8 @@ class CounterpartyListOutput$Response {
   factory CounterpartyListOutput$Response.fromJson(Map<String, Object?> json) =>
       _$CounterpartyListOutput$ResponseFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CounterpartyListOutput$Response._read_counterparties,
-    toJson: CounterpartyListOutput$Response._write_counterparties,
-  )
-  final ({List<CounterpartyOutput>? value})? counterparties;
+  @JsonKey(includeIfNull: false)
+  final List<CounterpartyOutput>? counterparties;
 
   @JsonKey(
     disallowNullValue: true,
@@ -61,23 +57,6 @@ class CounterpartyListOutput$Response {
     toJson: CounterpartyListOutput$Response._write_totalPages,
   )
   final int? totalPages;
-
-  static ({List<CounterpartyOutput>? value}) _read_counterparties(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    CounterpartyOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_counterparties(
-    ({List<CounterpartyOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;

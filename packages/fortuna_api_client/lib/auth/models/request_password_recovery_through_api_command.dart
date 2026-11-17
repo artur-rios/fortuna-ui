@@ -16,17 +16,8 @@ class RequestPasswordRecoveryThroughApiCommand {
     Map<String, Object?> json,
   ) => _$RequestPasswordRecoveryThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RequestPasswordRecoveryThroughApiCommand._read_email,
-    toJson: RequestPasswordRecoveryThroughApiCommand._write_email,
-  )
-  final ({String? value})? email;
-
-  static ({String? value}) _read_email(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_email(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? email;
 
   Map<String, Object?> toJson() =>
       _$RequestPasswordRecoveryThroughApiCommandToJson(this);

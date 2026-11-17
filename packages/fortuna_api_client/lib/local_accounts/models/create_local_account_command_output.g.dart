@@ -26,22 +26,12 @@ CreateLocalAccountCommandOutput _$CreateLocalAccountCommandOutputFromJson(
     createdAt: CreateLocalAccountCommandOutput._read_createdAt(
       json['createdAt'],
     ),
-    displayName: !json.containsKey('displayName')
-        ? null
-        : CreateLocalAccountCommandOutput._read_displayName(
-            json['displayName'],
-          ),
+    displayName: json['displayName'] as String?,
     id: json['id'] as String?,
-    recoveryCodes: !json.containsKey('recoveryCodes')
-        ? null
-        : CreateLocalAccountCommandOutput._read_recoveryCodes(
-            json['recoveryCodes'],
-          ),
-    recoveryWarning: !json.containsKey('recoveryWarning')
-        ? null
-        : CreateLocalAccountCommandOutput._read_recoveryWarning(
-            json['recoveryWarning'],
-          ),
+    recoveryCodes: (json['recoveryCodes'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    recoveryWarning: json['recoveryWarning'] as String?,
     storageMode: CreateLocalAccountCommandOutput._read_storageMode(
       json['storageMode'],
     ),
@@ -55,17 +45,10 @@ Map<String, dynamic> _$CreateLocalAccountCommandOutputToJson(
   'createdAt': ?CreateLocalAccountCommandOutput._write_createdAt(
     instance.createdAt,
   ),
-  if (instance.displayName case final $value?)
-    'displayName': CreateLocalAccountCommandOutput._write_displayName($value),
+  'displayName': ?instance.displayName,
   'id': ?instance.id,
-  if (instance.recoveryCodes case final $value?)
-    'recoveryCodes': CreateLocalAccountCommandOutput._write_recoveryCodes(
-      $value,
-    ),
-  if (instance.recoveryWarning case final $value?)
-    'recoveryWarning': CreateLocalAccountCommandOutput._write_recoveryWarning(
-      $value,
-    ),
+  'recoveryCodes': ?instance.recoveryCodes,
+  'recoveryWarning': ?instance.recoveryWarning,
   'storageMode': ?CreateLocalAccountCommandOutput._write_storageMode(
     instance.storageMode,
   ),

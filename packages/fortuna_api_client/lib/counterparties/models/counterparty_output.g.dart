@@ -16,9 +16,7 @@ CounterpartyOutput _$CounterpartyOutputFromJson(Map<String, dynamic> json) {
     createdAt: CounterpartyOutput._read_createdAt(json['createdAt']),
     id: json['id'] as String?,
     isDeleted: json['isDeleted'] as bool?,
-    name: !json.containsKey('name')
-        ? null
-        : CounterpartyOutput._read_name(json['name']),
+    name: json['name'] as String?,
     updatedAt: CounterpartyOutput._read_updatedAt(json['updatedAt']),
   );
 }
@@ -28,7 +26,6 @@ Map<String, dynamic> _$CounterpartyOutputToJson(CounterpartyOutput instance) =>
       'createdAt': ?CounterpartyOutput._write_createdAt(instance.createdAt),
       'id': ?instance.id,
       'isDeleted': ?instance.isDeleted,
-      if (instance.name case final $value?)
-        'name': CounterpartyOutput._write_name($value),
+      'name': ?instance.name,
       'updatedAt': ?CounterpartyOutput._write_updatedAt(instance.updatedAt),
     };

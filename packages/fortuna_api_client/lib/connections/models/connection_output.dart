@@ -41,12 +41,8 @@ class ConnectionOutput {
   )
   final TransactionSourceType? dataSourceType;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConnectionOutput._read_externalReference,
-    toJson: ConnectionOutput._write_externalReference,
-  )
-  final ({String? value})? externalReference;
+  @JsonKey(includeIfNull: false)
+  final String? externalReference;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -78,12 +74,6 @@ class ConnectionOutput {
 
   static Object? _write_dataSourceType(TransactionSourceType? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_externalReference(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_externalReference(({String? value}) value) =>
-      value.value;
 
   static ConnectionStatus? _read_status(Object? value) =>
       value == null ? null : ConnectionStatus.fromJson(value);

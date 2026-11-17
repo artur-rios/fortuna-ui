@@ -24,95 +24,41 @@ _$TransactionCurrencyTotalOutput$ResponseFromJson(Map<String, dynamic> json) {
       'rateSource',
       'unconvertedReason',
     ],
-    disallowNullValues: const ['earning', 'expense', 'net', 'rateSource'],
+    disallowNullValues: const ['earning', 'expense', 'net'],
   );
   return TransactionCurrencyTotalOutput$Response(
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : TransactionCurrencyTotalOutput$Response._read_appliedRate(
-            json['appliedRate'],
-          ),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : TransactionCurrencyTotalOutput$Response._read_currencyCode(
-            json['currencyCode'],
-          ),
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : TransactionCurrencyTotalOutput$Response._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
-          ),
-    displayEarning: !json.containsKey('displayEarning')
-        ? null
-        : TransactionCurrencyTotalOutput$Response._read_displayEarning(
-            json['displayEarning'],
-          ),
-    displayExpense: !json.containsKey('displayExpense')
-        ? null
-        : TransactionCurrencyTotalOutput$Response._read_displayExpense(
-            json['displayExpense'],
-          ),
-    displayNet: !json.containsKey('displayNet')
-        ? null
-        : TransactionCurrencyTotalOutput$Response._read_displayNet(
-            json['displayNet'],
-          ),
+    appliedRate: json['appliedRate'] as String?,
+    currencyCode: json['currencyCode'] as String?,
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
+    displayEarning: json['displayEarning'] as String?,
+    displayExpense: json['displayExpense'] as String?,
+    displayNet: json['displayNet'] as String?,
     earning: json['earning'] as String?,
     expense: json['expense'] as String?,
     net: json['net'] as String?,
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : TransactionCurrencyTotalOutput$Response._read_rateDate(
-            json['rateDate'],
-          ),
+    rateDate: json['rateDate'] as String?,
     rateSource: TransactionCurrencyTotalOutput$Response._read_rateSource(
       json['rateSource'],
     ),
-    unconvertedReason: !json.containsKey('unconvertedReason')
-        ? null
-        : TransactionCurrencyTotalOutput$Response._read_unconvertedReason(
-            json['unconvertedReason'],
-          ),
+    unconvertedReason: json['unconvertedReason'] as String?,
   );
 }
 
 Map<String, dynamic> _$TransactionCurrencyTotalOutput$ResponseToJson(
   TransactionCurrencyTotalOutput$Response instance,
 ) => <String, dynamic>{
-  if (instance.appliedRate case final $value?)
-    'appliedRate': TransactionCurrencyTotalOutput$Response._write_appliedRate(
-      $value,
-    ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': TransactionCurrencyTotalOutput$Response._write_currencyCode(
-      $value,
-    ),
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode':
-        TransactionCurrencyTotalOutput$Response._write_displayCurrencyCode(
-          $value,
-        ),
-  if (instance.displayEarning case final $value?)
-    'displayEarning':
-        TransactionCurrencyTotalOutput$Response._write_displayEarning($value),
-  if (instance.displayExpense case final $value?)
-    'displayExpense':
-        TransactionCurrencyTotalOutput$Response._write_displayExpense($value),
-  if (instance.displayNet case final $value?)
-    'displayNet': TransactionCurrencyTotalOutput$Response._write_displayNet(
-      $value,
-    ),
+  'appliedRate': ?instance.appliedRate,
+  'currencyCode': ?instance.currencyCode,
+  'displayCurrencyCode': ?instance.displayCurrencyCode,
+  'displayEarning': ?instance.displayEarning,
+  'displayExpense': ?instance.displayExpense,
+  'displayNet': ?instance.displayNet,
   'earning': ?instance.earning,
   'expense': ?instance.expense,
   'net': ?instance.net,
-  if (instance.rateDate case final $value?)
-    'rateDate': TransactionCurrencyTotalOutput$Response._write_rateDate($value),
+  'rateDate': ?instance.rateDate,
   'rateSource': ?TransactionCurrencyTotalOutput$Response._write_rateSource(
     instance.rateSource,
   ),
-  if (instance.unconvertedReason case final $value?)
-    'unconvertedReason':
-        TransactionCurrencyTotalOutput$Response._write_unconvertedReason(
-          $value,
-        ),
+  'unconvertedReason': ?instance.unconvertedReason,
 };

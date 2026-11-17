@@ -26,29 +26,17 @@ class ImportedRecordOutput {
   factory ImportedRecordOutput.fromJson(Map<String, Object?> json) =>
       _$ImportedRecordOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportedRecordOutput._read_amount,
-    toJson: ImportedRecordOutput._write_amount,
-  )
-  final ({String? value})? amount;
+  @JsonKey(includeIfNull: false)
+  final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportedRecordOutput._read_externalId,
-    toJson: ImportedRecordOutput._write_externalId,
-  )
-  final ({String? value})? externalId;
+  @JsonKey(includeIfNull: false)
+  final String? externalId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? hasLiveTransaction;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportedRecordOutput._read_occurredOn,
-    toJson: ImportedRecordOutput._write_occurredOn,
-  )
-  final ({String? value})? occurredOn;
+  @JsonKey(includeIfNull: false)
+  final String? occurredOn;
 
   @JsonKey(
     disallowNullValue: true,
@@ -58,62 +46,20 @@ class ImportedRecordOutput {
   )
   final ImportedRecordOutcome? outcome;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportedRecordOutput._read_rawPayload,
-    toJson: ImportedRecordOutput._write_rawPayload,
-  )
-  final ({String? value})? rawPayload;
+  @JsonKey(includeIfNull: false)
+  final String? rawPayload;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportedRecordOutput._read_rejectionReason,
-    toJson: ImportedRecordOutput._write_rejectionReason,
-  )
-  final ({String? value})? rejectionReason;
+  @JsonKey(includeIfNull: false)
+  final String? rejectionReason;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ImportedRecordOutput._read_transactionId,
-    toJson: ImportedRecordOutput._write_transactionId,
-  )
-  final ({String? value})? transactionId;
-
-  static ({String? value}) _read_amount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_amount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_externalId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_externalId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_occurredOn(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_occurredOn(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? transactionId;
 
   static ImportedRecordOutcome? _read_outcome(Object? value) =>
       value == null ? null : ImportedRecordOutcome.fromJson(value);
 
   static Object? _write_outcome(ImportedRecordOutcome? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_rawPayload(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rawPayload(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_rejectionReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rejectionReason(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_transactionId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_transactionId(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$ImportedRecordOutputToJson(this);
 }

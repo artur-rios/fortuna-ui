@@ -19,16 +19,8 @@ _$CounterpartyCategorySuggestionOutputFromJson(Map<String, dynamic> json) {
     disallowNullValues: const ['counterpartyId', 'hasSuggestion'],
   );
   return CounterpartyCategorySuggestionOutput(
-    categoryId: !json.containsKey('categoryId')
-        ? null
-        : CounterpartyCategorySuggestionOutput._read_categoryId(
-            json['categoryId'],
-          ),
-    categoryName: !json.containsKey('categoryName')
-        ? null
-        : CounterpartyCategorySuggestionOutput._read_categoryName(
-            json['categoryName'],
-          ),
+    categoryId: json['categoryId'] as String?,
+    categoryName: json['categoryName'] as String?,
     counterpartyId: json['counterpartyId'] as String?,
     hasSuggestion: json['hasSuggestion'] as bool?,
   );
@@ -37,14 +29,8 @@ _$CounterpartyCategorySuggestionOutputFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$CounterpartyCategorySuggestionOutputToJson(
   CounterpartyCategorySuggestionOutput instance,
 ) => <String, dynamic>{
-  if (instance.categoryId case final $value?)
-    'categoryId': CounterpartyCategorySuggestionOutput._write_categoryId(
-      $value,
-    ),
-  if (instance.categoryName case final $value?)
-    'categoryName': CounterpartyCategorySuggestionOutput._write_categoryName(
-      $value,
-    ),
+  'categoryId': ?instance.categoryId,
+  'categoryName': ?instance.categoryName,
   'counterpartyId': ?instance.counterpartyId,
   'hasSuggestion': ?instance.hasSuggestion,
 };

@@ -45,12 +45,8 @@ class CreateCreditCardCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? creditLimit;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateCreditCardCommandOutput._read_currencyCode,
-    toJson: CreateCreditCardCommandOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(
     disallowNullValue: true,
@@ -63,26 +59,14 @@ class CreateCreditCardCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateCreditCardCommandOutput._read_issuer,
-    toJson: CreateCreditCardCommandOutput._write_issuer,
-  )
-  final ({String? value})? issuer;
+  @JsonKey(includeIfNull: false)
+  final String? issuer;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateCreditCardCommandOutput._read_lastFourDigits,
-    toJson: CreateCreditCardCommandOutput._write_lastFourDigits,
-  )
-  final ({String? value})? lastFourDigits;
+  @JsonKey(includeIfNull: false)
+  final String? lastFourDigits;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateCreditCardCommandOutput._read_name,
-    toJson: CreateCreditCardCommandOutput._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   @JsonKey(
     disallowNullValue: true,
@@ -103,30 +87,10 @@ class CreateCreditCardCommandOutput {
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
 
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
   static int? _read_dueDay(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_dueDay(int? value) => value;
-
-  static ({String? value}) _read_issuer(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_issuer(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_lastFourDigits(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_lastFourDigits(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

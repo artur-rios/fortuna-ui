@@ -12,20 +12,12 @@ _$RegenerateRecoveryCodesThroughApiCommandOutputFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['recoveryCodes']);
   return RegenerateRecoveryCodesThroughApiCommandOutput(
-    recoveryCodes: !json.containsKey('recoveryCodes')
-        ? null
-        : RegenerateRecoveryCodesThroughApiCommandOutput._read_recoveryCodes(
-            json['recoveryCodes'],
-          ),
+    recoveryCodes: (json['recoveryCodes'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$RegenerateRecoveryCodesThroughApiCommandOutputToJson(
   RegenerateRecoveryCodesThroughApiCommandOutput instance,
-) => <String, dynamic>{
-  if (instance.recoveryCodes case final $value?)
-    'recoveryCodes':
-        RegenerateRecoveryCodesThroughApiCommandOutput._write_recoveryCodes(
-          $value,
-        ),
-};
+) => <String, dynamic>{'recoveryCodes': ?instance.recoveryCodes};

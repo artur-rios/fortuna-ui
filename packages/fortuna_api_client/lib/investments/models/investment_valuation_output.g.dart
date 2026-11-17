@@ -31,9 +31,7 @@ InvestmentValuationOutput _$InvestmentValuationOutputFromJson(
   );
   return InvestmentValuationOutput(
     createdAt: InvestmentValuationOutput._read_createdAt(json['createdAt']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : InvestmentValuationOutput._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
     investmentId: json['investmentId'] as String?,
     updatedAt: InvestmentValuationOutput._read_updatedAt(json['updatedAt']),
@@ -46,8 +44,7 @@ Map<String, dynamic> _$InvestmentValuationOutputToJson(
   InvestmentValuationOutput instance,
 ) => <String, dynamic>{
   'createdAt': ?InvestmentValuationOutput._write_createdAt(instance.createdAt),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': InvestmentValuationOutput._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
   'investmentId': ?instance.investmentId,
   'updatedAt': ?InvestmentValuationOutput._write_updatedAt(instance.updatedAt),

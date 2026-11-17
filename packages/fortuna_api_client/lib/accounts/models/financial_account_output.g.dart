@@ -34,17 +34,11 @@ FinancialAccountOutput _$FinancialAccountOutputFromJson(
   return FinancialAccountOutput(
     accountType: FinancialAccountOutput._read_accountType(json['accountType']),
     createdAt: FinancialAccountOutput._read_createdAt(json['createdAt']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : FinancialAccountOutput._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
-    institution: !json.containsKey('institution')
-        ? null
-        : FinancialAccountOutput._read_institution(json['institution']),
+    institution: json['institution'] as String?,
     isDeleted: json['isDeleted'] as bool?,
-    name: !json.containsKey('name')
-        ? null
-        : FinancialAccountOutput._read_name(json['name']),
+    name: json['name'] as String?,
     openingBalance: json['openingBalance'] as String?,
     updatedAt: FinancialAccountOutput._read_updatedAt(json['updatedAt']),
   );
@@ -57,14 +51,11 @@ Map<String, dynamic> _$FinancialAccountOutputToJson(
     instance.accountType,
   ),
   'createdAt': ?FinancialAccountOutput._write_createdAt(instance.createdAt),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': FinancialAccountOutput._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
-  if (instance.institution case final $value?)
-    'institution': FinancialAccountOutput._write_institution($value),
+  'institution': ?instance.institution,
   'isDeleted': ?instance.isDeleted,
-  if (instance.name case final $value?)
-    'name': FinancialAccountOutput._write_name($value),
+  'name': ?instance.name,
   'openingBalance': ?instance.openingBalance,
   'updatedAt': ?FinancialAccountOutput._write_updatedAt(instance.updatedAt),
 };

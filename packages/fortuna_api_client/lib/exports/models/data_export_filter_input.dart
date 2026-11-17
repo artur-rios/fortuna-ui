@@ -15,42 +15,14 @@ class DataExportFilterInput {
   factory DataExportFilterInput.fromJson(Map<String, Object?> json) =>
       _$DataExportFilterInputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataExportFilterInput._read_field,
-    toJson: DataExportFilterInput._write_field,
-  )
-  final ({String? value})? field;
+  @JsonKey(includeIfNull: false)
+  final String? field;
 
-  @JsonKey(
-    name: "operator",
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataExportFilterInput._read_operator2,
-    toJson: DataExportFilterInput._write_operator2,
-  )
-  final ({String? value})? operator2;
+  @JsonKey(name: "operator", includeIfNull: false)
+  final String? operator2;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataExportFilterInput._read_value,
-    toJson: DataExportFilterInput._write_value,
-  )
-  final ({String? value})? value;
-
-  static ({String? value}) _read_field(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_field(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_operator2(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_operator2(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_value(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_value(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? value;
 
   Map<String, Object?> toJson() => _$DataExportFilterInputToJson(this);
 }

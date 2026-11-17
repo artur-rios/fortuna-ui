@@ -11,20 +11,11 @@ CreateCategoryCommand _$CreateCategoryCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['name', 'parentId']);
   return CreateCategoryCommand(
-    name: !json.containsKey('name')
-        ? null
-        : CreateCategoryCommand._read_name(json['name']),
-    parentId: !json.containsKey('parentId')
-        ? null
-        : CreateCategoryCommand._read_parentId(json['parentId']),
+    name: json['name'] as String?,
+    parentId: json['parentId'] as String?,
   );
 }
 
 Map<String, dynamic> _$CreateCategoryCommandToJson(
   CreateCategoryCommand instance,
-) => <String, dynamic>{
-  if (instance.name case final $value?)
-    'name': CreateCategoryCommand._write_name($value),
-  if (instance.parentId case final $value?)
-    'parentId': CreateCategoryCommand._write_parentId($value),
-};
+) => <String, dynamic>{'name': ?instance.name, 'parentId': ?instance.parentId};

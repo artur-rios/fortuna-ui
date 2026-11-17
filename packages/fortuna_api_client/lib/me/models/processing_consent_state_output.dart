@@ -21,57 +21,30 @@ class ProcessingConsentStateOutput {
   factory ProcessingConsentStateOutput.fromJson(Map<String, Object?> json) =>
       _$ProcessingConsentStateOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ProcessingConsentStateOutput._read_currentVersion,
-    toJson: ProcessingConsentStateOutput._write_currentVersion,
-  )
-  final ({String? value})? currentVersion;
+  @JsonKey(includeIfNull: false)
+  final String? currentVersion;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: ProcessingConsentStateOutput._read_grantedAt,
     toJson: ProcessingConsentStateOutput._write_grantedAt,
   )
-  final ({DateTime? value})? grantedAt;
+  final DateTime? grantedAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ProcessingConsentStateOutput._read_grantedVersion,
-    toJson: ProcessingConsentStateOutput._write_grantedVersion,
-  )
-  final ({String? value})? grantedVersion;
+  @JsonKey(includeIfNull: false)
+  final String? grantedVersion;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isCurrent;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ProcessingConsentStateOutput._read_purpose,
-    toJson: ProcessingConsentStateOutput._write_purpose,
-  )
-  final ({String? value})? purpose;
+  @JsonKey(includeIfNull: false)
+  final String? purpose;
 
-  static ({String? value}) _read_currentVersion(Object? value) =>
-      (value: value as String?);
+  static DateTime? _read_grantedAt(Object? value) =>
+      value == null ? null : DateTime.parse(value as String).toUtc();
 
-  static Object? _write_currentVersion(({String? value}) value) => value.value;
-
-  static ({DateTime? value}) _read_grantedAt(Object? value) =>
-      (value: value == null ? null : DateTime.parse(value as String).toUtc());
-
-  static Object? _write_grantedAt(({DateTime? value}) value) =>
-      value.value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_grantedVersion(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_grantedVersion(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_purpose(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_purpose(({String? value}) value) => value.value;
+  static Object? _write_grantedAt(DateTime? value) =>
+      value?.toUtc().toIso8601String();
 
   Map<String, Object?> toJson() => _$ProcessingConsentStateOutputToJson(this);
 }

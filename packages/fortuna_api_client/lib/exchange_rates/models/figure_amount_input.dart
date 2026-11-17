@@ -18,17 +18,8 @@ class FigureAmountInput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: FigureAmountInput._read_currencyCode,
-    toJson: FigureAmountInput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   Map<String, Object?> toJson() => _$FigureAmountInputToJson(this);
 }

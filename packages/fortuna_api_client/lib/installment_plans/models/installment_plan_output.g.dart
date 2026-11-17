@@ -39,36 +39,22 @@ InstallmentPlanOutput _$InstallmentPlanOutputFromJson(
     ],
   );
   return InstallmentPlanOutput(
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : InstallmentPlanOutput._read_appliedRate(json['appliedRate']),
+    appliedRate: json['appliedRate'] as String?,
     createdAt: InstallmentPlanOutput._read_createdAt(json['createdAt']),
     creditCardId: json['creditCardId'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : InstallmentPlanOutput._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
     installmentCount: InstallmentPlanOutput._read_installmentCount(
       json['installmentCount'],
     ),
-    installments: !json.containsKey('installments')
-        ? null
-        : InstallmentPlanOutput._read_installments(json['installments']),
+    installments: (json['installments'] as List<dynamic>?)
+        ?.map((e) => InstallmentOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     isDeleted: json['isDeleted'] as bool?,
-    originalCurrencyCode: !json.containsKey('originalCurrencyCode')
-        ? null
-        : InstallmentPlanOutput._read_originalCurrencyCode(
-            json['originalCurrencyCode'],
-          ),
-    originalTotalAmount: !json.containsKey('originalTotalAmount')
-        ? null
-        : InstallmentPlanOutput._read_originalTotalAmount(
-            json['originalTotalAmount'],
-          ),
+    originalCurrencyCode: json['originalCurrencyCode'] as String?,
+    originalTotalAmount: json['originalTotalAmount'] as String?,
     purchasedOn: json['purchasedOn'] as String?,
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : InstallmentPlanOutput._read_rateDate(json['rateDate']),
+    rateDate: json['rateDate'] as String?,
     totalAmount: json['totalAmount'] as String?,
     updatedAt: InstallmentPlanOutput._read_updatedAt(json['updatedAt']),
   );
@@ -77,30 +63,20 @@ InstallmentPlanOutput _$InstallmentPlanOutputFromJson(
 Map<String, dynamic> _$InstallmentPlanOutputToJson(
   InstallmentPlanOutput instance,
 ) => <String, dynamic>{
-  if (instance.appliedRate case final $value?)
-    'appliedRate': InstallmentPlanOutput._write_appliedRate($value),
+  'appliedRate': ?instance.appliedRate,
   'createdAt': ?InstallmentPlanOutput._write_createdAt(instance.createdAt),
   'creditCardId': ?instance.creditCardId,
-  if (instance.currencyCode case final $value?)
-    'currencyCode': InstallmentPlanOutput._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
   'installmentCount': ?InstallmentPlanOutput._write_installmentCount(
     instance.installmentCount,
   ),
-  if (instance.installments case final $value?)
-    'installments': InstallmentPlanOutput._write_installments($value),
+  'installments': ?instance.installments?.map((e) => e.toJson()).toList(),
   'isDeleted': ?instance.isDeleted,
-  if (instance.originalCurrencyCode case final $value?)
-    'originalCurrencyCode': InstallmentPlanOutput._write_originalCurrencyCode(
-      $value,
-    ),
-  if (instance.originalTotalAmount case final $value?)
-    'originalTotalAmount': InstallmentPlanOutput._write_originalTotalAmount(
-      $value,
-    ),
+  'originalCurrencyCode': ?instance.originalCurrencyCode,
+  'originalTotalAmount': ?instance.originalTotalAmount,
   'purchasedOn': ?instance.purchasedOn,
-  if (instance.rateDate case final $value?)
-    'rateDate': InstallmentPlanOutput._write_rateDate($value),
+  'rateDate': ?instance.rateDate,
   'totalAmount': ?instance.totalAmount,
   'updatedAt': ?InstallmentPlanOutput._write_updatedAt(instance.updatedAt),
 };

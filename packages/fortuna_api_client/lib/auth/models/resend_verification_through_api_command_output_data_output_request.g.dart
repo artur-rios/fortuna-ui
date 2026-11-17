@@ -13,7 +13,7 @@ _$ResendVerificationThroughApiCommandOutputDataOutput$RequestFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'timestamp'],
-    disallowNullValues: const ['data', 'timestamp'],
+    disallowNullValues: const ['timestamp'],
   );
   return ResendVerificationThroughApiCommandOutputDataOutput$Request(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$ResendVerificationThroughApiCommandOutputDataOutput$RequestFromJson(
         : ResendVerificationThroughApiCommandOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : ResendVerificationThroughApiCommandOutputDataOutput$Request._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : ResendVerificationThroughApiCommandOutputDataOutput$Request._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     timestamp:
         ResendVerificationThroughApiCommandOutputDataOutput$Request._read_timestamp(
           json['timestamp'],
@@ -43,16 +39,8 @@ _$ResendVerificationThroughApiCommandOutputDataOutput$RequestToJson(
   ResendVerificationThroughApiCommandOutputDataOutput$Request instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors':
-        ResendVerificationThroughApiCommandOutputDataOutput$Request._write_errors(
-          $value,
-        ),
-  if (instance.messages case final $value?)
-    'messages':
-        ResendVerificationThroughApiCommandOutputDataOutput$Request._write_messages(
-          $value,
-        ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'timestamp':
       ?ResendVerificationThroughApiCommandOutputDataOutput$Request._write_timestamp(
         instance.timestamp,

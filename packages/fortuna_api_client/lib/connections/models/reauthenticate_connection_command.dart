@@ -18,12 +18,8 @@ class ReauthenticateConnectionCommand {
   factory ReauthenticateConnectionCommand.fromJson(Map<String, Object?> json) =>
       _$ReauthenticateConnectionCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ReauthenticateConnectionCommand._read_externalReference,
-    toJson: ReauthenticateConnectionCommand._write_externalReference,
-  )
-  final ({String? value})? externalReference;
+  @JsonKey(includeIfNull: false)
+  final String? externalReference;
 
   static const _knownKeys = <String>{"externalReference"};
 
@@ -33,12 +29,6 @@ class ReauthenticateConnectionCommand {
     includeToJson: false,
   )
   final Map<String, Object?> additionalProperties;
-
-  static ({String? value}) _read_externalReference(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_externalReference(({String? value}) value) =>
-      value.value;
 
   static Object? _extras(Map map, String _) => {
     for (final entry in map.entries)

@@ -28,16 +28,8 @@ _$RecordManualExchangeRateCommandOutputFromJson(Map<String, dynamic> json) {
     ],
   );
   return RecordManualExchangeRateCommandOutput(
-    baseCurrencyCode: !json.containsKey('baseCurrencyCode')
-        ? null
-        : RecordManualExchangeRateCommandOutput._read_baseCurrencyCode(
-            json['baseCurrencyCode'],
-          ),
-    quoteCurrencyCode: !json.containsKey('quoteCurrencyCode')
-        ? null
-        : RecordManualExchangeRateCommandOutput._read_quoteCurrencyCode(
-            json['quoteCurrencyCode'],
-          ),
+    baseCurrencyCode: json['baseCurrencyCode'] as String?,
+    quoteCurrencyCode: json['quoteCurrencyCode'] as String?,
     rate: json['rate'] as String?,
     rateDate: json['rateDate'] as String?,
     replacedExisting: json['replacedExisting'] as bool?,
@@ -49,12 +41,8 @@ _$RecordManualExchangeRateCommandOutputFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$RecordManualExchangeRateCommandOutputToJson(
   RecordManualExchangeRateCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.baseCurrencyCode case final $value?)
-    'baseCurrencyCode':
-        RecordManualExchangeRateCommandOutput._write_baseCurrencyCode($value),
-  if (instance.quoteCurrencyCode case final $value?)
-    'quoteCurrencyCode':
-        RecordManualExchangeRateCommandOutput._write_quoteCurrencyCode($value),
+  'baseCurrencyCode': ?instance.baseCurrencyCode,
+  'quoteCurrencyCode': ?instance.quoteCurrencyCode,
   'rate': ?instance.rate,
   'rateDate': ?instance.rateDate,
   'replacedExisting': ?instance.replacedExisting,

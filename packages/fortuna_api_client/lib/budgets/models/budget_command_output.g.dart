@@ -36,13 +36,14 @@ BudgetCommandOutput _$BudgetCommandOutputFromJson(Map<String, dynamic> json) {
   );
   return BudgetCommandOutput(
     amount: json['amount'] as String?,
-    categories: !json.containsKey('categories')
-        ? null
-        : BudgetCommandOutput._read_categories(json['categories']),
+    categories: (json['categories'] as List<dynamic>?)
+        ?.map(
+          (e) =>
+              BudgetCategoryCommandOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
     createdAt: BudgetCommandOutput._read_createdAt(json['createdAt']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : BudgetCommandOutput._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
     currentPeriod: json['currentPeriod'] == null
         ? null
         : BudgetConsumptionCommandOutput.fromJson(
@@ -61,11 +62,9 @@ Map<String, dynamic> _$BudgetCommandOutputToJson(
   BudgetCommandOutput instance,
 ) => <String, dynamic>{
   'amount': ?instance.amount,
-  if (instance.categories case final $value?)
-    'categories': BudgetCommandOutput._write_categories($value),
+  'categories': ?instance.categories?.map((e) => e.toJson()).toList(),
   'createdAt': ?BudgetCommandOutput._write_createdAt(instance.createdAt),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': BudgetCommandOutput._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'currentPeriod': ?instance.currentPeriod?.toJson(),
   'id': ?instance.id,
   'includeDescendants': ?instance.includeDescendants,

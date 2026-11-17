@@ -11,20 +11,20 @@ OperationalHealthOutput _$OperationalHealthOutputFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['services', 'status']);
   return OperationalHealthOutput(
-    services: !json.containsKey('services')
-        ? null
-        : OperationalHealthOutput._read_services(json['services']),
-    status: !json.containsKey('status')
-        ? null
-        : OperationalHealthOutput._read_status(json['status']),
+    services: (json['services'] as List<dynamic>?)
+        ?.map(
+          (e) => OperationalHealthServiceOutput.fromJson(
+            e as Map<String, dynamic>,
+          ),
+        )
+        .toList(),
+    status: json['status'] as String?,
   );
 }
 
 Map<String, dynamic> _$OperationalHealthOutputToJson(
   OperationalHealthOutput instance,
 ) => <String, dynamic>{
-  if (instance.services case final $value?)
-    'services': OperationalHealthOutput._write_services($value),
-  if (instance.status case final $value?)
-    'status': OperationalHealthOutput._write_status($value),
+  'services': ?instance.services?.map((e) => e.toJson()).toList(),
+  'status': ?instance.status,
 };

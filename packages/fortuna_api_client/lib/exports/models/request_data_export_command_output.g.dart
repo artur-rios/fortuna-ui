@@ -23,20 +23,12 @@ RequestDataExportCommandOutput _$RequestDataExportCommandOutputFromJson(
     disallowNullValues: const ['delivery', 'format', 'rowCount'],
   );
   return RequestDataExportCommandOutput(
-    contentType: !json.containsKey('contentType')
-        ? null
-        : RequestDataExportCommandOutput._read_contentType(json['contentType']),
+    contentType: json['contentType'] as String?,
     delivery: RequestDataExportCommandOutput._read_delivery(json['delivery']),
-    exportId: !json.containsKey('exportId')
-        ? null
-        : RequestDataExportCommandOutput._read_exportId(json['exportId']),
-    fileName: !json.containsKey('fileName')
-        ? null
-        : RequestDataExportCommandOutput._read_fileName(json['fileName']),
+    exportId: json['exportId'] as String?,
+    fileName: json['fileName'] as String?,
     format: RequestDataExportCommandOutput._read_format(json['format']),
-    jobId: !json.containsKey('jobId')
-        ? null
-        : RequestDataExportCommandOutput._read_jobId(json['jobId']),
+    jobId: json['jobId'] as String?,
     rowCount: RequestDataExportCommandOutput._read_rowCount(json['rowCount']),
   );
 }
@@ -44,18 +36,14 @@ RequestDataExportCommandOutput _$RequestDataExportCommandOutputFromJson(
 Map<String, dynamic> _$RequestDataExportCommandOutputToJson(
   RequestDataExportCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.contentType case final $value?)
-    'contentType': RequestDataExportCommandOutput._write_contentType($value),
+  'contentType': ?instance.contentType,
   'delivery': ?RequestDataExportCommandOutput._write_delivery(
     instance.delivery,
   ),
-  if (instance.exportId case final $value?)
-    'exportId': RequestDataExportCommandOutput._write_exportId($value),
-  if (instance.fileName case final $value?)
-    'fileName': RequestDataExportCommandOutput._write_fileName($value),
+  'exportId': ?instance.exportId,
+  'fileName': ?instance.fileName,
   'format': ?RequestDataExportCommandOutput._write_format(instance.format),
-  if (instance.jobId case final $value?)
-    'jobId': RequestDataExportCommandOutput._write_jobId($value),
+  'jobId': ?instance.jobId,
   'rowCount': ?RequestDataExportCommandOutput._write_rowCount(
     instance.rowCount,
   ),

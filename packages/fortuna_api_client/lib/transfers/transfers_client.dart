@@ -9,18 +9,17 @@ import 'package:retrofit/retrofit.dart'
         RestApi,
         Extras,
         CancelRequest,
+        POST,
         GET,
         DELETE,
-        POST,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
-import 'models/record_transfer_command.dart'
-    as models
-    show RecordTransferCommand;
+import 'models/record_transfer_command.dart' show RecordTransferCommand;
 import 'models/record_transfer_command_output_data_output_response.dart'
-    as models
     show RecordTransferCommandOutputDataOutput$Response;
 import 'models/transfer_lifecycle_command_output_data_output_response.dart'
     show TransferLifecycleCommandOutputDataOutput$Response;
@@ -37,28 +36,27 @@ abstract class TransfersClient {
 
   final Dio _transport;
 
-  Future<models.RecordTransferCommandOutputDataOutput$Response>
-  postApiTransfers({
+  Future<RecordTransferCommandOutputDataOutput$Response>
+  _postApiTransfersWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RecordTransferCommand body,
+    required RecordTransferCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/transfers",
@@ -66,11 +64,23 @@ abstract class TransfersClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.RecordTransferCommandOutputDataOutput$Response.fromJson(
+    return RecordTransferCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/transfers')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RecordTransferCommandOutputDataOutput$Response> postApiTransfers({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RecordTransferCommand body,
+  });
   Future<TransferOutputDataOutput$Response> _getApiTransfersByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -192,6 +202,31 @@ abstract class TransfersClient {
 
 class _TransfersClientWithOptions extends _TransfersClient {
   _TransfersClientWithOptions(Dio dio) : super._(dio, dio);
+
+  @override
+  Future<RecordTransferCommandOutputDataOutput$Response> postApiTransfers({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RecordTransferCommand body,
+  }) {
+    return options == null
+        ? super.postApiTransfers(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiTransfersWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
 
   @override
   Future<TransferOutputDataOutput$Response> getApiTransfersById({

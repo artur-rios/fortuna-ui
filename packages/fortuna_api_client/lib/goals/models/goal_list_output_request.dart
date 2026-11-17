@@ -26,12 +26,8 @@ class GoalListOutput$Request {
             entry.key: entry.value,
       });
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalListOutput$Request._read_goals,
-    toJson: GoalListOutput$Request._write_goals,
-  )
-  final ({List<GoalOutput>? value})? goals;
+  @JsonKey(includeIfNull: false)
+  final List<GoalOutput>? goals;
 
   @JsonKey(
     disallowNullValue: true,
@@ -56,17 +52,6 @@ class GoalListOutput$Request {
     toJson: GoalListOutput$Request._write_totalItems,
   )
   final int? totalItems;
-
-  static ({List<GoalOutput>? value}) _read_goals(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map((item) => GoalOutput.fromJson(item as Map<String, Object?>))
-              .toList(),
-  );
-
-  static Object? _write_goals(({List<GoalOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;

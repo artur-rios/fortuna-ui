@@ -18,17 +18,8 @@ class DataExportSortInput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? descending;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: DataExportSortInput._read_field,
-    toJson: DataExportSortInput._write_field,
-  )
-  final ({String? value})? field;
-
-  static ({String? value}) _read_field(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_field(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? field;
 
   Map<String, Object?> toJson() => _$DataExportSortInputToJson(this);
 }

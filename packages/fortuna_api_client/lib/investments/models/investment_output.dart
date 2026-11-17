@@ -37,12 +37,8 @@ class InvestmentOutput {
   factory InvestmentOutput.fromJson(Map<String, Object?> json) =>
       _$InvestmentOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_appliedRate,
-    toJson: InvestmentOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
   @JsonKey(
     disallowNullValue: true,
@@ -52,43 +48,23 @@ class InvestmentOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_currencyCode,
-    toJson: InvestmentOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_displayCurrencyCode,
-    toJson: InvestmentOutput._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_displayPosition,
-    toJson: InvestmentOutput._write_displayPosition,
-  )
-  final ({String? value})? displayPosition;
+  @JsonKey(includeIfNull: false)
+  final String? displayPosition;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_institution,
-    toJson: InvestmentOutput._write_institution,
-  )
-  final ({String? value})? institution;
+  @JsonKey(includeIfNull: false)
+  final String? institution;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_instrument,
-    toJson: InvestmentOutput._write_instrument,
-  )
-  final ({String? value})? instrument;
+  @JsonKey(includeIfNull: false)
+  final String? instrument;
 
   @JsonKey(
     disallowNullValue: true,
@@ -104,44 +80,27 @@ class InvestmentOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isIndependentlyValued;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_latestValuationDate,
-    toJson: InvestmentOutput._write_latestValuationDate,
-  )
-  final ({String? value})? latestValuationDate;
+  @JsonKey(includeIfNull: false)
+  final String? latestValuationDate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_latestValuationValue,
-    toJson: InvestmentOutput._write_latestValuationValue,
-  )
-  final ({String? value})? latestValuationValue;
+  @JsonKey(includeIfNull: false)
+  final String? latestValuationValue;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? position;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_rateDate,
-    toJson: InvestmentOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
-    disallowNullValue: true,
     includeIfNull: false,
     fromJson: InvestmentOutput._read_rateSource,
     toJson: InvestmentOutput._write_rateSource,
   )
   final ExchangeRateSource? rateSource;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InvestmentOutput._read_unconvertedReason,
-    toJson: InvestmentOutput._write_unconvertedReason,
-  )
-  final ({String? value})? unconvertedReason;
+  @JsonKey(includeIfNull: false)
+  final String? unconvertedReason;
 
   @JsonKey(
     disallowNullValue: true,
@@ -151,42 +110,11 @@ class InvestmentOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_displayPosition(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayPosition(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_institution(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_institution(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_instrument(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_instrument(({String? value}) value) => value.value;
 
   static InvestmentType? _read_investmentType(Object? value) =>
       value == null ? null : InvestmentType.fromJson(value);
@@ -194,34 +122,11 @@ class InvestmentOutput {
   static Object? _write_investmentType(InvestmentType? value) =>
       value?.toJson();
 
-  static ({String? value}) _read_latestValuationDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_latestValuationDate(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_latestValuationValue(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_latestValuationValue(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
-
   static ExchangeRateSource? _read_rateSource(Object? value) =>
       value == null ? null : ExchangeRateSource.fromJson(value);
 
   static Object? _write_rateSource(ExchangeRateSource? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_unconvertedReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_unconvertedReason(({String? value}) value) =>
-      value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

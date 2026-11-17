@@ -15,14 +15,10 @@ ReconcileTransactionCommand _$ReconcileTransactionCommandFromJson(
     disallowNullValues: const ['unreconcile'],
   );
   return ReconcileTransactionCommand(
-    importJobId: !json.containsKey('importJobId')
-        ? null
-        : ReconcileTransactionCommand._read_importJobId(json['importJobId']),
-    importedRecordId: !json.containsKey('importedRecordId')
-        ? null
-        : ReconcileTransactionCommand._read_importedRecordId(
-            json['importedRecordId'],
-          ),
+    importJobId: json['importJobId'] as String?,
+    importedRecordId: ReconcileTransactionCommand._read_importedRecordId(
+      json['importedRecordId'],
+    ),
     unreconcile: json['unreconcile'] as bool?,
   );
 }
@@ -30,11 +26,9 @@ ReconcileTransactionCommand _$ReconcileTransactionCommandFromJson(
 Map<String, dynamic> _$ReconcileTransactionCommandToJson(
   ReconcileTransactionCommand instance,
 ) => <String, dynamic>{
-  if (instance.importJobId case final $value?)
-    'importJobId': ReconcileTransactionCommand._write_importJobId($value),
-  if (instance.importedRecordId case final $value?)
-    'importedRecordId': ReconcileTransactionCommand._write_importedRecordId(
-      $value,
-    ),
+  'importJobId': ?instance.importJobId,
+  'importedRecordId': ?ReconcileTransactionCommand._write_importedRecordId(
+    instance.importedRecordId,
+  ),
   'unreconcile': ?instance.unreconcile,
 };

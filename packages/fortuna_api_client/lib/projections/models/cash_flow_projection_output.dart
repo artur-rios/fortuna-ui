@@ -35,36 +35,20 @@ class CashFlowProjectionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? asOf;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowProjectionOutput._read_displayCurrencyCode,
-    toJson: CashFlowProjectionOutput._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowProjectionOutput._read_estimateOmittedReason,
-    toJson: CashFlowProjectionOutput._write_estimateOmittedReason,
-  )
-  final ({String? value})? estimateOmittedReason;
+  @JsonKey(includeIfNull: false)
+  final String? estimateOmittedReason;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowProjectionOutput._read_flatReason,
-    toJson: CashFlowProjectionOutput._write_flatReason,
-  )
-  final ({String? value})? flatReason;
+  @JsonKey(includeIfNull: false)
+  final String? flatReason;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowProjectionOutput._read_missingRates,
-    toJson: CashFlowProjectionOutput._write_missingRates,
-  )
-  final ({List<MissingExchangeRateOutput>? value})? missingRates;
+  @JsonKey(includeIfNull: false)
+  final List<MissingExchangeRateOutput>? missingRates;
 
   @JsonKey(
     disallowNullValue: true,
@@ -74,19 +58,11 @@ class CashFlowProjectionOutput {
   )
   final CashFlowPeriodicity? periodicity;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowProjectionOutput._read_periods,
-    toJson: CashFlowProjectionOutput._write_periods,
-  )
-  final ({List<CashFlowPeriodOutput>? value})? periods;
+  @JsonKey(includeIfNull: false)
+  final List<CashFlowPeriodOutput>? periods;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowProjectionOutput._read_rates,
-    toJson: CashFlowProjectionOutput._write_rates,
-  )
-  final ({List<CashFlowRateOutput>? value})? rates;
+  @JsonKey(includeIfNull: false)
+  final List<CashFlowRateOutput>? rates;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? startingBalance;
@@ -94,74 +70,11 @@ class CashFlowProjectionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? through;
 
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_estimateOmittedReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_estimateOmittedReason(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_flatReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_flatReason(({String? value}) value) => value.value;
-
-  static ({List<MissingExchangeRateOutput>? value}) _read_missingRates(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => MissingExchangeRateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_missingRates(
-    ({List<MissingExchangeRateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
   static CashFlowPeriodicity? _read_periodicity(Object? value) =>
       value == null ? null : CashFlowPeriodicity.fromJson(value);
 
   static Object? _write_periodicity(CashFlowPeriodicity? value) =>
       value?.toJson();
-
-  static ({List<CashFlowPeriodOutput>? value}) _read_periods(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    CashFlowPeriodOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_periods(({List<CashFlowPeriodOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
-
-  static ({List<CashFlowRateOutput>? value}) _read_rates(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    CashFlowRateOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_rates(({List<CashFlowRateOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   Map<String, Object?> toJson() => _$CashFlowProjectionOutputToJson(this);
 }

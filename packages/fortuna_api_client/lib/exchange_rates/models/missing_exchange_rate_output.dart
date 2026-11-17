@@ -18,31 +18,11 @@ class MissingExchangeRateOutput {
   factory MissingExchangeRateOutput.fromJson(Map<String, Object?> json) =>
       _$MissingExchangeRateOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: MissingExchangeRateOutput._read_baseCurrencyCode,
-    toJson: MissingExchangeRateOutput._write_baseCurrencyCode,
-  )
-  final ({String? value})? baseCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? baseCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: MissingExchangeRateOutput._read_quoteCurrencyCode,
-    toJson: MissingExchangeRateOutput._write_quoteCurrencyCode,
-  )
-  final ({String? value})? quoteCurrencyCode;
-
-  static ({String? value}) _read_baseCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_baseCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_quoteCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_quoteCurrencyCode(({String? value}) value) =>
-      value.value;
+  @JsonKey(includeIfNull: false)
+  final String? quoteCurrencyCode;
 
   Map<String, Object?> toJson() => _$MissingExchangeRateOutputToJson(this);
 }

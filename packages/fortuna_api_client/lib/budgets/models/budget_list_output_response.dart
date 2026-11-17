@@ -23,12 +23,8 @@ class BudgetListOutput$Response {
   factory BudgetListOutput$Response.fromJson(Map<String, Object?> json) =>
       _$BudgetListOutput$ResponseFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetListOutput$Response._read_budgets,
-    toJson: BudgetListOutput$Response._write_budgets,
-  )
-  final ({List<BudgetOutput>? value})? budgets;
+  @JsonKey(includeIfNull: false)
+  final List<BudgetOutput>? budgets;
 
   @JsonKey(
     disallowNullValue: true,
@@ -61,19 +57,6 @@ class BudgetListOutput$Response {
     toJson: BudgetListOutput$Response._write_totalPages,
   )
   final int? totalPages;
-
-  static ({List<BudgetOutput>? value}) _read_budgets(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => BudgetOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_budgets(({List<BudgetOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;

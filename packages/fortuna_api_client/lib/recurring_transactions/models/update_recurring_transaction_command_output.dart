@@ -42,29 +42,17 @@ class UpdateRecurringTransactionCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_appliesFrom,
-    toJson: UpdateRecurringTransactionCommandOutput._write_appliesFrom,
-  )
-  final ({String? value})? appliesFrom;
+  @JsonKey(includeIfNull: false)
+  final String? appliesFrom;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? categoryId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_counterpartyId,
-    toJson: UpdateRecurringTransactionCommandOutput._write_counterpartyId,
-  )
-  final ({String? value})? counterpartyId;
+  @JsonKey(includeIfNull: false)
+  final String? counterpartyId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_counterpartyName,
-    toJson: UpdateRecurringTransactionCommandOutput._write_counterpartyName,
-  )
-  final ({String? value})? counterpartyName;
+  @JsonKey(includeIfNull: false)
+  final String? counterpartyName;
 
   @JsonKey(
     disallowNullValue: true,
@@ -74,26 +62,14 @@ class UpdateRecurringTransactionCommandOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_creditCardId,
-    toJson: UpdateRecurringTransactionCommandOutput._write_creditCardId,
-  )
-  final ({String? value})? creditCardId;
+  @JsonKey(includeIfNull: false)
+  final String? creditCardId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_currencyCode,
-    toJson: UpdateRecurringTransactionCommandOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_description,
-    toJson: UpdateRecurringTransactionCommandOutput._write_description,
-  )
-  final ({String? value})? description;
+  @JsonKey(includeIfNull: false)
+  final String? description;
 
   @JsonKey(
     disallowNullValue: true,
@@ -103,19 +79,11 @@ class UpdateRecurringTransactionCommandOutput {
   )
   final TransactionDirection? direction;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_endsOn,
-    toJson: UpdateRecurringTransactionCommandOutput._write_endsOn,
-  )
-  final ({String? value})? endsOn;
+  @JsonKey(includeIfNull: false)
+  final String? endsOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_financialAccountId,
-    toJson: UpdateRecurringTransactionCommandOutput._write_financialAccountId,
-  )
-  final ({String? value})? financialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? financialAccountId;
 
   @JsonKey(
     disallowNullValue: true,
@@ -128,22 +96,14 @@ class UpdateRecurringTransactionCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_lastMaterializedOn,
-    toJson: UpdateRecurringTransactionCommandOutput._write_lastMaterializedOn,
-  )
-  final ({String? value})? lastMaterializedOn;
+  @JsonKey(includeIfNull: false)
+  final String? lastMaterializedOn;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? materializedOccurrencesChanged;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateRecurringTransactionCommandOutput._read_nextOccurrences,
-    toJson: UpdateRecurringTransactionCommandOutput._write_nextOccurrences,
-  )
-  final ({List<String>? value})? nextOccurrences;
+  @JsonKey(includeIfNull: false)
+  final List<String>? nextOccurrences;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? startsOn;
@@ -156,42 +116,11 @@ class UpdateRecurringTransactionCommandOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_appliesFrom(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliesFrom(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_counterpartyId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_counterpartyId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_counterpartyName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_counterpartyName(({String? value}) value) =>
-      value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_creditCardId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_creditCardId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_description(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_description(({String? value}) value) => value.value;
 
   static TransactionDirection? _read_direction(Object? value) =>
       value == null ? null : TransactionDirection.fromJson(value);
@@ -199,37 +128,11 @@ class UpdateRecurringTransactionCommandOutput {
   static Object? _write_direction(TransactionDirection? value) =>
       value?.toJson();
 
-  static ({String? value}) _read_endsOn(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_endsOn(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_financialAccountId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_financialAccountId(({String? value}) value) =>
-      value.value;
-
   static RecurrenceFrequency? _read_frequency(Object? value) =>
       value == null ? null : RecurrenceFrequency.fromJson(value);
 
   static Object? _write_frequency(RecurrenceFrequency? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_lastMaterializedOn(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_lastMaterializedOn(({String? value}) value) =>
-      value.value;
-
-  static ({List<String>? value}) _read_nextOccurrences(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_nextOccurrences(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

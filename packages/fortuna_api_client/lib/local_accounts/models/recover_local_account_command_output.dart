@@ -36,12 +36,8 @@ class RecoverLocalAccountCommandOutput {
   )
   final int? remainingRecoveryCodes;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecoverLocalAccountCommandOutput._read_token,
-    toJson: RecoverLocalAccountCommandOutput._write_token,
-  )
-  final ({String? value})? token;
+  @JsonKey(includeIfNull: false)
+  final String? token;
 
   static DateTime? _read_expiresAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
@@ -53,11 +49,6 @@ class RecoverLocalAccountCommandOutput {
       value == null ? null : value as int;
 
   static Object? _write_remainingRecoveryCodes(int? value) => value;
-
-  static ({String? value}) _read_token(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_token(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() =>
       _$RecoverLocalAccountCommandOutputToJson(this);

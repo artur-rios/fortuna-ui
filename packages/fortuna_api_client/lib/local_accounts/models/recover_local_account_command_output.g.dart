@@ -22,9 +22,7 @@ RecoverLocalAccountCommandOutput _$RecoverLocalAccountCommandOutputFromJson(
         RecoverLocalAccountCommandOutput._read_remainingRecoveryCodes(
           json['remainingRecoveryCodes'],
         ),
-    token: !json.containsKey('token')
-        ? null
-        : RecoverLocalAccountCommandOutput._read_token(json['token']),
+    token: json['token'] as String?,
   );
 }
 
@@ -38,6 +36,5 @@ Map<String, dynamic> _$RecoverLocalAccountCommandOutputToJson(
       ?RecoverLocalAccountCommandOutput._write_remainingRecoveryCodes(
         instance.remainingRecoveryCodes,
       ),
-  if (instance.token case final $value?)
-    'token': RecoverLocalAccountCommandOutput._write_token($value),
+  'token': ?instance.token,
 };

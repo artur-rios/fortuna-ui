@@ -32,9 +32,7 @@ TagCommandOutput _$TagCommandOutputFromJson(Map<String, dynamic> json) {
     ),
     id: json['id'] as String?,
     isDeleted: json['isDeleted'] as bool?,
-    name: !json.containsKey('name')
-        ? null
-        : TagCommandOutput._read_name(json['name']),
+    name: json['name'] as String?,
     updatedAt: TagCommandOutput._read_updatedAt(json['updatedAt']),
   );
 }
@@ -48,7 +46,6 @@ Map<String, dynamic> _$TagCommandOutputToJson(
   ),
   'id': ?instance.id,
   'isDeleted': ?instance.isDeleted,
-  if (instance.name case final $value?)
-    'name': TagCommandOutput._write_name($value),
+  'name': ?instance.name,
   'updatedAt': ?TagCommandOutput._write_updatedAt(instance.updatedAt),
 };

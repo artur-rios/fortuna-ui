@@ -32,12 +32,8 @@ class InstallmentPlanOutput {
   factory InstallmentPlanOutput.fromJson(Map<String, Object?> json) =>
       _$InstallmentPlanOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentPlanOutput._read_appliedRate,
-    toJson: InstallmentPlanOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
   @JsonKey(
     disallowNullValue: true,
@@ -50,12 +46,8 @@ class InstallmentPlanOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? creditCardId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentPlanOutput._read_currencyCode,
-    toJson: InstallmentPlanOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -68,39 +60,23 @@ class InstallmentPlanOutput {
   )
   final int? installmentCount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentPlanOutput._read_installments,
-    toJson: InstallmentPlanOutput._write_installments,
-  )
-  final ({List<InstallmentOutput>? value})? installments;
+  @JsonKey(includeIfNull: false)
+  final List<InstallmentOutput>? installments;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isDeleted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentPlanOutput._read_originalCurrencyCode,
-    toJson: InstallmentPlanOutput._write_originalCurrencyCode,
-  )
-  final ({String? value})? originalCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? originalCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentPlanOutput._read_originalTotalAmount,
-    toJson: InstallmentPlanOutput._write_originalTotalAmount,
-  )
-  final ({String? value})? originalTotalAmount;
+  @JsonKey(includeIfNull: false)
+  final String? originalTotalAmount;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? purchasedOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: InstallmentPlanOutput._read_rateDate,
-    toJson: InstallmentPlanOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? totalAmount;
@@ -113,60 +89,16 @@ class InstallmentPlanOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
 
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
   static int? _read_installmentCount(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_installmentCount(int? value) => value;
-
-  static ({List<InstallmentOutput>? value}) _read_installments(Object? value) =>
-      (
-        value: value == null
-            ? null
-            : (value as List<Object?>)
-                  .map(
-                    (item) => InstallmentOutput.fromJson(
-                      item as Map<String, Object?>,
-                    ),
-                  )
-                  .toList(),
-      );
-
-  static Object? _write_installments(
-    ({List<InstallmentOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_originalCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_originalCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_originalTotalAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_originalTotalAmount(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

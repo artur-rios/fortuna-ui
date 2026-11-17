@@ -26,12 +26,8 @@ class RecordInvestmentMovementCommand {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommand._read_financialAccountId,
-    toJson: RecordInvestmentMovementCommand._write_financialAccountId,
-  )
-  final ({String? value})? financialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? financialAccountId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -46,12 +42,6 @@ class RecordInvestmentMovementCommand {
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
-
-  static ({String? value}) _read_financialAccountId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_financialAccountId(({String? value}) value) =>
-      value.value;
 
   static InvestmentMovementType? _read_movementType(Object? value) =>
       value == null ? null : InvestmentMovementType.fromJson(value);

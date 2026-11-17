@@ -43,12 +43,8 @@ RetryImportJobCommandOutput _$RetryImportJobCommandOutputFromJson(
     importedCount: RetryImportJobCommandOutput._read_importedCount(
       json['importedCount'],
     ),
-    periodEnd: !json.containsKey('periodEnd')
-        ? null
-        : RetryImportJobCommandOutput._read_periodEnd(json['periodEnd']),
-    periodStart: !json.containsKey('periodStart')
-        ? null
-        : RetryImportJobCommandOutput._read_periodStart(json['periodStart']),
+    periodEnd: json['periodEnd'] as String?,
+    periodStart: json['periodStart'] as String?,
     rejectedCount: RetryImportJobCommandOutput._read_rejectedCount(
       json['rejectedCount'],
     ),
@@ -73,10 +69,8 @@ Map<String, dynamic> _$RetryImportJobCommandOutputToJson(
   'importedCount': ?RetryImportJobCommandOutput._write_importedCount(
     instance.importedCount,
   ),
-  if (instance.periodEnd case final $value?)
-    'periodEnd': RetryImportJobCommandOutput._write_periodEnd($value),
-  if (instance.periodStart case final $value?)
-    'periodStart': RetryImportJobCommandOutput._write_periodStart($value),
+  'periodEnd': ?instance.periodEnd,
+  'periodStart': ?instance.periodStart,
   'rejectedCount': ?RetryImportJobCommandOutput._write_rejectedCount(
     instance.rejectedCount,
   ),

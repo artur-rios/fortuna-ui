@@ -14,15 +14,12 @@ TableSortInput _$TableSortInputFromJson(Map<String, dynamic> json) {
   );
   return TableSortInput(
     descending: json['descending'] as bool?,
-    field: !json.containsKey('field')
-        ? null
-        : TableSortInput._read_field(json['field']),
+    field: json['field'] as String?,
   );
 }
 
 Map<String, dynamic> _$TableSortInputToJson(TableSortInput instance) =>
     <String, dynamic>{
       'descending': ?instance.descending,
-      if (instance.field case final $value?)
-        'field': TableSortInput._write_field($value),
+      'field': ?instance.field,
     };

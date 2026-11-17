@@ -15,9 +15,9 @@ GoalListOutput$Request _$GoalListOutput$RequestFromJson(
     disallowNullValues: const ['pageNumber', 'pageSize', 'totalItems'],
   );
   return GoalListOutput$Request(
-    goals: !json.containsKey('goals')
-        ? null
-        : GoalListOutput$Request._read_goals(json['goals']),
+    goals: (json['goals'] as List<dynamic>?)
+        ?.map((e) => GoalOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     pageNumber: GoalListOutput$Request._read_pageNumber(json['pageNumber']),
     pageSize: GoalListOutput$Request._read_pageSize(json['pageSize']),
     totalItems: GoalListOutput$Request._read_totalItems(json['totalItems']),
@@ -27,8 +27,7 @@ GoalListOutput$Request _$GoalListOutput$RequestFromJson(
 Map<String, dynamic> _$GoalListOutput$RequestToJson(
   GoalListOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.goals case final $value?)
-    'goals': GoalListOutput$Request._write_goals($value),
+  'goals': ?instance.goals?.map((e) => e.toJson()).toList(),
   'pageNumber': ?GoalListOutput$Request._write_pageNumber(instance.pageNumber),
   'pageSize': ?GoalListOutput$Request._write_pageSize(instance.pageSize),
   'totalItems': ?GoalListOutput$Request._write_totalItems(instance.totalItems),

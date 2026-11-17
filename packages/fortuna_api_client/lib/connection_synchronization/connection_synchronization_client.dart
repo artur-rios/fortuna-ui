@@ -2,21 +2,91 @@
 
 import 'dart:convert' as convert;
 
-import 'package:dio/dio.dart' show Dio, Options, ResponseType, CancelToken;
+import 'package:dio/dio.dart'
+    show Dio, Options, ResponseType, CancelToken, RequestOptions;
+import 'package:retrofit/retrofit.dart'
+    show
+        RestApi,
+        Extras,
+        CancelRequest,
+        POST,
+        ParseErrorLogger,
+        Body,
+        Headers,
+        Path;
 
 import 'models/synchronize_connection_command.dart'
-    as models
     show SynchronizeConnectionCommand;
 import 'models/synchronize_connection_command_output_data_output_response.dart'
-    as models
     show SynchronizeConnectionCommandOutputDataOutput$Response;
 
-class ConnectionSynchronizationClient {
-  ConnectionSynchronizationClient(this._transport);
+part 'connection_synchronization_client.g.dart';
+
+@RestApi(headers: {'Accept': 'application/json'})
+abstract class ConnectionSynchronizationClient {
+  ConnectionSynchronizationClient._(this._transport);
+
+  factory ConnectionSynchronizationClient(Dio dio) =>
+      _ConnectionSynchronizationClientWithOptions(dio);
 
   final Dio _transport;
 
-  Future<models.SynchronizeConnectionCommandOutputDataOutput$Response>
+  Future<SynchronizeConnectionCommandOutputDataOutput$Response>
+  _postApiConnectionsByIdSyncWithOptions({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required SynchronizeConnectionCommand body,
+  }) async {
+    final _options = (options ?? Options()).copyWith(
+      method: "POST",
+      responseType: ResponseType.json,
+      extra: {...?options?.extra, ...extra},
+      contentType: "application/json",
+      headers: {
+        for (final entry
+            in (options?.headers ?? const <String, Object?>{}).entries)
+          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
+        'Accept': "application/json",
+      },
+    );
+    final response = await _transport.request<dynamic>(
+      "/api/connections/" + id.toString() + "/sync",
+      options: _options,
+      data: convert.jsonEncode(body),
+      cancelToken: cancelToken,
+    );
+    return SynchronizeConnectionCommandOutputDataOutput$Response.fromJson(
+      response.data as Map<String, Object?>,
+    );
+  }
+
+  @POST('/api/connections/{id}/sync')
+  @Headers({'Content-Type': 'application/json'})
+  Future<SynchronizeConnectionCommandOutputDataOutput$Response>
+  postApiConnectionsByIdSync({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required SynchronizeConnectionCommand body,
+  });
+}
+
+class _ConnectionSynchronizationClientWithOptions
+    extends _ConnectionSynchronizationClient {
+  _ConnectionSynchronizationClientWithOptions(Dio dio) : super._(dio, dio);
+
+  @override
+  Future<SynchronizeConnectionCommandOutputDataOutput$Response>
   postApiConnectionsByIdSync({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -25,33 +95,22 @@ class ConnectionSynchronizationClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.SynchronizeConnectionCommand body,
-  }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
-    final _options = (options ?? Options()).copyWith(
-      method: "POST",
-      responseType: ResponseType.json,
-      extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
-      headers: {
-        for (final entry
-            in (options?.headers ?? const <String, Object?>{}).entries)
-          if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
-        'Accept': "application/json",
-      },
-      validateStatus: (status) => status != null && (status == 202),
-    );
-    final response = await _transport.request<dynamic>(
-      "/api/connections/" + Uri.encodeComponent(id) + "/sync",
-      options: _options,
-      data: convert.jsonEncode(body),
-      cancelToken: cancelToken,
-    );
-    return models
-        .SynchronizeConnectionCommandOutputDataOutput$Response.fromJson(
-      response.data as Map<String, Object?>,
-    );
+    required SynchronizeConnectionCommand body,
+  }) {
+    return options == null
+        ? super.postApiConnectionsByIdSync(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _postApiConnectionsByIdSyncWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          );
   }
 }

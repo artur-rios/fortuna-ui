@@ -33,40 +33,22 @@ RecordInstallmentPlanCommandOutput _$RecordInstallmentPlanCommandOutputFromJson(
     ],
   );
   return RecordInstallmentPlanCommandOutput(
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : RecordInstallmentPlanCommandOutput._read_appliedRate(
-            json['appliedRate'],
-          ),
+    appliedRate: json['appliedRate'] as String?,
     creditCardId: json['creditCardId'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : RecordInstallmentPlanCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
     installmentCount: RecordInstallmentPlanCommandOutput._read_installmentCount(
       json['installmentCount'],
     ),
-    installments: !json.containsKey('installments')
-        ? null
-        : RecordInstallmentPlanCommandOutput._read_installments(
-            json['installments'],
-          ),
-    originalCurrencyCode: !json.containsKey('originalCurrencyCode')
-        ? null
-        : RecordInstallmentPlanCommandOutput._read_originalCurrencyCode(
-            json['originalCurrencyCode'],
-          ),
-    originalTotalAmount: !json.containsKey('originalTotalAmount')
-        ? null
-        : RecordInstallmentPlanCommandOutput._read_originalTotalAmount(
-            json['originalTotalAmount'],
-          ),
+    installments: (json['installments'] as List<dynamic>?)
+        ?.map(
+          (e) => InstallmentCommandOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    originalCurrencyCode: json['originalCurrencyCode'] as String?,
+    originalTotalAmount: json['originalTotalAmount'] as String?,
     purchasedOn: json['purchasedOn'] as String?,
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : RecordInstallmentPlanCommandOutput._read_rateDate(json['rateDate']),
+    rateDate: json['rateDate'] as String?,
     totalAmount: json['totalAmount'] as String?,
   );
 }
@@ -74,32 +56,18 @@ RecordInstallmentPlanCommandOutput _$RecordInstallmentPlanCommandOutputFromJson(
 Map<String, dynamic> _$RecordInstallmentPlanCommandOutputToJson(
   RecordInstallmentPlanCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.appliedRate case final $value?)
-    'appliedRate': RecordInstallmentPlanCommandOutput._write_appliedRate(
-      $value,
-    ),
+  'appliedRate': ?instance.appliedRate,
   'creditCardId': ?instance.creditCardId,
-  if (instance.currencyCode case final $value?)
-    'currencyCode': RecordInstallmentPlanCommandOutput._write_currencyCode(
-      $value,
-    ),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
   'installmentCount':
       ?RecordInstallmentPlanCommandOutput._write_installmentCount(
         instance.installmentCount,
       ),
-  if (instance.installments case final $value?)
-    'installments': RecordInstallmentPlanCommandOutput._write_installments(
-      $value,
-    ),
-  if (instance.originalCurrencyCode case final $value?)
-    'originalCurrencyCode':
-        RecordInstallmentPlanCommandOutput._write_originalCurrencyCode($value),
-  if (instance.originalTotalAmount case final $value?)
-    'originalTotalAmount':
-        RecordInstallmentPlanCommandOutput._write_originalTotalAmount($value),
+  'installments': ?instance.installments?.map((e) => e.toJson()).toList(),
+  'originalCurrencyCode': ?instance.originalCurrencyCode,
+  'originalTotalAmount': ?instance.originalTotalAmount,
   'purchasedOn': ?instance.purchasedOn,
-  if (instance.rateDate case final $value?)
-    'rateDate': RecordInstallmentPlanCommandOutput._write_rateDate($value),
+  'rateDate': ?instance.rateDate,
   'totalAmount': ?instance.totalAmount,
 };

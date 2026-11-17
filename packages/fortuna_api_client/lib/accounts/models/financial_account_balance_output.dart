@@ -26,20 +26,11 @@ class FinancialAccountBalanceOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? balance;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: FinancialAccountBalanceOutput._read_currencyCode,
-    toJson: FinancialAccountBalanceOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$FinancialAccountBalanceOutputToJson(this);
 }

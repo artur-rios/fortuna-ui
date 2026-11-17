@@ -13,7 +13,7 @@ _$TransferLifecycleCommandOutputDataOutput$ResponseFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'success', 'timestamp'],
-    disallowNullValues: const ['data', 'success', 'timestamp'],
+    disallowNullValues: const ['success', 'timestamp'],
   );
   return TransferLifecycleCommandOutputDataOutput$Response(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$TransferLifecycleCommandOutputDataOutput$ResponseFromJson(
         : TransferLifecycleCommandOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : TransferLifecycleCommandOutputDataOutput$Response._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : TransferLifecycleCommandOutputDataOutput$Response._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp:
         TransferLifecycleCommandOutputDataOutput$Response._read_timestamp(
@@ -43,15 +39,8 @@ Map<String, dynamic> _$TransferLifecycleCommandOutputDataOutput$ResponseToJson(
   TransferLifecycleCommandOutputDataOutput$Response instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors': TransferLifecycleCommandOutputDataOutput$Response._write_errors(
-      $value,
-    ),
-  if (instance.messages case final $value?)
-    'messages':
-        TransferLifecycleCommandOutputDataOutput$Response._write_messages(
-          $value,
-        ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp':
       ?TransferLifecycleCommandOutputDataOutput$Response._write_timestamp(

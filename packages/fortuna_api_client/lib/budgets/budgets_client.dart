@@ -10,8 +10,12 @@ import 'package:retrofit/retrofit.dart'
         Extras,
         CancelRequest,
         GET,
+        POST,
+        PUT,
         DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
@@ -23,8 +27,8 @@ import 'models/budget_list_output_data_output_response.dart'
     show BudgetListOutputDataOutput$Response;
 import 'models/budget_output_data_output_response.dart'
     show BudgetOutputDataOutput$Response;
-import 'models/create_budget_command.dart' as models show CreateBudgetCommand;
-import 'models/update_budget_command.dart' as models show UpdateBudgetCommand;
+import 'models/create_budget_command.dart' show CreateBudgetCommand;
+import 'models/update_budget_command.dart' show UpdateBudgetCommand;
 
 part 'budgets_client.g.dart';
 
@@ -81,27 +85,26 @@ abstract class BudgetsClient {
     @Query('pageNumber') int? pageNumber,
     @Query('pageSize') int? pageSize,
   });
-  Future<BudgetCommandOutputDataOutput$Response> postApiBudgets({
+  Future<BudgetCommandOutputDataOutput$Response> _postApiBudgetsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateBudgetCommand body,
+    required CreateBudgetCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/budgets",
@@ -114,6 +117,18 @@ abstract class BudgetsClient {
     );
   }
 
+  @POST('/api/budgets')
+  @Headers({'Content-Type': 'application/json'})
+  Future<BudgetCommandOutputDataOutput$Response> postApiBudgets({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateBudgetCommand body,
+  });
   Future<BudgetOutputDataOutput$Response> _getApiBudgetsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -155,7 +170,7 @@ abstract class BudgetsClient {
     @Path('id') required String id,
     @Query('includeDeleted') bool? includeDeleted,
   });
-  Future<BudgetCommandOutputDataOutput$Response> putApiBudgetsById({
+  Future<BudgetCommandOutputDataOutput$Response> _putApiBudgetsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -163,26 +178,22 @@ abstract class BudgetsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateBudgetCommand body,
+    required UpdateBudgetCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/budgets/" + Uri.encodeComponent(id),
+      "/api/budgets/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
@@ -192,6 +203,19 @@ abstract class BudgetsClient {
     );
   }
 
+  @PUT('/api/budgets/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<BudgetCommandOutputDataOutput$Response> putApiBudgetsById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateBudgetCommand body,
+  });
   Future<BudgetCommandOutputDataOutput$Response>
   _deleteApiBudgetsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -309,6 +333,31 @@ class _BudgetsClientWithOptions extends _BudgetsClient {
   }
 
   @override
+  Future<BudgetCommandOutputDataOutput$Response> postApiBudgets({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateBudgetCommand body,
+  }) {
+    return options == null
+        ? super.postApiBudgets(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiBudgetsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<BudgetOutputDataOutput$Response> getApiBudgetsById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -333,6 +382,34 @@ class _BudgetsClientWithOptions extends _BudgetsClient {
             options: options,
             id: id,
             includeDeleted: includeDeleted,
+          );
+  }
+
+  @override
+  Future<BudgetCommandOutputDataOutput$Response> putApiBudgetsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateBudgetCommand body,
+  }) {
+    return options == null
+        ? super.putApiBudgetsById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiBudgetsByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

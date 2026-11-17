@@ -31,19 +31,13 @@ RecordInstallmentPlanCommand _$RecordInstallmentPlanCommandFromJson(
   );
   return RecordInstallmentPlanCommand(
     categoryId: json['categoryId'] as String?,
-    counterparty: !json.containsKey('counterparty')
-        ? null
-        : RecordInstallmentPlanCommand._read_counterparty(json['counterparty']),
+    counterparty: json['counterparty'] as String?,
     creditCardId: json['creditCardId'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : RecordInstallmentPlanCommand._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
     installmentCount: RecordInstallmentPlanCommand._read_installmentCount(
       json['installmentCount'],
     ),
-    ownerId: !json.containsKey('ownerId')
-        ? null
-        : RecordInstallmentPlanCommand._read_ownerId(json['ownerId']),
+    ownerId: json['ownerId'] as String?,
     purchasedOn: json['purchasedOn'] as String?,
     totalAmount: json['totalAmount'] as String?,
   );
@@ -53,16 +47,13 @@ Map<String, dynamic> _$RecordInstallmentPlanCommandToJson(
   RecordInstallmentPlanCommand instance,
 ) => <String, dynamic>{
   'categoryId': ?instance.categoryId,
-  if (instance.counterparty case final $value?)
-    'counterparty': RecordInstallmentPlanCommand._write_counterparty($value),
+  'counterparty': ?instance.counterparty,
   'creditCardId': ?instance.creditCardId,
-  if (instance.currencyCode case final $value?)
-    'currencyCode': RecordInstallmentPlanCommand._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'installmentCount': ?RecordInstallmentPlanCommand._write_installmentCount(
     instance.installmentCount,
   ),
-  if (instance.ownerId case final $value?)
-    'ownerId': RecordInstallmentPlanCommand._write_ownerId($value),
+  'ownerId': ?instance.ownerId,
   'purchasedOn': ?instance.purchasedOn,
   'totalAmount': ?instance.totalAmount,
 };

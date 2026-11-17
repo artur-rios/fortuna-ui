@@ -30,12 +30,8 @@ class GoalOutput {
   factory GoalOutput.fromJson(Map<String, Object?> json) =>
       _$GoalOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalOutput._read_accounts,
-    toJson: GoalOutput._write_accounts,
-  )
-  final ({List<GoalResourceOutput>? value})? accounts;
+  @JsonKey(includeIfNull: false)
+  final List<GoalResourceOutput>? accounts;
 
   @JsonKey(
     disallowNullValue: true,
@@ -45,12 +41,8 @@ class GoalOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalOutput._read_currencyCode,
-    toJson: GoalOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final GoalProgressOutput? currentProgress;
@@ -58,22 +50,14 @@ class GoalOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalOutput._read_investments,
-    toJson: GoalOutput._write_investments,
-  )
-  final ({List<GoalResourceOutput>? value})? investments;
+  @JsonKey(includeIfNull: false)
+  final List<GoalResourceOutput>? investments;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isDeleted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalOutput._read_name,
-    toJson: GoalOutput._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? targetAmount;
@@ -89,52 +73,11 @@ class GoalOutput {
   )
   final DateTime? updatedAt;
 
-  static ({List<GoalResourceOutput>? value}) _read_accounts(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    GoalResourceOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_accounts(({List<GoalResourceOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({List<GoalResourceOutput>? value}) _read_investments(Object? value) =>
-      (
-        value: value == null
-            ? null
-            : (value as List<Object?>)
-                  .map(
-                    (item) => GoalResourceOutput.fromJson(
-                      item as Map<String, Object?>,
-                    ),
-                  )
-                  .toList(),
-      );
-
-  static Object? _write_investments(
-    ({List<GoalResourceOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

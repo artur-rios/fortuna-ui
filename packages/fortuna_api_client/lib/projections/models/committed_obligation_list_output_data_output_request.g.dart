@@ -13,7 +13,7 @@ _$CommittedObligationListOutputDataOutput$RequestFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'timestamp'],
-    disallowNullValues: const ['data', 'timestamp'],
+    disallowNullValues: const ['timestamp'],
   );
   return CommittedObligationListOutputDataOutput$Request(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$CommittedObligationListOutputDataOutput$RequestFromJson(
         : CommittedObligationListOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : CommittedObligationListOutputDataOutput$Request._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : CommittedObligationListOutputDataOutput$Request._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     timestamp: CommittedObligationListOutputDataOutput$Request._read_timestamp(
       json['timestamp'],
     ),
@@ -41,14 +37,8 @@ Map<String, dynamic> _$CommittedObligationListOutputDataOutput$RequestToJson(
   CommittedObligationListOutputDataOutput$Request instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors': CommittedObligationListOutputDataOutput$Request._write_errors(
-      $value,
-    ),
-  if (instance.messages case final $value?)
-    'messages': CommittedObligationListOutputDataOutput$Request._write_messages(
-      $value,
-    ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'timestamp':
       ?CommittedObligationListOutputDataOutput$Request._write_timestamp(
         instance.timestamp,

@@ -27,106 +27,26 @@ class TransactionTotalsOutput$Response {
     Map<String, Object?> json,
   ) => _$TransactionTotalsOutput$ResponseFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionTotalsOutput$Response._read_byCurrency,
-    toJson: TransactionTotalsOutput$Response._write_byCurrency,
-  )
-  final ({List<TransactionCurrencyTotalOutput$Response>? value})? byCurrency;
+  @JsonKey(includeIfNull: false)
+  final List<TransactionCurrencyTotalOutput$Response>? byCurrency;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionTotalsOutput$Response._read_displayCurrencyCode,
-    toJson: TransactionTotalsOutput$Response._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionTotalsOutput$Response._read_displayEarning,
-    toJson: TransactionTotalsOutput$Response._write_displayEarning,
-  )
-  final ({String? value})? displayEarning;
+  @JsonKey(includeIfNull: false)
+  final String? displayEarning;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionTotalsOutput$Response._read_displayExpense,
-    toJson: TransactionTotalsOutput$Response._write_displayExpense,
-  )
-  final ({String? value})? displayExpense;
+  @JsonKey(includeIfNull: false)
+  final String? displayExpense;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionTotalsOutput$Response._read_displayNet,
-    toJson: TransactionTotalsOutput$Response._write_displayNet,
-  )
-  final ({String? value})? displayNet;
+  @JsonKey(includeIfNull: false)
+  final String? displayNet;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionTotalsOutput$Response._read_missingRates,
-    toJson: TransactionTotalsOutput$Response._write_missingRates,
-  )
-  final ({List<MissingExchangeRateOutput>? value})? missingRates;
-
-  static ({List<TransactionCurrencyTotalOutput$Response>? value})
-  _read_byCurrency(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => TransactionCurrencyTotalOutput$Response.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_byCurrency(
-    ({List<TransactionCurrencyTotalOutput$Response>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_displayEarning(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayEarning(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayExpense(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayExpense(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_displayNet(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayNet(({String? value}) value) => value.value;
-
-  static ({List<MissingExchangeRateOutput>? value}) _read_missingRates(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => MissingExchangeRateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_missingRates(
-    ({List<MissingExchangeRateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
+  @JsonKey(includeIfNull: false)
+  final List<MissingExchangeRateOutput>? missingRates;
 
   Map<String, Object?> toJson() =>
       _$TransactionTotalsOutput$ResponseToJson(this);

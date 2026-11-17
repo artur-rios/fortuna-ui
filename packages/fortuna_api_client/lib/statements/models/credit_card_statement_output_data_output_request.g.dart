@@ -13,7 +13,7 @@ _$CreditCardStatementOutputDataOutput$RequestFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'timestamp'],
-    disallowNullValues: const ['data', 'timestamp'],
+    disallowNullValues: const ['timestamp'],
   );
   return CreditCardStatementOutputDataOutput$Request(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$CreditCardStatementOutputDataOutput$RequestFromJson(
         : CreditCardStatementOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : CreditCardStatementOutputDataOutput$Request._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : CreditCardStatementOutputDataOutput$Request._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     timestamp: CreditCardStatementOutputDataOutput$Request._read_timestamp(
       json['timestamp'],
     ),
@@ -41,12 +37,8 @@ Map<String, dynamic> _$CreditCardStatementOutputDataOutput$RequestToJson(
   CreditCardStatementOutputDataOutput$Request instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors': CreditCardStatementOutputDataOutput$Request._write_errors($value),
-  if (instance.messages case final $value?)
-    'messages': CreditCardStatementOutputDataOutput$Request._write_messages(
-      $value,
-    ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'timestamp': ?CreditCardStatementOutputDataOutput$Request._write_timestamp(
     instance.timestamp,
   ),

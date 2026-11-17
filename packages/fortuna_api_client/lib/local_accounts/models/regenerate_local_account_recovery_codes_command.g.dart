@@ -12,17 +12,10 @@ _$RegenerateLocalAccountRecoveryCodesCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['secret']);
   return RegenerateLocalAccountRecoveryCodesCommand(
-    secret: !json.containsKey('secret')
-        ? null
-        : RegenerateLocalAccountRecoveryCodesCommand._read_secret(
-            json['secret'],
-          ),
+    secret: json['secret'] as String?,
   );
 }
 
 Map<String, dynamic> _$RegenerateLocalAccountRecoveryCodesCommandToJson(
   RegenerateLocalAccountRecoveryCodesCommand instance,
-) => <String, dynamic>{
-  if (instance.secret case final $value?)
-    'secret': RegenerateLocalAccountRecoveryCodesCommand._write_secret($value),
-};
+) => <String, dynamic>{'secret': ?instance.secret};

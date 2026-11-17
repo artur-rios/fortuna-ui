@@ -16,17 +16,8 @@ class MaterializeRecurringTransactionsCommand {
     Map<String, Object?> json,
   ) => _$MaterializeRecurringTransactionsCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: MaterializeRecurringTransactionsCommand._read_ownerId,
-    toJson: MaterializeRecurringTransactionsCommand._write_ownerId,
-  )
-  final ({String? value})? ownerId;
-
-  static ({String? value}) _read_ownerId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_ownerId(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? ownerId;
 
   Map<String, Object?> toJson() =>
       _$MaterializeRecurringTransactionsCommandToJson(this);

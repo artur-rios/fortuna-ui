@@ -21,35 +21,23 @@ AuditEntryOutput _$AuditEntryOutputFromJson(Map<String, dynamic> json) {
     disallowNullValues: const ['occurredAt', 'outcome', 'subjectReference'],
   );
   return AuditEntryOutput(
-    entityId: !json.containsKey('entityId')
-        ? null
-        : AuditEntryOutput._read_entityId(json['entityId']),
-    entityType: !json.containsKey('entityType')
-        ? null
-        : AuditEntryOutput._read_entityType(json['entityType']),
+    entityId: json['entityId'] as String?,
+    entityType: json['entityType'] as String?,
     occurredAt: AuditEntryOutput._read_occurredAt(json['occurredAt']),
-    operation: !json.containsKey('operation')
-        ? null
-        : AuditEntryOutput._read_operation(json['operation']),
+    operation: json['operation'] as String?,
     outcome: AuditEntryOutput._read_outcome(json['outcome']),
-    reason: !json.containsKey('reason')
-        ? null
-        : AuditEntryOutput._read_reason(json['reason']),
+    reason: json['reason'] as String?,
     subjectReference: json['subjectReference'] as String?,
   );
 }
 
 Map<String, dynamic> _$AuditEntryOutputToJson(AuditEntryOutput instance) =>
     <String, dynamic>{
-      if (instance.entityId case final $value?)
-        'entityId': AuditEntryOutput._write_entityId($value),
-      if (instance.entityType case final $value?)
-        'entityType': AuditEntryOutput._write_entityType($value),
+      'entityId': ?instance.entityId,
+      'entityType': ?instance.entityType,
       'occurredAt': ?AuditEntryOutput._write_occurredAt(instance.occurredAt),
-      if (instance.operation case final $value?)
-        'operation': AuditEntryOutput._write_operation($value),
+      'operation': ?instance.operation,
       'outcome': ?AuditEntryOutput._write_outcome(instance.outcome),
-      if (instance.reason case final $value?)
-        'reason': AuditEntryOutput._write_reason($value),
+      'reason': ?instance.reason,
       'subjectReference': ?instance.subjectReference,
     };

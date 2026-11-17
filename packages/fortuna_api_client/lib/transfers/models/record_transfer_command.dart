@@ -25,19 +25,11 @@ class RecordTransferCommand {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommand._read_destinationFinancialAccountId,
-    toJson: RecordTransferCommand._write_destinationFinancialAccountId,
-  )
-  final ({String? value})? destinationFinancialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? destinationFinancialAccountId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommand._read_destinationStatementId,
-    toJson: RecordTransferCommand._write_destinationStatementId,
-  )
-  final ({String? value})? destinationStatementId;
+  @JsonKey(includeIfNull: false)
+  final String? destinationStatementId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
@@ -45,30 +37,8 @@ class RecordTransferCommand {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? originFinancialAccountId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommand._read_ownerId,
-    toJson: RecordTransferCommand._write_ownerId,
-  )
-  final ({String? value})? ownerId;
-
-  static ({String? value}) _read_destinationFinancialAccountId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_destinationFinancialAccountId(
-    ({String? value}) value,
-  ) => value.value;
-
-  static ({String? value}) _read_destinationStatementId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_destinationStatementId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_ownerId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_ownerId(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? ownerId;
 
   Map<String, Object?> toJson() => _$RecordTransferCommandToJson(this);
 }

@@ -33,136 +33,29 @@ class CommittedObligationListOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? asOf;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationListOutput._read_displayCurrencyCode,
-    toJson: CommittedObligationListOutput._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationListOutput._read_items,
-    toJson: CommittedObligationListOutput._write_items,
-  )
-  final ({List<CommittedObligationOutput>? value})? items;
+  @JsonKey(includeIfNull: false)
+  final List<CommittedObligationOutput>? items;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationListOutput._read_missingRates,
-    toJson: CommittedObligationListOutput._write_missingRates,
-  )
-  final ({List<MissingExchangeRateOutput>? value})? missingRates;
+  @JsonKey(includeIfNull: false)
+  final List<MissingExchangeRateOutput>? missingRates;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationListOutput._read_periods,
-    toJson: CommittedObligationListOutput._write_periods,
-  )
-  final ({List<CommittedObligationPeriodOutput>? value})? periods;
+  @JsonKey(includeIfNull: false)
+  final List<CommittedObligationPeriodOutput>? periods;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationListOutput._read_rates,
-    toJson: CommittedObligationListOutput._write_rates,
-  )
-  final ({List<CommittedObligationRateOutput>? value})? rates;
+  @JsonKey(includeIfNull: false)
+  final List<CommittedObligationRateOutput>? rates;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? through;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CommittedObligationListOutput._read_total,
-    toJson: CommittedObligationListOutput._write_total,
-  )
-  final ({String? value})? total;
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({List<CommittedObligationOutput>? value}) _read_items(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => CommittedObligationOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_items(
-    ({List<CommittedObligationOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({List<MissingExchangeRateOutput>? value}) _read_missingRates(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => MissingExchangeRateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_missingRates(
-    ({List<MissingExchangeRateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({List<CommittedObligationPeriodOutput>? value}) _read_periods(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => CommittedObligationPeriodOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_periods(
-    ({List<CommittedObligationPeriodOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({List<CommittedObligationRateOutput>? value}) _read_rates(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => CommittedObligationRateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_rates(
-    ({List<CommittedObligationRateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_total(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_total(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? total;
 
   Map<String, Object?> toJson() => _$CommittedObligationListOutputToJson(this);
 }

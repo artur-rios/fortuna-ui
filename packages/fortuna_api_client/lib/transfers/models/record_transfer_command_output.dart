@@ -30,12 +30,8 @@ class RecordTransferCommandOutput {
   factory RecordTransferCommandOutput.fromJson(Map<String, Object?> json) =>
       _$RecordTransferCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommandOutput._read_appliedRate,
-    toJson: RecordTransferCommandOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
   @JsonKey(
     disallowNullValue: true,
@@ -45,19 +41,11 @@ class RecordTransferCommandOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommandOutput._read_destinationFinancialAccountId,
-    toJson: RecordTransferCommandOutput._write_destinationFinancialAccountId,
-  )
-  final ({String? value})? destinationFinancialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? destinationFinancialAccountId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommandOutput._read_destinationStatementId,
-    toJson: RecordTransferCommandOutput._write_destinationStatementId,
-  )
-  final ({String? value})? destinationStatementId;
+  @JsonKey(includeIfNull: false)
+  final String? destinationStatementId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -65,12 +53,8 @@ class RecordTransferCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? inboundAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommandOutput._read_inboundCurrencyCode,
-    toJson: RecordTransferCommandOutput._write_inboundCurrencyCode,
-  )
-  final ({String? value})? inboundCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? inboundCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? inboundTransactionId;
@@ -84,63 +68,20 @@ class RecordTransferCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? outboundAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommandOutput._read_outboundCurrencyCode,
-    toJson: RecordTransferCommandOutput._write_outboundCurrencyCode,
-  )
-  final ({String? value})? outboundCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? outboundCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? outboundTransactionId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordTransferCommandOutput._read_rateDate,
-    toJson: RecordTransferCommandOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_destinationFinancialAccountId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_destinationFinancialAccountId(
-    ({String? value}) value,
-  ) => value.value;
-
-  static ({String? value}) _read_destinationStatementId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_destinationStatementId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_inboundCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_inboundCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_outboundCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_outboundCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$RecordTransferCommandOutputToJson(this);
 }

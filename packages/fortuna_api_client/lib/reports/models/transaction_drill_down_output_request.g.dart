@@ -28,31 +28,26 @@ TransactionDrillDownOutput$Request _$TransactionDrillDownOutput$RequestFromJson(
       'pageNumber',
       'pageSize',
       'totalItems',
-      'transaction',
     ],
   );
   return TransactionDrillDownOutput$Request(
-    buckets: !json.containsKey('buckets')
-        ? null
-        : TransactionDrillDownOutput$Request._read_buckets(json['buckets']),
-    dimension: !json.containsKey('dimension')
-        ? null
-        : TransactionDrillDownOutput$Request._read_dimension(json['dimension']),
+    buckets: (json['buckets'] as List<dynamic>?)
+        ?.map(
+          (e) => TransactionAggregationBucketOutput.fromJson(
+            e as Map<String, dynamic>,
+          ),
+        )
+        .toList(),
+    dimension: json['dimension'] as String?,
     mayDifferFromChart: json['mayDifferFromChart'] as bool?,
-    mode: !json.containsKey('mode')
-        ? null
-        : TransactionDrillDownOutput$Request._read_mode(json['mode']),
+    mode: json['mode'] as String?,
     pageNumber: TransactionDrillDownOutput$Request._read_pageNumber(
       json['pageNumber'],
     ),
     pageSize: TransactionDrillDownOutput$Request._read_pageSize(
       json['pageSize'],
     ),
-    sourceDimension: !json.containsKey('sourceDimension')
-        ? null
-        : TransactionDrillDownOutput$Request._read_sourceDimension(
-            json['sourceDimension'],
-          ),
+    sourceDimension: json['sourceDimension'] as String?,
     totalItems: TransactionDrillDownOutput$Request._read_totalItems(
       json['totalItems'],
     ),
@@ -61,39 +56,29 @@ TransactionDrillDownOutput$Request _$TransactionDrillDownOutput$RequestFromJson(
         : TransactionOutput.fromJson(
             json['transaction'] as Map<String, dynamic>,
           ),
-    transactions: !json.containsKey('transactions')
-        ? null
-        : TransactionDrillDownOutput$Request._read_transactions(
-            json['transactions'],
-          ),
+    transactions: (json['transactions'] as List<dynamic>?)
+        ?.map((e) => TransactionOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$TransactionDrillDownOutput$RequestToJson(
   TransactionDrillDownOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.buckets case final $value?)
-    'buckets': TransactionDrillDownOutput$Request._write_buckets($value),
-  if (instance.dimension case final $value?)
-    'dimension': TransactionDrillDownOutput$Request._write_dimension($value),
+  'buckets': ?instance.buckets?.map((e) => e.toJson()).toList(),
+  'dimension': ?instance.dimension,
   'mayDifferFromChart': ?instance.mayDifferFromChart,
-  if (instance.mode case final $value?)
-    'mode': TransactionDrillDownOutput$Request._write_mode($value),
+  'mode': ?instance.mode,
   'pageNumber': ?TransactionDrillDownOutput$Request._write_pageNumber(
     instance.pageNumber,
   ),
   'pageSize': ?TransactionDrillDownOutput$Request._write_pageSize(
     instance.pageSize,
   ),
-  if (instance.sourceDimension case final $value?)
-    'sourceDimension':
-        TransactionDrillDownOutput$Request._write_sourceDimension($value),
+  'sourceDimension': ?instance.sourceDimension,
   'totalItems': ?TransactionDrillDownOutput$Request._write_totalItems(
     instance.totalItems,
   ),
   'transaction': ?instance.transaction?.toJson(),
-  if (instance.transactions case final $value?)
-    'transactions': TransactionDrillDownOutput$Request._write_transactions(
-      $value,
-    ),
+  'transactions': ?instance.transactions?.map((e) => e.toJson()).toList(),
 };

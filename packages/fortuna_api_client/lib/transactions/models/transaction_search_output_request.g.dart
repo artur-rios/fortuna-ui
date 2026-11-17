@@ -26,9 +26,9 @@ TransactionSearchOutput$Request _$TransactionSearchOutput$RequestFromJson(
     ],
   );
   return TransactionSearchOutput$Request(
-    items: !json.containsKey('items')
-        ? null
-        : TransactionSearchOutput$Request._read_items(json['items']),
+    items: (json['items'] as List<dynamic>?)
+        ?.map((e) => TransactionOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     pageNumber: TransactionSearchOutput$Request._read_pageNumber(
       json['pageNumber'],
     ),
@@ -47,8 +47,7 @@ TransactionSearchOutput$Request _$TransactionSearchOutput$RequestFromJson(
 Map<String, dynamic> _$TransactionSearchOutput$RequestToJson(
   TransactionSearchOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.items case final $value?)
-    'items': TransactionSearchOutput$Request._write_items($value),
+  'items': ?instance.items?.map((e) => e.toJson()).toList(),
   'pageNumber': ?TransactionSearchOutput$Request._write_pageNumber(
     instance.pageNumber,
   ),

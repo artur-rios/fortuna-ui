@@ -9,15 +9,14 @@ part of 'data_source_list_output.dart';
 DataSourceListOutput _$DataSourceListOutputFromJson(Map<String, dynamic> json) {
   $checkKeys(json, allowedKeys: const ['sources']);
   return DataSourceListOutput(
-    sources: !json.containsKey('sources')
-        ? null
-        : DataSourceListOutput._read_sources(json['sources']),
+    sources: (json['sources'] as List<dynamic>?)
+        ?.map((e) => DataSourceOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$DataSourceListOutputToJson(
   DataSourceListOutput instance,
 ) => <String, dynamic>{
-  if (instance.sources case final $value?)
-    'sources': DataSourceListOutput._write_sources($value),
+  'sources': ?instance.sources?.map((e) => e.toJson()).toList(),
 };

@@ -22,67 +22,23 @@ class CreateGoalCommand {
   factory CreateGoalCommand.fromJson(Map<String, Object?> json) =>
       _$CreateGoalCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateGoalCommand._read_accountIds,
-    toJson: CreateGoalCommand._write_accountIds,
-  )
-  final ({List<String>? value})? accountIds;
+  @JsonKey(includeIfNull: false)
+  final List<String>? accountIds;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateGoalCommand._read_currencyCode,
-    toJson: CreateGoalCommand._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateGoalCommand._read_investmentIds,
-    toJson: CreateGoalCommand._write_investmentIds,
-  )
-  final ({List<String>? value})? investmentIds;
+  @JsonKey(includeIfNull: false)
+  final List<String>? investmentIds;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreateGoalCommand._read_name,
-    toJson: CreateGoalCommand._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? targetAmount;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? targetDate;
-
-  static ({List<String>? value}) _read_accountIds(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_accountIds(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({List<String>? value}) _read_investmentIds(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_investmentIds(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$CreateGoalCommandToJson(this);
 }

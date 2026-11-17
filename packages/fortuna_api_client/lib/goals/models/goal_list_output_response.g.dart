@@ -26,9 +26,9 @@ GoalListOutput$Response _$GoalListOutput$ResponseFromJson(
     ],
   );
   return GoalListOutput$Response(
-    goals: !json.containsKey('goals')
-        ? null
-        : GoalListOutput$Response._read_goals(json['goals']),
+    goals: (json['goals'] as List<dynamic>?)
+        ?.map((e) => GoalOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     pageNumber: GoalListOutput$Response._read_pageNumber(json['pageNumber']),
     pageSize: GoalListOutput$Response._read_pageSize(json['pageSize']),
     totalItems: GoalListOutput$Response._read_totalItems(json['totalItems']),
@@ -39,8 +39,7 @@ GoalListOutput$Response _$GoalListOutput$ResponseFromJson(
 Map<String, dynamic> _$GoalListOutput$ResponseToJson(
   GoalListOutput$Response instance,
 ) => <String, dynamic>{
-  if (instance.goals case final $value?)
-    'goals': GoalListOutput$Response._write_goals($value),
+  'goals': ?instance.goals?.map((e) => e.toJson()).toList(),
   'pageNumber': ?GoalListOutput$Response._write_pageNumber(instance.pageNumber),
   'pageSize': ?GoalListOutput$Response._write_pageSize(instance.pageSize),
   'totalItems': ?GoalListOutput$Response._write_totalItems(instance.totalItems),

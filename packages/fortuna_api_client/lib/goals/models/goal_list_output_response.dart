@@ -23,12 +23,8 @@ class GoalListOutput$Response {
   factory GoalListOutput$Response.fromJson(Map<String, Object?> json) =>
       _$GoalListOutput$ResponseFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalListOutput$Response._read_goals,
-    toJson: GoalListOutput$Response._write_goals,
-  )
-  final ({List<GoalOutput>? value})? goals;
+  @JsonKey(includeIfNull: false)
+  final List<GoalOutput>? goals;
 
   @JsonKey(
     disallowNullValue: true,
@@ -61,17 +57,6 @@ class GoalListOutput$Response {
     toJson: GoalListOutput$Response._write_totalPages,
   )
   final int? totalPages;
-
-  static ({List<GoalOutput>? value}) _read_goals(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map((item) => GoalOutput.fromJson(item as Map<String, Object?>))
-              .toList(),
-  );
-
-  static Object? _write_goals(({List<GoalOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;

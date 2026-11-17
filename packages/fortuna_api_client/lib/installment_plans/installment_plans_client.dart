@@ -9,10 +9,12 @@ import 'package:retrofit/retrofit.dart'
         RestApi,
         Extras,
         CancelRequest,
+        POST,
         GET,
         DELETE,
-        POST,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
@@ -21,10 +23,8 @@ import 'models/installment_plan_lifecycle_command_output_data_output_response.da
 import 'models/installment_plan_output_data_output_response.dart'
     show InstallmentPlanOutputDataOutput$Response;
 import 'models/record_installment_plan_command.dart'
-    as models
     show RecordInstallmentPlanCommand;
 import 'models/record_installment_plan_command_output_data_output_response.dart'
-    as models
     show RecordInstallmentPlanCommandOutputDataOutput$Response;
 
 part 'installment_plans_client.g.dart';
@@ -38,28 +38,27 @@ abstract class InstallmentPlansClient {
 
   final Dio _transport;
 
-  Future<models.RecordInstallmentPlanCommandOutputDataOutput$Response>
-  postApiInstallmentPlans({
+  Future<RecordInstallmentPlanCommandOutputDataOutput$Response>
+  _postApiInstallmentPlansWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.RecordInstallmentPlanCommand body,
+    required RecordInstallmentPlanCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/installment-plans",
@@ -67,12 +66,24 @@ abstract class InstallmentPlansClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .RecordInstallmentPlanCommandOutputDataOutput$Response.fromJson(
+    return RecordInstallmentPlanCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/installment-plans')
+  @Headers({'Content-Type': 'application/json'})
+  Future<RecordInstallmentPlanCommandOutputDataOutput$Response>
+  postApiInstallmentPlans({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required RecordInstallmentPlanCommand body,
+  });
   Future<InstallmentPlanOutputDataOutput$Response>
   _getApiInstallmentPlansByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -195,6 +206,32 @@ abstract class InstallmentPlansClient {
 
 class _InstallmentPlansClientWithOptions extends _InstallmentPlansClient {
   _InstallmentPlansClientWithOptions(Dio dio) : super._(dio, dio);
+
+  @override
+  Future<RecordInstallmentPlanCommandOutputDataOutput$Response>
+  postApiInstallmentPlans({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required RecordInstallmentPlanCommand body,
+  }) {
+    return options == null
+        ? super.postApiInstallmentPlans(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiInstallmentPlansWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
 
   @override
   Future<InstallmentPlanOutputDataOutput$Response> getApiInstallmentPlansById({

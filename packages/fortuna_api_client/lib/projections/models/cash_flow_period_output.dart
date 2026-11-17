@@ -26,12 +26,8 @@ class CashFlowPeriodOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? closingBalance;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CashFlowPeriodOutput._read_figures,
-    toJson: CashFlowPeriodOutput._write_figures,
-  )
-  final ({List<CashFlowFigureOutput>? value})? figures;
+  @JsonKey(includeIfNull: false)
+  final List<CashFlowFigureOutput>? figures;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? openingBalance;
@@ -41,20 +37,6 @@ class CashFlowPeriodOutput {
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? periodStart;
-
-  static ({List<CashFlowFigureOutput>? value}) _read_figures(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    CashFlowFigureOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_figures(({List<CashFlowFigureOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   Map<String, Object?> toJson() => _$CashFlowPeriodOutputToJson(this);
 }

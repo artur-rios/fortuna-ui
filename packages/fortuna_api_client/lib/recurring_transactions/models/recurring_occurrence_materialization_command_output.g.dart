@@ -21,33 +21,18 @@ _$RecurringOccurrenceMaterializationCommandOutputFromJson(
     disallowNullValues: const ['isPossibleDuplicate', 'occurredOn'],
   );
   return RecurringOccurrenceMaterializationCommandOutput(
-    error: !json.containsKey('error')
-        ? null
-        : RecurringOccurrenceMaterializationCommandOutput._read_error(
-            json['error'],
-          ),
+    error: json['error'] as String?,
     isPossibleDuplicate: json['isPossibleDuplicate'] as bool?,
     occurredOn: json['occurredOn'] as String?,
-    transactionId: !json.containsKey('transactionId')
-        ? null
-        : RecurringOccurrenceMaterializationCommandOutput._read_transactionId(
-            json['transactionId'],
-          ),
+    transactionId: json['transactionId'] as String?,
   );
 }
 
 Map<String, dynamic> _$RecurringOccurrenceMaterializationCommandOutputToJson(
   RecurringOccurrenceMaterializationCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.error case final $value?)
-    'error': RecurringOccurrenceMaterializationCommandOutput._write_error(
-      $value,
-    ),
+  'error': ?instance.error,
   'isPossibleDuplicate': ?instance.isPossibleDuplicate,
   'occurredOn': ?instance.occurredOn,
-  if (instance.transactionId case final $value?)
-    'transactionId':
-        RecurringOccurrenceMaterializationCommandOutput._write_transactionId(
-          $value,
-        ),
+  'transactionId': ?instance.transactionId,
 };

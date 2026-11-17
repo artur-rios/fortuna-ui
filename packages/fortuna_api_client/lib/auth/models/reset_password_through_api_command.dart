@@ -15,29 +15,11 @@ class ResetPasswordThroughApiCommand {
   factory ResetPasswordThroughApiCommand.fromJson(Map<String, Object?> json) =>
       _$ResetPasswordThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ResetPasswordThroughApiCommand._read_newPassword,
-    toJson: ResetPasswordThroughApiCommand._write_newPassword,
-  )
-  final ({String? value})? newPassword;
+  @JsonKey(includeIfNull: false)
+  final String? newPassword;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ResetPasswordThroughApiCommand._read_token,
-    toJson: ResetPasswordThroughApiCommand._write_token,
-  )
-  final ({String? value})? token;
-
-  static ({String? value}) _read_newPassword(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_newPassword(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_token(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_token(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? token;
 
   Map<String, Object?> toJson() => _$ResetPasswordThroughApiCommandToJson(this);
 }

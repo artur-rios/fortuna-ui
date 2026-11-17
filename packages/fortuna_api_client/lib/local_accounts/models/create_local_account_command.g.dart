@@ -15,12 +15,8 @@ CreateLocalAccountCommand _$CreateLocalAccountCommandFromJson(
     disallowNullValues: const ['storageMode'],
   );
   return CreateLocalAccountCommand(
-    displayName: !json.containsKey('displayName')
-        ? null
-        : CreateLocalAccountCommand._read_displayName(json['displayName']),
-    secret: !json.containsKey('secret')
-        ? null
-        : CreateLocalAccountCommand._read_secret(json['secret']),
+    displayName: json['displayName'] as String?,
+    secret: json['secret'] as String?,
     storageMode: CreateLocalAccountCommand._read_storageMode(
       json['storageMode'],
     ),
@@ -30,10 +26,8 @@ CreateLocalAccountCommand _$CreateLocalAccountCommandFromJson(
 Map<String, dynamic> _$CreateLocalAccountCommandToJson(
   CreateLocalAccountCommand instance,
 ) => <String, dynamic>{
-  if (instance.displayName case final $value?)
-    'displayName': CreateLocalAccountCommand._write_displayName($value),
-  if (instance.secret case final $value?)
-    'secret': CreateLocalAccountCommand._write_secret($value),
+  'displayName': ?instance.displayName,
+  'secret': ?instance.secret,
   'storageMode': ?CreateLocalAccountCommand._write_storageMode(
     instance.storageMode,
   ),

@@ -34,29 +34,17 @@ class TransactionDrillDownOutput$Request {
         entry.key: entry.value,
   });
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionDrillDownOutput$Request._read_buckets,
-    toJson: TransactionDrillDownOutput$Request._write_buckets,
-  )
-  final ({List<TransactionAggregationBucketOutput>? value})? buckets;
+  @JsonKey(includeIfNull: false)
+  final List<TransactionAggregationBucketOutput>? buckets;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionDrillDownOutput$Request._read_dimension,
-    toJson: TransactionDrillDownOutput$Request._write_dimension,
-  )
-  final ({String? value})? dimension;
+  @JsonKey(includeIfNull: false)
+  final String? dimension;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? mayDifferFromChart;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionDrillDownOutput$Request._read_mode,
-    toJson: TransactionDrillDownOutput$Request._write_mode,
-  )
-  final ({String? value})? mode;
+  @JsonKey(includeIfNull: false)
+  final String? mode;
 
   @JsonKey(
     disallowNullValue: true,
@@ -74,12 +62,8 @@ class TransactionDrillDownOutput$Request {
   )
   final int? pageSize;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionDrillDownOutput$Request._read_sourceDimension,
-    toJson: TransactionDrillDownOutput$Request._write_sourceDimension,
-  )
-  final ({String? value})? sourceDimension;
+  @JsonKey(includeIfNull: false)
+  final String? sourceDimension;
 
   @JsonKey(
     disallowNullValue: true,
@@ -89,43 +73,11 @@ class TransactionDrillDownOutput$Request {
   )
   final int? totalItems;
 
-  @JsonKey(disallowNullValue: true, includeIfNull: false)
+  @JsonKey(includeIfNull: false)
   final TransactionOutput? transaction;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionDrillDownOutput$Request._read_transactions,
-    toJson: TransactionDrillDownOutput$Request._write_transactions,
-  )
-  final ({List<TransactionOutput>? value})? transactions;
-
-  static ({List<TransactionAggregationBucketOutput>? value}) _read_buckets(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => TransactionAggregationBucketOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_buckets(
-    ({List<TransactionAggregationBucketOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_dimension(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_dimension(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_mode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_mode(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final List<TransactionOutput>? transactions;
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;
@@ -137,32 +89,10 @@ class TransactionDrillDownOutput$Request {
 
   static Object? _write_pageSize(int? value) => value;
 
-  static ({String? value}) _read_sourceDimension(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_sourceDimension(({String? value}) value) => value.value;
-
   static int? _read_totalItems(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_totalItems(int? value) => value;
-
-  static ({List<TransactionOutput>? value}) _read_transactions(Object? value) =>
-      (
-        value: value == null
-            ? null
-            : (value as List<Object?>)
-                  .map(
-                    (item) => TransactionOutput.fromJson(
-                      item as Map<String, Object?>,
-                    ),
-                  )
-                  .toList(),
-      );
-
-  static Object? _write_transactions(
-    ({List<TransactionOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
 
   Map<String, Object?> toJson() =>
       _$TransactionDrillDownOutput$RequestToJson(this);

@@ -32,71 +32,26 @@ class UpdateFinancialAccountCommand {
   )
   final FinancialAccountType? accountType;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateFinancialAccountCommand._read_currencyCode,
-    toJson: UpdateFinancialAccountCommand._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateFinancialAccountCommand._read_institution,
-    toJson: UpdateFinancialAccountCommand._write_institution,
-  )
-  final ({String? value})? institution;
+  @JsonKey(includeIfNull: false)
+  final String? institution;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateFinancialAccountCommand._read_name,
-    toJson: UpdateFinancialAccountCommand._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateFinancialAccountCommand._read_openingBalance,
-    toJson: UpdateFinancialAccountCommand._write_openingBalance,
-  )
-  final ({String? value})? openingBalance;
+  @JsonKey(includeIfNull: false)
+  final String? openingBalance;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateFinancialAccountCommand._read_ownerId,
-    toJson: UpdateFinancialAccountCommand._write_ownerId,
-  )
-  final ({String? value})? ownerId;
+  @JsonKey(includeIfNull: false)
+  final String? ownerId;
 
   static FinancialAccountType? _read_accountType(Object? value) =>
       value == null ? null : FinancialAccountType.fromJson(value);
 
   static Object? _write_accountType(FinancialAccountType? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_institution(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_institution(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_openingBalance(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_openingBalance(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_ownerId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_ownerId(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$UpdateFinancialAccountCommandToJson(this);
 }

@@ -34,17 +34,9 @@ _$ReauthenticateConnectionCommandOutputFromJson(Map<String, dynamic> json) {
     dataSourceType: ReauthenticateConnectionCommandOutput._read_dataSourceType(
       json['dataSourceType'],
     ),
-    externalReference: !json.containsKey('externalReference')
-        ? null
-        : ReauthenticateConnectionCommandOutput._read_externalReference(
-            json['externalReference'],
-          ),
+    externalReference: json['externalReference'] as String?,
     id: json['id'] as String?,
-    institution: !json.containsKey('institution')
-        ? null
-        : ReauthenticateConnectionCommandOutput._read_institution(
-            json['institution'],
-          ),
+    institution: json['institution'] as String?,
     status: ReauthenticateConnectionCommandOutput._read_status(json['status']),
     updatedAt: ReauthenticateConnectionCommandOutput._read_updatedAt(
       json['updatedAt'],
@@ -62,14 +54,9 @@ Map<String, dynamic> _$ReauthenticateConnectionCommandOutputToJson(
       ?ReauthenticateConnectionCommandOutput._write_dataSourceType(
         instance.dataSourceType,
       ),
-  if (instance.externalReference case final $value?)
-    'externalReference':
-        ReauthenticateConnectionCommandOutput._write_externalReference($value),
+  'externalReference': ?instance.externalReference,
   'id': ?instance.id,
-  if (instance.institution case final $value?)
-    'institution': ReauthenticateConnectionCommandOutput._write_institution(
-      $value,
-    ),
+  'institution': ?instance.institution,
   'status': ?ReauthenticateConnectionCommandOutput._write_status(
     instance.status,
   ),

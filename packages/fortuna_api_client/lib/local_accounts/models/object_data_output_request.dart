@@ -24,26 +24,14 @@ class ObjectDataOutput$Request {
             entry.key: entry.value,
       });
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ObjectDataOutput$Request._read_data,
-    toJson: ObjectDataOutput$Request._write_data,
-  )
-  final ({Object? value})? data;
+  @JsonKey(includeIfNull: false)
+  final Object? data;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ObjectDataOutput$Request._read_errors,
-    toJson: ObjectDataOutput$Request._write_errors,
-  )
-  final ({List<String>? value})? errors;
+  @JsonKey(includeIfNull: false)
+  final List<String>? errors;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ObjectDataOutput$Request._read_messages,
-    toJson: ObjectDataOutput$Request._write_messages,
-  )
-  final ({List<String>? value})? messages;
+  @JsonKey(includeIfNull: false)
+  final List<String>? messages;
 
   @JsonKey(
     disallowNullValue: true,
@@ -52,28 +40,6 @@ class ObjectDataOutput$Request {
     toJson: ObjectDataOutput$Request._write_timestamp,
   )
   final DateTime? timestamp;
-
-  static ({Object? value}) _read_data(Object? value) => (value: value);
-
-  static Object? _write_data(({Object? value}) value) => value.value;
-
-  static ({List<String>? value}) _read_errors(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_errors(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({List<String>? value}) _read_messages(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_messages(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
 
   static DateTime? _read_timestamp(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

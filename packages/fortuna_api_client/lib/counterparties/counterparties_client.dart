@@ -10,8 +10,12 @@ import 'package:retrofit/retrofit.dart'
         Extras,
         CancelRequest,
         GET,
+        POST,
+        PUT,
         DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
@@ -22,17 +26,11 @@ import 'models/counterparty_command_output_data_output_response.dart'
 import 'models/counterparty_list_output_data_output_response.dart'
     show CounterpartyListOutputDataOutput$Response;
 import 'models/counterparty_merge_command_output_data_output_response.dart'
-    as models
     show CounterpartyMergeCommandOutputDataOutput$Response;
-import 'models/create_counterparty_command.dart'
-    as models
-    show CreateCounterpartyCommand;
+import 'models/create_counterparty_command.dart' show CreateCounterpartyCommand;
 import 'models/merge_counterparties_command.dart'
-    as models
     show MergeCounterpartiesCommand;
-import 'models/update_counterparty_command.dart'
-    as models
-    show UpdateCounterpartyCommand;
+import 'models/update_counterparty_command.dart' show UpdateCounterpartyCommand;
 
 part 'counterparties_client.g.dart';
 
@@ -91,27 +89,27 @@ abstract class CounterpartiesClient {
     @Query('pageNumber') int? pageNumber,
     @Query('pageSize') int? pageSize,
   });
-  Future<CounterpartyCommandOutputDataOutput$Response> postApiCounterparties({
+  Future<CounterpartyCommandOutputDataOutput$Response>
+  _postApiCounterpartiesWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateCounterpartyCommand body,
+    required CreateCounterpartyCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/counterparties",
@@ -124,8 +122,20 @@ abstract class CounterpartiesClient {
     );
   }
 
+  @POST('/api/counterparties')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CounterpartyCommandOutputDataOutput$Response> postApiCounterparties({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateCounterpartyCommand body,
+  });
   Future<CounterpartyCommandOutputDataOutput$Response>
-  putApiCounterpartiesById({
+  _putApiCounterpartiesByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -133,26 +143,22 @@ abstract class CounterpartiesClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateCounterpartyCommand body,
+    required UpdateCounterpartyCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/counterparties/" + Uri.encodeComponent(id),
+      "/api/counterparties/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
@@ -162,6 +168,20 @@ abstract class CounterpartiesClient {
     );
   }
 
+  @PUT('/api/counterparties/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CounterpartyCommandOutputDataOutput$Response>
+  putApiCounterpartiesById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateCounterpartyCommand body,
+  });
   Future<CounterpartyCommandOutputDataOutput$Response>
   _deleteApiCounterpartiesByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -200,8 +220,8 @@ abstract class CounterpartiesClient {
     Options? options,
     @Path('id') required String id,
   });
-  Future<models.CounterpartyMergeCommandOutputDataOutput$Response>
-  postApiCounterpartiesByIdMerge({
+  Future<CounterpartyMergeCommandOutputDataOutput$Response>
+  _postApiCounterpartiesByIdMergeWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -209,35 +229,45 @@ abstract class CounterpartiesClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.MergeCounterpartiesCommand body,
+    required MergeCounterpartiesCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/counterparties/" + Uri.encodeComponent(id) + "/merge",
+      "/api/counterparties/" + id.toString() + "/merge",
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.CounterpartyMergeCommandOutputDataOutput$Response.fromJson(
+    return CounterpartyMergeCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/counterparties/{id}/merge')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CounterpartyMergeCommandOutputDataOutput$Response>
+  postApiCounterpartiesByIdMerge({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required MergeCounterpartiesCommand body,
+  });
   Future<CounterpartyCategorySuggestionOutputDataOutput$Response>
   _getApiCounterpartiesByIdSuggestedCategoryWithOptions({
     Map<String, Object?> extra = const {
@@ -313,6 +343,60 @@ class _CounterpartiesClientWithOptions extends _CounterpartiesClient {
   }
 
   @override
+  Future<CounterpartyCommandOutputDataOutput$Response> postApiCounterparties({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateCounterpartyCommand body,
+  }) {
+    return options == null
+        ? super.postApiCounterparties(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiCounterpartiesWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
+  Future<CounterpartyCommandOutputDataOutput$Response>
+  putApiCounterpartiesById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateCounterpartyCommand body,
+  }) {
+    return options == null
+        ? super.putApiCounterpartiesById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiCounterpartiesByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          );
+  }
+
+  @override
   Future<CounterpartyCommandOutputDataOutput$Response>
   deleteApiCounterpartiesById({
     Map<String, Object?> extra = const {
@@ -335,6 +419,35 @@ class _CounterpartiesClientWithOptions extends _CounterpartiesClient {
             cancelToken: cancelToken,
             options: options,
             id: id,
+          );
+  }
+
+  @override
+  Future<CounterpartyMergeCommandOutputDataOutput$Response>
+  postApiCounterpartiesByIdMerge({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required MergeCounterpartiesCommand body,
+  }) {
+    return options == null
+        ? super.postApiCounterpartiesByIdMerge(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _postApiCounterpartiesByIdMergeWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

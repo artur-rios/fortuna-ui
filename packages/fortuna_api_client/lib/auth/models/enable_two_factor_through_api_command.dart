@@ -16,21 +16,8 @@ class EnableTwoFactorThroughApiCommand {
     Map<String, Object?> json,
   ) => _$EnableTwoFactorThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: EnableTwoFactorThroughApiCommand._read_methods,
-    toJson: EnableTwoFactorThroughApiCommand._write_methods,
-  )
-  final ({List<String>? value})? methods;
-
-  static ({List<String>? value}) _read_methods(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_methods(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
+  @JsonKey(includeIfNull: false)
+  final List<String>? methods;
 
   Map<String, Object?> toJson() =>
       _$EnableTwoFactorThroughApiCommandToJson(this);

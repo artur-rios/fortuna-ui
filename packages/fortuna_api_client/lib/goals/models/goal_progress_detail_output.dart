@@ -34,19 +34,11 @@ class GoalProgressDetailOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? asOf;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressDetailOutput._read_currencyCode,
-    toJson: GoalProgressDetailOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressDetailOutput._read_currentAmount,
-    toJson: GoalProgressDetailOutput._write_currentAmount,
-  )
-  final ({String? value})? currentAmount;
+  @JsonKey(includeIfNull: false)
+  final String? currentAmount;
 
   @JsonKey(
     disallowNullValue: true,
@@ -62,40 +54,20 @@ class GoalProgressDetailOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressDetailOutput._read_isPastDue,
-    toJson: GoalProgressDetailOutput._write_isPastDue,
-  )
-  final ({bool? value})? isPastDue;
+  @JsonKey(includeIfNull: false)
+  final bool? isPastDue;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressDetailOutput._read_isReached,
-    toJson: GoalProgressDetailOutput._write_isReached,
-  )
-  final ({bool? value})? isReached;
+  @JsonKey(includeIfNull: false)
+  final bool? isReached;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressDetailOutput._read_proportionReached,
-    toJson: GoalProgressDetailOutput._write_proportionReached,
-  )
-  final ({String? value})? proportionReached;
+  @JsonKey(includeIfNull: false)
+  final String? proportionReached;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressDetailOutput._read_resources,
-    toJson: GoalProgressDetailOutput._write_resources,
-  )
-  final ({List<GoalResourceProgressOutput>? value})? resources;
+  @JsonKey(includeIfNull: false)
+  final List<GoalResourceProgressOutput>? resources;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoalProgressDetailOutput._read_shortfall,
-    toJson: GoalProgressDetailOutput._write_shortfall,
-  )
-  final ({String? value})? shortfall;
+  @JsonKey(includeIfNull: false)
+  final String? shortfall;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? targetAmount;
@@ -103,59 +75,10 @@ class GoalProgressDetailOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? targetDate;
 
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currentAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currentAmount(({String? value}) value) => value.value;
-
   static int? _read_daysRemaining(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_daysRemaining(int? value) => value;
-
-  static ({bool? value}) _read_isPastDue(Object? value) =>
-      (value: value as bool?);
-
-  static Object? _write_isPastDue(({bool? value}) value) => value.value;
-
-  static ({bool? value}) _read_isReached(Object? value) =>
-      (value: value as bool?);
-
-  static Object? _write_isReached(({bool? value}) value) => value.value;
-
-  static ({String? value}) _read_proportionReached(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_proportionReached(({String? value}) value) =>
-      value.value;
-
-  static ({List<GoalResourceProgressOutput>? value}) _read_resources(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => GoalResourceProgressOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_resources(
-    ({List<GoalResourceProgressOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_shortfall(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_shortfall(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$GoalProgressDetailOutputToJson(this);
 }

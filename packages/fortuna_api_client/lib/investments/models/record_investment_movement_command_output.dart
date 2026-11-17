@@ -38,12 +38,8 @@ class RecordInvestmentMovementCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommandOutput._read_appliedRate,
-    toJson: RecordInvestmentMovementCommandOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
   @JsonKey(
     disallowNullValue: true,
@@ -53,33 +49,17 @@ class RecordInvestmentMovementCommandOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommandOutput._read_currencyCode,
-    toJson: RecordInvestmentMovementCommandOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommandOutput._read_financialAccountId,
-    toJson: RecordInvestmentMovementCommandOutput._write_financialAccountId,
-  )
-  final ({String? value})? financialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? financialAccountId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommandOutput._read_fundingAmount,
-    toJson: RecordInvestmentMovementCommandOutput._write_fundingAmount,
-  )
-  final ({String? value})? fundingAmount;
+  @JsonKey(includeIfNull: false)
+  final String? fundingAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommandOutput._read_fundingCurrencyCode,
-    toJson: RecordInvestmentMovementCommandOutput._write_fundingCurrencyCode,
-  )
-  final ({String? value})? fundingCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? fundingCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -98,29 +78,17 @@ class RecordInvestmentMovementCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommandOutput._read_outboundTransactionId,
-    toJson: RecordInvestmentMovementCommandOutput._write_outboundTransactionId,
-  )
-  final ({String? value})? outboundTransactionId;
+  @JsonKey(includeIfNull: false)
+  final String? outboundTransactionId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? position;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommandOutput._read_rateDate,
-    toJson: RecordInvestmentMovementCommandOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInvestmentMovementCommandOutput._read_transferId,
-    toJson: RecordInvestmentMovementCommandOutput._write_transferId,
-  )
-  final ({String? value})? transferId;
+  @JsonKey(includeIfNull: false)
+  final String? transferId;
 
   @JsonKey(
     disallowNullValue: true,
@@ -130,60 +98,17 @@ class RecordInvestmentMovementCommandOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
 
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_financialAccountId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_financialAccountId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_fundingAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_fundingAmount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_fundingCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_fundingCurrencyCode(({String? value}) value) =>
-      value.value;
-
   static InvestmentMovementType? _read_movementType(Object? value) =>
       value == null ? null : InvestmentMovementType.fromJson(value);
 
   static Object? _write_movementType(InvestmentMovementType? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_outboundTransactionId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_outboundTransactionId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_transferId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_transferId(({String? value}) value) => value.value;
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

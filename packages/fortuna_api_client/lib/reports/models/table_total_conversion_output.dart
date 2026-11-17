@@ -26,96 +26,39 @@ class TableTotalConversionOutput {
   factory TableTotalConversionOutput.fromJson(Map<String, Object?> json) =>
       _$TableTotalConversionOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableTotalConversionOutput._read_appliedRate,
-    toJson: TableTotalConversionOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
+
+  @JsonKey(includeIfNull: false)
+  final String? convertedValue;
+
+  @JsonKey(includeIfNull: false)
+  final String? figureDate;
+
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableTotalConversionOutput._read_convertedValue,
-    toJson: TableTotalConversionOutput._write_convertedValue,
-  )
-  final ({String? value})? convertedValue;
-
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableTotalConversionOutput._read_figureDate,
-    toJson: TableTotalConversionOutput._write_figureDate,
-  )
-  final ({String? value})? figureDate;
-
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableTotalConversionOutput._read_rateDate,
-    toJson: TableTotalConversionOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
-
-  @JsonKey(
-    disallowNullValue: true,
     includeIfNull: false,
     fromJson: TableTotalConversionOutput._read_rateSource,
     toJson: TableTotalConversionOutput._write_rateSource,
   )
   final ExchangeRateSource? rateSource;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableTotalConversionOutput._read_sourceCurrencyCode,
-    toJson: TableTotalConversionOutput._write_sourceCurrencyCode,
-  )
-  final ({String? value})? sourceCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? sourceCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? sourceValue;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableTotalConversionOutput._read_unconvertedReason,
-    toJson: TableTotalConversionOutput._write_unconvertedReason,
-  )
-  final ({String? value})? unconvertedReason;
-
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_convertedValue(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_convertedValue(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_figureDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_figureDate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? unconvertedReason;
 
   static ExchangeRateSource? _read_rateSource(Object? value) =>
       value == null ? null : ExchangeRateSource.fromJson(value);
 
   static Object? _write_rateSource(ExchangeRateSource? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_sourceCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_sourceCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_unconvertedReason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_unconvertedReason(({String? value}) value) =>
-      value.value;
 
   Map<String, Object?> toJson() => _$TableTotalConversionOutputToJson(this);
 }

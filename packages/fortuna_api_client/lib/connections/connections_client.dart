@@ -5,7 +5,16 @@ import 'dart:convert' as convert;
 import 'package:dio/dio.dart'
     show Dio, Options, ResponseType, CancelToken, RequestOptions;
 import 'package:retrofit/retrofit.dart'
-    show RestApi, Extras, CancelRequest, GET, POST, ParseErrorLogger, Path;
+    show
+        RestApi,
+        Extras,
+        CancelRequest,
+        POST,
+        GET,
+        ParseErrorLogger,
+        Body,
+        Headers,
+        Path;
 
 import 'models/connection_output_data_output_response.dart'
     show ConnectionOutputDataOutput$Response;
@@ -13,17 +22,12 @@ import 'models/connection_output_paginated_output_response.dart'
     as models
     show ConnectionOutputPaginatedOutput$Response;
 import 'models/connection_status.dart' as models show ConnectionStatus;
-import 'models/create_connection_command.dart'
-    as models
-    show CreateConnectionCommand;
+import 'models/create_connection_command.dart' show CreateConnectionCommand;
 import 'models/create_connection_command_output_data_output_response.dart'
-    as models
     show CreateConnectionCommandOutputDataOutput$Response;
 import 'models/reauthenticate_connection_command.dart'
-    as models
     show ReauthenticateConnectionCommand;
 import 'models/reauthenticate_connection_command_output_data_output_response.dart'
-    as models
     show ReauthenticateConnectionCommandOutputDataOutput$Response;
 import 'models/revoke_connection_command_output_data_output_response.dart'
     show RevokeConnectionCommandOutputDataOutput$Response;
@@ -80,28 +84,27 @@ abstract class ConnectionsClient {
     );
   }
 
-  Future<models.CreateConnectionCommandOutputDataOutput$Response>
-  postApiConnections({
+  Future<CreateConnectionCommandOutputDataOutput$Response>
+  _postApiConnectionsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateConnectionCommand body,
+    required CreateConnectionCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/connections",
@@ -109,11 +112,23 @@ abstract class ConnectionsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.CreateConnectionCommandOutputDataOutput$Response.fromJson(
+    return CreateConnectionCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/connections')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CreateConnectionCommandOutputDataOutput$Response> postApiConnections({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateConnectionCommand body,
+  });
   Future<ConnectionOutputDataOutput$Response>
   _getApiConnectionsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -151,8 +166,8 @@ abstract class ConnectionsClient {
     Options? options,
     @Path('id') required String id,
   });
-  Future<models.ReauthenticateConnectionCommandOutputDataOutput$Response>
-  postApiConnectionsByIdReauthenticate({
+  Future<ReauthenticateConnectionCommandOutputDataOutput$Response>
+  _postApiConnectionsByIdReauthenticateWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -160,36 +175,45 @@ abstract class ConnectionsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.ReauthenticateConnectionCommand body,
+    required ReauthenticateConnectionCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/connections/" + Uri.encodeComponent(id) + "/reauthenticate",
+      "/api/connections/" + id.toString() + "/reauthenticate",
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .ReauthenticateConnectionCommandOutputDataOutput$Response.fromJson(
+    return ReauthenticateConnectionCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/connections/{id}/reauthenticate')
+  @Headers({'Content-Type': 'application/json'})
+  Future<ReauthenticateConnectionCommandOutputDataOutput$Response>
+  postApiConnectionsByIdReauthenticate({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required ReauthenticateConnectionCommand body,
+  });
   Future<RevokeConnectionCommandOutputDataOutput$Response>
   _postApiConnectionsByIdRevokeWithOptions({
     Map<String, Object?> extra = const {
@@ -234,6 +258,31 @@ class _ConnectionsClientWithOptions extends _ConnectionsClient {
   _ConnectionsClientWithOptions(Dio dio) : super._(dio, dio);
 
   @override
+  Future<CreateConnectionCommandOutputDataOutput$Response> postApiConnections({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateConnectionCommand body,
+  }) {
+    return options == null
+        ? super.postApiConnections(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiConnectionsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<ConnectionOutputDataOutput$Response> getApiConnectionsById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -255,6 +304,35 @@ class _ConnectionsClientWithOptions extends _ConnectionsClient {
             cancelToken: cancelToken,
             options: options,
             id: id,
+          );
+  }
+
+  @override
+  Future<ReauthenticateConnectionCommandOutputDataOutput$Response>
+  postApiConnectionsByIdReauthenticate({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required ReauthenticateConnectionCommand body,
+  }) {
+    return options == null
+        ? super.postApiConnectionsByIdReauthenticate(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _postApiConnectionsByIdReauthenticateWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

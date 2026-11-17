@@ -20,11 +20,11 @@ class EraseUserCommandOutput$Response {
       _$EraseUserCommandOutput$ResponseFromJson(json);
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: EraseUserCommandOutput$Response._read_erased,
     toJson: EraseUserCommandOutput$Response._write_erased,
   )
-  final ({Map<String, int>? value})? erased;
+  final Map<String, int>? erased;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? irreversible;
@@ -37,16 +37,14 @@ class EraseUserCommandOutput$Response {
   )
   final int? revokedConnections;
 
-  static ({Map<String, int>? value}) _read_erased(Object? value) => (
-    value: value == null
-        ? null
-        : (value as Map<String, Object?>).map(
-            (key, item) => MapEntry(key, item as int),
-          ),
-  );
+  static Map<String, int>? _read_erased(Object? value) => value == null
+      ? null
+      : (value as Map<String, Object?>).map(
+          (key, item) => MapEntry(key, item as int),
+        );
 
-  static Object? _write_erased(({Map<String, int>? value}) value) =>
-      value.value?.map((key, item) => MapEntry(key, item));
+  static Object? _write_erased(Map<String, int>? value) =>
+      value?.map((key, item) => MapEntry(key, item));
 
   static int? _read_revokedConnections(Object? value) =>
       value == null ? null : value as int;

@@ -19,41 +19,14 @@ class RecoverLocalAccountCommand {
   factory RecoverLocalAccountCommand.fromJson(Map<String, Object?> json) =>
       _$RecoverLocalAccountCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecoverLocalAccountCommand._read_name,
-    toJson: RecoverLocalAccountCommand._write_name,
-  )
-  final ({String? value})? name;
+  @JsonKey(includeIfNull: false)
+  final String? name;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecoverLocalAccountCommand._read_newSecret,
-    toJson: RecoverLocalAccountCommand._write_newSecret,
-  )
-  final ({String? value})? newSecret;
+  @JsonKey(includeIfNull: false)
+  final String? newSecret;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecoverLocalAccountCommand._read_recoveryCode,
-    toJson: RecoverLocalAccountCommand._write_recoveryCode,
-  )
-  final ({String? value})? recoveryCode;
-
-  static ({String? value}) _read_name(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_name(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_newSecret(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_newSecret(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_recoveryCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recoveryCode(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? recoveryCode;
 
   Map<String, Object?> toJson() => _$RecoverLocalAccountCommandToJson(this);
 }

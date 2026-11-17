@@ -10,17 +10,17 @@ import 'package:retrofit/retrofit.dart'
         Extras,
         CancelRequest,
         GET,
-        DELETE,
         POST,
+        PUT,
+        DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
-import 'models/create_credit_card_command.dart'
-    as models
-    show CreateCreditCardCommand;
+import 'models/create_credit_card_command.dart' show CreateCreditCardCommand;
 import 'models/create_credit_card_command_output_data_output_response.dart'
-    as models
     show CreateCreditCardCommandOutputDataOutput$Response;
 import 'models/credit_card_lifecycle_command_output_data_output_response.dart'
     show CreditCardLifecycleCommandOutputDataOutput$Response;
@@ -34,11 +34,8 @@ import 'models/credit_card_statement_output_paginated_output_response.dart'
 import 'models/credit_card_statement_status.dart'
     as models
     show CreditCardStatementStatus;
-import 'models/update_credit_card_command.dart'
-    as models
-    show UpdateCreditCardCommand;
+import 'models/update_credit_card_command.dart' show UpdateCreditCardCommand;
 import 'models/update_credit_card_command_output_data_output_response.dart'
-    as models
     show UpdateCreditCardCommandOutputDataOutput$Response;
 
 part 'credit_cards_client.g.dart';
@@ -112,28 +109,27 @@ abstract class CreditCardsClient {
     @Query('PageNumber') int? pageNumber,
     @Query('PageSize') int? pageSize,
   });
-  Future<models.CreateCreditCardCommandOutputDataOutput$Response>
-  postApiCreditCards({
+  Future<CreateCreditCardCommandOutputDataOutput$Response>
+  _postApiCreditCardsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateCreditCardCommand body,
+    required CreateCreditCardCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/credit-cards",
@@ -141,11 +137,23 @@ abstract class CreditCardsClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.CreateCreditCardCommandOutputDataOutput$Response.fromJson(
+    return CreateCreditCardCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/credit-cards')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CreateCreditCardCommandOutputDataOutput$Response> postApiCreditCards({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateCreditCardCommand body,
+  });
   Future<CreditCardOutputDataOutput$Response>
   _getApiCreditCardsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -183,8 +191,8 @@ abstract class CreditCardsClient {
     Options? options,
     @Path('id') required String id,
   });
-  Future<models.UpdateCreditCardCommandOutputDataOutput$Response>
-  putApiCreditCardsById({
+  Future<UpdateCreditCardCommandOutputDataOutput$Response>
+  _putApiCreditCardsByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -192,35 +200,45 @@ abstract class CreditCardsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateCreditCardCommand body,
+    required UpdateCreditCardCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/credit-cards/" + Uri.encodeComponent(id),
+      "/api/credit-cards/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.UpdateCreditCardCommandOutputDataOutput$Response.fromJson(
+    return UpdateCreditCardCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @PUT('/api/credit-cards/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<UpdateCreditCardCommandOutputDataOutput$Response>
+  putApiCreditCardsById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateCreditCardCommand body,
+  });
   Future<CreditCardLifecycleCommandOutputDataOutput$Response>
   _deleteApiCreditCardsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -432,6 +450,31 @@ class _CreditCardsClientWithOptions extends _CreditCardsClient {
   }
 
   @override
+  Future<CreateCreditCardCommandOutputDataOutput$Response> postApiCreditCards({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateCreditCardCommand body,
+  }) {
+    return options == null
+        ? super.postApiCreditCards(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiCreditCardsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<CreditCardOutputDataOutput$Response> getApiCreditCardsById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -453,6 +496,35 @@ class _CreditCardsClientWithOptions extends _CreditCardsClient {
             cancelToken: cancelToken,
             options: options,
             id: id,
+          );
+  }
+
+  @override
+  Future<UpdateCreditCardCommandOutputDataOutput$Response>
+  putApiCreditCardsById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateCreditCardCommand body,
+  }) {
+    return options == null
+        ? super.putApiCreditCardsById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiCreditCardsByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

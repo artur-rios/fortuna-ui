@@ -21,12 +21,8 @@ class RecurringOccurrenceMaterializationCommandOutput {
     Map<String, Object?> json,
   ) => _$RecurringOccurrenceMaterializationCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecurringOccurrenceMaterializationCommandOutput._read_error,
-    toJson: RecurringOccurrenceMaterializationCommandOutput._write_error,
-  )
-  final ({String? value})? error;
+  @JsonKey(includeIfNull: false)
+  final String? error;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isPossibleDuplicate;
@@ -34,24 +30,8 @@ class RecurringOccurrenceMaterializationCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson:
-        RecurringOccurrenceMaterializationCommandOutput._read_transactionId,
-    toJson:
-        RecurringOccurrenceMaterializationCommandOutput._write_transactionId,
-  )
-  final ({String? value})? transactionId;
-
-  static ({String? value}) _read_error(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_error(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_transactionId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_transactionId(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? transactionId;
 
   Map<String, Object?> toJson() =>
       _$RecurringOccurrenceMaterializationCommandOutputToJson(this);

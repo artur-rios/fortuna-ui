@@ -13,23 +13,17 @@ TableColumnOutput _$TableColumnOutputFromJson(Map<String, dynamic> json) {
     disallowNullValues: const ['isNumeric', 'type'],
   );
   return TableColumnOutput(
-    currencyColumn: !json.containsKey('currencyColumn')
-        ? null
-        : TableColumnOutput._read_currencyColumn(json['currencyColumn']),
+    currencyColumn: json['currencyColumn'] as String?,
     isNumeric: json['isNumeric'] as bool?,
-    name: !json.containsKey('name')
-        ? null
-        : TableColumnOutput._read_name(json['name']),
+    name: json['name'] as String?,
     type: TableColumnOutput._read_type(json['type']),
   );
 }
 
 Map<String, dynamic> _$TableColumnOutputToJson(TableColumnOutput instance) =>
     <String, dynamic>{
-      if (instance.currencyColumn case final $value?)
-        'currencyColumn': TableColumnOutput._write_currencyColumn($value),
+      'currencyColumn': ?instance.currencyColumn,
       'isNumeric': ?instance.isNumeric,
-      if (instance.name case final $value?)
-        'name': TableColumnOutput._write_name($value),
+      'name': ?instance.name,
       'type': ?TableColumnOutput._write_type(instance.type),
     };

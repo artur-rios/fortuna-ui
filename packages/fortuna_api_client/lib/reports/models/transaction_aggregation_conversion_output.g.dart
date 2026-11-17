@@ -20,65 +20,33 @@ _$TransactionAggregationConversionOutputFromJson(Map<String, dynamic> json) {
       'sourceCurrencyCode',
       'unconvertedReason',
     ],
-    disallowNullValues: const ['figureDate', 'rateSource', 'sourceAmount'],
+    disallowNullValues: const ['figureDate', 'sourceAmount'],
   );
   return TransactionAggregationConversionOutput(
-    appliedRate: !json.containsKey('appliedRate')
-        ? null
-        : TransactionAggregationConversionOutput._read_appliedRate(
-            json['appliedRate'],
-          ),
-    displayAmount: !json.containsKey('displayAmount')
-        ? null
-        : TransactionAggregationConversionOutput._read_displayAmount(
-            json['displayAmount'],
-          ),
+    appliedRate: json['appliedRate'] as String?,
+    displayAmount: json['displayAmount'] as String?,
     figureDate: json['figureDate'] as String?,
-    rateDate: !json.containsKey('rateDate')
-        ? null
-        : TransactionAggregationConversionOutput._read_rateDate(
-            json['rateDate'],
-          ),
+    rateDate: json['rateDate'] as String?,
     rateSource: TransactionAggregationConversionOutput._read_rateSource(
       json['rateSource'],
     ),
     sourceAmount: json['sourceAmount'] as String?,
-    sourceCurrencyCode: !json.containsKey('sourceCurrencyCode')
-        ? null
-        : TransactionAggregationConversionOutput._read_sourceCurrencyCode(
-            json['sourceCurrencyCode'],
-          ),
-    unconvertedReason: !json.containsKey('unconvertedReason')
-        ? null
-        : TransactionAggregationConversionOutput._read_unconvertedReason(
-            json['unconvertedReason'],
-          ),
+    sourceCurrencyCode: json['sourceCurrencyCode'] as String?,
+    unconvertedReason: json['unconvertedReason'] as String?,
   );
 }
 
 Map<String, dynamic> _$TransactionAggregationConversionOutputToJson(
   TransactionAggregationConversionOutput instance,
 ) => <String, dynamic>{
-  if (instance.appliedRate case final $value?)
-    'appliedRate': TransactionAggregationConversionOutput._write_appliedRate(
-      $value,
-    ),
-  if (instance.displayAmount case final $value?)
-    'displayAmount':
-        TransactionAggregationConversionOutput._write_displayAmount($value),
+  'appliedRate': ?instance.appliedRate,
+  'displayAmount': ?instance.displayAmount,
   'figureDate': ?instance.figureDate,
-  if (instance.rateDate case final $value?)
-    'rateDate': TransactionAggregationConversionOutput._write_rateDate($value),
+  'rateDate': ?instance.rateDate,
   'rateSource': ?TransactionAggregationConversionOutput._write_rateSource(
     instance.rateSource,
   ),
   'sourceAmount': ?instance.sourceAmount,
-  if (instance.sourceCurrencyCode case final $value?)
-    'sourceCurrencyCode':
-        TransactionAggregationConversionOutput._write_sourceCurrencyCode(
-          $value,
-        ),
-  if (instance.unconvertedReason case final $value?)
-    'unconvertedReason':
-        TransactionAggregationConversionOutput._write_unconvertedReason($value),
+  'sourceCurrencyCode': ?instance.sourceCurrencyCode,
+  'unconvertedReason': ?instance.unconvertedReason,
 };

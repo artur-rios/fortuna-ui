@@ -22,37 +22,27 @@ CategoryOutput _$CategoryOutputFromJson(Map<String, dynamic> json) {
     disallowNullValues: const ['createdAt', 'id', 'isDeleted', 'updatedAt'],
   );
   return CategoryOutput(
-    children: !json.containsKey('children')
-        ? null
-        : CategoryOutput._read_children(json['children']),
+    children: (json['children'] as List<dynamic>?)
+        ?.map((e) => CategoryOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     createdAt: CategoryOutput._read_createdAt(json['createdAt']),
     id: json['id'] as String?,
     isDeleted: json['isDeleted'] as bool?,
-    name: !json.containsKey('name')
-        ? null
-        : CategoryOutput._read_name(json['name']),
-    parentId: !json.containsKey('parentId')
-        ? null
-        : CategoryOutput._read_parentId(json['parentId']),
+    name: json['name'] as String?,
+    parentId: json['parentId'] as String?,
     updatedAt: CategoryOutput._read_updatedAt(json['updatedAt']),
-    usageCount: !json.containsKey('usageCount')
-        ? null
-        : CategoryOutput._read_usageCount(json['usageCount']),
+    usageCount: CategoryOutput._read_usageCount(json['usageCount']),
   );
 }
 
 Map<String, dynamic> _$CategoryOutputToJson(CategoryOutput instance) =>
     <String, dynamic>{
-      if (instance.children case final $value?)
-        'children': CategoryOutput._write_children($value),
+      'children': ?instance.children?.map((e) => e.toJson()).toList(),
       'createdAt': ?CategoryOutput._write_createdAt(instance.createdAt),
       'id': ?instance.id,
       'isDeleted': ?instance.isDeleted,
-      if (instance.name case final $value?)
-        'name': CategoryOutput._write_name($value),
-      if (instance.parentId case final $value?)
-        'parentId': CategoryOutput._write_parentId($value),
+      'name': ?instance.name,
+      'parentId': ?instance.parentId,
       'updatedAt': ?CategoryOutput._write_updatedAt(instance.updatedAt),
-      if (instance.usageCount case final $value?)
-        'usageCount': CategoryOutput._write_usageCount($value),
+      'usageCount': ?CategoryOutput._write_usageCount(instance.usageCount),
     };

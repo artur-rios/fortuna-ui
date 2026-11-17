@@ -14,9 +14,7 @@ DataExportSortInput _$DataExportSortInputFromJson(Map<String, dynamic> json) {
   );
   return DataExportSortInput(
     descending: json['descending'] as bool?,
-    field: !json.containsKey('field')
-        ? null
-        : DataExportSortInput._read_field(json['field']),
+    field: json['field'] as String?,
   );
 }
 
@@ -24,6 +22,5 @@ Map<String, dynamic> _$DataExportSortInputToJson(
   DataExportSortInput instance,
 ) => <String, dynamic>{
   'descending': ?instance.descending,
-  if (instance.field case final $value?)
-    'field': DataExportSortInput._write_field($value),
+  'field': ?instance.field,
 };

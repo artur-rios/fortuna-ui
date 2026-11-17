@@ -27,22 +27,14 @@ class RecordInstallmentPlanCommand {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? categoryId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInstallmentPlanCommand._read_counterparty,
-    toJson: RecordInstallmentPlanCommand._write_counterparty,
-  )
-  final ({String? value})? counterparty;
+  @JsonKey(includeIfNull: false)
+  final String? counterparty;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? creditCardId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInstallmentPlanCommand._read_currencyCode,
-    toJson: RecordInstallmentPlanCommand._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(
     disallowNullValue: true,
@@ -52,12 +44,8 @@ class RecordInstallmentPlanCommand {
   )
   final int? installmentCount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RecordInstallmentPlanCommand._read_ownerId,
-    toJson: RecordInstallmentPlanCommand._write_ownerId,
-  )
-  final ({String? value})? ownerId;
+  @JsonKey(includeIfNull: false)
+  final String? ownerId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? purchasedOn;
@@ -65,25 +53,10 @@ class RecordInstallmentPlanCommand {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? totalAmount;
 
-  static ({String? value}) _read_counterparty(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_counterparty(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
   static int? _read_installmentCount(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_installmentCount(int? value) => value;
-
-  static ({String? value}) _read_ownerId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_ownerId(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$RecordInstallmentPlanCommandToJson(this);
 }

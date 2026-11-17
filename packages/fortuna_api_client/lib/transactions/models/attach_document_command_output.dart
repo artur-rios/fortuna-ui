@@ -22,12 +22,8 @@ class AttachDocumentCommandOutput {
   factory AttachDocumentCommandOutput.fromJson(Map<String, Object?> json) =>
       _$AttachDocumentCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AttachDocumentCommandOutput._read_contentType,
-    toJson: AttachDocumentCommandOutput._write_contentType,
-  )
-  final ({String? value})? contentType;
+  @JsonKey(includeIfNull: false)
+  final String? contentType;
 
   @JsonKey(
     disallowNullValue: true,
@@ -37,12 +33,8 @@ class AttachDocumentCommandOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AttachDocumentCommandOutput._read_fileName,
-    toJson: AttachDocumentCommandOutput._write_fileName,
-  )
-  final ({String? value})? fileName;
+  @JsonKey(includeIfNull: false)
+  final String? fileName;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
@@ -58,21 +50,11 @@ class AttachDocumentCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? transactionId;
 
-  static ({String? value}) _read_contentType(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_contentType(({String? value}) value) => value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_fileName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_fileName(({String? value}) value) => value.value;
 
   static int? _read_sizeInBytes(Object? value) =>
       value == null ? null : value as int;

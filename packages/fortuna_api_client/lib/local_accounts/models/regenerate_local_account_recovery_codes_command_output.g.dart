@@ -12,30 +12,16 @@ _$RegenerateLocalAccountRecoveryCodesCommandOutputFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['recoveryCodes', 'recoveryWarning']);
   return RegenerateLocalAccountRecoveryCodesCommandOutput(
-    recoveryCodes: !json.containsKey('recoveryCodes')
-        ? null
-        : RegenerateLocalAccountRecoveryCodesCommandOutput._read_recoveryCodes(
-            json['recoveryCodes'],
-          ),
-    recoveryWarning: !json.containsKey('recoveryWarning')
-        ? null
-        : RegenerateLocalAccountRecoveryCodesCommandOutput._read_recoveryWarning(
-            json['recoveryWarning'],
-          ),
+    recoveryCodes: (json['recoveryCodes'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    recoveryWarning: json['recoveryWarning'] as String?,
   );
 }
 
 Map<String, dynamic> _$RegenerateLocalAccountRecoveryCodesCommandOutputToJson(
   RegenerateLocalAccountRecoveryCodesCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.recoveryCodes case final $value?)
-    'recoveryCodes':
-        RegenerateLocalAccountRecoveryCodesCommandOutput._write_recoveryCodes(
-          $value,
-        ),
-  if (instance.recoveryWarning case final $value?)
-    'recoveryWarning':
-        RegenerateLocalAccountRecoveryCodesCommandOutput._write_recoveryWarning(
-          $value,
-        ),
+  'recoveryCodes': ?instance.recoveryCodes,
+  'recoveryWarning': ?instance.recoveryWarning,
 };

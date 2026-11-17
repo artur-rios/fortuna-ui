@@ -13,7 +13,7 @@ _$RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$RequestFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'timestamp'],
-    disallowNullValues: const ['data', 'timestamp'],
+    disallowNullValues: const ['timestamp'],
   );
   return RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Request(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$RequestFromJson(
         : RegenerateRecoveryCodesThroughApiCommandOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Request._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Request._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     timestamp:
         RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Request._read_timestamp(
           json['timestamp'],
@@ -43,16 +39,8 @@ _$RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$RequestToJson(
   RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Request instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors':
-        RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Request._write_errors(
-          $value,
-        ),
-  if (instance.messages case final $value?)
-    'messages':
-        RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Request._write_messages(
-          $value,
-        ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'timestamp':
       ?RegenerateRecoveryCodesThroughApiCommandOutputDataOutput$Request._write_timestamp(
         instance.timestamp,

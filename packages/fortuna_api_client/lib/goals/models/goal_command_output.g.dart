@@ -33,26 +33,26 @@ GoalCommandOutput _$GoalCommandOutputFromJson(Map<String, dynamic> json) {
     ],
   );
   return GoalCommandOutput(
-    accounts: !json.containsKey('accounts')
-        ? null
-        : GoalCommandOutput._read_accounts(json['accounts']),
+    accounts: (json['accounts'] as List<dynamic>?)
+        ?.map(
+          (e) => GoalResourceCommandOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
     createdAt: GoalCommandOutput._read_createdAt(json['createdAt']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : GoalCommandOutput._read_currencyCode(json['currencyCode']),
+    currencyCode: json['currencyCode'] as String?,
     currentProgress: json['currentProgress'] == null
         ? null
         : GoalProgressCommandOutput.fromJson(
             json['currentProgress'] as Map<String, dynamic>,
           ),
     id: json['id'] as String?,
-    investments: !json.containsKey('investments')
-        ? null
-        : GoalCommandOutput._read_investments(json['investments']),
+    investments: (json['investments'] as List<dynamic>?)
+        ?.map(
+          (e) => GoalResourceCommandOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
     isDeleted: json['isDeleted'] as bool?,
-    name: !json.containsKey('name')
-        ? null
-        : GoalCommandOutput._read_name(json['name']),
+    name: json['name'] as String?,
     targetAmount: json['targetAmount'] as String?,
     targetDate: json['targetDate'] as String?,
     updatedAt: GoalCommandOutput._read_updatedAt(json['updatedAt']),
@@ -61,18 +61,14 @@ GoalCommandOutput _$GoalCommandOutputFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$GoalCommandOutputToJson(GoalCommandOutput instance) =>
     <String, dynamic>{
-      if (instance.accounts case final $value?)
-        'accounts': GoalCommandOutput._write_accounts($value),
+      'accounts': ?instance.accounts?.map((e) => e.toJson()).toList(),
       'createdAt': ?GoalCommandOutput._write_createdAt(instance.createdAt),
-      if (instance.currencyCode case final $value?)
-        'currencyCode': GoalCommandOutput._write_currencyCode($value),
+      'currencyCode': ?instance.currencyCode,
       'currentProgress': ?instance.currentProgress?.toJson(),
       'id': ?instance.id,
-      if (instance.investments case final $value?)
-        'investments': GoalCommandOutput._write_investments($value),
+      'investments': ?instance.investments?.map((e) => e.toJson()).toList(),
       'isDeleted': ?instance.isDeleted,
-      if (instance.name case final $value?)
-        'name': GoalCommandOutput._write_name($value),
+      'name': ?instance.name,
       'targetAmount': ?instance.targetAmount,
       'targetDate': ?instance.targetDate,
       'updatedAt': ?GoalCommandOutput._write_updatedAt(instance.updatedAt),

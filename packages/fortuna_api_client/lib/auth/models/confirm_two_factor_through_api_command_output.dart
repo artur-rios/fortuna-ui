@@ -22,21 +22,8 @@ class ConfirmTwoFactorThroughApiCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? enabled;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConfirmTwoFactorThroughApiCommandOutput._read_recoveryCodes,
-    toJson: ConfirmTwoFactorThroughApiCommandOutput._write_recoveryCodes,
-  )
-  final ({List<String>? value})? recoveryCodes;
-
-  static ({List<String>? value}) _read_recoveryCodes(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_recoveryCodes(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
+  @JsonKey(includeIfNull: false)
+  final List<String>? recoveryCodes;
 
   Map<String, Object?> toJson() =>
       _$ConfirmTwoFactorThroughApiCommandOutputToJson(this);

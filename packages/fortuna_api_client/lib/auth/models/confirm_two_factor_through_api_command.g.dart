@@ -11,20 +11,14 @@ ConfirmTwoFactorThroughApiCommand _$ConfirmTwoFactorThroughApiCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['appCode', 'emailCode']);
   return ConfirmTwoFactorThroughApiCommand(
-    appCode: !json.containsKey('appCode')
-        ? null
-        : ConfirmTwoFactorThroughApiCommand._read_appCode(json['appCode']),
-    emailCode: !json.containsKey('emailCode')
-        ? null
-        : ConfirmTwoFactorThroughApiCommand._read_emailCode(json['emailCode']),
+    appCode: json['appCode'] as String?,
+    emailCode: json['emailCode'] as String?,
   );
 }
 
 Map<String, dynamic> _$ConfirmTwoFactorThroughApiCommandToJson(
   ConfirmTwoFactorThroughApiCommand instance,
 ) => <String, dynamic>{
-  if (instance.appCode case final $value?)
-    'appCode': ConfirmTwoFactorThroughApiCommand._write_appCode($value),
-  if (instance.emailCode case final $value?)
-    'emailCode': ConfirmTwoFactorThroughApiCommand._write_emailCode($value),
+  'appCode': ?instance.appCode,
+  'emailCode': ?instance.emailCode,
 };

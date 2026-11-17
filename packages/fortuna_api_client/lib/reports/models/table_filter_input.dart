@@ -15,42 +15,14 @@ class TableFilterInput {
   factory TableFilterInput.fromJson(Map<String, Object?> json) =>
       _$TableFilterInputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableFilterInput._read_field,
-    toJson: TableFilterInput._write_field,
-  )
-  final ({String? value})? field;
+  @JsonKey(includeIfNull: false)
+  final String? field;
 
-  @JsonKey(
-    name: "operator",
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableFilterInput._read_operator2,
-    toJson: TableFilterInput._write_operator2,
-  )
-  final ({String? value})? operator2;
+  @JsonKey(name: "operator", includeIfNull: false)
+  final String? operator2;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableFilterInput._read_value,
-    toJson: TableFilterInput._write_value,
-  )
-  final ({String? value})? value;
-
-  static ({String? value}) _read_field(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_field(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_operator2(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_operator2(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_value(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_value(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? value;
 
   Map<String, Object?> toJson() => _$TableFilterInputToJson(this);
 }

@@ -11,29 +11,16 @@ DisableTwoFactorThroughApiCommand _$DisableTwoFactorThroughApiCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['code', 'password', 'recoveryCode']);
   return DisableTwoFactorThroughApiCommand(
-    code: !json.containsKey('code')
-        ? null
-        : DisableTwoFactorThroughApiCommand._read_code(json['code']),
-    password: !json.containsKey('password')
-        ? null
-        : DisableTwoFactorThroughApiCommand._read_password(json['password']),
-    recoveryCode: !json.containsKey('recoveryCode')
-        ? null
-        : DisableTwoFactorThroughApiCommand._read_recoveryCode(
-            json['recoveryCode'],
-          ),
+    code: json['code'] as String?,
+    password: json['password'] as String?,
+    recoveryCode: json['recoveryCode'] as String?,
   );
 }
 
 Map<String, dynamic> _$DisableTwoFactorThroughApiCommandToJson(
   DisableTwoFactorThroughApiCommand instance,
 ) => <String, dynamic>{
-  if (instance.code case final $value?)
-    'code': DisableTwoFactorThroughApiCommand._write_code($value),
-  if (instance.password case final $value?)
-    'password': DisableTwoFactorThroughApiCommand._write_password($value),
-  if (instance.recoveryCode case final $value?)
-    'recoveryCode': DisableTwoFactorThroughApiCommand._write_recoveryCode(
-      $value,
-    ),
+  'code': ?instance.code,
+  'password': ?instance.password,
+  'recoveryCode': ?instance.recoveryCode,
 };

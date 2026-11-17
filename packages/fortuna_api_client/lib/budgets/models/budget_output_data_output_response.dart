@@ -23,22 +23,14 @@ class BudgetOutputDataOutput$Response {
   factory BudgetOutputDataOutput$Response.fromJson(Map<String, Object?> json) =>
       _$BudgetOutputDataOutput$ResponseFromJson(json);
 
-  @JsonKey(disallowNullValue: true, includeIfNull: false)
+  @JsonKey(includeIfNull: false)
   final BudgetOutput? data;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetOutputDataOutput$Response._read_errors,
-    toJson: BudgetOutputDataOutput$Response._write_errors,
-  )
-  final ({List<String>? value})? errors;
+  @JsonKey(includeIfNull: false)
+  final List<String>? errors;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: BudgetOutputDataOutput$Response._read_messages,
-    toJson: BudgetOutputDataOutput$Response._write_messages,
-  )
-  final ({List<String>? value})? messages;
+  @JsonKey(includeIfNull: false)
+  final List<String>? messages;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? success;
@@ -50,24 +42,6 @@ class BudgetOutputDataOutput$Response {
     toJson: BudgetOutputDataOutput$Response._write_timestamp,
   )
   final DateTime? timestamp;
-
-  static ({List<String>? value}) _read_errors(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_errors(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({List<String>? value}) _read_messages(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_messages(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
 
   static DateTime? _read_timestamp(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

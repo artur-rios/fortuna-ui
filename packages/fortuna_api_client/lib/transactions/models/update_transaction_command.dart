@@ -35,33 +35,17 @@ class UpdateTransactionCommand {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? categoryId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTransactionCommand._read_counterparty,
-    toJson: UpdateTransactionCommand._write_counterparty,
-  )
-  final ({String? value})? counterparty;
+  @JsonKey(includeIfNull: false)
+  final String? counterparty;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTransactionCommand._read_creditCardId,
-    toJson: UpdateTransactionCommand._write_creditCardId,
-  )
-  final ({String? value})? creditCardId;
+  @JsonKey(includeIfNull: false)
+  final String? creditCardId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTransactionCommand._read_currencyCode,
-    toJson: UpdateTransactionCommand._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTransactionCommand._read_description,
-    toJson: UpdateTransactionCommand._write_description,
-  )
-  final ({String? value})? description;
+  @JsonKey(includeIfNull: false)
+  final String? description;
 
   @JsonKey(
     disallowNullValue: true,
@@ -71,75 +55,23 @@ class UpdateTransactionCommand {
   )
   final TransactionDirection? direction;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTransactionCommand._read_financialAccountId,
-    toJson: UpdateTransactionCommand._write_financialAccountId,
-  )
-  final ({String? value})? financialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? financialAccountId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTransactionCommand._read_ownerId,
-    toJson: UpdateTransactionCommand._write_ownerId,
-  )
-  final ({String? value})? ownerId;
+  @JsonKey(includeIfNull: false)
+  final String? ownerId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: UpdateTransactionCommand._read_tags,
-    toJson: UpdateTransactionCommand._write_tags,
-  )
-  final ({List<String>? value})? tags;
-
-  static ({String? value}) _read_counterparty(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_counterparty(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_creditCardId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_creditCardId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_description(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_description(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final List<String>? tags;
 
   static TransactionDirection? _read_direction(Object? value) =>
       value == null ? null : TransactionDirection.fromJson(value);
 
   static Object? _write_direction(TransactionDirection? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_financialAccountId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_financialAccountId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_ownerId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_ownerId(({String? value}) value) => value.value;
-
-  static ({List<String>? value}) _read_tags(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_tags(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
 
   Map<String, Object?> toJson() => _$UpdateTransactionCommandToJson(this);
 }

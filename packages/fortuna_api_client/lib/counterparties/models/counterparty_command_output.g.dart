@@ -31,9 +31,7 @@ CounterpartyCommandOutput _$CounterpartyCommandOutputFromJson(
     createdAt: CounterpartyCommandOutput._read_createdAt(json['createdAt']),
     id: json['id'] as String?,
     isDeleted: json['isDeleted'] as bool?,
-    name: !json.containsKey('name')
-        ? null
-        : CounterpartyCommandOutput._read_name(json['name']),
+    name: json['name'] as String?,
     reused: json['reused'] as bool?,
     updatedAt: CounterpartyCommandOutput._read_updatedAt(json['updatedAt']),
   );
@@ -45,8 +43,7 @@ Map<String, dynamic> _$CounterpartyCommandOutputToJson(
   'createdAt': ?CounterpartyCommandOutput._write_createdAt(instance.createdAt),
   'id': ?instance.id,
   'isDeleted': ?instance.isDeleted,
-  if (instance.name case final $value?)
-    'name': CounterpartyCommandOutput._write_name($value),
+  'name': ?instance.name,
   'reused': ?instance.reused,
   'updatedAt': ?CounterpartyCommandOutput._write_updatedAt(instance.updatedAt),
 };

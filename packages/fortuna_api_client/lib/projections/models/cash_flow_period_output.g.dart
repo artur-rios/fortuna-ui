@@ -25,9 +25,9 @@ CashFlowPeriodOutput _$CashFlowPeriodOutputFromJson(Map<String, dynamic> json) {
   );
   return CashFlowPeriodOutput(
     closingBalance: json['closingBalance'] as String?,
-    figures: !json.containsKey('figures')
-        ? null
-        : CashFlowPeriodOutput._read_figures(json['figures']),
+    figures: (json['figures'] as List<dynamic>?)
+        ?.map((e) => CashFlowFigureOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     openingBalance: json['openingBalance'] as String?,
     periodEnd: json['periodEnd'] as String?,
     periodStart: json['periodStart'] as String?,
@@ -38,8 +38,7 @@ Map<String, dynamic> _$CashFlowPeriodOutputToJson(
   CashFlowPeriodOutput instance,
 ) => <String, dynamic>{
   'closingBalance': ?instance.closingBalance,
-  if (instance.figures case final $value?)
-    'figures': CashFlowPeriodOutput._write_figures($value),
+  'figures': ?instance.figures?.map((e) => e.toJson()).toList(),
   'openingBalance': ?instance.openingBalance,
   'periodEnd': ?instance.periodEnd,
   'periodStart': ?instance.periodStart,

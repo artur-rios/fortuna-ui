@@ -17,11 +17,7 @@ FinancialAccountBalanceOutput _$FinancialAccountBalanceOutputFromJson(
   return FinancialAccountBalanceOutput(
     asOf: json['asOf'] as String?,
     balance: json['balance'] as String?,
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : FinancialAccountBalanceOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
   );
 }
@@ -31,7 +27,6 @@ Map<String, dynamic> _$FinancialAccountBalanceOutputToJson(
 ) => <String, dynamic>{
   'asOf': ?instance.asOf,
   'balance': ?instance.balance,
-  if (instance.currencyCode case final $value?)
-    'currencyCode': FinancialAccountBalanceOutput._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
 };

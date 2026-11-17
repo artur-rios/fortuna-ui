@@ -59,36 +59,20 @@ class TransactionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? amount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_appliedRate,
-    toJson: TransactionOutput._write_appliedRate,
-  )
-  final ({String? value})? appliedRate;
+  @JsonKey(includeIfNull: false)
+  final String? appliedRate;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? categoryId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_categoryName,
-    toJson: TransactionOutput._write_categoryName,
-  )
-  final ({String? value})? categoryName;
+  @JsonKey(includeIfNull: false)
+  final String? categoryName;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_counterpartyId,
-    toJson: TransactionOutput._write_counterpartyId,
-  )
-  final ({String? value})? counterpartyId;
+  @JsonKey(includeIfNull: false)
+  final String? counterpartyId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_counterpartyName,
-    toJson: TransactionOutput._write_counterpartyName,
-  )
-  final ({String? value})? counterpartyName;
+  @JsonKey(includeIfNull: false)
+  final String? counterpartyName;
 
   @JsonKey(
     disallowNullValue: true,
@@ -98,33 +82,17 @@ class TransactionOutput {
   )
   final DateTime? createdAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_creditCardId,
-    toJson: TransactionOutput._write_creditCardId,
-  )
-  final ({String? value})? creditCardId;
+  @JsonKey(includeIfNull: false)
+  final String? creditCardId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_creditCardName,
-    toJson: TransactionOutput._write_creditCardName,
-  )
-  final ({String? value})? creditCardName;
+  @JsonKey(includeIfNull: false)
+  final String? creditCardName;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_currencyCode,
-    toJson: TransactionOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_description,
-    toJson: TransactionOutput._write_description,
-  )
-  final ({String? value})? description;
+  @JsonKey(includeIfNull: false)
+  final String? description;
 
   @JsonKey(
     disallowNullValue: true,
@@ -134,64 +102,40 @@ class TransactionOutput {
   )
   final TransactionDirection? direction;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_financialAccountId,
-    toJson: TransactionOutput._write_financialAccountId,
-  )
-  final ({String? value})? financialAccountId;
+  @JsonKey(includeIfNull: false)
+  final String? financialAccountId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_financialAccountName,
-    toJson: TransactionOutput._write_financialAccountName,
-  )
-  final ({String? value})? financialAccountName;
+  @JsonKey(includeIfNull: false)
+  final String? financialAccountName;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_importJobId,
-    toJson: TransactionOutput._write_importJobId,
-  )
-  final ({String? value})? importJobId;
+  @JsonKey(includeIfNull: false)
+  final String? importJobId;
+
+  @JsonKey(includeIfNull: false)
+  final String? importedAmount;
+
+  @JsonKey(includeIfNull: false)
+  final String? importedOccurredOn;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_importedAmount,
-    toJson: TransactionOutput._write_importedAmount,
-  )
-  final ({String? value})? importedAmount;
-
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_importedOccurredOn,
-    toJson: TransactionOutput._write_importedOccurredOn,
-  )
-  final ({String? value})? importedOccurredOn;
-
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: TransactionOutput._read_importedRecordId,
     toJson: TransactionOutput._write_importedRecordId,
   )
-  final ({int? value})? importedRecordId;
+  final int? importedRecordId;
 
   @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
+    includeIfNull: false,
     fromJson: TransactionOutput._read_installmentNumber,
     toJson: TransactionOutput._write_installmentNumber,
   )
-  final ({int? value})? installmentNumber;
+  final int? installmentNumber;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_installmentPlanId,
-    toJson: TransactionOutput._write_installmentPlanId,
-  )
-  final ({String? value})? installmentPlanId;
+  @JsonKey(includeIfNull: false)
+  final String? installmentPlanId;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isDeleted;
@@ -214,33 +158,17 @@ class TransactionOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? occurredOn;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_originalAmount,
-    toJson: TransactionOutput._write_originalAmount,
-  )
-  final ({String? value})? originalAmount;
+  @JsonKey(includeIfNull: false)
+  final String? originalAmount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_originalCurrencyCode,
-    toJson: TransactionOutput._write_originalCurrencyCode,
-  )
-  final ({String? value})? originalCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? originalCurrencyCode;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_rateDate,
-    toJson: TransactionOutput._write_rateDate,
-  )
-  final ({String? value})? rateDate;
+  @JsonKey(includeIfNull: false)
+  final String? rateDate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_recurringTransactionId,
-    toJson: TransactionOutput._write_recurringTransactionId,
-  )
-  final ({String? value})? recurringTransactionId;
+  @JsonKey(includeIfNull: false)
+  final String? recurringTransactionId;
 
   @JsonKey(
     disallowNullValue: true,
@@ -250,19 +178,11 @@ class TransactionOutput {
   )
   final TransactionSourceType? sourceType;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_statementId,
-    toJson: TransactionOutput._write_statementId,
-  )
-  final ({String? value})? statementId;
+  @JsonKey(includeIfNull: false)
+  final String? statementId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TransactionOutput._read_tags,
-    toJson: TransactionOutput._write_tags,
-  )
-  final ({List<TransactionLabelOutput>? value})? tags;
+  @JsonKey(includeIfNull: false)
+  final List<TransactionLabelOutput>? tags;
 
   @JsonKey(
     disallowNullValue: true,
@@ -272,52 +192,11 @@ class TransactionOutput {
   )
   final DateTime? updatedAt;
 
-  static ({String? value}) _read_appliedRate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_appliedRate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_categoryName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_categoryName(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_counterpartyId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_counterpartyId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_counterpartyName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_counterpartyName(({String? value}) value) =>
-      value.value;
-
   static DateTime? _read_createdAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_creditCardId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_creditCardId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_creditCardName(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_creditCardName(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_description(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_description(({String? value}) value) => value.value;
 
   static TransactionDirection? _read_direction(Object? value) =>
       value == null ? null : TransactionDirection.fromJson(value);
@@ -325,97 +204,19 @@ class TransactionOutput {
   static Object? _write_direction(TransactionDirection? value) =>
       value?.toJson();
 
-  static ({String? value}) _read_financialAccountId(Object? value) =>
-      (value: value as String?);
+  static int? _read_importedRecordId(Object? value) => value as int?;
 
-  static Object? _write_financialAccountId(({String? value}) value) =>
-      value.value;
+  static Object? _write_importedRecordId(int? value) => value;
 
-  static ({String? value}) _read_financialAccountName(Object? value) =>
-      (value: value as String?);
+  static int? _read_installmentNumber(Object? value) => value as int?;
 
-  static Object? _write_financialAccountName(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_importJobId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_importJobId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_importedAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_importedAmount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_importedOccurredOn(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_importedOccurredOn(({String? value}) value) =>
-      value.value;
-
-  static ({int? value}) _read_importedRecordId(Object? value) =>
-      (value: value as int?);
-
-  static Object? _write_importedRecordId(({int? value}) value) => value.value;
-
-  static ({int? value}) _read_installmentNumber(Object? value) =>
-      (value: value as int?);
-
-  static Object? _write_installmentNumber(({int? value}) value) => value.value;
-
-  static ({String? value}) _read_installmentPlanId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_installmentPlanId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_originalAmount(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_originalAmount(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_originalCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_originalCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_rateDate(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_rateDate(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_recurringTransactionId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recurringTransactionId(({String? value}) value) =>
-      value.value;
+  static Object? _write_installmentNumber(int? value) => value;
 
   static TransactionSourceType? _read_sourceType(Object? value) =>
       value == null ? null : TransactionSourceType.fromJson(value);
 
   static Object? _write_sourceType(TransactionSourceType? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_statementId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_statementId(({String? value}) value) => value.value;
-
-  static ({List<TransactionLabelOutput>? value}) _read_tags(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => TransactionLabelOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_tags(({List<TransactionLabelOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

@@ -11,20 +11,14 @@ VerifyEmailThroughApiCommand _$VerifyEmailThroughApiCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['password', 'token']);
   return VerifyEmailThroughApiCommand(
-    password: !json.containsKey('password')
-        ? null
-        : VerifyEmailThroughApiCommand._read_password(json['password']),
-    token: !json.containsKey('token')
-        ? null
-        : VerifyEmailThroughApiCommand._read_token(json['token']),
+    password: json['password'] as String?,
+    token: json['token'] as String?,
   );
 }
 
 Map<String, dynamic> _$VerifyEmailThroughApiCommandToJson(
   VerifyEmailThroughApiCommand instance,
 ) => <String, dynamic>{
-  if (instance.password case final $value?)
-    'password': VerifyEmailThroughApiCommand._write_password($value),
-  if (instance.token case final $value?)
-    'token': VerifyEmailThroughApiCommand._write_token($value),
+  'password': ?instance.password,
+  'token': ?instance.token,
 };

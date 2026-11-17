@@ -19,29 +19,11 @@ class EnableTwoFactorThroughApiCommandOutput {
     Map<String, Object?> json,
   ) => _$EnableTwoFactorThroughApiCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: EnableTwoFactorThroughApiCommandOutput._read_emailCodeSent,
-    toJson: EnableTwoFactorThroughApiCommandOutput._write_emailCodeSent,
-  )
-  final ({bool? value})? emailCodeSent;
+  @JsonKey(includeIfNull: false)
+  final bool? emailCodeSent;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: EnableTwoFactorThroughApiCommandOutput._read_otpAuthUri,
-    toJson: EnableTwoFactorThroughApiCommandOutput._write_otpAuthUri,
-  )
-  final ({String? value})? otpAuthUri;
-
-  static ({bool? value}) _read_emailCodeSent(Object? value) =>
-      (value: value as bool?);
-
-  static Object? _write_emailCodeSent(({bool? value}) value) => value.value;
-
-  static ({String? value}) _read_otpAuthUri(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_otpAuthUri(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? otpAuthUri;
 
   Map<String, Object?> toJson() =>
       _$EnableTwoFactorThroughApiCommandOutputToJson(this);

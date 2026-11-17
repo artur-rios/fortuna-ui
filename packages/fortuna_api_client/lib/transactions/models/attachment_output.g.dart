@@ -29,13 +29,9 @@ AttachmentOutput _$AttachmentOutputFromJson(Map<String, dynamic> json) {
     ],
   );
   return AttachmentOutput(
-    contentType: !json.containsKey('contentType')
-        ? null
-        : AttachmentOutput._read_contentType(json['contentType']),
+    contentType: json['contentType'] as String?,
     createdAt: AttachmentOutput._read_createdAt(json['createdAt']),
-    fileName: !json.containsKey('fileName')
-        ? null
-        : AttachmentOutput._read_fileName(json['fileName']),
+    fileName: json['fileName'] as String?,
     id: json['id'] as String?,
     isDeleted: json['isDeleted'] as bool?,
     sizeInBytes: AttachmentOutput._read_sizeInBytes(json['sizeInBytes']),
@@ -46,11 +42,9 @@ AttachmentOutput _$AttachmentOutputFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$AttachmentOutputToJson(AttachmentOutput instance) =>
     <String, dynamic>{
-      if (instance.contentType case final $value?)
-        'contentType': AttachmentOutput._write_contentType($value),
+      'contentType': ?instance.contentType,
       'createdAt': ?AttachmentOutput._write_createdAt(instance.createdAt),
-      if (instance.fileName case final $value?)
-        'fileName': AttachmentOutput._write_fileName($value),
+      'fileName': ?instance.fileName,
       'id': ?instance.id,
       'isDeleted': ?instance.isDeleted,
       'sizeInBytes': ?AttachmentOutput._write_sizeInBytes(instance.sizeInBytes),

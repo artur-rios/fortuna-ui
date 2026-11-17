@@ -11,20 +11,11 @@ AuthenticateLocalAccountCommand _$AuthenticateLocalAccountCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['name', 'secret']);
   return AuthenticateLocalAccountCommand(
-    name: !json.containsKey('name')
-        ? null
-        : AuthenticateLocalAccountCommand._read_name(json['name']),
-    secret: !json.containsKey('secret')
-        ? null
-        : AuthenticateLocalAccountCommand._read_secret(json['secret']),
+    name: json['name'] as String?,
+    secret: json['secret'] as String?,
   );
 }
 
 Map<String, dynamic> _$AuthenticateLocalAccountCommandToJson(
   AuthenticateLocalAccountCommand instance,
-) => <String, dynamic>{
-  if (instance.name case final $value?)
-    'name': AuthenticateLocalAccountCommand._write_name($value),
-  if (instance.secret case final $value?)
-    'secret': AuthenticateLocalAccountCommand._write_secret($value),
-};
+) => <String, dynamic>{'name': ?instance.name, 'secret': ?instance.secret};

@@ -20,15 +20,9 @@ UpdateInvestmentCommand _$UpdateInvestmentCommandFromJson(
     disallowNullValues: const ['investmentType'],
   );
   return UpdateInvestmentCommand(
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : UpdateInvestmentCommand._read_currencyCode(json['currencyCode']),
-    institution: !json.containsKey('institution')
-        ? null
-        : UpdateInvestmentCommand._read_institution(json['institution']),
-    instrument: !json.containsKey('instrument')
-        ? null
-        : UpdateInvestmentCommand._read_instrument(json['instrument']),
+    currencyCode: json['currencyCode'] as String?,
+    institution: json['institution'] as String?,
+    instrument: json['instrument'] as String?,
     investmentType: UpdateInvestmentCommand._read_investmentType(
       json['investmentType'],
     ),
@@ -38,12 +32,9 @@ UpdateInvestmentCommand _$UpdateInvestmentCommandFromJson(
 Map<String, dynamic> _$UpdateInvestmentCommandToJson(
   UpdateInvestmentCommand instance,
 ) => <String, dynamic>{
-  if (instance.currencyCode case final $value?)
-    'currencyCode': UpdateInvestmentCommand._write_currencyCode($value),
-  if (instance.institution case final $value?)
-    'institution': UpdateInvestmentCommand._write_institution($value),
-  if (instance.instrument case final $value?)
-    'instrument': UpdateInvestmentCommand._write_instrument($value),
+  'currencyCode': ?instance.currencyCode,
+  'institution': ?instance.institution,
+  'instrument': ?instance.instrument,
   'investmentType': ?UpdateInvestmentCommand._write_investmentType(
     instance.investmentType,
   ),

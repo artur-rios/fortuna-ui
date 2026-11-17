@@ -24,23 +24,14 @@ class AuthenticateLocalAccountCommandOutput {
   )
   final DateTime? expiresAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AuthenticateLocalAccountCommandOutput._read_token,
-    toJson: AuthenticateLocalAccountCommandOutput._write_token,
-  )
-  final ({String? value})? token;
+  @JsonKey(includeIfNull: false)
+  final String? token;
 
   static DateTime? _read_expiresAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
 
   static Object? _write_expiresAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_token(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_token(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() =>
       _$AuthenticateLocalAccountCommandOutputToJson(this);

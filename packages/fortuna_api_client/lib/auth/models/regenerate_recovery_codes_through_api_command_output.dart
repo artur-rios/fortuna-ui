@@ -16,22 +16,8 @@ class RegenerateRecoveryCodesThroughApiCommandOutput {
     Map<String, Object?> json,
   ) => _$RegenerateRecoveryCodesThroughApiCommandOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson:
-        RegenerateRecoveryCodesThroughApiCommandOutput._read_recoveryCodes,
-    toJson: RegenerateRecoveryCodesThroughApiCommandOutput._write_recoveryCodes,
-  )
-  final ({List<String>? value})? recoveryCodes;
-
-  static ({List<String>? value}) _read_recoveryCodes(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_recoveryCodes(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
+  @JsonKey(includeIfNull: false)
+  final List<String>? recoveryCodes;
 
   Map<String, Object?> toJson() =>
       _$RegenerateRecoveryCodesThroughApiCommandOutputToJson(this);

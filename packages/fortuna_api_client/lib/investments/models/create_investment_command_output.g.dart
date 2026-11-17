@@ -29,18 +29,10 @@ CreateInvestmentCommandOutput _$CreateInvestmentCommandOutputFromJson(
   );
   return CreateInvestmentCommandOutput(
     createdAt: CreateInvestmentCommandOutput._read_createdAt(json['createdAt']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : CreateInvestmentCommandOutput._read_currencyCode(
-            json['currencyCode'],
-          ),
+    currencyCode: json['currencyCode'] as String?,
     id: json['id'] as String?,
-    institution: !json.containsKey('institution')
-        ? null
-        : CreateInvestmentCommandOutput._read_institution(json['institution']),
-    instrument: !json.containsKey('instrument')
-        ? null
-        : CreateInvestmentCommandOutput._read_instrument(json['instrument']),
+    institution: json['institution'] as String?,
+    instrument: json['instrument'] as String?,
     investmentType: CreateInvestmentCommandOutput._read_investmentType(
       json['investmentType'],
     ),
@@ -54,13 +46,10 @@ Map<String, dynamic> _$CreateInvestmentCommandOutputToJson(
   'createdAt': ?CreateInvestmentCommandOutput._write_createdAt(
     instance.createdAt,
   ),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': CreateInvestmentCommandOutput._write_currencyCode($value),
+  'currencyCode': ?instance.currencyCode,
   'id': ?instance.id,
-  if (instance.institution case final $value?)
-    'institution': CreateInvestmentCommandOutput._write_institution($value),
-  if (instance.instrument case final $value?)
-    'instrument': CreateInvestmentCommandOutput._write_instrument($value),
+  'institution': ?instance.institution,
+  'instrument': ?instance.instrument,
   'investmentType': ?CreateInvestmentCommandOutput._write_investmentType(
     instance.investmentType,
   ),

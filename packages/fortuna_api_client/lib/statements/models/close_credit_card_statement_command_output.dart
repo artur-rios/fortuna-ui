@@ -50,17 +50,8 @@ class CloseCreditCardStatementCommandOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? purchaseTotal;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CloseCreditCardStatementCommandOutput._read_status,
-    toJson: CloseCreditCardStatementCommandOutput._write_status,
-  )
-  final ({String? value})? status;
-
-  static ({String? value}) _read_status(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_status(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? status;
 
   Map<String, Object?> toJson() =>
       _$CloseCreditCardStatementCommandOutputToJson(this);

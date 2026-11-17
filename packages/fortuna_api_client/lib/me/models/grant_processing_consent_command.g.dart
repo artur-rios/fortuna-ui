@@ -11,20 +11,14 @@ GrantProcessingConsentCommand _$GrantProcessingConsentCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['purpose', 'version']);
   return GrantProcessingConsentCommand(
-    purpose: !json.containsKey('purpose')
-        ? null
-        : GrantProcessingConsentCommand._read_purpose(json['purpose']),
-    version: !json.containsKey('version')
-        ? null
-        : GrantProcessingConsentCommand._read_version(json['version']),
+    purpose: json['purpose'] as String?,
+    version: json['version'] as String?,
   );
 }
 
 Map<String, dynamic> _$GrantProcessingConsentCommandToJson(
   GrantProcessingConsentCommand instance,
 ) => <String, dynamic>{
-  if (instance.purpose case final $value?)
-    'purpose': GrantProcessingConsentCommand._write_purpose($value),
-  if (instance.version case final $value?)
-    'version': GrantProcessingConsentCommand._write_version($value),
+  'purpose': ?instance.purpose,
+  'version': ?instance.version,
 };

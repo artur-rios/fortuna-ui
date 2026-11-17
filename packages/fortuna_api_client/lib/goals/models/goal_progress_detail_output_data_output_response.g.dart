@@ -13,7 +13,7 @@ _$GoalProgressDetailOutputDataOutput$ResponseFromJson(
   $checkKeys(
     json,
     allowedKeys: const ['data', 'errors', 'messages', 'success', 'timestamp'],
-    disallowNullValues: const ['data', 'success', 'timestamp'],
+    disallowNullValues: const ['success', 'timestamp'],
   );
   return GoalProgressDetailOutputDataOutput$Response(
     data: json['data'] == null
@@ -21,16 +21,12 @@ _$GoalProgressDetailOutputDataOutput$ResponseFromJson(
         : GoalProgressDetailOutput.fromJson(
             json['data'] as Map<String, dynamic>,
           ),
-    errors: !json.containsKey('errors')
-        ? null
-        : GoalProgressDetailOutputDataOutput$Response._read_errors(
-            json['errors'],
-          ),
-    messages: !json.containsKey('messages')
-        ? null
-        : GoalProgressDetailOutputDataOutput$Response._read_messages(
-            json['messages'],
-          ),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     success: json['success'] as bool?,
     timestamp: GoalProgressDetailOutputDataOutput$Response._read_timestamp(
       json['timestamp'],
@@ -42,12 +38,8 @@ Map<String, dynamic> _$GoalProgressDetailOutputDataOutput$ResponseToJson(
   GoalProgressDetailOutputDataOutput$Response instance,
 ) => <String, dynamic>{
   'data': ?instance.data?.toJson(),
-  if (instance.errors case final $value?)
-    'errors': GoalProgressDetailOutputDataOutput$Response._write_errors($value),
-  if (instance.messages case final $value?)
-    'messages': GoalProgressDetailOutputDataOutput$Response._write_messages(
-      $value,
-    ),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
   'success': ?instance.success,
   'timestamp': ?GoalProgressDetailOutputDataOutput$Response._write_timestamp(
     instance.timestamp,

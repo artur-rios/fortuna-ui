@@ -11,15 +11,12 @@ EnableTwoFactorThroughApiCommand _$EnableTwoFactorThroughApiCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['methods']);
   return EnableTwoFactorThroughApiCommand(
-    methods: !json.containsKey('methods')
-        ? null
-        : EnableTwoFactorThroughApiCommand._read_methods(json['methods']),
+    methods: (json['methods'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$EnableTwoFactorThroughApiCommandToJson(
   EnableTwoFactorThroughApiCommand instance,
-) => <String, dynamic>{
-  if (instance.methods case final $value?)
-    'methods': EnableTwoFactorThroughApiCommand._write_methods($value),
-};
+) => <String, dynamic>{'methods': ?instance.methods};

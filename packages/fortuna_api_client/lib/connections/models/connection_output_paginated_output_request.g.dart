@@ -28,22 +28,16 @@ _$ConnectionOutputPaginatedOutput$RequestFromJson(Map<String, dynamic> json) {
     ],
   );
   return ConnectionOutputPaginatedOutput$Request(
-    data: !json.containsKey('data')
-        ? null
-        : ConnectionOutputPaginatedOutput$Request._read_data(json['data']),
-    errors: !json.containsKey('errors')
-        ? null
-        : ConnectionOutputPaginatedOutput$Request._read_errors(json['errors']),
-    messages: !json.containsKey('messages')
-        ? null
-        : ConnectionOutputPaginatedOutput$Request._read_messages(
-            json['messages'],
-          ),
-    nextPageToken: !json.containsKey('nextPageToken')
-        ? null
-        : ConnectionOutputPaginatedOutput$Request._read_nextPageToken(
-            json['nextPageToken'],
-          ),
+    data: (json['data'] as List<dynamic>?)
+        ?.map((e) => ConnectionOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    errors: (json['errors'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    messages: (json['messages'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    nextPageToken: json['nextPageToken'] as String?,
     pageNumber: ConnectionOutputPaginatedOutput$Request._read_pageNumber(
       json['pageNumber'],
     ),
@@ -62,15 +56,10 @@ _$ConnectionOutputPaginatedOutput$RequestFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$ConnectionOutputPaginatedOutput$RequestToJson(
   ConnectionOutputPaginatedOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.data case final $value?)
-    'data': ConnectionOutputPaginatedOutput$Request._write_data($value),
-  if (instance.errors case final $value?)
-    'errors': ConnectionOutputPaginatedOutput$Request._write_errors($value),
-  if (instance.messages case final $value?)
-    'messages': ConnectionOutputPaginatedOutput$Request._write_messages($value),
-  if (instance.nextPageToken case final $value?)
-    'nextPageToken':
-        ConnectionOutputPaginatedOutput$Request._write_nextPageToken($value),
+  'data': ?instance.data?.map((e) => e.toJson()).toList(),
+  'errors': ?instance.errors,
+  'messages': ?instance.messages,
+  'nextPageToken': ?instance.nextPageToken,
   'pageNumber': ?ConnectionOutputPaginatedOutput$Request._write_pageNumber(
     instance.pageNumber,
   ),

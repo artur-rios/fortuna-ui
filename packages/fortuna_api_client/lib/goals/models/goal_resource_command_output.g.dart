@@ -16,16 +16,10 @@ GoalResourceCommandOutput _$GoalResourceCommandOutputFromJson(
   );
   return GoalResourceCommandOutput(
     id: json['id'] as String?,
-    name: !json.containsKey('name')
-        ? null
-        : GoalResourceCommandOutput._read_name(json['name']),
+    name: json['name'] as String?,
   );
 }
 
 Map<String, dynamic> _$GoalResourceCommandOutputToJson(
   GoalResourceCommandOutput instance,
-) => <String, dynamic>{
-  'id': ?instance.id,
-  if (instance.name case final $value?)
-    'name': GoalResourceCommandOutput._write_name($value),
-};
+) => <String, dynamic>{'id': ?instance.id, 'name': ?instance.name};

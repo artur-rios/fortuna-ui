@@ -21,40 +21,22 @@ ProcessingConsentStateOutput _$ProcessingConsentStateOutputFromJson(
     disallowNullValues: const ['isCurrent'],
   );
   return ProcessingConsentStateOutput(
-    currentVersion: !json.containsKey('currentVersion')
-        ? null
-        : ProcessingConsentStateOutput._read_currentVersion(
-            json['currentVersion'],
-          ),
-    grantedAt: !json.containsKey('grantedAt')
-        ? null
-        : ProcessingConsentStateOutput._read_grantedAt(json['grantedAt']),
-    grantedVersion: !json.containsKey('grantedVersion')
-        ? null
-        : ProcessingConsentStateOutput._read_grantedVersion(
-            json['grantedVersion'],
-          ),
+    currentVersion: json['currentVersion'] as String?,
+    grantedAt: ProcessingConsentStateOutput._read_grantedAt(json['grantedAt']),
+    grantedVersion: json['grantedVersion'] as String?,
     isCurrent: json['isCurrent'] as bool?,
-    purpose: !json.containsKey('purpose')
-        ? null
-        : ProcessingConsentStateOutput._read_purpose(json['purpose']),
+    purpose: json['purpose'] as String?,
   );
 }
 
 Map<String, dynamic> _$ProcessingConsentStateOutputToJson(
   ProcessingConsentStateOutput instance,
 ) => <String, dynamic>{
-  if (instance.currentVersion case final $value?)
-    'currentVersion': ProcessingConsentStateOutput._write_currentVersion(
-      $value,
-    ),
-  if (instance.grantedAt case final $value?)
-    'grantedAt': ProcessingConsentStateOutput._write_grantedAt($value),
-  if (instance.grantedVersion case final $value?)
-    'grantedVersion': ProcessingConsentStateOutput._write_grantedVersion(
-      $value,
-    ),
+  'currentVersion': ?instance.currentVersion,
+  'grantedAt': ?ProcessingConsentStateOutput._write_grantedAt(
+    instance.grantedAt,
+  ),
+  'grantedVersion': ?instance.grantedVersion,
   'isCurrent': ?instance.isCurrent,
-  if (instance.purpose case final $value?)
-    'purpose': ProcessingConsentStateOutput._write_purpose($value),
+  'purpose': ?instance.purpose,
 };

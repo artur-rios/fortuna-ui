@@ -10,20 +10,19 @@ import 'package:retrofit/retrofit.dart'
         Extras,
         CancelRequest,
         GET,
-        DELETE,
         POST,
+        DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path;
 
-import 'models/erase_user_command.dart' as models show EraseUserCommand;
+import 'models/erase_user_command.dart' show EraseUserCommand;
 import 'models/erase_user_command_output_data_output_response.dart'
-    as models
     show EraseUserCommandOutputDataOutput$Response;
 import 'models/grant_processing_consent_command.dart'
-    as models
     show GrantProcessingConsentCommand;
 import 'models/grant_processing_consent_command_output_data_output_response.dart'
-    as models
     show GrantProcessingConsentCommandOutputDataOutput$Response;
 import 'models/personal_data_export_query_output_data_output_response.dart'
     show PersonalDataExportQueryOutputDataOutput$Response;
@@ -115,28 +114,27 @@ abstract class MeClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
   });
-  Future<models.GrantProcessingConsentCommandOutputDataOutput$Response>
-  postApiMeConsents({
+  Future<GrantProcessingConsentCommandOutputDataOutput$Response>
+  _postApiMeConsentsWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.GrantProcessingConsentCommand body,
+    required GrantProcessingConsentCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/me/consents",
@@ -144,12 +142,24 @@ abstract class MeClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .GrantProcessingConsentCommandOutputDataOutput$Response.fromJson(
+    return GrantProcessingConsentCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/me/consents')
+  @Headers({'Content-Type': 'application/json'})
+  Future<GrantProcessingConsentCommandOutputDataOutput$Response>
+  postApiMeConsents({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required GrantProcessingConsentCommand body,
+  });
   Future<WithdrawProcessingConsentCommandOutputDataOutput$Response>
   _deleteApiMeConsentsByPurposeWithOptions({
     Map<String, Object?> extra = const {
@@ -262,27 +272,27 @@ abstract class MeClient {
     Options? options,
     @Path('jobId') required String jobId,
   });
-  Future<models.EraseUserCommandOutputDataOutput$Response> postApiMeErasure({
+  Future<EraseUserCommandOutputDataOutput$Response>
+  _postApiMeErasureWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.EraseUserCommand body,
+    required EraseUserCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
       "/api/me/erasure",
@@ -290,10 +300,23 @@ abstract class MeClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.EraseUserCommandOutputDataOutput$Response.fromJson(
+    return EraseUserCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
+
+  @POST('/api/me/erasure')
+  @Headers({'Content-Type': 'application/json'})
+  Future<EraseUserCommandOutputDataOutput$Response> postApiMeErasure({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required EraseUserCommand body,
+  });
 }
 
 class _MeClientWithOptions extends _MeClient {
@@ -340,6 +363,32 @@ class _MeClientWithOptions extends _MeClient {
             extra: extra,
             cancelToken: cancelToken,
             options: options,
+          );
+  }
+
+  @override
+  Future<GrantProcessingConsentCommandOutputDataOutput$Response>
+  postApiMeConsents({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required GrantProcessingConsentCommand body,
+  }) {
+    return options == null
+        ? super.postApiMeConsents(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiMeConsentsWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
           );
   }
 
@@ -415,6 +464,31 @@ class _MeClientWithOptions extends _MeClient {
             cancelToken: cancelToken,
             options: options,
             jobId: jobId,
+          );
+  }
+
+  @override
+  Future<EraseUserCommandOutputDataOutput$Response> postApiMeErasure({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required EraseUserCommand body,
+  }) {
+    return options == null
+        ? super.postApiMeErasure(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiMeErasureWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
           );
   }
 }

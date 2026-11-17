@@ -11,20 +11,14 @@ ResetPasswordThroughApiCommand _$ResetPasswordThroughApiCommandFromJson(
 ) {
   $checkKeys(json, allowedKeys: const ['newPassword', 'token']);
   return ResetPasswordThroughApiCommand(
-    newPassword: !json.containsKey('newPassword')
-        ? null
-        : ResetPasswordThroughApiCommand._read_newPassword(json['newPassword']),
-    token: !json.containsKey('token')
-        ? null
-        : ResetPasswordThroughApiCommand._read_token(json['token']),
+    newPassword: json['newPassword'] as String?,
+    token: json['token'] as String?,
   );
 }
 
 Map<String, dynamic> _$ResetPasswordThroughApiCommandToJson(
   ResetPasswordThroughApiCommand instance,
 ) => <String, dynamic>{
-  if (instance.newPassword case final $value?)
-    'newPassword': ResetPasswordThroughApiCommand._write_newPassword($value),
-  if (instance.token case final $value?)
-    'token': ResetPasswordThroughApiCommand._write_token($value),
+  'newPassword': ?instance.newPassword,
+  'token': ?instance.token,
 };

@@ -10,23 +10,14 @@ RegenerateRecoveryCodesThroughApiCommand
 _$RegenerateRecoveryCodesThroughApiCommandFromJson(Map<String, dynamic> json) {
   $checkKeys(json, allowedKeys: const ['code', 'recoveryCode']);
   return RegenerateRecoveryCodesThroughApiCommand(
-    code: !json.containsKey('code')
-        ? null
-        : RegenerateRecoveryCodesThroughApiCommand._read_code(json['code']),
-    recoveryCode: !json.containsKey('recoveryCode')
-        ? null
-        : RegenerateRecoveryCodesThroughApiCommand._read_recoveryCode(
-            json['recoveryCode'],
-          ),
+    code: json['code'] as String?,
+    recoveryCode: json['recoveryCode'] as String?,
   );
 }
 
 Map<String, dynamic> _$RegenerateRecoveryCodesThroughApiCommandToJson(
   RegenerateRecoveryCodesThroughApiCommand instance,
 ) => <String, dynamic>{
-  if (instance.code case final $value?)
-    'code': RegenerateRecoveryCodesThroughApiCommand._write_code($value),
-  if (instance.recoveryCode case final $value?)
-    'recoveryCode':
-        RegenerateRecoveryCodesThroughApiCommand._write_recoveryCode($value),
+  'code': ?instance.code,
+  'recoveryCode': ?instance.recoveryCode,
 };

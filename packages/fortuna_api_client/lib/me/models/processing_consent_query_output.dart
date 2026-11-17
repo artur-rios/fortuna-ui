@@ -17,30 +17,8 @@ class ProcessingConsentQueryOutput {
   factory ProcessingConsentQueryOutput.fromJson(Map<String, Object?> json) =>
       _$ProcessingConsentQueryOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ProcessingConsentQueryOutput._read_consents,
-    toJson: ProcessingConsentQueryOutput._write_consents,
-  )
-  final ({List<ProcessingConsentStateOutput>? value})? consents;
-
-  static ({List<ProcessingConsentStateOutput>? value}) _read_consents(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => ProcessingConsentStateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_consents(
-    ({List<ProcessingConsentStateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
+  @JsonKey(includeIfNull: false)
+  final List<ProcessingConsentStateOutput>? consents;
 
   Map<String, Object?> toJson() => _$ProcessingConsentQueryOutputToJson(this);
 }

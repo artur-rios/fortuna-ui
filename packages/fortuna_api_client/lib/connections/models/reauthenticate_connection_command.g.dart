@@ -9,11 +9,7 @@ part of 'reauthenticate_connection_command.dart';
 ReauthenticateConnectionCommand _$ReauthenticateConnectionCommandFromJson(
   Map<String, dynamic> json,
 ) => ReauthenticateConnectionCommand(
-  externalReference: !json.containsKey('externalReference')
-      ? null
-      : ReauthenticateConnectionCommand._read_externalReference(
-          json['externalReference'],
-        ),
+  externalReference: json['externalReference'] as String?,
   additionalProperties:
       ReauthenticateConnectionCommand._extras(json, 'additionalProperties') ==
           null
@@ -25,8 +21,4 @@ ReauthenticateConnectionCommand _$ReauthenticateConnectionCommandFromJson(
 
 Map<String, dynamic> _$ReauthenticateConnectionCommandToJson(
   ReauthenticateConnectionCommand instance,
-) => <String, dynamic>{
-  if (instance.externalReference case final $value?)
-    'externalReference':
-        ReauthenticateConnectionCommand._write_externalReference($value),
-};
+) => <String, dynamic>{'externalReference': ?instance.externalReference};

@@ -43,22 +43,14 @@ class ReauthenticateConnectionCommandOutput {
   )
   final TransactionSourceType? dataSourceType;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ReauthenticateConnectionCommandOutput._read_externalReference,
-    toJson: ReauthenticateConnectionCommandOutput._write_externalReference,
-  )
-  final ({String? value})? externalReference;
+  @JsonKey(includeIfNull: false)
+  final String? externalReference;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? id;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ReauthenticateConnectionCommandOutput._read_institution,
-    toJson: ReauthenticateConnectionCommandOutput._write_institution,
-  )
-  final ({String? value})? institution;
+  @JsonKey(includeIfNull: false)
+  final String? institution;
 
   @JsonKey(
     disallowNullValue: true,
@@ -87,17 +79,6 @@ class ReauthenticateConnectionCommandOutput {
 
   static Object? _write_dataSourceType(TransactionSourceType? value) =>
       value?.toJson();
-
-  static ({String? value}) _read_externalReference(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_externalReference(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_institution(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_institution(({String? value}) value) => value.value;
 
   static ConnectionStatus? _read_status(Object? value) =>
       value == null ? null : ConnectionStatus.fromJson(value);

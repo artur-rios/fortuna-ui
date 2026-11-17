@@ -35,33 +35,17 @@ class FinancialAccountOutputPaginatedOutput$Request {
         entry.key: entry.value,
   });
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: FinancialAccountOutputPaginatedOutput$Request._read_data,
-    toJson: FinancialAccountOutputPaginatedOutput$Request._write_data,
-  )
-  final ({List<FinancialAccountOutput>? value})? data;
+  @JsonKey(includeIfNull: false)
+  final List<FinancialAccountOutput>? data;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: FinancialAccountOutputPaginatedOutput$Request._read_errors,
-    toJson: FinancialAccountOutputPaginatedOutput$Request._write_errors,
-  )
-  final ({List<String>? value})? errors;
+  @JsonKey(includeIfNull: false)
+  final List<String>? errors;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: FinancialAccountOutputPaginatedOutput$Request._read_messages,
-    toJson: FinancialAccountOutputPaginatedOutput$Request._write_messages,
-  )
-  final ({List<String>? value})? messages;
+  @JsonKey(includeIfNull: false)
+  final List<String>? messages;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: FinancialAccountOutputPaginatedOutput$Request._read_nextPageToken,
-    toJson: FinancialAccountOutputPaginatedOutput$Request._write_nextPageToken,
-  )
-  final ({String? value})? nextPageToken;
+  @JsonKey(includeIfNull: false)
+  final String? nextPageToken;
 
   @JsonKey(
     disallowNullValue: true,
@@ -94,44 +78,6 @@ class FinancialAccountOutputPaginatedOutput$Request {
     toJson: FinancialAccountOutputPaginatedOutput$Request._write_totalItems,
   )
   final int? totalItems;
-
-  static ({List<FinancialAccountOutput>? value}) _read_data(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => FinancialAccountOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_data(({List<FinancialAccountOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
-
-  static ({List<String>? value}) _read_errors(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_errors(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({List<String>? value}) _read_messages(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>).map((item) => item as String).toList(),
-  );
-
-  static Object? _write_messages(({List<String>? value}) value) =>
-      value.value?.map((item) => item).toList();
-
-  static ({String? value}) _read_nextPageToken(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_nextPageToken(({String? value}) value) => value.value;
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;

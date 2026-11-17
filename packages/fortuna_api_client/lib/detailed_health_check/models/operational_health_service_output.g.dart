@@ -20,38 +20,30 @@ OperationalHealthServiceOutput _$OperationalHealthServiceOutputFromJson(
     ],
   );
   return OperationalHealthServiceOutput(
-    name: !json.containsKey('name')
-        ? null
-        : OperationalHealthServiceOutput._read_name(json['name']),
-    oldestPendingSeconds: !json.containsKey('oldestPendingSeconds')
-        ? null
-        : OperationalHealthServiceOutput._read_oldestPendingSeconds(
-            json['oldestPendingSeconds'],
-          ),
-    queueDepth: !json.containsKey('queueDepth')
-        ? null
-        : OperationalHealthServiceOutput._read_queueDepth(json['queueDepth']),
-    reason: !json.containsKey('reason')
-        ? null
-        : OperationalHealthServiceOutput._read_reason(json['reason']),
-    status: !json.containsKey('status')
-        ? null
-        : OperationalHealthServiceOutput._read_status(json['status']),
+    name: json['name'] as String?,
+    oldestPendingSeconds:
+        OperationalHealthServiceOutput._read_oldestPendingSeconds(
+          json['oldestPendingSeconds'],
+        ),
+    queueDepth: OperationalHealthServiceOutput._read_queueDepth(
+      json['queueDepth'],
+    ),
+    reason: json['reason'] as String?,
+    status: json['status'] as String?,
   );
 }
 
 Map<String, dynamic> _$OperationalHealthServiceOutputToJson(
   OperationalHealthServiceOutput instance,
 ) => <String, dynamic>{
-  if (instance.name case final $value?)
-    'name': OperationalHealthServiceOutput._write_name($value),
-  if (instance.oldestPendingSeconds case final $value?)
-    'oldestPendingSeconds':
-        OperationalHealthServiceOutput._write_oldestPendingSeconds($value),
-  if (instance.queueDepth case final $value?)
-    'queueDepth': OperationalHealthServiceOutput._write_queueDepth($value),
-  if (instance.reason case final $value?)
-    'reason': OperationalHealthServiceOutput._write_reason($value),
-  if (instance.status case final $value?)
-    'status': OperationalHealthServiceOutput._write_status($value),
+  'name': ?instance.name,
+  'oldestPendingSeconds':
+      ?OperationalHealthServiceOutput._write_oldestPendingSeconds(
+        instance.oldestPendingSeconds,
+      ),
+  'queueDepth': ?OperationalHealthServiceOutput._write_queueDepth(
+    instance.queueDepth,
+  ),
+  'reason': ?instance.reason,
+  'status': ?instance.status,
 };

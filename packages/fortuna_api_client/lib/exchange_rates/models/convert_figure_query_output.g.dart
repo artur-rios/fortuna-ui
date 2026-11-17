@@ -22,38 +22,31 @@ ConvertFigureQueryOutput _$ConvertFigureQueryOutputFromJson(
     disallowNullValues: const ['figureDate', 'isFullyConverted'],
   );
   return ConvertFigureQueryOutput(
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : ConvertFigureQueryOutput._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
-          ),
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
     figureDate: json['figureDate'] as String?,
-    groups: !json.containsKey('groups')
-        ? null
-        : ConvertFigureQueryOutput._read_groups(json['groups']),
+    groups: (json['groups'] as List<dynamic>?)
+        ?.map(
+          (e) =>
+              ConvertedCurrencyGroupOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
     isFullyConverted: json['isFullyConverted'] as bool?,
-    missingRates: !json.containsKey('missingRates')
-        ? null
-        : ConvertFigureQueryOutput._read_missingRates(json['missingRates']),
-    total: !json.containsKey('total')
-        ? null
-        : ConvertFigureQueryOutput._read_total(json['total']),
+    missingRates: (json['missingRates'] as List<dynamic>?)
+        ?.map(
+          (e) => MissingExchangeRateOutput.fromJson(e as Map<String, dynamic>),
+        )
+        .toList(),
+    total: json['total'] as String?,
   );
 }
 
 Map<String, dynamic> _$ConvertFigureQueryOutputToJson(
   ConvertFigureQueryOutput instance,
 ) => <String, dynamic>{
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode': ConvertFigureQueryOutput._write_displayCurrencyCode(
-      $value,
-    ),
+  'displayCurrencyCode': ?instance.displayCurrencyCode,
   'figureDate': ?instance.figureDate,
-  if (instance.groups case final $value?)
-    'groups': ConvertFigureQueryOutput._write_groups($value),
+  'groups': ?instance.groups?.map((e) => e.toJson()).toList(),
   'isFullyConverted': ?instance.isFullyConverted,
-  if (instance.missingRates case final $value?)
-    'missingRates': ConvertFigureQueryOutput._write_missingRates($value),
-  if (instance.total case final $value?)
-    'total': ConvertFigureQueryOutput._write_total($value),
+  'missingRates': ?instance.missingRates?.map((e) => e.toJson()).toList(),
+  'total': ?instance.total,
 };

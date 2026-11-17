@@ -25,19 +25,11 @@ class AuditEntryOutput {
   factory AuditEntryOutput.fromJson(Map<String, Object?> json) =>
       _$AuditEntryOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AuditEntryOutput._read_entityId,
-    toJson: AuditEntryOutput._write_entityId,
-  )
-  final ({String? value})? entityId;
+  @JsonKey(includeIfNull: false)
+  final String? entityId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AuditEntryOutput._read_entityType,
-    toJson: AuditEntryOutput._write_entityType,
-  )
-  final ({String? value})? entityType;
+  @JsonKey(includeIfNull: false)
+  final String? entityType;
 
   @JsonKey(
     disallowNullValue: true,
@@ -47,12 +39,8 @@ class AuditEntryOutput {
   )
   final DateTime? occurredAt;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AuditEntryOutput._read_operation,
-    toJson: AuditEntryOutput._write_operation,
-  )
-  final ({String? value})? operation;
+  @JsonKey(includeIfNull: false)
+  final String? operation;
 
   @JsonKey(
     disallowNullValue: true,
@@ -62,25 +50,11 @@ class AuditEntryOutput {
   )
   final AuditOutcome? outcome;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: AuditEntryOutput._read_reason,
-    toJson: AuditEntryOutput._write_reason,
-  )
-  final ({String? value})? reason;
+  @JsonKey(includeIfNull: false)
+  final String? reason;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? subjectReference;
-
-  static ({String? value}) _read_entityId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_entityId(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_entityType(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_entityType(({String? value}) value) => value.value;
 
   static DateTime? _read_occurredAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();
@@ -88,20 +62,10 @@ class AuditEntryOutput {
   static Object? _write_occurredAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
 
-  static ({String? value}) _read_operation(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_operation(({String? value}) value) => value.value;
-
   static AuditOutcome? _read_outcome(Object? value) =>
       value == null ? null : AuditOutcome.fromJson(value);
 
   static Object? _write_outcome(AuditOutcome? value) => value?.toJson();
-
-  static ({String? value}) _read_reason(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_reason(({String? value}) value) => value.value;
 
   Map<String, Object?> toJson() => _$AuditEntryOutputToJson(this);
 }

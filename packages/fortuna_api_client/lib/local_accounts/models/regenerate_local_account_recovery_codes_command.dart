@@ -16,17 +16,8 @@ class RegenerateLocalAccountRecoveryCodesCommand {
     Map<String, Object?> json,
   ) => _$RegenerateLocalAccountRecoveryCodesCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RegenerateLocalAccountRecoveryCodesCommand._read_secret,
-    toJson: RegenerateLocalAccountRecoveryCodesCommand._write_secret,
-  )
-  final ({String? value})? secret;
-
-  static ({String? value}) _read_secret(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_secret(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? secret;
 
   Map<String, Object?> toJson() =>
       _$RegenerateLocalAccountRecoveryCodesCommandToJson(this);

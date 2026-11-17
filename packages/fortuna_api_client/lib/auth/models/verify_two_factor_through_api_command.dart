@@ -20,41 +20,14 @@ class VerifyTwoFactorThroughApiCommand {
     Map<String, Object?> json,
   ) => _$VerifyTwoFactorThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: VerifyTwoFactorThroughApiCommand._read_challengeToken,
-    toJson: VerifyTwoFactorThroughApiCommand._write_challengeToken,
-  )
-  final ({String? value})? challengeToken;
+  @JsonKey(includeIfNull: false)
+  final String? challengeToken;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: VerifyTwoFactorThroughApiCommand._read_code,
-    toJson: VerifyTwoFactorThroughApiCommand._write_code,
-  )
-  final ({String? value})? code;
+  @JsonKey(includeIfNull: false)
+  final String? code;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: VerifyTwoFactorThroughApiCommand._read_recoveryCode,
-    toJson: VerifyTwoFactorThroughApiCommand._write_recoveryCode,
-  )
-  final ({String? value})? recoveryCode;
-
-  static ({String? value}) _read_challengeToken(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_challengeToken(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_code(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_code(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_recoveryCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recoveryCode(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? recoveryCode;
 
   Map<String, Object?> toJson() =>
       _$VerifyTwoFactorThroughApiCommandToJson(this);

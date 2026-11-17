@@ -18,9 +18,7 @@ _$WithdrawProcessingConsentCommandOutputFromJson(Map<String, dynamic> json) {
     disallowNullValues: const ['revokedConnections', 'stoppedSynchronizations'],
   );
   return WithdrawProcessingConsentCommandOutput(
-    purpose: !json.containsKey('purpose')
-        ? null
-        : WithdrawProcessingConsentCommandOutput._read_purpose(json['purpose']),
+    purpose: json['purpose'] as String?,
     revokedConnections:
         WithdrawProcessingConsentCommandOutput._read_revokedConnections(
           json['revokedConnections'],
@@ -35,8 +33,7 @@ _$WithdrawProcessingConsentCommandOutputFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$WithdrawProcessingConsentCommandOutputToJson(
   WithdrawProcessingConsentCommandOutput instance,
 ) => <String, dynamic>{
-  if (instance.purpose case final $value?)
-    'purpose': WithdrawProcessingConsentCommandOutput._write_purpose($value),
+  'purpose': ?instance.purpose,
   'revokedConnections':
       ?WithdrawProcessingConsentCommandOutput._write_revokedConnections(
         instance.revokedConnections,

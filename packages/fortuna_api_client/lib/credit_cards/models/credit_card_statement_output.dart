@@ -53,12 +53,8 @@ class CreditCardStatementOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? creditCardId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementOutput._read_currencyCode,
-    toJson: CreditCardStatementOutput._write_currencyCode,
-  )
-  final ({String? value})? currencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? currencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? dueDate;
@@ -87,26 +83,14 @@ class CreditCardStatementOutput {
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? purchaseTotal;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementOutput._read_settlementTransactionId,
-    toJson: CreditCardStatementOutput._write_settlementTransactionId,
-  )
-  final ({String? value})? settlementTransactionId;
+  @JsonKey(includeIfNull: false)
+  final String? settlementTransactionId;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementOutput._read_status,
-    toJson: CreditCardStatementOutput._write_status,
-  )
-  final ({String? value})? status;
+  @JsonKey(includeIfNull: false)
+  final String? status;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: CreditCardStatementOutput._read_transactions,
-    toJson: CreditCardStatementOutput._write_transactions,
-  )
-  final ({List<CreditCardStatementTransactionOutput>? value})? transactions;
+  @JsonKey(includeIfNull: false)
+  final List<CreditCardStatementTransactionOutput>? transactions;
 
   @JsonKey(
     disallowNullValue: true,
@@ -121,39 +105,6 @@ class CreditCardStatementOutput {
 
   static Object? _write_createdAt(DateTime? value) =>
       value?.toUtc().toIso8601String();
-
-  static ({String? value}) _read_currencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_currencyCode(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_settlementTransactionId(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_settlementTransactionId(({String? value}) value) =>
-      value.value;
-
-  static ({String? value}) _read_status(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_status(({String? value}) value) => value.value;
-
-  static ({List<CreditCardStatementTransactionOutput>? value})
-  _read_transactions(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => CreditCardStatementTransactionOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_transactions(
-    ({List<CreditCardStatementTransactionOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
 
   static DateTime? _read_updatedAt(Object? value) =>
       value == null ? null : DateTime.parse(value as String).toUtc();

@@ -46,48 +46,22 @@ RecurringTransactionOutput _$RecurringTransactionOutputFromJson(
   return RecurringTransactionOutput(
     amount: json['amount'] as String?,
     categoryId: json['categoryId'] as String?,
-    counterpartyId: !json.containsKey('counterpartyId')
-        ? null
-        : RecurringTransactionOutput._read_counterpartyId(
-            json['counterpartyId'],
-          ),
-    counterpartyName: !json.containsKey('counterpartyName')
-        ? null
-        : RecurringTransactionOutput._read_counterpartyName(
-            json['counterpartyName'],
-          ),
+    counterpartyId: json['counterpartyId'] as String?,
+    counterpartyName: json['counterpartyName'] as String?,
     createdAt: RecurringTransactionOutput._read_createdAt(json['createdAt']),
-    creditCardId: !json.containsKey('creditCardId')
-        ? null
-        : RecurringTransactionOutput._read_creditCardId(json['creditCardId']),
-    currencyCode: !json.containsKey('currencyCode')
-        ? null
-        : RecurringTransactionOutput._read_currencyCode(json['currencyCode']),
-    description: !json.containsKey('description')
-        ? null
-        : RecurringTransactionOutput._read_description(json['description']),
+    creditCardId: json['creditCardId'] as String?,
+    currencyCode: json['currencyCode'] as String?,
+    description: json['description'] as String?,
     direction: RecurringTransactionOutput._read_direction(json['direction']),
-    endsOn: !json.containsKey('endsOn')
-        ? null
-        : RecurringTransactionOutput._read_endsOn(json['endsOn']),
-    financialAccountId: !json.containsKey('financialAccountId')
-        ? null
-        : RecurringTransactionOutput._read_financialAccountId(
-            json['financialAccountId'],
-          ),
+    endsOn: json['endsOn'] as String?,
+    financialAccountId: json['financialAccountId'] as String?,
     frequency: RecurringTransactionOutput._read_frequency(json['frequency']),
     id: json['id'] as String?,
     isDeleted: json['isDeleted'] as bool?,
-    lastMaterializedOn: !json.containsKey('lastMaterializedOn')
-        ? null
-        : RecurringTransactionOutput._read_lastMaterializedOn(
-            json['lastMaterializedOn'],
-          ),
-    nextOccurrences: !json.containsKey('nextOccurrences')
-        ? null
-        : RecurringTransactionOutput._read_nextOccurrences(
-            json['nextOccurrences'],
-          ),
+    lastMaterializedOn: json['lastMaterializedOn'] as String?,
+    nextOccurrences: (json['nextOccurrences'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
     startsOn: json['startsOn'] as String?,
     updatedAt: RecurringTransactionOutput._read_updatedAt(json['updatedAt']),
   );
@@ -98,37 +72,20 @@ Map<String, dynamic> _$RecurringTransactionOutputToJson(
 ) => <String, dynamic>{
   'amount': ?instance.amount,
   'categoryId': ?instance.categoryId,
-  if (instance.counterpartyId case final $value?)
-    'counterpartyId': RecurringTransactionOutput._write_counterpartyId($value),
-  if (instance.counterpartyName case final $value?)
-    'counterpartyName': RecurringTransactionOutput._write_counterpartyName(
-      $value,
-    ),
+  'counterpartyId': ?instance.counterpartyId,
+  'counterpartyName': ?instance.counterpartyName,
   'createdAt': ?RecurringTransactionOutput._write_createdAt(instance.createdAt),
-  if (instance.creditCardId case final $value?)
-    'creditCardId': RecurringTransactionOutput._write_creditCardId($value),
-  if (instance.currencyCode case final $value?)
-    'currencyCode': RecurringTransactionOutput._write_currencyCode($value),
-  if (instance.description case final $value?)
-    'description': RecurringTransactionOutput._write_description($value),
+  'creditCardId': ?instance.creditCardId,
+  'currencyCode': ?instance.currencyCode,
+  'description': ?instance.description,
   'direction': ?RecurringTransactionOutput._write_direction(instance.direction),
-  if (instance.endsOn case final $value?)
-    'endsOn': RecurringTransactionOutput._write_endsOn($value),
-  if (instance.financialAccountId case final $value?)
-    'financialAccountId': RecurringTransactionOutput._write_financialAccountId(
-      $value,
-    ),
+  'endsOn': ?instance.endsOn,
+  'financialAccountId': ?instance.financialAccountId,
   'frequency': ?RecurringTransactionOutput._write_frequency(instance.frequency),
   'id': ?instance.id,
   'isDeleted': ?instance.isDeleted,
-  if (instance.lastMaterializedOn case final $value?)
-    'lastMaterializedOn': RecurringTransactionOutput._write_lastMaterializedOn(
-      $value,
-    ),
-  if (instance.nextOccurrences case final $value?)
-    'nextOccurrences': RecurringTransactionOutput._write_nextOccurrences(
-      $value,
-    ),
+  'lastMaterializedOn': ?instance.lastMaterializedOn,
+  'nextOccurrences': ?instance.nextOccurrences,
   'startsOn': ?instance.startsOn,
   'updatedAt': ?RecurringTransactionOutput._write_updatedAt(instance.updatedAt),
 };

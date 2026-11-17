@@ -22,49 +22,30 @@ RequestDataExportCommand _$RequestDataExportCommandFromJson(
     ],
   );
   return RequestDataExportCommand(
-    columns: !json.containsKey('columns')
-        ? null
-        : RequestDataExportCommand._read_columns(json['columns']),
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : RequestDataExportCommand._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
-          ),
-    filters: !json.containsKey('filters')
-        ? null
-        : RequestDataExportCommand._read_filters(json['filters']),
-    format: !json.containsKey('format')
-        ? null
-        : RequestDataExportCommand._read_format(json['format']),
-    locale: !json.containsKey('locale')
-        ? null
-        : RequestDataExportCommand._read_locale(json['locale']),
-    recordSet: !json.containsKey('recordSet')
-        ? null
-        : RequestDataExportCommand._read_recordSet(json['recordSet']),
-    sorts: !json.containsKey('sorts')
-        ? null
-        : RequestDataExportCommand._read_sorts(json['sorts']),
+    columns: (json['columns'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
+    filters: (json['filters'] as List<dynamic>?)
+        ?.map((e) => DataExportFilterInput.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    format: json['format'] as String?,
+    locale: json['locale'] as String?,
+    recordSet: json['recordSet'] as String?,
+    sorts: (json['sorts'] as List<dynamic>?)
+        ?.map((e) => DataExportSortInput.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$RequestDataExportCommandToJson(
   RequestDataExportCommand instance,
 ) => <String, dynamic>{
-  if (instance.columns case final $value?)
-    'columns': RequestDataExportCommand._write_columns($value),
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode': RequestDataExportCommand._write_displayCurrencyCode(
-      $value,
-    ),
-  if (instance.filters case final $value?)
-    'filters': RequestDataExportCommand._write_filters($value),
-  if (instance.format case final $value?)
-    'format': RequestDataExportCommand._write_format($value),
-  if (instance.locale case final $value?)
-    'locale': RequestDataExportCommand._write_locale($value),
-  if (instance.recordSet case final $value?)
-    'recordSet': RequestDataExportCommand._write_recordSet($value),
-  if (instance.sorts case final $value?)
-    'sorts': RequestDataExportCommand._write_sorts($value),
+  'columns': ?instance.columns,
+  'displayCurrencyCode': ?instance.displayCurrencyCode,
+  'filters': ?instance.filters?.map((e) => e.toJson()).toList(),
+  'format': ?instance.format,
+  'locale': ?instance.locale,
+  'recordSet': ?instance.recordSet,
+  'sorts': ?instance.sorts?.map((e) => e.toJson()).toList(),
 };

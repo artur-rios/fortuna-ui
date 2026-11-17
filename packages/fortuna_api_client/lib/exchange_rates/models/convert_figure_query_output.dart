@@ -25,86 +25,23 @@ class ConvertFigureQueryOutput {
   factory ConvertFigureQueryOutput.fromJson(Map<String, Object?> json) =>
       _$ConvertFigureQueryOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConvertFigureQueryOutput._read_displayCurrencyCode,
-    toJson: ConvertFigureQueryOutput._write_displayCurrencyCode,
-  )
-  final ({String? value})? displayCurrencyCode;
+  @JsonKey(includeIfNull: false)
+  final String? displayCurrencyCode;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final String? figureDate;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConvertFigureQueryOutput._read_groups,
-    toJson: ConvertFigureQueryOutput._write_groups,
-  )
-  final ({List<ConvertedCurrencyGroupOutput>? value})? groups;
+  @JsonKey(includeIfNull: false)
+  final List<ConvertedCurrencyGroupOutput>? groups;
 
   @JsonKey(disallowNullValue: true, includeIfNull: false)
   final bool? isFullyConverted;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConvertFigureQueryOutput._read_missingRates,
-    toJson: ConvertFigureQueryOutput._write_missingRates,
-  )
-  final ({List<MissingExchangeRateOutput>? value})? missingRates;
+  @JsonKey(includeIfNull: false)
+  final List<MissingExchangeRateOutput>? missingRates;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: ConvertFigureQueryOutput._read_total,
-    toJson: ConvertFigureQueryOutput._write_total,
-  )
-  final ({String? value})? total;
-
-  static ({String? value}) _read_displayCurrencyCode(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_displayCurrencyCode(({String? value}) value) =>
-      value.value;
-
-  static ({List<ConvertedCurrencyGroupOutput>? value}) _read_groups(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => ConvertedCurrencyGroupOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_groups(
-    ({List<ConvertedCurrencyGroupOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({List<MissingExchangeRateOutput>? value}) _read_missingRates(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => MissingExchangeRateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_missingRates(
-    ({List<MissingExchangeRateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
-
-  static ({String? value}) _read_total(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_total(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? total;
 
   Map<String, Object?> toJson() => _$ConvertFigureQueryOutputToJson(this);
 }

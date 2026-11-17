@@ -13,25 +13,19 @@ CurrencyOutput _$CurrencyOutputFromJson(Map<String, dynamic> json) {
     disallowNullValues: const ['minorUnitDigits'],
   );
   return CurrencyOutput(
-    code: !json.containsKey('code')
-        ? null
-        : CurrencyOutput._read_code(json['code']),
+    code: json['code'] as String?,
     minorUnitDigits: CurrencyOutput._read_minorUnitDigits(
       json['minorUnitDigits'],
     ),
-    name: !json.containsKey('name')
-        ? null
-        : CurrencyOutput._read_name(json['name']),
+    name: json['name'] as String?,
   );
 }
 
 Map<String, dynamic> _$CurrencyOutputToJson(CurrencyOutput instance) =>
     <String, dynamic>{
-      if (instance.code case final $value?)
-        'code': CurrencyOutput._write_code($value),
+      'code': ?instance.code,
       'minorUnitDigits': ?CurrencyOutput._write_minorUnitDigits(
         instance.minorUnitDigits,
       ),
-      if (instance.name case final $value?)
-        'name': CurrencyOutput._write_name($value),
+      'name': ?instance.name,
     };

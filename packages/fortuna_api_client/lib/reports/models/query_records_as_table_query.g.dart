@@ -23,45 +23,32 @@ QueryRecordsAsTableQuery _$QueryRecordsAsTableQueryFromJson(
     disallowNullValues: const ['pageNumber', 'pageSize'],
   );
   return QueryRecordsAsTableQuery(
-    columns: !json.containsKey('columns')
-        ? null
-        : QueryRecordsAsTableQuery._read_columns(json['columns']),
-    displayCurrencyCode: !json.containsKey('displayCurrencyCode')
-        ? null
-        : QueryRecordsAsTableQuery._read_displayCurrencyCode(
-            json['displayCurrencyCode'],
-          ),
-    filters: !json.containsKey('filters')
-        ? null
-        : QueryRecordsAsTableQuery._read_filters(json['filters']),
+    columns: (json['columns'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    displayCurrencyCode: json['displayCurrencyCode'] as String?,
+    filters: (json['filters'] as List<dynamic>?)
+        ?.map((e) => TableFilterInput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     pageNumber: QueryRecordsAsTableQuery._read_pageNumber(json['pageNumber']),
     pageSize: QueryRecordsAsTableQuery._read_pageSize(json['pageSize']),
-    recordSet: !json.containsKey('recordSet')
-        ? null
-        : QueryRecordsAsTableQuery._read_recordSet(json['recordSet']),
-    sorts: !json.containsKey('sorts')
-        ? null
-        : QueryRecordsAsTableQuery._read_sorts(json['sorts']),
+    recordSet: json['recordSet'] as String?,
+    sorts: (json['sorts'] as List<dynamic>?)
+        ?.map((e) => TableSortInput.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
 Map<String, dynamic> _$QueryRecordsAsTableQueryToJson(
   QueryRecordsAsTableQuery instance,
 ) => <String, dynamic>{
-  if (instance.columns case final $value?)
-    'columns': QueryRecordsAsTableQuery._write_columns($value),
-  if (instance.displayCurrencyCode case final $value?)
-    'displayCurrencyCode': QueryRecordsAsTableQuery._write_displayCurrencyCode(
-      $value,
-    ),
-  if (instance.filters case final $value?)
-    'filters': QueryRecordsAsTableQuery._write_filters($value),
+  'columns': ?instance.columns,
+  'displayCurrencyCode': ?instance.displayCurrencyCode,
+  'filters': ?instance.filters?.map((e) => e.toJson()).toList(),
   'pageNumber': ?QueryRecordsAsTableQuery._write_pageNumber(
     instance.pageNumber,
   ),
   'pageSize': ?QueryRecordsAsTableQuery._write_pageSize(instance.pageSize),
-  if (instance.recordSet case final $value?)
-    'recordSet': QueryRecordsAsTableQuery._write_recordSet($value),
-  if (instance.sorts case final $value?)
-    'sorts': QueryRecordsAsTableQuery._write_sorts($value),
+  'recordSet': ?instance.recordSet,
+  'sorts': ?instance.sorts?.map((e) => e.toJson()).toList(),
 };

@@ -56,19 +56,11 @@ class RetryImportJobCommandOutput {
   )
   final int? importedCount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RetryImportJobCommandOutput._read_periodEnd,
-    toJson: RetryImportJobCommandOutput._write_periodEnd,
-  )
-  final ({String? value})? periodEnd;
+  @JsonKey(includeIfNull: false)
+  final String? periodEnd;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: RetryImportJobCommandOutput._read_periodStart,
-    toJson: RetryImportJobCommandOutput._write_periodStart,
-  )
-  final ({String? value})? periodStart;
+  @JsonKey(includeIfNull: false)
+  final String? periodStart;
 
   @JsonKey(
     disallowNullValue: true,
@@ -117,16 +109,6 @@ class RetryImportJobCommandOutput {
       value == null ? null : value as int;
 
   static Object? _write_importedCount(int? value) => value;
-
-  static ({String? value}) _read_periodEnd(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodEnd(({String? value}) value) => value.value;
-
-  static ({String? value}) _read_periodStart(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_periodStart(({String? value}) value) => value.value;
 
   static int? _read_rejectedCount(Object? value) =>
       value == null ? null : value as int;

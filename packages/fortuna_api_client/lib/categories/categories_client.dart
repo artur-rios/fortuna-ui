@@ -10,9 +10,12 @@ import 'package:retrofit/retrofit.dart'
         Extras,
         CancelRequest,
         GET,
-        DELETE,
         POST,
+        PUT,
+        DELETE,
         ParseErrorLogger,
+        Body,
+        Headers,
         Path,
         Query;
 
@@ -22,23 +25,15 @@ import 'models/category_output_data_output_response.dart'
     show CategoryOutputDataOutput$Response;
 import 'models/category_tree_output_data_output_response.dart'
     show CategoryTreeOutputDataOutput$Response;
-import 'models/create_category_command.dart'
-    as models
-    show CreateCategoryCommand;
+import 'models/create_category_command.dart' show CreateCategoryCommand;
 import 'models/create_category_command_output_data_output_response.dart'
-    as models
     show CreateCategoryCommandOutputDataOutput$Response;
 import 'models/reassign_category_transactions_command.dart'
-    as models
     show ReassignCategoryTransactionsCommand;
 import 'models/reassign_category_transactions_command_output_data_output_response.dart'
-    as models
     show ReassignCategoryTransactionsCommandOutputDataOutput$Response;
-import 'models/update_category_command.dart'
-    as models
-    show UpdateCategoryCommand;
+import 'models/update_category_command.dart' show UpdateCategoryCommand;
 import 'models/update_category_command_output_data_output_response.dart'
-    as models
     show UpdateCategoryCommandOutputDataOutput$Response;
 
 part 'categories_client.g.dart';
@@ -94,28 +89,27 @@ abstract class CategoriesClient {
     @Query('includeDeleted') bool? includeDeleted,
     @Query('includeUsageCounts') bool? includeUsageCounts,
   });
-  Future<models.CreateCategoryCommandOutputDataOutput$Response>
-  postApiCategories({
+  Future<CreateCategoryCommandOutputDataOutput$Response>
+  _postApiCategoriesWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
     },
     CancelToken? cancelToken,
     Options? options,
-    required models.CreateCategoryCommand body,
+    required CreateCategoryCommand body,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 201),
     );
     final response = await _transport.request<dynamic>(
       "/api/categories",
@@ -123,11 +117,23 @@ abstract class CategoriesClient {
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.CreateCategoryCommandOutputDataOutput$Response.fromJson(
+    return CreateCategoryCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/categories')
+  @Headers({'Content-Type': 'application/json'})
+  Future<CreateCategoryCommandOutputDataOutput$Response> postApiCategories({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Body() required CreateCategoryCommand body,
+  });
   Future<CategoryOutputDataOutput$Response> _getApiCategoriesByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -173,8 +179,8 @@ abstract class CategoriesClient {
     @Query('includeDeleted') bool? includeDeleted,
     @Query('includeUsageCounts') bool? includeUsageCounts,
   });
-  Future<models.UpdateCategoryCommandOutputDataOutput$Response>
-  putApiCategoriesById({
+  Future<UpdateCategoryCommandOutputDataOutput$Response>
+  _putApiCategoriesByIdWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -182,35 +188,44 @@ abstract class CategoriesClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.UpdateCategoryCommand body,
+    required UpdateCategoryCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "PUT",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/categories/" + Uri.encodeComponent(id),
+      "/api/categories/" + id.toString(),
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models.UpdateCategoryCommandOutputDataOutput$Response.fromJson(
+    return UpdateCategoryCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @PUT('/api/categories/{id}')
+  @Headers({'Content-Type': 'application/json'})
+  Future<UpdateCategoryCommandOutputDataOutput$Response> putApiCategoriesById({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required UpdateCategoryCommand body,
+  });
   Future<CategoryLifecycleCommandOutputDataOutput$Response>
   _deleteApiCategoriesByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -287,8 +302,8 @@ abstract class CategoriesClient {
     Options? options,
     @Path('id') required String id,
   });
-  Future<models.ReassignCategoryTransactionsCommandOutputDataOutput$Response>
-  postApiCategoriesByIdReassign({
+  Future<ReassignCategoryTransactionsCommandOutputDataOutput$Response>
+  _postApiCategoriesByIdReassignWithOptions({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
       "openapi.securitySchemes": {},
@@ -296,36 +311,45 @@ abstract class CategoriesClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    required models.ReassignCategoryTransactionsCommand body,
+    required ReassignCategoryTransactionsCommand body,
   }) async {
-    if (const {'', '.', '..'}.contains(Uri.encodeComponent(id))) {
-      throw ArgumentError('Invalid path segment.');
-    }
     final _options = (options ?? Options()).copyWith(
       method: "POST",
       responseType: ResponseType.json,
       extra: {...?options?.extra, ...extra},
-      contentType: "application/*+json",
+      contentType: "application/json",
       headers: {
         for (final entry
             in (options?.headers ?? const <String, Object?>{}).entries)
           if (entry.key.toLowerCase() != 'content-type') entry.key: entry.value,
         'Accept': "application/json",
       },
-      validateStatus: (status) => status != null && (status == 200),
     );
     final response = await _transport.request<dynamic>(
-      "/api/categories/" + Uri.encodeComponent(id) + "/reassign",
+      "/api/categories/" + id.toString() + "/reassign",
       options: _options,
       data: convert.jsonEncode(body),
       cancelToken: cancelToken,
     );
-    return models
-        .ReassignCategoryTransactionsCommandOutputDataOutput$Response.fromJson(
+    return ReassignCategoryTransactionsCommandOutputDataOutput$Response.fromJson(
       response.data as Map<String, Object?>,
     );
   }
 
+  @POST('/api/categories/{id}/reassign')
+  @Headers({'Content-Type': 'application/json'})
+  Future<ReassignCategoryTransactionsCommandOutputDataOutput$Response>
+  postApiCategoriesByIdReassign({
+    @Extras()
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    @CancelRequest() CancelToken? cancelToken,
+    Options? options,
+    @Path('id') required String id,
+    @Body() required ReassignCategoryTransactionsCommand body,
+  });
   Future<CategoryLifecycleCommandOutputDataOutput$Response>
   _postApiCategoriesByIdRestoreWithOptions({
     Map<String, Object?> extra = const {
@@ -398,6 +422,31 @@ class _CategoriesClientWithOptions extends _CategoriesClient {
   }
 
   @override
+  Future<CreateCategoryCommandOutputDataOutput$Response> postApiCategories({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateCategoryCommand body,
+  }) {
+    return options == null
+        ? super.postApiCategories(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          )
+        : _postApiCategoriesWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            body: body,
+          );
+  }
+
+  @override
   Future<CategoryOutputDataOutput$Response> getApiCategoriesById({
     Map<String, Object?> extra = const {
       "openapi.security": [{}],
@@ -425,6 +474,34 @@ class _CategoriesClientWithOptions extends _CategoriesClient {
             id: id,
             includeDeleted: includeDeleted,
             includeUsageCounts: includeUsageCounts,
+          );
+  }
+
+  @override
+  Future<UpdateCategoryCommandOutputDataOutput$Response> putApiCategoriesById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateCategoryCommand body,
+  }) {
+    return options == null
+        ? super.putApiCategoriesById(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _putApiCategoriesByIdWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 
@@ -477,6 +554,35 @@ class _CategoriesClientWithOptions extends _CategoriesClient {
             cancelToken: cancelToken,
             options: options,
             id: id,
+          );
+  }
+
+  @override
+  Future<ReassignCategoryTransactionsCommandOutputDataOutput$Response>
+  postApiCategoriesByIdReassign({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required ReassignCategoryTransactionsCommand body,
+  }) {
+    return options == null
+        ? super.postApiCategoriesByIdReassign(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
+          )
+        : _postApiCategoriesByIdReassignWithOptions(
+            extra: extra,
+            cancelToken: cancelToken,
+            options: options,
+            id: id,
+            body: body,
           );
   }
 

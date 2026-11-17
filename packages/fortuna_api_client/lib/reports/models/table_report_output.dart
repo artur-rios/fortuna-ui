@@ -28,19 +28,11 @@ class TableReportOutput {
   factory TableReportOutput.fromJson(Map<String, Object?> json) =>
       _$TableReportOutputFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableReportOutput._read_columns,
-    toJson: TableReportOutput._write_columns,
-  )
-  final ({List<TableColumnOutput>? value})? columns;
+  @JsonKey(includeIfNull: false)
+  final List<TableColumnOutput>? columns;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableReportOutput._read_missingRates,
-    toJson: TableReportOutput._write_missingRates,
-  )
-  final ({List<MissingExchangeRateOutput>? value})? missingRates;
+  @JsonKey(includeIfNull: false)
+  final List<MissingExchangeRateOutput>? missingRates;
 
   @JsonKey(
     disallowNullValue: true,
@@ -58,19 +50,11 @@ class TableReportOutput {
   )
   final int? pageSize;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableReportOutput._read_recordSet,
-    toJson: TableReportOutput._write_recordSet,
-  )
-  final ({String? value})? recordSet;
+  @JsonKey(includeIfNull: false)
+  final String? recordSet;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableReportOutput._read_rows,
-    toJson: TableReportOutput._write_rows,
-  )
-  final ({List<Map<String, Object?>>? value})? rows;
+  @JsonKey(includeIfNull: false)
+  final List<Map<String, Object?>>? rows;
 
   @JsonKey(
     disallowNullValue: true,
@@ -80,44 +64,8 @@ class TableReportOutput {
   )
   final int? totalCount;
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: TableReportOutput._read_totals,
-    toJson: TableReportOutput._write_totals,
-  )
-  final ({List<TableTotalOutput>? value})? totals;
-
-  static ({List<TableColumnOutput>? value}) _read_columns(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    TableColumnOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_columns(({List<TableColumnOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
-
-  static ({List<MissingExchangeRateOutput>? value}) _read_missingRates(
-    Object? value,
-  ) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => MissingExchangeRateOutput.fromJson(
-                  item as Map<String, Object?>,
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_missingRates(
-    ({List<MissingExchangeRateOutput>? value}) value,
-  ) => value.value?.map((item) => item.toJson()).toList();
+  @JsonKey(includeIfNull: false)
+  final List<TableTotalOutput>? totals;
 
   static int? _read_pageNumber(Object? value) =>
       value == null ? null : value as int;
@@ -129,46 +77,10 @@ class TableReportOutput {
 
   static Object? _write_pageSize(int? value) => value;
 
-  static ({String? value}) _read_recordSet(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_recordSet(({String? value}) value) => value.value;
-
-  static ({List<Map<String, Object?>>? value}) _read_rows(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) => (item as Map<String, Object?>).map(
-                  (key, item) => MapEntry(key, item),
-                ),
-              )
-              .toList(),
-  );
-
-  static Object? _write_rows(({List<Map<String, Object?>>? value}) value) =>
-      value.value
-          ?.map((item) => item.map((key, item) => MapEntry(key, item)))
-          .toList();
-
   static int? _read_totalCount(Object? value) =>
       value == null ? null : value as int;
 
   static Object? _write_totalCount(int? value) => value;
-
-  static ({List<TableTotalOutput>? value}) _read_totals(Object? value) => (
-    value: value == null
-        ? null
-        : (value as List<Object?>)
-              .map(
-                (item) =>
-                    TableTotalOutput.fromJson(item as Map<String, Object?>),
-              )
-              .toList(),
-  );
-
-  static Object? _write_totals(({List<TableTotalOutput>? value}) value) =>
-      value.value?.map((item) => item.toJson()).toList();
 
   Map<String, Object?> toJson() => _$TableReportOutputToJson(this);
 }

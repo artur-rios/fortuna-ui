@@ -15,17 +15,8 @@ class GoogleSignInThroughApiCommand {
   factory GoogleSignInThroughApiCommand.fromJson(Map<String, Object?> json) =>
       _$GoogleSignInThroughApiCommandFromJson(json);
 
-  @JsonKey(
-    explicitJsonNullWhenNonNullField: true,
-    fromJson: GoogleSignInThroughApiCommand._read_idToken,
-    toJson: GoogleSignInThroughApiCommand._write_idToken,
-  )
-  final ({String? value})? idToken;
-
-  static ({String? value}) _read_idToken(Object? value) =>
-      (value: value as String?);
-
-  static Object? _write_idToken(({String? value}) value) => value.value;
+  @JsonKey(includeIfNull: false)
+  final String? idToken;
 
   Map<String, Object?> toJson() => _$GoogleSignInThroughApiCommandToJson(this);
 }

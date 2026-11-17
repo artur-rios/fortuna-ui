@@ -15,9 +15,9 @@ BudgetListOutput$Request _$BudgetListOutput$RequestFromJson(
     disallowNullValues: const ['pageNumber', 'pageSize', 'totalItems'],
   );
   return BudgetListOutput$Request(
-    budgets: !json.containsKey('budgets')
-        ? null
-        : BudgetListOutput$Request._read_budgets(json['budgets']),
+    budgets: (json['budgets'] as List<dynamic>?)
+        ?.map((e) => BudgetOutput.fromJson(e as Map<String, dynamic>))
+        .toList(),
     pageNumber: BudgetListOutput$Request._read_pageNumber(json['pageNumber']),
     pageSize: BudgetListOutput$Request._read_pageSize(json['pageSize']),
     totalItems: BudgetListOutput$Request._read_totalItems(json['totalItems']),
@@ -27,8 +27,7 @@ BudgetListOutput$Request _$BudgetListOutput$RequestFromJson(
 Map<String, dynamic> _$BudgetListOutput$RequestToJson(
   BudgetListOutput$Request instance,
 ) => <String, dynamic>{
-  if (instance.budgets case final $value?)
-    'budgets': BudgetListOutput$Request._write_budgets($value),
+  'budgets': ?instance.budgets?.map((e) => e.toJson()).toList(),
   'pageNumber': ?BudgetListOutput$Request._write_pageNumber(
     instance.pageNumber,
   ),
