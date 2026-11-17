@@ -13,7 +13,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -136,13 +136,15 @@ class HttpAccountRepository implements AccountRepository {
       return Success([for (final account in accounts) _from(account)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<FinancialAccount>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<FinancialAccount>>(error);
     }
   }
 
   @override
   Future<Result<FinancialAccount>> read(String id) async {
     try {
-      final output = (await _client.getApiAccountsId(id: id)).data;
+      final output = (await _client.getApiAccountsById(id: id)).data;
 
       // AF-04: an account that does not exist and one belonging to somebody
       // else are the same answer, and this client keeps them that way.
@@ -156,13 +158,15 @@ class HttpAccountRepository implements AccountRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<FinancialAccount>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<FinancialAccount>(error);
     }
   }
 
   @override
   Future<Result<AccountBalance>> balance(String id) async {
     try {
-      final output = (await _client.getApiAccountsIdBalance(id: id)).data;
+      final output = (await _client.getApiAccountsByIdBalance(id: id)).data;
 
       if (output == null || output.balance == null) {
         // AF-07. No balance is reported rather than one being invented; the
@@ -182,6 +186,8 @@ class HttpAccountRepository implements AccountRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<AccountBalance>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<AccountBalance>(error);
     }
   }
 
@@ -209,6 +215,8 @@ class HttpAccountRepository implements AccountRepository {
     } on DioException catch (exception) {
       // AF-02: a duplicate name is the API's rule, in the API's words.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -220,7 +228,7 @@ class HttpAccountRepository implements AccountRepository {
     String? institution,
   }) async {
     try {
-      await _client.putApiAccountsId(
+      await _client.putApiAccountsById(
         id: id,
         body: UpdateFinancialAccountCommand(
           name: name,
@@ -231,18 +239,22 @@ class HttpAccountRepository implements AccountRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiAccountsId(id: id);
+      await _client.deleteApiAccountsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       // AF-05: records still referencing the account are the API's reason to
       // give, and it knows about references this client cannot see.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 

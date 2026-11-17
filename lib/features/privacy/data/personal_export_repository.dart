@@ -10,7 +10,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -154,13 +154,16 @@ class HttpPersonalExportRepository implements PersonalExportRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PersonalExport>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<PersonalExport>(error);
     }
   }
 
   @override
   Future<Result<PersonalExport>> read(String jobId) async {
     try {
-      final output = (await _client.getApiMeDataExportJobId(jobId: jobId)).data;
+      final output = (await _client.getApiMeDataExportByJobId(jobId: jobId))
+          .data;
 
       if (output == null) {
         return const Failure(
@@ -182,6 +185,8 @@ class HttpPersonalExportRepository implements PersonalExportRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PersonalExport>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<PersonalExport>(error);
     }
   }
 
@@ -215,6 +220,8 @@ class HttpPersonalExportRepository implements PersonalExportRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PersonalArchive>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<PersonalArchive>(error);
     }
   }
 }

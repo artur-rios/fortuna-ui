@@ -17,7 +17,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -184,7 +184,7 @@ class HttpStatementRepository implements StatementRepository {
   Future<Result<List<CardStatement>>> listForCard(String creditCardId) async {
     try {
       final statements = await readEveryPage((pageNumber, pageSize) async {
-        final page = await _cards.getApiCreditCardsIdStatements(
+        final page = await _cards.getApiCreditCardsByIdStatements(
           id: creditCardId,
           sortBy: 'periodEnd',
           descending: true,
@@ -202,13 +202,15 @@ class HttpStatementRepository implements StatementRepository {
       // AF-05: a card that is not yours is not found, and the API makes the
       // two indistinguishable on purpose.
       return failureFromDioException<List<CardStatement>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<CardStatement>>(error);
     }
   }
 
   @override
   Future<Result<CardStatement>> read(String statementId) async {
     try {
-      final output = (await _statements.getApiStatementsId(id: statementId))
+      final output = (await _statements.getApiStatementsById(id: statementId))
           .data;
 
       // AF-05.
@@ -222,18 +224,22 @@ class HttpStatementRepository implements StatementRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<CardStatement>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<CardStatement>(error);
     }
   }
 
   @override
   Future<Result<void>> close(String statementId) async {
     try {
-      await _statements.postApiStatementsIdClose(id: statementId);
+      await _statements.postApiStatementsByIdClose(id: statementId);
       return const Success(null);
     } on DioException catch (exception) {
       // AF-01: closing before the closing date is refused in the API's words,
       // on the instance's clock rather than this device's.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -245,7 +251,7 @@ class HttpStatementRepository implements StatementRepository {
     required DateTime paymentDate,
   }) async {
     try {
-      await _statements.postApiStatementsIdSettle(
+      await _statements.postApiStatementsByIdSettle(
         id: statementId,
         body: SettleCreditCardStatementCommand(
           id: statementId,
@@ -261,6 +267,8 @@ class HttpStatementRepository implements StatementRepository {
       // account in another currency. No conversion is attempted locally —
       // inventing a rate is exactly what `BR-07` forbids.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 

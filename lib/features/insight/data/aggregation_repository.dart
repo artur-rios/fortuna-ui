@@ -16,7 +16,7 @@ library;
 import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -293,6 +293,8 @@ class HttpAggregationRepository implements AggregationRepository {
     } on DioException catch (exception) {
       // AF-02.
       return failureFromDioException<Aggregation>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Aggregation>(error);
     }
   }
 
@@ -351,6 +353,8 @@ class HttpAggregationRepository implements AggregationRepository {
     } on DioException catch (exception) {
       // AF-02: the current level stays displayed and this is reported.
       return failureFromDioException<DrillLevel>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<DrillLevel>(error);
     }
   }
 

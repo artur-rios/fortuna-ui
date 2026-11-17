@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:fortuna_ui/core/bindings/core_dispatcher.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
 import 'package:fortuna_ui/core/config/app_config.dart';
@@ -436,7 +436,7 @@ void main() {
       () async {
         final dio = httpDio(CapturingHttpAdapter('', status: 204));
 
-        final output = await GoalsClient(dio).putApiGoalsId(
+        final output = await GoalsClient(dio).putApiGoalsById(
           id: 'g1',
           body: const UpdateGoalCommand(name: 'New laptop'),
         );

@@ -15,9 +15,9 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart'
+import 'package:fortuna_api_client/api.dart'
     hide TransactionDirection, TransactionSourceType;
-import 'package:fortuna_api_client/export.dart'
+import 'package:fortuna_api_client/api.dart'
     as api
     show TransactionDirection, TransactionSourceType;
 import 'package:meta/meta.dart';
@@ -376,13 +376,15 @@ class HttpTransactionRepository implements TransactionRepository {
       // unreachable — which is what lets the form offer a retry rather than
       // claiming the transaction was recorded.
       return failureFromDioException<Transaction>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Transaction>(error);
     }
   }
 
   @override
   Future<Result<Transaction>> read(String id) async {
     try {
-      final output = (await _client.getApiTransactionsId(
+      final output = (await _client.getApiTransactionsById(
         id: id,
         // AF-05 needs the deleted one back, not a 404 that would read as
         // AF-02 and send the user looking for something that is still there.
@@ -400,6 +402,8 @@ class HttpTransactionRepository implements TransactionRepository {
       return Success(fromOutput(output));
     } on DioException catch (exception) {
       return failureFromDioException<Transaction>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Transaction>(error);
     }
   }
 
@@ -418,7 +422,7 @@ class HttpTransactionRepository implements TransactionRepository {
     List<String> tags = const [],
   }) async {
     try {
-      await _client.putApiTransactionsId(
+      await _client.putApiTransactionsById(
         id: id,
         body: UpdateTransactionCommand(
           occurredOn: occurredOn,
@@ -442,16 +446,20 @@ class HttpTransactionRepository implements TransactionRepository {
       // AF-03: a settled statement, a reconciled record, or any other rule
       // this client does not know — all in the API's own words.
       return failureFromDioException<Transaction>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Transaction>(error);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiTransactionsId(id: id);
+      await _client.deleteApiTransactionsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -518,6 +526,8 @@ class HttpTransactionRepository implements TransactionRepository {
     } on DioException catch (exception) {
       // AF-03.
       return failureFromDioException<TransactionPage>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<TransactionPage>(error);
     }
   }
 
@@ -528,7 +538,7 @@ class HttpTransactionRepository implements TransactionRepository {
     String? importJobId,
   }) async {
     try {
-      await _client.postApiTransactionsIdReconcile(
+      await _client.postApiTransactionsByIdReconcile(
         id: id,
         body: ReconcileTransactionCommand(
           importedRecordId: importedRecordId,
@@ -547,6 +557,8 @@ class HttpTransactionRepository implements TransactionRepository {
     } on DioException catch (exception) {
       // AF-03 and AF-04, in the API's own words.
       return failureFromDioException<Transaction>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Transaction>(error);
     }
   }
 

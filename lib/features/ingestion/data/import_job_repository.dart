@@ -7,7 +7,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -136,6 +136,8 @@ class HttpImportJobRepository implements ImportJobRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PagedList<ImportJob>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<PagedList<ImportJob>>(error);
     }
   }
 
@@ -165,13 +167,15 @@ class HttpImportJobRepository implements ImportJobRepository {
       return Success([for (final job in jobs) _from(job)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<ImportJob>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<ImportJob>>(error);
     }
   }
 
   @override
   Future<Result<ImportJob>> read(String id) async {
     try {
-      final response = await _client.getApiImportJobsId(id: id);
+      final response = await _client.getApiImportJobsById(id: id);
       final job = response.data;
 
       if (job == null) {
@@ -186,16 +190,20 @@ class HttpImportJobRepository implements ImportJobRepository {
       return Success(_from(job));
     } on DioException catch (exception) {
       return failureFromDioException<ImportJob>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<ImportJob>(error);
     }
   }
 
   @override
   Future<Result<void>> retry(String id) async {
     try {
-      await _client.postApiImportJobsIdRetry(id: id);
+      await _client.postApiImportJobsByIdRetry(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 

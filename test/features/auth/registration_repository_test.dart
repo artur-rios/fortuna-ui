@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/features/auth/data/registration_repository.dart';
 

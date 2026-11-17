@@ -13,7 +13,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -142,6 +142,8 @@ class HttpInstallmentRepository implements InstallmentRepository {
       // AF-03 and AF-05: a rule this client does not enforce, and a card that
       // is not the user's, both in the API's own words.
       return failureFromDioException<InstallmentPlan>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<InstallmentPlan>(error);
     }
   }
 

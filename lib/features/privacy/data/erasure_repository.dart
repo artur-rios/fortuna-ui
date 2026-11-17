@@ -6,7 +6,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -82,6 +82,8 @@ class HttpErasureRepository implements ErasureRepository {
       // leaving it half-done, so a failure here means the account is intact —
       // and that is what the caller tells the user.
       return failureFromDioException<ErasureReport>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<ErasureReport>(error);
     }
   }
 }

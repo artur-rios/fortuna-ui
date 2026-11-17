@@ -9,7 +9,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -106,13 +106,15 @@ class HttpCreditCardRepository implements CreditCardRepository {
       return Success([for (final card in cards) _from(card)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<CreditCard>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<CreditCard>>(error);
     }
   }
 
   @override
   Future<Result<CreditCard>> read(String id) async {
     try {
-      final output = (await _client.getApiCreditCardsId(id: id)).data;
+      final output = (await _client.getApiCreditCardsById(id: id)).data;
 
       // AF-04: not found and not yours are the same answer.
       if (output == null) {
@@ -125,6 +127,8 @@ class HttpCreditCardRepository implements CreditCardRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<CreditCard>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<CreditCard>(error);
     }
   }
 
@@ -156,6 +160,8 @@ class HttpCreditCardRepository implements CreditCardRepository {
       // AF-02 and AF-03: the day combination and a duplicate name are both the
       // API's rules to state.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -169,7 +175,7 @@ class HttpCreditCardRepository implements CreditCardRepository {
     String? issuer,
   }) async {
     try {
-      await _client.putApiCreditCardsId(
+      await _client.putApiCreditCardsById(
         id: id,
         body: UpdateCreditCardCommand(
           name: name,
@@ -182,17 +188,21 @@ class HttpCreditCardRepository implements CreditCardRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiCreditCardsId(id: id);
+      await _client.deleteApiCreditCardsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       // AF-05: still-referenced, in the API's words.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 

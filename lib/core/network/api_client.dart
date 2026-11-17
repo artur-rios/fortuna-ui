@@ -159,6 +159,21 @@ Failure<T> failureFromDioException<T>(DioException exception) {
   return Failure<T>(message: message, kind: kind);
 }
 
+/// Translates an answer the generated client could not read into a
+/// [Failure] (`UC-02 AF-07`).
+///
+/// The generated client decodes strictly: a key the contract does not declare
+/// (every DTO is `additionalProperties: false`), a null where a value is
+/// required, or a value of the wrong type fails the parse — with a
+/// `BadKeyException`, a `TypeError`, an `ArgumentError` or a
+/// `FormatException`, never a `DioException`. Such an answer fails the way a
+/// body that is not JSON at all already does: dio reports that as an
+/// `unknown` [DioException] with no response, so this is that failure.
+Failure<T> failureFromUnreadableAnswer<T>(Object error) =>
+    failureFromDioException<T>(
+      DioException(requestOptions: RequestOptions(), error: error),
+    );
+
 /// Reads the reason out of the API's `DataOutput` envelope.
 ///
 /// A refusal's reasons travel in `errors` — that is where both the API and the

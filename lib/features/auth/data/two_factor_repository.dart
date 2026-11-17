@@ -6,7 +6,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -123,6 +123,8 @@ class HttpTwoFactorRepository implements TwoFactorRepository {
       // second factor, and the API says so. Presented rather than second-
       // guessed, so the screen never offers a setup that will be refused.
       return failureFromDioException<TwoFactorStatus>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<TwoFactorStatus>(error);
     }
   }
 
@@ -143,6 +145,8 @@ class HttpTwoFactorRepository implements TwoFactorRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<TwoFactorSetup>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<TwoFactorSetup>(error);
     }
   }
 
@@ -174,6 +178,8 @@ class HttpTwoFactorRepository implements TwoFactorRepository {
       // AF-01: a wrong or expired code leaves the setup pending, which is what
       // the API does — nothing here cancels it.
       return failureFromDioException<List<String>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<String>>(error);
     }
   }
 
@@ -198,6 +204,8 @@ class HttpTwoFactorRepository implements TwoFactorRepository {
       // to disable all carry the API's own message, and this client does not
       // tell the first two apart.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -230,6 +238,8 @@ class HttpTwoFactorRepository implements TwoFactorRepository {
       return Success(codes);
     } on DioException catch (exception) {
       return failureFromDioException<List<String>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<String>>(error);
     }
   }
 }

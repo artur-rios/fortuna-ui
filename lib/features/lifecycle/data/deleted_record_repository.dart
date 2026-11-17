@@ -18,11 +18,12 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
@@ -128,6 +129,8 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
       return Success(records);
     } on DioException catch (exception) {
       return failureFromDioException<List<DeletedRecord>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<DeletedRecord>>(error);
     }
   }
 
@@ -136,16 +139,18 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
     try {
       switch (record.kind) {
         case RecordKind.transaction:
-          await _transactions.postApiTransactionsIdRestore(id: record.id);
+          await _transactions.postApiTransactionsByIdRestore(id: record.id);
         case RecordKind.account:
-          await _accounts.postApiAccountsIdRestore(id: record.id);
+          await _accounts.postApiAccountsByIdRestore(id: record.id);
         case RecordKind.category:
-          await _categories.postApiCategoriesIdRestore(id: record.id);
+          await _categories.postApiCategoriesByIdRestore(id: record.id);
       }
       return const Success(null);
     } on DioException catch (exception) {
       // AF-02 and AF-03: a refusal and a not-found, each in the API's words.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -154,11 +159,11 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
     try {
       switch (record.kind) {
         case RecordKind.transaction:
-          await _transactions.deleteApiTransactionsIdHard(id: record.id);
+          await _transactions.deleteApiTransactionsByIdHard(id: record.id);
         case RecordKind.account:
-          await _accounts.deleteApiAccountsIdHard(id: record.id);
+          await _accounts.deleteApiAccountsByIdHard(id: record.id);
         case RecordKind.category:
-          await _categories.deleteApiCategoriesIdHard(id: record.id);
+          await _categories.deleteApiCategoriesByIdHard(id: record.id);
       }
       return const Success(null);
     } on DioException catch (exception) {
@@ -166,6 +171,8 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
       // what the user reads. The control is not hidden on a guess about
       // whether the removal would be allowed.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -192,14 +199,15 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
           DeletedRecord(
             id: item.id ?? '',
             kind: RecordKind.transaction,
-            label: item.description?.isNotEmpty ?? false
-                ? item.description!
-                : (item.categoryName ?? 'Transaction'),
-            amount: switch ((item.amount, item.currencyCode)) {
+            label: switch (item.description?.value) {
+              final description? when description.isNotEmpty => description,
+              _ => item.categoryName?.value ?? 'Transaction',
+            },
+            amount: switch ((item.amount, item.currencyCode?.value)) {
               (final amount?, final currency?) => Money.parse(amount, currency),
               _ => null,
             },
-            occurredOn: item.occurredOn,
+            occurredOn: dateFromWire(item.occurredOn),
           ),
     ];
   }
@@ -212,7 +220,7 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
         pageSize: pageSize,
       );
       return (
-        items: page.data ?? const <FinancialAccountOutput>[],
+        items: page.data?.value ?? const <FinancialAccountOutput>[],
         totalPages: page.totalPages,
       );
     });
@@ -223,8 +231,8 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
           DeletedRecord(
             id: item.id ?? '',
             kind: RecordKind.account,
-            label: item.name ?? 'Account',
-            detail: item.currencyCode,
+            label: item.name?.value ?? 'Account',
+            detail: item.currencyCode?.value,
           ),
     ];
   }
@@ -246,16 +254,16 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
             DeletedRecord(
               id: node.id ?? '',
               kind: RecordKind.category,
-              label: node.name ?? 'Category',
-              stillUsedBy: node.usageCount,
+              label: node.name?.value ?? 'Category',
+              stillUsedBy: node.usageCount?.value,
             ),
           );
         }
-        walk(node.children ?? const <CategoryOutput>[]);
+        walk(node.children?.value ?? const <CategoryOutput>[]);
       }
     }
 
-    walk(output?.categories ?? const <CategoryOutput>[]);
+    walk(output?.categories?.value ?? const <CategoryOutput>[]);
     return deleted;
   }
 }

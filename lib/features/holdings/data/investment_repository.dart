@@ -13,9 +13,9 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart'
+import 'package:fortuna_api_client/api.dart'
     hide InvestmentMovementType, InvestmentType;
-import 'package:fortuna_api_client/export.dart'
+import 'package:fortuna_api_client/api.dart'
     as api
     show InvestmentMovementType, InvestmentType;
 import 'package:meta/meta.dart';
@@ -184,13 +184,15 @@ class HttpInvestmentRepository implements InvestmentRepository {
       return Success([for (final investment in investments) _from(investment)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Investment>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<Investment>>(error);
     }
   }
 
   @override
   Future<Result<Investment>> read(String id) async {
     try {
-      final output = (await _client.getApiInvestmentsId(id: id)).data;
+      final output = (await _client.getApiInvestmentsById(id: id)).data;
 
       // AF-03: not found and not yours are deliberately the same answer.
       if (output == null) {
@@ -203,6 +205,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<Investment>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Investment>(error);
     }
   }
 
@@ -226,6 +230,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
     } on DioException catch (exception) {
       // AF-02: a duplicate name is the API's rule to state.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -237,7 +243,7 @@ class HttpInvestmentRepository implements InvestmentRepository {
     String? institution,
   }) async {
     try {
-      await _client.putApiInvestmentsId(
+      await _client.putApiInvestmentsById(
         id: id,
         body: UpdateInvestmentCommand(
           instrument: instrument,
@@ -248,17 +254,21 @@ class HttpInvestmentRepository implements InvestmentRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiInvestmentsId(id: id);
+      await _client.deleteApiInvestmentsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       // AF-04: still-referenced by movements, in the API's words.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -268,7 +278,7 @@ class HttpInvestmentRepository implements InvestmentRepository {
   ) async {
     try {
       final valuations = await readEveryPage((pageNumber, pageSize) async {
-        final page = await _client.getApiInvestmentsIdValuations(
+        final page = await _client.getApiInvestmentsByIdValuations(
           id: investmentId,
           sortBy: 'valuedOn',
           descending: true,
@@ -294,6 +304,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
     } on DioException catch (exception) {
       // AF-04.
       return failureFromDioException<List<RecordedValuation>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<RecordedValuation>>(error);
     }
   }
 
@@ -306,7 +318,7 @@ class HttpInvestmentRepository implements InvestmentRepository {
     String? financialAccountId,
   }) async {
     try {
-      await _client.postApiInvestmentsIdMovements(
+      await _client.postApiInvestmentsByIdMovements(
         id: investmentId,
         body: RecordInvestmentMovementCommand(
           id: investmentId,
@@ -322,6 +334,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
       // AF-05: a currency mismatch is the API's refusal to state, and nothing
       // is converted here to make the amounts agree.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -332,7 +346,7 @@ class HttpInvestmentRepository implements InvestmentRepository {
     required DateTime valuedOn,
   }) async {
     try {
-      await _client.postApiInvestmentsIdValuations(
+      await _client.postApiInvestmentsByIdValuations(
         id: investmentId,
         body: RecordInvestmentValuationCommand(
           id: investmentId,
@@ -345,6 +359,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
       // AF-03: whether a second valuation on one date is refused or replaces
       // the first is the API's rule, and its answer is what reaches the user.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 

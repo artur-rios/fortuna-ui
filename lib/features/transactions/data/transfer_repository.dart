@@ -13,7 +13,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -114,6 +114,8 @@ class HttpTransferRepository implements TransferRepository {
       // not convert is refused in its own words, and an account that is not
       // the user's reads as not found. Nothing is converted locally.
       return failureFromDioException<Transfer>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Transfer>(error);
     }
   }
 

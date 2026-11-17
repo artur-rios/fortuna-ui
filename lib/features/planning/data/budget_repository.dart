@@ -14,7 +14,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -166,13 +166,15 @@ class HttpBudgetRepository implements BudgetRepository {
       return Success([for (final budget in budgets) _from(budget)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Budget>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<Budget>>(error);
     }
   }
 
   @override
   Future<Result<Budget>> read(String id) async {
     try {
-      final output = (await _client.getApiBudgetsId(id: id)).data;
+      final output = (await _client.getApiBudgetsById(id: id)).data;
 
       // AF-05: not found and not yours are the same answer.
       if (output == null) {
@@ -185,6 +187,8 @@ class HttpBudgetRepository implements BudgetRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<Budget>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Budget>(error);
     }
   }
 
@@ -213,6 +217,8 @@ class HttpBudgetRepository implements BudgetRepository {
     } on DioException catch (exception) {
       // AF-03: an overlapping budget is the API's rule to state.
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -227,7 +233,7 @@ class HttpBudgetRepository implements BudgetRepository {
     bool includeDescendants = false,
   }) async {
     try {
-      await _client.putApiBudgetsId(
+      await _client.putApiBudgetsById(
         id: id,
         body: UpdateBudgetCommand(
           categoryIds: categoryIds,
@@ -241,16 +247,20 @@ class HttpBudgetRepository implements BudgetRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiBudgetsId(id: id);
+      await _client.deleteApiBudgetsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 

@@ -8,7 +8,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -129,6 +129,8 @@ class HttpConnectionRepository implements ConnectionRepository {
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Connection>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<Connection>>(error);
     }
   }
 
@@ -165,13 +167,15 @@ class HttpConnectionRepository implements ConnectionRepository {
       // and an aggregator it could not reach. The screen decides which of the
       // two it is showing by the failure's kind.
       return failureFromDioException<Connection>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Connection>(error);
     }
   }
 
   @override
   Future<Result<String?>> synchronize(String id) async {
     try {
-      final response = await _sync.postApiConnectionsIdSync(id: id);
+      final response = await _sync.postApiConnectionsByIdSync(id: id);
       final data = response.data;
 
       return Success(_jobIdFrom(data?.toJson()));
@@ -179,16 +183,18 @@ class HttpConnectionRepository implements ConnectionRepository {
       // AF-03: the aggregator being unavailable is the API's answer, presented
       // with its reason rather than reworded.
       return failureFromDioException<String?>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<String?>(error);
     }
   }
 
   @override
   Future<Result<void>> reauthenticate(String id) =>
-      _run(() => _connections.postApiConnectionsIdReauthenticate(id: id));
+      _run(() => _connections.postApiConnectionsByIdReauthenticate(id: id));
 
   @override
   Future<Result<void>> revoke(String id) =>
-      _run(() => _connections.postApiConnectionsIdRevoke(id: id));
+      _run(() => _connections.postApiConnectionsByIdRevoke(id: id));
 
   Future<Result<void>> _run(Future<Object?> Function() call) async {
     try {
@@ -196,6 +202,8 @@ class HttpConnectionRepository implements ConnectionRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 

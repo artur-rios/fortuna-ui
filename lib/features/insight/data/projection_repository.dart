@@ -16,7 +16,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -268,6 +268,8 @@ class HttpProjectionRepository implements ProjectionRepository {
     } on DioException catch (exception) {
       // AF-02.
       return failureFromDioException<NetPosition>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<NetPosition>(error);
     }
   }
 
@@ -323,6 +325,8 @@ class HttpProjectionRepository implements ProjectionRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<CashFlowProjection>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<CashFlowProjection>(error);
     }
   }
 
@@ -383,6 +387,8 @@ class HttpProjectionRepository implements ProjectionRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<CommittedObligations>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<CommittedObligations>(error);
     }
   }
 

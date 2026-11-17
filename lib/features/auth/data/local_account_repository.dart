@@ -8,7 +8,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -133,6 +133,8 @@ class HttpLocalAccountRepository implements LocalAccountRepository {
       // already exists, a credential store that cannot be written, and local
       // accounts being disabled are the core's rules to state.
       return failureFromDioException<CreatedLocalAccount>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<CreatedLocalAccount>(error);
     }
   }
 
@@ -161,6 +163,8 @@ class HttpLocalAccountRepository implements LocalAccountRepository {
       // the way to keep two things indistinguishable is to never tell them
       // apart.
       return failureFromDioException<String>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<String>(error);
     }
   }
 
@@ -199,6 +203,8 @@ class HttpLocalAccountRepository implements LocalAccountRepository {
       // that does not exist are indistinguishable is the point: otherwise this
       // screen becomes a way to discover which accounts exist.
       return failureFromDioException<RecoveredLocalAccount>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<RecoveredLocalAccount>(error);
     }
   }
 
@@ -235,6 +241,8 @@ class HttpLocalAccountRepository implements LocalAccountRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<CreatedLocalAccount>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<CreatedLocalAccount>(error);
     }
   }
 }

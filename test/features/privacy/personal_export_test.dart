@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/features/privacy/data/archive_saver.dart';
 import 'package:fortuna_ui/features/privacy/data/personal_export_repository.dart';

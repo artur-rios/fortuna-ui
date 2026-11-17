@@ -9,7 +9,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -147,7 +147,7 @@ class HttpImportedRecordRepository implements ImportedRecordRepository {
     int pageSize = 50,
   }) async {
     try {
-      final output = await _client.getApiImportJobsIdRecords(
+      final output = await _client.getApiImportJobsByIdRecords(
         id: jobId,
         pageNumber: pageNumber,
         pageSize: pageSize,
@@ -166,6 +166,8 @@ class HttpImportedRecordRepository implements ImportedRecordRepository {
     } on DioException catch (exception) {
       // AF-04: a job that is not yours reads as not found, as the API intends.
       return failureFromDioException<ImportedRecordPage>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<ImportedRecordPage>(error);
     }
   }
 

@@ -10,7 +10,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -112,6 +112,8 @@ class HttpHealthRepository implements HealthRepository {
       if (recovered != null) return Success(recovered);
 
       return failureFromDioException<InstanceHealth>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<InstanceHealth>(error);
     }
   }
 

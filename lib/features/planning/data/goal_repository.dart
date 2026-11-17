@@ -15,7 +15,7 @@ library;
 import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
@@ -172,13 +172,15 @@ class HttpGoalRepository implements GoalRepository {
       return Success([for (final goal in goals) _from(goal)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Goal>>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<List<Goal>>(error);
     }
   }
 
   @override
   Future<Result<Goal>> read(String id) async {
     try {
-      final output = (await _client.getApiGoalsId(id: id)).data;
+      final output = (await _client.getApiGoalsById(id: id)).data;
 
       // AF-05.
       if (output == null) {
@@ -191,6 +193,8 @@ class HttpGoalRepository implements GoalRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<Goal>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<Goal>(error);
     }
   }
 
@@ -220,6 +224,8 @@ class HttpGoalRepository implements GoalRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
@@ -234,7 +240,7 @@ class HttpGoalRepository implements GoalRepository {
     List<String> investmentIds = const [],
   }) async {
     try {
-      await _client.putApiGoalsId(
+      await _client.putApiGoalsById(
         id: id,
         body: UpdateGoalCommand(
           name: name,
@@ -250,16 +256,20 @@ class HttpGoalRepository implements GoalRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiGoalsId(id: id);
+      await _client.deleteApiGoalsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error) {
+      return failureFromUnreadableAnswer<void>(error);
     }
   }
 
