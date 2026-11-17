@@ -20,6 +20,7 @@ Future<void> showExportSheet(
   BuildContext context,
   WidgetRef ref, {
   required String recordSet,
+  required List<String> columns,
   required List<ExportFilter> filters,
   required bool hasData,
   String? displayCurrencyCode,
@@ -29,6 +30,7 @@ Future<void> showExportSheet(
   isScrollControlled: true,
   builder: (context) => ExportSheet(
     recordSet: recordSet,
+    columns: columns,
     filters: filters,
     hasData: hasData,
     displayCurrencyCode: displayCurrencyCode,
@@ -39,6 +41,7 @@ Future<void> showExportSheet(
 class ExportSheet extends ConsumerStatefulWidget {
   const ExportSheet({
     required this.recordSet,
+    required this.columns,
     required this.filters,
     required this.hasData,
     this.displayCurrencyCode,
@@ -48,6 +51,10 @@ class ExportSheet extends ConsumerStatefulWidget {
 
   /// What is being exported, as the API names it.
   final String recordSet;
+
+  /// The columns the file holds, as the API names them: the current view's
+  /// own, so the file carries what the user was looking at.
+  final List<String> columns;
 
   /// The current view's filters (`FR-EX-03`).
   final List<ExportFilter> filters;
@@ -118,6 +125,7 @@ class _ExportSheetState extends ConsumerState<ExportSheet> {
       .read(exportControllerProvider.notifier)
       .produce(
         recordSet: widget.recordSet,
+        columns: widget.columns,
         format: _format,
         filters: widget.filters,
         displayCurrencyCode: widget.displayCurrencyCode,

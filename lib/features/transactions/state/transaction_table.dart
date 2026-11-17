@@ -28,13 +28,16 @@ const transactionPageSize = 25;
 
 /// The columns the grid can be sorted by, and what the API calls each.
 enum TransactionColumn {
-  date('occurredOn', 'Date'),
-  amount('amount', 'Amount'),
-  category('categoryName', 'Category'),
-  holding('financialAccountName', 'Account or card'),
-  description('description', 'Description');
+  date('occurredOn', 'Date', ['occurredOn']),
+  amount('amount', 'Amount', ['amount']),
+  category('categoryName', 'Category', ['categoryName']),
+  holding('financialAccountName', 'Account or card', [
+    'accountName',
+    'creditCardName',
+  ]),
+  description('description', 'Description', ['description']);
 
-  const TransactionColumn(this.wireName, this.label);
+  const TransactionColumn(this.wireName, this.label, this.exportColumns);
 
   /// What the API sorts by. Sorting is the instance's to perform
   /// (`FR-TB-02`), so this is a name it recognizes rather than a local
@@ -42,6 +45,14 @@ enum TransactionColumn {
   final String wireName;
 
   final String label;
+
+  /// What the export's `transactions` table calls this column (UC-39).
+  ///
+  /// Not [wireName]: the search the grid pages through and the table an
+  /// export renders are different routes with different vocabularies. The
+  /// grid's one "account or card" column is two in the table, since a
+  /// transaction belongs to one or the other.
+  final List<String> exportColumns;
 
   static TransactionColumn? byWireName(String? name) {
     for (final column in TransactionColumn.values) {
@@ -391,6 +402,16 @@ class TableUnavailable implements Exception {
   @override
   String toString() => message;
 }
+
+/// The columns an export of the grid holds (UC-39), in the grid's order.
+///
+/// The API refuses an export that names no columns, so these always travel.
+/// They are the grid's own: the export is "the current view's data", and a
+/// file holding columns the user never saw would not be that. The instance
+/// adds each amount's currency itself.
+final List<String> transactionExportColumns = List.unmodifiable([
+  for (final column in TransactionColumn.values) ...column.exportColumns,
+]);
 
 /// The view's filters, described as the user reads them (`FR-EX-03`).
 ///
