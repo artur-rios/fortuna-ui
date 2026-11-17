@@ -164,8 +164,9 @@ Two pipelines, each a single command, each rerun by CI and compared against what
 dart run tool/generate_api_client.dart
 ```
 
-Runs `swagger_parser` over `api/fortuna.json`, then `build_runner` inside the generated package to
-emit the `.g.dart` bodies, then `dart format` over the package — because the generators' own line
+Empties `packages/fortuna_api_client/lib`, runs `swagger_parser` over `api/fortuna.json` into it,
+then `build_runner` inside the generated package to emit the `.g.dart` bodies, then `dart format`
+over the package — because the generators' own line
 breaking differs from what a repository-root format would produce, and a difference there would fail
 the drift check for no real reason.
 

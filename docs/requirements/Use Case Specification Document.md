@@ -196,7 +196,7 @@ graph LR
 | AF-04 | The vendored C header differs from the core's published one | The build fails; the drift is never discovered at run time |
 | AF-05 | The generated client or bindings differ from what regeneration produces | CI fails; neither is hand-edited to reconcile it |
 | AF-06 | Code outside the bindings layer imports `dart:ffi` | Static analysis fails the build |
-| AF-07 | A response carries a field the generated client does not know | The unknown field is ignored rather than crashing the parse; the contract is fixed at the API and regenerated |
+| AF-07 | A response carries a field the contract does not declare | The answer is refused whole, as a malformed one is: a failure result ("The request could not be completed."), never a crash and never an answer read in part. The contract closes every object (`additionalProperties: false`), so such a field means the API and the vendored contract disagree; the contract is fixed at the API and re-vendored |
 | AF-08 | In desktop offline mode, the core exports the operation but does not implement it, and answers `501` (`FORTUNA_STATUS_NOT_IMPLEMENTED`) | A failure result of kind *unavailable offline* carrying the core's reason, presented without a retry. The core lists every such operation under `notImplemented` in `fortuna_capabilities`, which the system reads once when offline mode starts, so the entry points that depend on one (file imports and import retry, data-set export, charts, net position and projections, transfers, installment purchases, card statements and closing or settling them, budget consumption, goal progress, reconciliation) are shown as not available offline before the user reaches for them (`FR-DA-16`). Over HTTP nothing is unavailable and nothing changes |
 
 ---
