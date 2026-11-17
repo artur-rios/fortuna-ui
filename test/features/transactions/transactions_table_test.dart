@@ -10,6 +10,7 @@ import 'package:fortuna_ui/core/storage/preferences_store.dart';
 import 'package:fortuna_ui/features/categories/data/category_repository.dart';
 import 'package:fortuna_ui/features/holdings/data/account_repository.dart';
 import 'package:fortuna_ui/features/holdings/data/credit_card_repository.dart';
+import 'package:fortuna_ui/features/insight/data/export_repository.dart';
 import 'package:fortuna_ui/features/preferences/data/currency_repository.dart';
 import 'package:fortuna_ui/features/transactions/data/transaction_repository.dart';
 import 'package:fortuna_ui/features/transactions/state/transaction_table.dart';
@@ -19,6 +20,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../holdings/accounts_test.dart'
     show FakeAccounts, FakeCurrencies, account;
+import '../insight/export_test.dart' show FakeExports;
 import 'record_transaction_test.dart' show FakeCards, FakeCategories, treeWith;
 import 'transaction_detail_test.dart' show EditableTransactions, stored;
 
@@ -406,6 +408,36 @@ void main() {
       final restored = await TransactionViewStore(preferences).read();
 
       expect(restored, isNull);
+    });
+  });
+
+  group('transactionExportColumns', () {
+    test('Given the grid '
+        'When its export columns are read '
+        "Then they are the grid's own, in its order, as the export's table "
+        'names them (UC-39)', () {
+      expect(transactionExportColumns, [
+        'occurredOn',
+        'amount',
+        'categoryName',
+        'accountName',
+        'creditCardName',
+        'description',
+      ]);
+    });
+
+    test('Given every column the grid shows '
+        'When the export columns are read '
+        'Then each one contributes at least one, so none is left out of the '
+        'file', () {
+      for (final column in TransactionColumn.values) {
+        expect(
+          column.exportColumns,
+          isNotEmpty,
+          reason: '${column.name} is shown but would not be exported',
+        );
+        expect(transactionExportColumns, containsAll(column.exportColumns));
+      }
     });
   });
 
@@ -874,6 +906,26 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('export.scope.categoryId')), findsOneWidget);
+    });
+
+    testWidgets('Given records '
+        'When the export is produced from the table '
+        "Then the grid's columns are what is asked for, not none "
+        '(UC-39 step 3)', (tester) async {
+      final exports = FakeExports();
+      await pumpTable(
+        tester,
+        SearchableTransactions(),
+        extra: [exportRepositoryProvider.overrideWithValue(exports)],
+      );
+
+      await tester.tap(find.byKey(const Key('transactions.export')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('export.produce')));
+      await tester.pumpAndSettle();
+
+      expect(exports.requests.single['recordSet'], 'transactions');
+      expect(exports.requests.single['columns'], transactionExportColumns);
     });
 
     testWidgets('Given a view with no records '

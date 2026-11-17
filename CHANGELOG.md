@@ -35,6 +35,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- Exporting the transactions works. The export named no columns, which the instance requires, so every export
+  was refused ("columns required") or failed outright. It now asks for the grid's own columns: date,
+  amount, category, account, card and description, with each amount's currency (UC-39).
+
 - A goal that tracks only accounts, or only investments, sends an empty list for the other instead of nothing,
   which the instance could not count.
 

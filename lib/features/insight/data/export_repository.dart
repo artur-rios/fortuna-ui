@@ -171,8 +171,14 @@ final class ExportQueued extends ExportOutcome {
 
 abstract interface class ExportRepository {
   /// Asks the API to produce an export (`FR-EX-02`, `FR-EX-03`).
+  ///
+  /// [columns] are the record set's columns the file is to hold, as the API
+  /// names them. The API asks for them on every export because an export is a
+  /// table query rendered to a file, and a table query names its columns: the
+  /// instance refuses an export that names none.
   Future<Result<ExportOutcome>> request({
     required String recordSet,
+    required List<String> columns,
     required ExportFormat format,
     required List<ExportFilter> filters,
     String? displayCurrencyCode,
@@ -202,6 +208,7 @@ class HttpExportRepository implements ExportRepository {
   @override
   Future<Result<ExportOutcome>> request({
     required String recordSet,
+    required List<String> columns,
     required ExportFormat format,
     required List<ExportFilter> filters,
     String? displayCurrencyCode,
@@ -212,6 +219,7 @@ class HttpExportRepository implements ExportRepository {
         '/api/exports',
         data: RequestDataExportCommand(
           recordSet: recordSet,
+          columns: columns,
           format: format.wireName,
           displayCurrencyCode: displayCurrencyCode,
           locale: locale,

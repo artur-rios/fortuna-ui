@@ -26,6 +26,7 @@ class FakeExports implements ExportRepository {
   @override
   Future<Result<ExportOutcome>> request({
     required String recordSet,
+    required List<String> columns,
     required ExportFormat format,
     required List<ExportFilter> filters,
     String? displayCurrencyCode,
@@ -33,6 +34,7 @@ class FakeExports implements ExportRepository {
   }) async {
     requests.add({
       'recordSet': recordSet,
+      'columns': columns,
       'format': format,
       'filters': filters.map((f) => f.field).toList(),
     });
@@ -115,6 +117,7 @@ Future<void> pumpSheet(
         home: Scaffold(
           body: ExportSheet(
             recordSet: 'transactions',
+            columns: const ['description'],
             filters: filters,
             hasData: hasData,
           ),
@@ -262,6 +265,7 @@ void main() {
           .read(exportControllerProvider.notifier)
           .produce(
             recordSet: 'transactions',
+            columns: const ['description'],
             format: ExportFormat.csv,
             filters: const [],
           );
@@ -278,6 +282,7 @@ void main() {
           .read(exportControllerProvider.notifier)
           .produce(
             recordSet: 'transactions',
+            columns: const ['description'],
             format: ExportFormat.pdf,
             filters: const [
               ExportFilter(
@@ -291,6 +296,28 @@ void main() {
 
       expect(exports.requests.single['format'], ExportFormat.pdf);
       expect(exports.requests.single['filters'], ['categoryId']);
+    });
+
+    test("Given the view's columns "
+        'When an export is produced '
+        'Then they reach the API in their order, since it refuses an export '
+        'that names none', () async {
+      final exports = FakeExports();
+
+      await containerWith(exports: exports)
+          .read(exportControllerProvider.notifier)
+          .produce(
+            recordSet: 'transactions',
+            columns: const ['occurredOn', 'amount', 'description'],
+            format: ExportFormat.csv,
+            filters: const [],
+          );
+
+      expect(exports.requests.single['columns'], [
+        'occurredOn',
+        'amount',
+        'description',
+      ]);
     });
 
     test('Given the API refuses '
@@ -309,6 +336,7 @@ void main() {
           .read(exportControllerProvider.notifier)
           .produce(
             recordSet: 'transactions',
+            columns: const ['description'],
             format: ExportFormat.pdf,
             filters: const [],
           );
@@ -330,6 +358,7 @@ void main() {
 
       await controller.produce(
         recordSet: 'transactions',
+        columns: const ['description'],
         format: ExportFormat.csv,
         filters: const [],
       );
@@ -354,6 +383,7 @@ void main() {
 
       await controller.produce(
         recordSet: 'transactions',
+        columns: const ['description'],
         format: ExportFormat.csv,
         filters: const [],
       );
@@ -403,6 +433,7 @@ void main() {
             .read(exportControllerProvider.notifier)
             .produce(
               recordSet: 'transactions',
+              columns: const ['description'],
               format: ExportFormat.csv,
               filters: const [],
             );
@@ -424,6 +455,7 @@ void main() {
 
       await controller.produce(
         recordSet: 'transactions',
+        columns: const ['description'],
         format: ExportFormat.csv,
         filters: const [],
       );
@@ -482,6 +514,7 @@ void main() {
       final controller = container.read(exportControllerProvider.notifier);
       await controller.produce(
         recordSet: 'transactions',
+        columns: const ['description'],
         format: ExportFormat.csv,
         filters: const [],
       );
@@ -726,6 +759,20 @@ void main() {
       expect(exports.requests.single['format'], ExportFormat.excel);
     });
 
+    testWidgets("Given the sheet's columns "
+        'When the export is produced '
+        'Then those columns are what is asked for (UC-39 step 3)', (
+      tester,
+    ) async {
+      final exports = FakeExports();
+
+      await pumpSheet(tester, exports: exports);
+      await tester.tap(find.byKey(const Key('export.produce')));
+      await tester.pumpAndSettle();
+
+      expect(exports.requests.single['columns'], ['description']);
+    });
+
     testWidgets('Given a produced export '
         'When it is shown '
         'Then saving is offered (step 5)', (tester) async {
@@ -902,6 +949,7 @@ void main() {
                       context,
                       ref,
                       recordSet: 'transactions',
+                      columns: const ['description'],
                       filters: const [],
                       hasData: hasData,
                     ),

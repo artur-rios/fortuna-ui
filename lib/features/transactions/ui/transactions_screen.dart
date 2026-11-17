@@ -63,6 +63,9 @@ class TransactionsScreen extends ConsumerWidget {
                       context,
                       ref,
                       recordSet: 'transactions',
+                      // UC-39: the current view's data, so the grid's own
+                      // columns, as the export's table names them.
+                      columns: transactionExportColumns,
                       // FR-EX-03: the view's own filters, described as the
                       // user reads them, so step 2 can state what the file
                       // will hold.

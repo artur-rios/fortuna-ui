@@ -42,46 +42,51 @@ HttpExportRepository repositoryOn(ApiStub stub) =>
     HttpExportRepository.fromDio(stub.dio);
 
 Future<Result<ExportOutcome>> requestCsv(ApiStub stub) => repositoryOn(stub)
-    .request(recordSet: 'transactions', format: ExportFormat.csv, filters: []);
+    .request(
+      recordSet: 'transactions',
+      columns: const ['description'],
+      format: ExportFormat.csv,
+      filters: const [],
+    );
 
 void main() {
   group('HttpExportRepository.request', () {
-    test(
-      'Given a scope the user confirmed '
-      'When the export is asked for '
-      'Then the record set, format and filters are posted for bytes back',
-      () async {
-        final stub = ApiStub((_) => download(csvBytes));
+    test('Given a scope the user confirmed '
+        'When the export is asked for '
+        'Then the record set, columns, format and filters are posted for bytes '
+        'back', () async {
+      final stub = ApiStub((_) => download(csvBytes));
 
-        await repositoryOn(stub).request(
-          recordSet: 'transactions',
-          format: ExportFormat.excel,
-          displayCurrencyCode: 'BRL',
-          locale: 'pt-BR',
-          filters: const [
-            ExportFilter(
-              field: 'categoryId',
-              operator: 'eq',
-              value: 'c1',
-              description: 'Category is Groceries',
-            ),
-          ],
-        );
+      await repositoryOn(stub).request(
+        recordSet: 'transactions',
+        columns: const ['occurredOn', 'amount', 'description'],
+        format: ExportFormat.excel,
+        displayCurrencyCode: 'BRL',
+        locale: 'pt-BR',
+        filters: const [
+          ExportFilter(
+            field: 'categoryId',
+            operator: 'eq',
+            value: 'c1',
+            description: 'Category is Groceries',
+          ),
+        ],
+      );
 
-        expect(stub.request.method, 'POST');
-        expect(stub.request.path, '/api/exports');
-        expect(stub.request.responseType, ResponseType.bytes);
-        expect(jsonDecode(jsonEncode(stub.body)), {
-          'displayCurrencyCode': 'BRL',
-          'filters': [
-            {'field': 'categoryId', 'operator': 'eq', 'value': 'c1'},
-          ],
-          'format': 'excel',
-          'locale': 'pt-BR',
-          'recordSet': 'transactions',
-        });
-      },
-    );
+      expect(stub.request.method, 'POST');
+      expect(stub.request.path, '/api/exports');
+      expect(stub.request.responseType, ResponseType.bytes);
+      expect(jsonDecode(jsonEncode(stub.body)), {
+        'columns': ['occurredOn', 'amount', 'description'],
+        'displayCurrencyCode': 'BRL',
+        'filters': [
+          {'field': 'categoryId', 'operator': 'eq', 'value': 'c1'},
+        ],
+        'format': 'excel',
+        'locale': 'pt-BR',
+        'recordSet': 'transactions',
+      });
+    });
 
     test(
       'Given an export the instance produced there and then '
@@ -115,6 +120,7 @@ void main() {
 
       final outcome = (await repositoryOn(stub).request(
         recordSet: 'transactions',
+        columns: const ['description'],
         format: ExportFormat.pdf,
         filters: const [],
       )).valueOrNull;

@@ -84,6 +84,7 @@ class ExportController extends Notifier<ExportProgress> {
   /// Steps 3 and 4.
   Future<void> produce({
     required String recordSet,
+    required List<String> columns,
     required ExportFormat format,
     required List<ExportFilter> filters,
     String? displayCurrencyCode,
@@ -95,6 +96,7 @@ class ExportController extends Notifier<ExportProgress> {
         .read(exportRepositoryProvider)
         .request(
           recordSet: recordSet,
+          columns: columns,
           format: format,
           filters: filters,
           displayCurrencyCode: displayCurrencyCode,
