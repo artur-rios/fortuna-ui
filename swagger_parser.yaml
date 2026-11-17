@@ -38,10 +38,13 @@ swagger_parser:
     # is the repository's job in the consuming feature, not the generator's.
     original_http_response: false
 
-    # An optional nullable property is a `({T? value})?` record, so a request
-    # can say "set this to null" (`(value: null)`) apart from "leave it out"
-    # (`null`). The offline core merges a PUT body into the stored record, so
-    # a key left out keeps its old value there: clearing a description, a
-    # counterparty or a parent category needs the explicit null the 1.x
-    # client always sent.
-    use_presence_records: true
+    # An optional nullable property stays `T?`, and a null one is left out of
+    # a request body. The online API reads a missing key as null, but the
+    # offline core merges a PUT body into the stored record, where a missing
+    # key keeps the old value. The update repositories therefore send their
+    # bodies through `withExplicitNulls` (lib/core/network/explicit_nulls.dart),
+    # which writes every optional nullable key the contract declares, null
+    # included, as the 1.x client did. `use_presence_records` would do that
+    # here, but it turns every optional nullable property of every response
+    # into a `({T? value})?` record as well; swagger_parser has no narrower
+    # setting.
