@@ -29,9 +29,9 @@ class _TagsClient extends TagsClient {
     },
     CancelToken? cancelToken,
     Options? options,
-    bool? includeDeleted,
-    int? pageNumber,
-    int? pageSize,
+    bool? includeDeleted = false,
+    int? pageNumber = 1,
+    int? pageSize = 100,
   }) async {
     final _extra = <String, dynamic>{};
     _extra.addAll(extra);

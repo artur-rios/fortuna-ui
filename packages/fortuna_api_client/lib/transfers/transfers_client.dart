@@ -89,7 +89,7 @@ abstract class TransfersClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
+    bool? includeDeleted = false,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -120,7 +120,7 @@ abstract class TransfersClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
     @Path('id') required String id,
-    @Query('includeDeleted') bool? includeDeleted,
+    @Query('includeDeleted') bool? includeDeleted = false,
   });
   Future<TransferLifecycleCommandOutputDataOutput$Response>
   _deleteApiTransfersByIdWithOptions({
@@ -237,7 +237,7 @@ class _TransfersClientWithOptions extends _TransfersClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
+    bool? includeDeleted = false,
   }) {
     return options == null
         ? super.getApiTransfersById(

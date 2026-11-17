@@ -33,8 +33,8 @@ class _CategoriesClient extends CategoriesClient {
     },
     CancelToken? cancelToken,
     Options? options,
-    bool? includeDeleted,
-    bool? includeUsageCounts,
+    bool? includeDeleted = false,
+    bool? includeUsageCounts = false,
   }) async {
     final _extra = <String, dynamic>{};
     _extra.addAll(extra);
@@ -130,8 +130,8 @@ class _CategoriesClient extends CategoriesClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
-    bool? includeUsageCounts,
+    bool? includeDeleted = false,
+    bool? includeUsageCounts = false,
   }) async {
     final _extra = <String, dynamic>{};
     _extra.addAll(extra);

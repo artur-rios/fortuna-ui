@@ -53,8 +53,8 @@ abstract class CategoriesClient {
     },
     CancelToken? cancelToken,
     Options? options,
-    bool? includeDeleted,
-    bool? includeUsageCounts,
+    bool? includeDeleted = false,
+    bool? includeUsageCounts = false,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -86,8 +86,8 @@ abstract class CategoriesClient {
     },
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
-    @Query('includeDeleted') bool? includeDeleted,
-    @Query('includeUsageCounts') bool? includeUsageCounts,
+    @Query('includeDeleted') bool? includeDeleted = false,
+    @Query('includeUsageCounts') bool? includeUsageCounts = false,
   });
   Future<CreateCategoryCommandOutputDataOutput$Response>
   _postApiCategoriesWithOptions({
@@ -142,8 +142,8 @@ abstract class CategoriesClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
-    bool? includeUsageCounts,
+    bool? includeDeleted = false,
+    bool? includeUsageCounts = false,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -176,8 +176,8 @@ abstract class CategoriesClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
     @Path('id') required String id,
-    @Query('includeDeleted') bool? includeDeleted,
-    @Query('includeUsageCounts') bool? includeUsageCounts,
+    @Query('includeDeleted') bool? includeDeleted = false,
+    @Query('includeUsageCounts') bool? includeUsageCounts = false,
   });
   Future<UpdateCategoryCommandOutputDataOutput$Response>
   _putApiCategoriesByIdWithOptions({
@@ -401,8 +401,8 @@ class _CategoriesClientWithOptions extends _CategoriesClient {
     },
     CancelToken? cancelToken,
     Options? options,
-    bool? includeDeleted,
-    bool? includeUsageCounts,
+    bool? includeDeleted = false,
+    bool? includeUsageCounts = false,
   }) {
     return options == null
         ? super.getApiCategories(
@@ -455,8 +455,8 @@ class _CategoriesClientWithOptions extends _CategoriesClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
-    bool? includeUsageCounts,
+    bool? includeDeleted = false,
+    bool? includeUsageCounts = false,
   }) {
     return options == null
         ? super.getApiCategoriesById(

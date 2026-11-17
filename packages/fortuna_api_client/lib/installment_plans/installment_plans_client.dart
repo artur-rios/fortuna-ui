@@ -93,7 +93,7 @@ abstract class InstallmentPlansClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
+    bool? includeDeleted = false,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -124,7 +124,7 @@ abstract class InstallmentPlansClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
     @Path('id') required String id,
-    @Query('includeDeleted') bool? includeDeleted,
+    @Query('includeDeleted') bool? includeDeleted = false,
   });
   Future<InstallmentPlanLifecycleCommandOutputDataOutput$Response>
   _deleteApiInstallmentPlansByIdWithOptions({
@@ -242,7 +242,7 @@ class _InstallmentPlansClientWithOptions extends _InstallmentPlansClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
+    bool? includeDeleted = false,
   }) {
     return options == null
         ? super.getApiInstallmentPlansById(

@@ -47,9 +47,9 @@ abstract class GoalsClient {
     },
     CancelToken? cancelToken,
     Options? options,
-    bool? includeDeleted,
-    int? pageNumber,
-    int? pageSize,
+    bool? includeDeleted = false,
+    int? pageNumber = 1,
+    int? pageSize = 100,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -81,9 +81,9 @@ abstract class GoalsClient {
     },
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
-    @Query('includeDeleted') bool? includeDeleted,
-    @Query('pageNumber') int? pageNumber,
-    @Query('pageSize') int? pageSize,
+    @Query('includeDeleted') bool? includeDeleted = false,
+    @Query('pageNumber') int? pageNumber = 1,
+    @Query('pageSize') int? pageSize = 100,
   });
   Future<GoalCommandOutputDataOutput$Response> _postApiGoalsWithOptions({
     Map<String, Object?> extra = const {
@@ -137,7 +137,7 @@ abstract class GoalsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
+    bool? includeDeleted = false,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -168,7 +168,7 @@ abstract class GoalsClient {
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
     @Path('id') required String id,
-    @Query('includeDeleted') bool? includeDeleted,
+    @Query('includeDeleted') bool? includeDeleted = false,
   });
   Future<GoalCommandOutputDataOutput$Response> _putApiGoalsByIdWithOptions({
     Map<String, Object?> extra = const {
@@ -302,9 +302,9 @@ class _GoalsClientWithOptions extends _GoalsClient {
     },
     CancelToken? cancelToken,
     Options? options,
-    bool? includeDeleted,
-    int? pageNumber,
-    int? pageSize,
+    bool? includeDeleted = false,
+    int? pageNumber = 1,
+    int? pageSize = 100,
   }) {
     return options == null
         ? super.getApiGoals(
@@ -359,7 +359,7 @@ class _GoalsClientWithOptions extends _GoalsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
+    bool? includeDeleted = false,
   }) {
     return options == null
         ? super.getApiGoalsById(

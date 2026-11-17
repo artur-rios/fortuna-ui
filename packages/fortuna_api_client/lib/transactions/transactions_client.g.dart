@@ -88,7 +88,7 @@ class _TransactionsClient extends TransactionsClient {
     CancelToken? cancelToken,
     Options? options,
     required String id,
-    bool? includeDeleted,
+    bool? includeDeleted = false,
   }) async {
     final _extra = <String, dynamic>{};
     _extra.addAll(extra);

@@ -51,9 +51,9 @@ abstract class CounterpartiesClient {
     },
     CancelToken? cancelToken,
     Options? options,
-    bool? includeDeleted,
-    int? pageNumber,
-    int? pageSize,
+    bool? includeDeleted = false,
+    int? pageNumber = 1,
+    int? pageSize = 100,
   }) async {
     final _options = (options ?? Options()).copyWith(
       method: "GET",
@@ -85,9 +85,9 @@ abstract class CounterpartiesClient {
     },
     @CancelRequest() CancelToken? cancelToken,
     Options? options,
-    @Query('includeDeleted') bool? includeDeleted,
-    @Query('pageNumber') int? pageNumber,
-    @Query('pageSize') int? pageSize,
+    @Query('includeDeleted') bool? includeDeleted = false,
+    @Query('pageNumber') int? pageNumber = 1,
+    @Query('pageSize') int? pageSize = 100,
   });
   Future<CounterpartyCommandOutputDataOutput$Response>
   _postApiCounterpartiesWithOptions({
@@ -319,9 +319,9 @@ class _CounterpartiesClientWithOptions extends _CounterpartiesClient {
     },
     CancelToken? cancelToken,
     Options? options,
-    bool? includeDeleted,
-    int? pageNumber,
-    int? pageSize,
+    bool? includeDeleted = false,
+    int? pageNumber = 1,
+    int? pageSize = 100,
   }) {
     return options == null
         ? super.getApiCounterparties(
