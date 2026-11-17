@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   read with that field ignored: it fails as a malformed answer does, with "The request could not be completed."
   So does an answer holding a value of the wrong type, which ended in an unhandled error before (UC-02 AF-07).
   An instance that answers with fields this build does not know is therefore refused, not read in part.
+- The API client is regenerated from the contract that names the file types the instance sends: an export, an
+  attachment and the personal data archive (fortuna-api#268). Exports and the archive are downloaded as before.
 - A request leaves out the optional fields it has no value for, where it used to send them as null. An update
   still sends every one of them, null included, so that clearing a field (a description, a parent category, the
   account a transaction was on) clears it in offline mode too, where a field left out of an update is kept.
