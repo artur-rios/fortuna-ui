@@ -148,8 +148,8 @@ class HttpCredentialsRepository implements CredentialsRepository {
       // FR-SE-23 exists so that "no such account" and "wrong password" stay
       // indistinguishable, and the way to guarantee that is to never look.
       return failureFromDioException<SignInOutcome>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<SignInOutcome>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<SignInOutcome>(error, stackTrace);
     }
   }
 
@@ -179,8 +179,8 @@ class HttpCredentialsRepository implements CredentialsRepository {
       // account that already has a password and will not be linked is the
       // API's rule to state, not this client's to guess at.
       return failureFromDioException<SignInGranted>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<SignInGranted>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<SignInGranted>(error, stackTrace);
     }
   }
 
@@ -215,8 +215,8 @@ class HttpCredentialsRepository implements CredentialsRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<SignInGranted>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<SignInGranted>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<SignInGranted>(error, stackTrace);
     }
   }
 }

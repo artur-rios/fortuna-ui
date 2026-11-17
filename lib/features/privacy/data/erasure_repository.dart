@@ -82,8 +82,8 @@ class HttpErasureRepository implements ErasureRepository {
       // leaving it half-done, so a failure here means the account is intact —
       // and that is what the caller tells the user.
       return failureFromDioException<ErasureReport>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<ErasureReport>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<ErasureReport>(error, stackTrace);
     }
   }
 }

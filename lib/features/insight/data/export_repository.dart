@@ -52,11 +52,15 @@ enum ExportState {
 
   final int wire;
 
-  static ExportState from(DataExportStatus? status) => switch (status?.json) {
-    1 => ExportState.pending,
-    2 => ExportState.running,
-    3 => ExportState.completed,
-    4 => ExportState.failed,
+  static ExportState from(DataExportStatus? status) => switch (status) {
+    DataExportStatusKnown(value: DataExportStatusValue.pending) =>
+      ExportState.pending,
+    DataExportStatusKnown(value: DataExportStatusValue.running) =>
+      ExportState.running,
+    DataExportStatusKnown(value: DataExportStatusValue.completed) =>
+      ExportState.completed,
+    DataExportStatusKnown(value: DataExportStatusValue.failed) =>
+      ExportState.failed,
     _ => ExportState.unknown,
   };
 
@@ -215,7 +219,7 @@ class HttpExportRepository implements ExportRepository {
             for (final filter in filters)
               DataExportFilterInput(
                 field: filter.field,
-                operatorValue: filter.operator,
+                operator2: filter.operator,
                 value: filter.value,
               ),
           ],
@@ -254,8 +258,8 @@ class HttpExportRepository implements ExportRepository {
       // AF-02 and AF-06 both arrive here: a job the instance refused, and a
       // format it does not produce for this data set, each in its own words.
       return failureFromDioException<ExportOutcome>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<ExportOutcome>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<ExportOutcome>(error, stackTrace);
     }
   }
 
@@ -284,8 +288,8 @@ class HttpExportRepository implements ExportRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<DataExport>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<DataExport>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<DataExport>(error, stackTrace);
     }
   }
 
@@ -322,8 +326,8 @@ class HttpExportRepository implements ExportRepository {
     } on DioException catch (exception) {
       // AF-04 arrives here where the instance has already discarded it.
       return failureFromDioException<ExportedFile>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<ExportedFile>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<ExportedFile>(error, stackTrace);
     }
   }
 
@@ -355,12 +359,12 @@ class HttpExportRepository implements ExportRepository {
     return const {};
   }
 
-  static ExportFormat _formatFrom(DataExportFormat? format) =>
-      switch (format?.json) {
-        2 => ExportFormat.excel,
-        3 => ExportFormat.pdf,
-        _ => ExportFormat.csv,
-      };
+  static ExportFormat _formatFrom(DataExportFormat? format) => switch (format) {
+    DataExportFormatKnown(value: DataExportFormatValue.excel) =>
+      ExportFormat.excel,
+    DataExportFormatKnown(value: DataExportFormatValue.pdf) => ExportFormat.pdf,
+    _ => ExportFormat.csv,
+  };
 
   static String? _fileNameFrom(Response<Object?> response) {
     final disposition = response.headers.value('content-disposition');

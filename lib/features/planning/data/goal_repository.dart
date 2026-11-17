@@ -20,6 +20,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
@@ -172,8 +173,8 @@ class HttpGoalRepository implements GoalRepository {
       return Success([for (final goal in goals) _from(goal)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Goal>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<Goal>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Goal>>(error, stackTrace);
     }
   }
 
@@ -193,8 +194,8 @@ class HttpGoalRepository implements GoalRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<Goal>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<Goal>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Goal>(error, stackTrace);
     }
   }
 
@@ -214,7 +215,7 @@ class HttpGoalRepository implements GoalRepository {
           // The string as typed. Never parsed to a number on the way out.
           targetAmount: targetAmount,
           currencyCode: currencyCode,
-          targetDate: targetDate,
+          targetDate: wireDate(targetDate),
           // Empty lists, never null: the API counts both, and a null list
           // is a failure on its side rather than a refusal it can explain.
           accountIds: accountIds,
@@ -224,8 +225,8 @@ class HttpGoalRepository implements GoalRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -246,7 +247,7 @@ class HttpGoalRepository implements GoalRepository {
           name: name,
           targetAmount: targetAmount,
           currencyCode: currencyCode,
-          targetDate: targetDate,
+          targetDate: wireDate(targetDate),
           // Empty lists, never null: the API counts both, and a null list
           // is a failure on its side rather than a refusal it can explain.
           accountIds: accountIds,
@@ -256,8 +257,8 @@ class HttpGoalRepository implements GoalRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -268,8 +269,8 @@ class HttpGoalRepository implements GoalRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -284,7 +285,7 @@ class HttpGoalRepository implements GoalRepository {
       id: output.id ?? '',
       name: output.name ?? '',
       targetAmount: Money.parse(output.targetAmount ?? '0', currency),
-      targetDate: output.targetDate ?? DateTime(1970),
+      targetDate: dateFromWire(output.targetDate) ?? DateTime(1970),
       accountNames: [
         for (final account in output.accounts ?? const <GoalResourceOutput>[])
           account.name ?? '',

@@ -70,8 +70,8 @@ class HttpSessionRepository implements SessionRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<VerifiedProfile>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<VerifiedProfile>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<VerifiedProfile>(error, stackTrace);
     }
   }
 }

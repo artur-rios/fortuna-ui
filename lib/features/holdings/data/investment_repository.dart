@@ -17,20 +17,23 @@ import 'package:fortuna_api_client/api.dart'
     hide InvestmentMovementType, InvestmentType;
 import 'package:fortuna_api_client/api.dart'
     as api
-    show InvestmentMovementType, InvestmentType;
+    show
+        InvestmentMovementType,
+        InvestmentType,
+        InvestmentTypeKnown,
+        InvestmentTypeValue;
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// What kind of holding an investment is.
 ///
-/// Mapped from the contract's numbers rather than the generated names, for the
-/// reason `AccountType` gives: the contract carries
-/// `x-enum-varnames: [FixedIncome, Equity, Fund, Other]`, but swagger_parser
-/// does not read that extension, so the generated enum is positional.
+/// Read from the generated `InvestmentTypeKnown` members, as `AccountType`
+/// is; an unknown value reads as [other].
 enum InvestmentType {
   fixedIncome(1, 'Fixed income'),
   equity(2, 'Equity'),
@@ -42,10 +45,13 @@ enum InvestmentType {
   final int wire;
   final String label;
 
-  static InvestmentType from(api.InvestmentType? type) => switch (type?.json) {
-    1 => InvestmentType.fixedIncome,
-    2 => InvestmentType.equity,
-    3 => InvestmentType.fund,
+  static InvestmentType from(api.InvestmentType? type) => switch (type) {
+    api.InvestmentTypeKnown(value: api.InvestmentTypeValue.fixedIncome) =>
+      InvestmentType.fixedIncome,
+    api.InvestmentTypeKnown(value: api.InvestmentTypeValue.equity) =>
+      InvestmentType.equity,
+    api.InvestmentTypeKnown(value: api.InvestmentTypeValue.fund) =>
+      InvestmentType.fund,
     _ => InvestmentType.other,
   };
 
@@ -66,7 +72,7 @@ class RecordedValuation {
 
 /// What kind of movement was recorded against an investment (`UC-18`).
 ///
-/// Mapped from the contract's numbers for the reason [InvestmentType] gives.
+/// Sent as the contract's number, [wire].
 enum MovementType {
   contribution(1, 'Contribution'),
   withdrawal(2, 'Withdrawal'),
@@ -184,8 +190,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
       return Success([for (final investment in investments) _from(investment)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Investment>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<Investment>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Investment>>(error, stackTrace);
     }
   }
 
@@ -205,8 +211,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<Investment>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<Investment>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Investment>(error, stackTrace);
     }
   }
 
@@ -230,8 +236,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
     } on DioException catch (exception) {
       // AF-02: a duplicate name is the API's rule to state.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -254,8 +260,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -267,8 +273,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
     } on DioException catch (exception) {
       // AF-04: still-referenced by movements, in the API's words.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -298,14 +304,17 @@ class HttpInvestmentRepository implements InvestmentRepository {
               valuation.value ?? '0',
               valuation.currencyCode ?? '',
             ),
-            asOf: valuation.valuedOn,
+            asOf: dateFromWire(valuation.valuedOn),
           ),
       ]);
     } on DioException catch (exception) {
       // AF-04.
       return failureFromDioException<List<RecordedValuation>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<RecordedValuation>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<RecordedValuation>>(
+        error,
+        stackTrace,
+      );
     }
   }
 
@@ -325,7 +334,7 @@ class HttpInvestmentRepository implements InvestmentRepository {
           movementType: type.asApi,
           // The string as typed. Never parsed to a number on the way out.
           amount: amount,
-          occurredOn: occurredOn,
+          occurredOn: wireDate(occurredOn),
           financialAccountId: financialAccountId,
         ),
       );
@@ -334,8 +343,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
       // AF-05: a currency mismatch is the API's refusal to state, and nothing
       // is converted here to make the amounts agree.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -351,7 +360,7 @@ class HttpInvestmentRepository implements InvestmentRepository {
         body: RecordInvestmentValuationCommand(
           id: investmentId,
           value: value,
-          valuedOn: valuedOn,
+          valuedOn: wireDate(valuedOn),
         ),
       );
       return const Success(null);
@@ -359,8 +368,8 @@ class HttpInvestmentRepository implements InvestmentRepository {
       // AF-03: whether a second valuation on one date is refused or replaces
       // the first is the API's rule, and its answer is what reaches the user.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -383,7 +392,7 @@ class HttpInvestmentRepository implements InvestmentRepository {
           ? null
           : RecordedValuation(
               value: Money.parse(valuation, currency),
-              asOf: output.latestValuationDate,
+              asOf: dateFromWire(output.latestValuationDate),
             ),
     );
   }

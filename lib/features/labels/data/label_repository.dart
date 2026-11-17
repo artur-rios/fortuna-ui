@@ -72,8 +72,8 @@ mixin _CommandRunner {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 }
@@ -112,8 +112,8 @@ class HttpTagRepository with _CommandRunner implements LabelRepository {
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Label>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<Label>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Label>>(error, stackTrace);
     }
   }
 
@@ -171,8 +171,8 @@ class HttpCounterpartyRepository
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Label>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<Label>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Label>>(error, stackTrace);
     }
   }
 

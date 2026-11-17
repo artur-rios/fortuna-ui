@@ -127,8 +127,8 @@ class HttpCategoryRepository implements CategoryRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<CategoryTree>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<CategoryTree>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<CategoryTree>(error, stackTrace);
     }
   }
 
@@ -178,8 +178,8 @@ class HttpCategoryRepository implements CategoryRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 

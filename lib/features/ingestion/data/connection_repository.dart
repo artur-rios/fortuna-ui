@@ -36,9 +36,14 @@ enum BankConnectionState {
   unknown;
 
   static BankConnectionState from(ConnectionStatus? status) => switch (status) {
-    ConnectionStatus.value1 => BankConnectionState.active,
-    ConnectionStatus.value2 => BankConnectionState.requiresReauthentication,
-    ConnectionStatus.value3 => BankConnectionState.revoked,
+    ConnectionStatusKnown(value: ConnectionStatusValue.active) =>
+      BankConnectionState.active,
+    ConnectionStatusKnown(
+      value: ConnectionStatusValue.requiresReauthentication,
+    ) =>
+      BankConnectionState.requiresReauthentication,
+    ConnectionStatusKnown(value: ConnectionStatusValue.revoked) =>
+      BankConnectionState.revoked,
     _ => BankConnectionState.unknown,
   };
 }
@@ -129,8 +134,8 @@ class HttpConnectionRepository implements ConnectionRepository {
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Connection>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<Connection>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Connection>>(error, stackTrace);
     }
   }
 
@@ -167,15 +172,19 @@ class HttpConnectionRepository implements ConnectionRepository {
       // and an aggregator it could not reach. The screen decides which of the
       // two it is showing by the failure's kind.
       return failureFromDioException<Connection>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<Connection>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Connection>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<String?>> synchronize(String id) async {
     try {
-      final response = await _sync.postApiConnectionsByIdSync(id: id);
+      final response = await _sync.postApiConnectionsByIdSync(
+        id: id,
+        // No period, an empty object, as the 1.x client sent it.
+        body: const SynchronizeConnectionCommand(),
+      );
       final data = response.data;
 
       return Success(_jobIdFrom(data?.toJson()));
@@ -183,14 +192,19 @@ class HttpConnectionRepository implements ConnectionRepository {
       // AF-03: the aggregator being unavailable is the API's answer, presented
       // with its reason rather than reworded.
       return failureFromDioException<String?>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<String?>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<String?>(error, stackTrace);
     }
   }
 
   @override
-  Future<Result<void>> reauthenticate(String id) =>
-      _run(() => _connections.postApiConnectionsByIdReauthenticate(id: id));
+  Future<Result<void>> reauthenticate(String id) => _run(
+    () => _connections.postApiConnectionsByIdReauthenticate(
+      id: id,
+      // An empty object, as the 1.x client sent it.
+      body: const ReauthenticateConnectionCommand(),
+    ),
+  );
 
   @override
   Future<Result<void>> revoke(String id) =>
@@ -202,8 +216,8 @@ class HttpConnectionRepository implements ConnectionRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 

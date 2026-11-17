@@ -13,12 +13,14 @@ import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/result/result.dart';
 
 /// What became of a record the import read.
 ///
-/// Mapped from the contract's numbers for the reason `AccountType` gives. The
-/// three are kept apart because `AF-02` needs them apart: "already here" and
+/// Read from the generated `ImportedRecordOutcomeKnown` members, as
+/// `AccountType` is; an unknown value reads as [unknown]. The three are kept
+/// apart because `AF-02` needs them apart: "already here" and
 /// "could not be used" are different facts, and collapsing them into "no
 /// transaction" would tell the user nothing they can act on.
 enum RecordOutcome {
@@ -34,13 +36,17 @@ enum RecordOutcome {
   final int wire;
   final String label;
 
-  static RecordOutcome from(ImportedRecordOutcome? outcome) =>
-      switch (outcome?.json) {
-        1 => RecordOutcome.imported,
-        2 => RecordOutcome.duplicate,
-        3 => RecordOutcome.rejected,
-        _ => RecordOutcome.unknown,
-      };
+  static RecordOutcome from(
+    ImportedRecordOutcome? outcome,
+  ) => switch (outcome) {
+    ImportedRecordOutcomeKnown(value: ImportedRecordOutcomeValue.imported) =>
+      RecordOutcome.imported,
+    ImportedRecordOutcomeKnown(value: ImportedRecordOutcomeValue.duplicate) =>
+      RecordOutcome.duplicate,
+    ImportedRecordOutcomeKnown(value: ImportedRecordOutcomeValue.rejected) =>
+      RecordOutcome.rejected,
+    _ => RecordOutcome.unknown,
+  };
 
   /// Whether this outcome should have produced a transaction.
   bool get producedTransaction => this == RecordOutcome.imported;
@@ -166,8 +172,8 @@ class HttpImportedRecordRepository implements ImportedRecordRepository {
     } on DioException catch (exception) {
       // AF-04: a job that is not yours reads as not found, as the API intends.
       return failureFromDioException<ImportedRecordPage>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<ImportedRecordPage>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<ImportedRecordPage>(error, stackTrace);
     }
   }
 
@@ -176,7 +182,7 @@ class HttpImportedRecordRepository implements ImportedRecordRepository {
     hasLiveTransaction: output.hasLiveTransaction ?? false,
     externalId: output.externalId,
     amount: output.amount,
-    occurredOn: output.occurredOn,
+    occurredOn: dateFromWire(output.occurredOn),
     rawPayload: output.rawPayload,
     rejectionReason: output.rejectionReason,
     transactionId: output.transactionId,

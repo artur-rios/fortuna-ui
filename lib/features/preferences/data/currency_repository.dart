@@ -68,8 +68,11 @@ class HttpCurrencyRepository implements CurrencyRepository {
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<SupportedCurrency>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<SupportedCurrency>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<SupportedCurrency>>(
+        error,
+        stackTrace,
+      );
     }
   }
 }

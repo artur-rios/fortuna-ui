@@ -142,8 +142,8 @@ class HttpImportUploadRepository implements ImportUploadRepository {
       // AF-04 and AF-05 alike: the reason is the API's where it gave one, and
       // no partial import is ever claimed.
       return failureFromDioException<String>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<String>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<String>(error, stackTrace);
     }
   }
 

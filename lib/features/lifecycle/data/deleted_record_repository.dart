@@ -129,8 +129,11 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
       return Success(records);
     } on DioException catch (exception) {
       return failureFromDioException<List<DeletedRecord>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<DeletedRecord>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<DeletedRecord>>(
+        error,
+        stackTrace,
+      );
     }
   }
 
@@ -149,8 +152,8 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
     } on DioException catch (exception) {
       // AF-02 and AF-03: a refusal and a not-found, each in the API's words.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -171,8 +174,8 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
       // what the user reads. The control is not hidden on a guess about
       // whether the removal would be allowed.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -199,11 +202,10 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
           DeletedRecord(
             id: item.id ?? '',
             kind: RecordKind.transaction,
-            label: switch (item.description?.value) {
-              final description? when description.isNotEmpty => description,
-              _ => item.categoryName?.value ?? 'Transaction',
-            },
-            amount: switch ((item.amount, item.currencyCode?.value)) {
+            label: item.description?.isNotEmpty ?? false
+                ? item.description!
+                : (item.categoryName ?? 'Transaction'),
+            amount: switch ((item.amount, item.currencyCode)) {
               (final amount?, final currency?) => Money.parse(amount, currency),
               _ => null,
             },
@@ -220,7 +222,7 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
         pageSize: pageSize,
       );
       return (
-        items: page.data?.value ?? const <FinancialAccountOutput>[],
+        items: page.data ?? const <FinancialAccountOutput>[],
         totalPages: page.totalPages,
       );
     });
@@ -231,8 +233,8 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
           DeletedRecord(
             id: item.id ?? '',
             kind: RecordKind.account,
-            label: item.name?.value ?? 'Account',
-            detail: item.currencyCode?.value,
+            label: item.name ?? 'Account',
+            detail: item.currencyCode,
           ),
     ];
   }
@@ -254,16 +256,16 @@ class HttpDeletedRecordRepository implements DeletedRecordRepository {
             DeletedRecord(
               id: node.id ?? '',
               kind: RecordKind.category,
-              label: node.name?.value ?? 'Category',
-              stillUsedBy: node.usageCount?.value,
+              label: node.name ?? 'Category',
+              stillUsedBy: node.usageCount,
             ),
           );
         }
-        walk(node.children?.value ?? const <CategoryOutput>[]);
+        walk(node.children ?? const <CategoryOutput>[]);
       }
     }
 
-    walk(output?.categories?.value ?? const <CategoryOutput>[]);
+    walk(output?.categories ?? const <CategoryOutput>[]);
     return deleted;
   }
 }

@@ -58,8 +58,8 @@ class HttpRegistrationRepository implements RegistrationRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<String>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<String>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<String>(error, stackTrace);
     }
   }
 }

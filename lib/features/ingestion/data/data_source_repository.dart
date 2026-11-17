@@ -24,8 +24,10 @@ enum SourceKind {
 
   final int wire;
 
-  static SourceKind from(DataSourceKind? kind) =>
-      kind?.json == 2 ? SourceKind.file : SourceKind.network;
+  static SourceKind from(DataSourceKind? kind) => switch (kind) {
+    DataSourceKindKnown(value: DataSourceKindValue.file) => SourceKind.file,
+    _ => SourceKind.network,
+  };
 }
 
 /// One data source the instance knows about.
@@ -103,8 +105,8 @@ class HttpDataSourceRepository implements DataSourceRepository {
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<DataSource>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<DataSource>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<DataSource>>(error, stackTrace);
     }
   }
 }

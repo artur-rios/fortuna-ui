@@ -11,6 +11,8 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:json_annotation/json_annotation.dart'
+    show BadKeyException, CheckedFromJsonException;
 
 import '../bindings/core_dispatcher.dart';
 import '../config/instance_config.dart';
@@ -177,19 +179,36 @@ Failure<T> failureFromDioException<T>(DioException exception) {
 }
 
 /// Translates an answer the generated client could not read into a
-/// [Failure] (`UC-02 AF-07`).
+/// [Failure] (`UC-02 AF-07`), and rethrows anything else.
 ///
 /// The generated client decodes strictly: a key the contract does not declare
 /// (every DTO is `additionalProperties: false`), a null where a value is
 /// required, or a value of the wrong type fails the parse — with a
-/// `BadKeyException`, a `TypeError`, an `ArgumentError` or a
-/// `FormatException`, never a `DioException`. Such an answer fails the way a
-/// body that is not JSON at all already does: dio reports that as an
-/// `unknown` [DioException] with no response, so this is that failure.
-Failure<T> failureFromUnreadableAnswer<T>(Object error) =>
-    failureFromDioException<T>(
-      DioException(requestOptions: RequestOptions(), error: error),
-    );
+/// [BadKeyException], a [CheckedFromJsonException], a [TypeError], an
+/// [ArgumentError] or a [FormatException], never a [DioException]. Such an
+/// answer fails the way a body that is not JSON at all already does: dio
+/// reports that as an `unknown` [DioException] with no response, so this is
+/// that failure.
+///
+/// Any other [error] is not an unreadable answer, and is rethrown with its
+/// [stackTrace] rather than reported as one.
+Failure<T> failureFromUnreadableAnswer<T>(Object error, StackTrace stackTrace) {
+  if (!isUnreadableAnswer(error)) {
+    Error.throwWithStackTrace(error, stackTrace);
+  }
+  return failureFromDioException<T>(
+    DioException(requestOptions: RequestOptions(), error: error),
+  );
+}
+
+/// Whether [error] is what the generated decoders throw for an answer that
+/// does not match the contract (see [failureFromUnreadableAnswer]).
+bool isUnreadableAnswer(Object error) =>
+    error is BadKeyException ||
+    error is CheckedFromJsonException ||
+    error is TypeError ||
+    error is ArgumentError ||
+    error is FormatException;
 
 /// Reads the reason out of the API's `DataOutput` envelope.
 ///

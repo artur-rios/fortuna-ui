@@ -104,8 +104,8 @@ class HttpAccountRecoveryRepository implements AccountRecoveryRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<String>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<String>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<String>(error, stackTrace);
     }
   }
 
@@ -130,8 +130,8 @@ class HttpAccountRecoveryRepository implements AccountRecoveryRepository {
       // rule the client did not enforce, and it is shown as the API worded it
       // (FR-DA-15).
       return failureFromDioException<String>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<String>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<String>(error, stackTrace);
     }
   }
 
@@ -165,8 +165,8 @@ class HttpAccountRecoveryRepository implements AccountRecoveryRepository {
         401 => Success(VerifyEmailPasswordWrong(failure.message)),
         _ => failure,
       };
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<VerifyEmailAnswer>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<VerifyEmailAnswer>(error, stackTrace);
     }
   }
 
@@ -180,8 +180,8 @@ class HttpAccountRecoveryRepository implements AccountRecoveryRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<String>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<String>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<String>(error, stackTrace);
     }
   }
 }

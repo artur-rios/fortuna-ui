@@ -12,12 +12,15 @@
 /// worked with. A calendar date is never converted between zones: the day
 /// kept is the day the `DateTime` itself holds.
 ///
-/// [normalizeDateOnlyFields] is the older guard, kept for request bodies
-/// built by hand as maps (the generated client sends its bodies already
-/// encoded), so a `DateTime` written there with `toIso8601String()` —
-/// `2026-10-09T00:00:00.000`, which the API rejects as unbindable — is still
-/// put back into the contract's shape on the way out, for both transports at
-/// once.
+/// The same [wireDate] writes a `format: date` query parameter (a list's
+/// From and To, a figure date), which the generated client also types as a
+/// `String`.
+///
+/// [normalizeDateOnlyFields] is the older guard, still applied to every body
+/// on its way out (`RequestBodyInterceptor`), so a `DateTime` written into a
+/// body with `toIso8601String()` — `2026-10-09T00:00:00.000`, which the API
+/// rejects as unbindable — is still put back into the contract's shape, for
+/// both transports at once.
 library;
 
 /// Every request-body property the contract declares as `format: date`.

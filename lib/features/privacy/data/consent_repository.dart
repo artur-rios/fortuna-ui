@@ -111,8 +111,8 @@ class HttpConsentRepository implements ConsentRepository {
       // empty list would read as "you have consented to nothing" — which is a
       // claim, and this is the absence of one.
       return failureFromDioException<List<Consent>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<Consent>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Consent>>(error, stackTrace);
     }
   }
 
@@ -128,8 +128,8 @@ class HttpConsentRepository implements ConsentRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -142,8 +142,8 @@ class HttpConsentRepository implements ConsentRepository {
       // AF-03: withdrawing something never given is the API's not-found, shown
       // as the API worded it.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 }

@@ -106,8 +106,8 @@ class HttpCreditCardRepository implements CreditCardRepository {
       return Success([for (final card in cards) _from(card)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<CreditCard>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<CreditCard>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<CreditCard>>(error, stackTrace);
     }
   }
 
@@ -127,8 +127,8 @@ class HttpCreditCardRepository implements CreditCardRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<CreditCard>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<CreditCard>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<CreditCard>(error, stackTrace);
     }
   }
 
@@ -160,8 +160,8 @@ class HttpCreditCardRepository implements CreditCardRepository {
       // AF-02 and AF-03: the day combination and a duplicate name are both the
       // API's rules to state.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -188,8 +188,8 @@ class HttpCreditCardRepository implements CreditCardRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -201,8 +201,8 @@ class HttpCreditCardRepository implements CreditCardRepository {
     } on DioException catch (exception) {
       // AF-05: still-referenced, in the API's words.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 

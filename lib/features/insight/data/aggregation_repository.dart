@@ -21,6 +21,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/result/result.dart';
 import '../../transactions/data/transaction_repository.dart';
 
@@ -272,8 +273,8 @@ class HttpAggregationRepository implements AggregationRepository {
       final output = (await _client.getApiReportsAggregate(
         dimension: grouping.wireName,
         granularity: granularity?.wireName,
-        from: from,
-        to: to,
+        from: wireDate(from),
+        to: wireDate(to),
         rollupCategories: rollUpSmallest,
         displayCurrencyCode: displayCurrencyCode,
         direction: direction?.asApi,
@@ -293,8 +294,8 @@ class HttpAggregationRepository implements AggregationRepository {
     } on DioException catch (exception) {
       // AF-02.
       return failureFromDioException<Aggregation>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<Aggregation>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Aggregation>(error, stackTrace);
     }
   }
 
@@ -353,8 +354,8 @@ class HttpAggregationRepository implements AggregationRepository {
     } on DioException catch (exception) {
       // AF-02: the current level stays displayed and this is reported.
       return failureFromDioException<DrillLevel>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<DrillLevel>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<DrillLevel>(error, stackTrace);
     }
   }
 
@@ -368,8 +369,8 @@ class HttpAggregationRepository implements AggregationRepository {
 
     return Aggregation(
       grouping: grouping,
-      from: output.from ?? from,
-      to: output.to ?? to,
+      from: dateFromWire(output.from) ?? from,
+      to: dateFromWire(output.to) ?? to,
       isFullyConverted: output.isFullyConverted ?? true,
       displayCurrencyCode: currency,
       buckets: [
@@ -396,8 +397,8 @@ class HttpAggregationRepository implements AggregationRepository {
       share: bucket.share == null ? null : Decimal.tryParse(bucket.share!),
       isFullyConverted: bucket.isFullyConverted ?? true,
       drillDownKey: bucket.drillDownKey,
-      periodStart: bucket.periodStart,
-      periodEnd: bucket.periodEnd,
+      periodStart: dateFromWire(bucket.periodStart),
+      periodEnd: dateFromWire(bucket.periodEnd),
       unconverted: [
         for (final conversion
             in bucket.conversions ??

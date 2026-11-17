@@ -112,8 +112,8 @@ class HttpHealthRepository implements HealthRepository {
       if (recovered != null) return Success(recovered);
 
       return failureFromDioException<InstanceHealth>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<InstanceHealth>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<InstanceHealth>(error, stackTrace);
     }
   }
 

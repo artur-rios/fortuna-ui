@@ -22,6 +22,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
@@ -202,8 +203,11 @@ class HttpStatementRepository implements StatementRepository {
       // AF-05: a card that is not yours is not found, and the API makes the
       // two indistinguishable on purpose.
       return failureFromDioException<List<CardStatement>>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<List<CardStatement>>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<CardStatement>>(
+        error,
+        stackTrace,
+      );
     }
   }
 
@@ -224,8 +228,8 @@ class HttpStatementRepository implements StatementRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<CardStatement>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<CardStatement>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<CardStatement>(error, stackTrace);
     }
   }
 
@@ -238,8 +242,8 @@ class HttpStatementRepository implements StatementRepository {
       // AF-01: closing before the closing date is refused in the API's words,
       // on the instance's clock rather than this device's.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -258,7 +262,7 @@ class HttpStatementRepository implements StatementRepository {
           financialAccountId: financialAccountId,
           // The amount as a string, all the way out. Never parsed to a number.
           amount: amount,
-          paymentDate: paymentDate,
+          paymentDate: wireDate(paymentDate),
         ),
       );
       return const Success(null);
@@ -267,8 +271,8 @@ class HttpStatementRepository implements StatementRepository {
       // account in another currency. No conversion is attempted locally —
       // inventing a rate is exactly what `BR-07` forbids.
       return failureFromDioException<void>(exception);
-    } on Object catch (error) {
-      return failureFromUnreadableAnswer<void>(error);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -282,10 +286,10 @@ class HttpStatementRepository implements StatementRepository {
       creditCardId: output.creditCardId ?? '',
       currencyCode: currency,
       status: StatementStatus.parse(output.status),
-      periodStart: output.periodStart ?? DateTime(1970),
-      periodEnd: output.periodEnd ?? DateTime(1970),
-      closingDate: output.closingDate ?? DateTime(1970),
-      dueDate: output.dueDate ?? DateTime(1970),
+      periodStart: dateFromWire(output.periodStart) ?? DateTime(1970),
+      periodEnd: dateFromWire(output.periodEnd) ?? DateTime(1970),
+      closingDate: dateFromWire(output.closingDate) ?? DateTime(1970),
+      dueDate: dateFromWire(output.dueDate) ?? DateTime(1970),
       previousBalance: money(output.previousBalance),
       purchaseTotal: money(output.purchaseTotal),
       paymentsReceived: money(output.paymentsReceived),
@@ -311,7 +315,7 @@ class HttpStatementRepository implements StatementRepository {
 
     return StatementCharge(
       id: output.id ?? '',
-      occurredOn: output.occurredOn ?? DateTime(1970),
+      occurredOn: dateFromWire(output.occurredOn) ?? DateTime(1970),
       amount: Money.parse(output.amount ?? '0', statementCurrency),
       isLateArriving: output.isLateArriving ?? false,
       direction: output.direction,
@@ -321,7 +325,7 @@ class HttpStatementRepository implements StatementRepository {
           ? Money.parse(originalAmount, originalCurrency)
           : null,
       appliedRate: output.appliedRate,
-      rateDate: output.rateDate,
+      rateDate: dateFromWire(output.rateDate),
     );
   }
 }
