@@ -19,6 +19,7 @@ import '../session/session.dart';
 import '../session/session_controller.dart';
 import '../storage/token_store.dart';
 import 'date_only_fields.dart';
+import 'explicit_nulls.dart';
 import 'ffi_transport.dart';
 
 /// Routes a caller reaches without a session (`UC-03`, `UC-04`, `UC-05`, `UC-09`,
@@ -85,11 +86,6 @@ class ApiClientFactory {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          // Calendar dates in the contract's own shape, on either transport
-          // (see date_only_fields.dart).
-          if (options.data is Map || options.data is List) {
-            options.data = normalizeDateOnlyFields(options.data);
-          }
           handler.next(options);
         },
         onResponse: (response, handler) {
@@ -117,7 +113,28 @@ class ApiClientFactory {
       ),
     );
 
+    dio.interceptors.add(const RequestBodyInterceptor());
+
     return dio;
+  }
+}
+
+/// Puts every request body into the contract's shape, on either transport:
+/// calendar dates as `yyyy-MM-dd` (see date_only_fields.dart) and the
+/// explicit nulls of an update (see explicit_nulls.dart).
+class RequestBodyInterceptor extends Interceptor {
+  const RequestBodyInterceptor();
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.data is Map || options.data is List) {
+      options.data = withExplicitNulls(
+        options.method,
+        options.path,
+        normalizeDateOnlyFields(options.data),
+      );
+    }
+    handler.next(options);
   }
 }
 
