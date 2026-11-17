@@ -223,7 +223,7 @@ void main() {
 
       expect(stub.request.method, 'POST');
       expect(stub.request.path, '/api/auth/2fa/confirm');
-      expect(stub.body, {'appCode': '123456', 'emailCode': null});
+      expect(stub.body, {'appCode': '123456'});
       expect(result.valueOrNull, ['aaaa-1111', 'bbbb-2222']);
     });
 
@@ -238,7 +238,7 @@ void main() {
       await HttpTwoFactorRepository.fromDio(stub.dio)
           .confirm(emailCode: '654321');
 
-      expect(stub.body, {'appCode': null, 'emailCode': '654321'});
+      expect(stub.body, {'emailCode': '654321'});
     });
 
     test('Given a confirmation the API marked enabled but sent no codes for '
@@ -327,11 +327,7 @@ void main() {
       expect(result, const Success<void>(null));
       expect(stub.request.method, 'POST');
       expect(stub.request.path, '/api/auth/2fa/disable');
-      expect(stub.body, {
-        'code': '123456',
-        'password': 'correct horse',
-        'recoveryCode': null,
-      });
+      expect(stub.body, {'code': '123456', 'password': 'correct horse'});
     });
 
     test('Given the password and a recovery code '
@@ -344,7 +340,6 @@ void main() {
 
       expect(result, const Success<void>(null));
       expect(stub.body, {
-        'code': null,
         'password': 'correct horse',
         'recoveryCode': 'aaaa-1111',
       });
@@ -421,7 +416,7 @@ void main() {
 
         expect(stub.request.method, 'POST');
         expect(stub.request.path, '/api/auth/2fa/recovery-codes/regenerate');
-        expect(stub.body, {'code': '123456', 'recoveryCode': null});
+        expect(stub.body, {'code': '123456'});
         expect(result.valueOrNull, ['cccc-3333', 'dddd-4444']);
       },
     );
@@ -436,7 +431,7 @@ void main() {
       await HttpTwoFactorRepository.fromDio(stub.dio)
           .regenerateRecoveryCodes(recoveryCode: 'aaaa-1111');
 
-      expect(stub.body, {'code': null, 'recoveryCode': 'aaaa-1111'});
+      expect(stub.body, {'recoveryCode': 'aaaa-1111'});
     });
 
     test('Given an answer with no data or no codes '

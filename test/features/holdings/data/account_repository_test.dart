@@ -329,7 +329,6 @@ void main() {
         expect(stub.body, {
           'accountType': 3,
           'currencyCode': 'BRL',
-          'institution': null,
           'name': 'Wallet',
           'openingBalance': '100.10',
         });
@@ -412,6 +411,18 @@ void main() {
         'openingBalance': null,
         'ownerId': null,
       });
+    });
+
+    test('Given an account whose institution was removed '
+        'When it is saved '
+        'Then the institution travels as null, which clears it offline as '
+        'online', () async {
+      final stub = ApiStub.data({'id': 'a1'});
+
+      await HttpAccountRepository.fromDio(stub.dio)
+          .update(id: 'a1', name: 'Checking', type: AccountType.checking);
+
+      expect(stub.body, containsPair('institution', null));
     });
 
     test('Given the API refuses the edit '

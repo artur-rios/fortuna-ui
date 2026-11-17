@@ -72,7 +72,6 @@ void main() {
         expect(stub.request.path, '/api/exports');
         expect(stub.request.responseType, ResponseType.bytes);
         expect(jsonDecode(jsonEncode(stub.body)), {
-          'columns': null,
           'displayCurrencyCode': 'BRL',
           'filters': [
             {'field': 'categoryId', 'operator': 'eq', 'value': 'c1'},
@@ -80,7 +79,6 @@ void main() {
           'format': 'excel',
           'locale': 'pt-BR',
           'recordSet': 'transactions',
-          'sorts': null,
         });
       },
     );
@@ -312,7 +310,8 @@ void main() {
         'format': 2,
         'fileName': 'transactions.xls',
         'rowCount': 340,
-        'expiresAt': '2026-11-20T12:00:00.000',
+        // An instant, with its offset, as the API writes every timestamp.
+        'expiresAt': '2026-11-20T12:00:00Z',
       });
 
       final result = await repositoryOn(stub).read('e1');
@@ -327,7 +326,7 @@ void main() {
       expect(export.fileName, 'transactions.xls');
       expect(export.rowCount, 340);
       expect(export.failureReason, isNull);
-      expect(export.expiresAt, DateTime(2026, 11, 20, 12));
+      expect(export.expiresAt, DateTime.utc(2026, 11, 20, 12));
     });
 
     test('Given an export the instance could not produce '

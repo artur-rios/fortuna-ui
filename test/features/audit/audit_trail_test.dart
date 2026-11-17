@@ -277,8 +277,9 @@ void main() {
         'When it is mapped '
         'Then success and refusal are distinguished, and anything else is '
         'unknown rather than assumed to have worked', () {
-      expect(AuditResult.from(AuditOutcome.value1), AuditResult.succeeded);
-      expect(AuditResult.from(AuditOutcome.value2), AuditResult.refused);
+      expect(AuditResult.from(AuditOutcome.succeeded), AuditResult.succeeded);
+      expect(AuditResult.from(AuditOutcome.refused), AuditResult.refused);
+      expect(AuditResult.from(AuditOutcome.fromJson(3)), AuditResult.unknown);
       expect(AuditResult.from(null), AuditResult.unknown);
     });
   });

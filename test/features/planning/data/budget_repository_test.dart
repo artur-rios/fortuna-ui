@@ -313,7 +313,7 @@ void main() {
           'categoryIds': ['k1'],
           'currencyCode': 'BRL',
           'includeDescendants': false,
-          'periodStart': '2026-03-01T00:00:00.000',
+          'periodStart': '2026-03-01',
           'periodType': 1,
         });
       },
@@ -401,7 +401,7 @@ void main() {
         'categoryIds': ['k1', 'k3'],
         'currencyCode': 'BRL',
         'includeDescendants': true,
-        'periodStart': '2026-01-01T00:00:00.000',
+        'periodStart': '2026-01-01',
         'periodType': 3,
       });
     });

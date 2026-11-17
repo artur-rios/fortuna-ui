@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fortuna_ui/core/bindings/core_dispatcher.dart';
 import 'package:fortuna_ui/core/bindings/core_route.dart';
 import 'package:fortuna_ui/core/network/ffi_transport.dart';
+import 'package:fortuna_ui/core/result/result.dart';
+import 'package:fortuna_ui/features/labels/data/label_repository.dart';
 
 /// Records what the boundary was asked, and answers from memory.
 class FakeDispatcher implements CoreDispatcher {
@@ -336,22 +338,53 @@ void main() {
       expect(fromFfi.statusCode, fromHttp.statusCode);
     });
 
-    test('Given a response carrying a field the client does not know '
-        'When it is parsed '
-        'Then the unknown field is ignored rather than crashing the parse '
-        '(UC-02 AF-07)', () async {
+    test('Given a response carrying a field the contract does not declare '
+        'When a repository reads it '
+        'Then it fails the way a malformed answer fails, rather than crashing '
+        'or being read in part (UC-02 AF-07)', () async {
       final dispatcher = FakeDispatcher(
         answer: const CoreResponse(
           status: 200,
-          body: '{"data":[],"success":true,"aFieldFromALaterContract":42}',
+          body:
+              '{"data":{"tags":[],"pageNumber":1,"pageSize":100,'
+              '"totalPages":1},"messages":[],"errors":[],"success":true,'
+              '"aFieldFromALaterContract":42}',
         ),
       );
 
-      final response = await offlineDio(dispatcher)
-          .get<Map<String, dynamic>>('/api/tags');
+      final result = await HttpTagRepository.fromDio(offlineDio(dispatcher))
+          .list();
 
-      expect(response.statusCode, 200);
-      expect(response.data!['success'], true);
+      expect(
+        result,
+        const Failure<List<Label>>(
+          message: 'The request could not be completed.',
+          kind: FailureKind.unreachable,
+        ),
+      );
+    });
+
+    test('Given the same answer without the undeclared field '
+        'When a repository reads it '
+        'Then it is read', () async {
+      final dispatcher = FakeDispatcher(
+        answer: const CoreResponse(
+          status: 200,
+          body:
+              '{"data":{"tags":[{"id":"t1","name":"Trips","isDeleted":false}],'
+              '"pageNumber":1,"pageSize":100,"totalPages":1},'
+              '"messages":[],"errors":[],"success":true}',
+        ),
+      );
+
+      final result = await HttpTagRepository.fromDio(offlineDio(dispatcher))
+          .list();
+
+      final labels = (result as Success<List<Label>>).value;
+      expect(
+        [for (final label in labels) (label.id, label.name)],
+        [('t1', 'Trips')],
+      );
     });
 
     test('Given a request with a route value that needs encoding '

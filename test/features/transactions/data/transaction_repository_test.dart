@@ -106,13 +106,11 @@ void main() {
           'amount': '42.10',
           'categoryId': 'c1',
           'counterparty': 'Market',
-          'creditCardId': null,
           'currencyCode': 'BRL',
           'description': 'Weekly shop',
           'direction': 1,
           'financialAccountId': 'a1',
-          'occurredOn': '2026-03-05T00:00:00.000',
-          'ownerId': null,
+          'occurredOn': '2026-03-05',
           'tags': ['food', 'weekly'],
         });
       },
@@ -553,7 +551,7 @@ void main() {
         'description': 'Refund',
         'direction': 2,
         'financialAccountId': null,
-        'occurredOn': '2026-03-06T00:00:00.000',
+        'occurredOn': '2026-03-06',
         'ownerId': null,
         'tags': ['refund'],
       });
@@ -566,15 +564,41 @@ void main() {
 
     test('Given an edit that leaves no tags '
         'When it is saved '
-        'Then empty tags are left out', () async {
+        'Then the tags travel as null, which clears them', () async {
       final stub = commandThenRead(method: 'PUT');
 
       await updateGroceries(stub);
 
-      expect(
-        (stub.requests.first.data! as Map<String, Object?>)['tags'],
-        isNull,
+      expect(stub.requests.first.data, containsPair('tags', null));
+    });
+
+    test('Given a transaction moved to an account and cleared of its '
+        'description and counterparty '
+        'When it is saved '
+        'Then each cleared field travels as null, not left out: the offline '
+        'core keeps a field an update leaves out', () async {
+      final stub = commandThenRead(method: 'PUT');
+
+      await repositoryOn(stub).update(
+        id: 't1',
+        occurredOn: DateTime(2026, 3, 6),
+        amount: '45.00',
+        direction: Direction.expense,
+        categoryId: 'c2',
+        currencyCode: 'BRL',
+        financialAccountId: 'a1',
       );
+
+      final body = stub.requests.first.data! as Map<String, Object?>;
+      expect(body, containsPair('financialAccountId', 'a1'));
+      for (final cleared in [
+        'creditCardId',
+        'description',
+        'counterparty',
+        'tags',
+      ]) {
+        expect(body, containsPair(cleared, null), reason: cleared);
+      }
     });
 
     test('Given a transaction on a settled statement '
@@ -730,8 +754,8 @@ void main() {
       expect(stub.request.method, 'GET');
       expect(stub.request.path, '/api/transactions');
       final query = stub.request.queryParameters;
-      expect(query['From'], '2026-01-01T00:00:00.000');
-      expect(query['To'], '2026-03-31T00:00:00.000');
+      expect(query['From'], '2026-01-01');
+      expect(query['To'], '2026-03-31');
       expect(query['FinancialAccountId'], 'a1');
       expect(query['CreditCardId'], 'cc1');
       expect(query['CategoryId'], 'c1');
@@ -934,11 +958,7 @@ void main() {
 
       final result = await repositoryOn(stub).reconcile(id: 't1');
 
-      expect(stub.requests.first.data, {
-        'importJobId': null,
-        'importedRecordId': null,
-        'unreconcile': false,
-      });
+      expect(stub.requests.first.data, {'unreconcile': false});
       expect(
         result.valueOrNull!.reconciliationKind,
         ReconciliationKind.selfConfirmed,

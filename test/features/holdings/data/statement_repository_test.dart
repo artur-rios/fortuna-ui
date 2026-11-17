@@ -390,7 +390,7 @@ void main() {
           'amount': '848.62',
           'financialAccountId': 'a1',
           'id': 's1',
-          'paymentDate': '2026-03-09T00:00:00.000',
+          'paymentDate': '2026-03-09',
         });
       },
     );
