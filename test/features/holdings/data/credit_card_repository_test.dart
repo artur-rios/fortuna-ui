@@ -182,7 +182,7 @@ void main() {
     test(
       'Given a new card with only what is required '
       'When it is created '
-      'Then the limit is sent as typed and the optional fields as null',
+      'Then the limit is sent as typed and the optional fields left out',
       () async {
         final stub = ApiStub.data({'id': 'c1'}, status: 201);
 
@@ -202,8 +202,6 @@ void main() {
           'creditLimit': '5000.00',
           'currencyCode': 'BRL',
           'dueDay': 5,
-          'issuer': null,
-          'lastFourDigits': null,
           'name': 'Gold',
         });
       },

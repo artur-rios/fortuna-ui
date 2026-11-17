@@ -13,20 +13,21 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// What kind of holding an account is.
 ///
-/// Mapped from the contract's numbers rather than the generated names: the
-/// contract carries `x-enum-varnames: [Checking, Savings, Cash, Other]`, but
-/// swagger_parser does not read that extension, so the generated enum is
-/// positional. The numbers are what the contract actually specifies.
+/// Read from the generated `FinancialAccountTypeKnown` members, which
+/// swagger_parser names after the contract's values. A value this build does
+/// not know arrives as `FinancialAccountTypeUnknown` and reads as [other].
+/// Requests carry the contract's number, [wire].
 enum AccountType {
   checking(1, 'Checking'),
   savings(2, 'Savings'),
@@ -38,10 +39,13 @@ enum AccountType {
   final int wire;
   final String label;
 
-  static AccountType from(FinancialAccountType? type) => switch (type?.json) {
-    1 => AccountType.checking,
-    2 => AccountType.savings,
-    3 => AccountType.cash,
+  static AccountType from(FinancialAccountType? type) => switch (type) {
+    FinancialAccountTypeKnown(value: FinancialAccountTypeValue.checking) =>
+      AccountType.checking,
+    FinancialAccountTypeKnown(value: FinancialAccountTypeValue.savings) =>
+      AccountType.savings,
+    FinancialAccountTypeKnown(value: FinancialAccountTypeValue.cash) =>
+      AccountType.cash,
     _ => AccountType.other,
   };
 
@@ -136,13 +140,18 @@ class HttpAccountRepository implements AccountRepository {
       return Success([for (final account in accounts) _from(account)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<FinancialAccount>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<FinancialAccount>>(
+        error,
+        stackTrace,
+      );
     }
   }
 
   @override
   Future<Result<FinancialAccount>> read(String id) async {
     try {
-      final output = (await _client.getApiAccountsId(id: id)).data;
+      final output = (await _client.getApiAccountsById(id: id)).data;
 
       // AF-04: an account that does not exist and one belonging to somebody
       // else are the same answer, and this client keeps them that way.
@@ -156,13 +165,15 @@ class HttpAccountRepository implements AccountRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<FinancialAccount>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<FinancialAccount>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<AccountBalance>> balance(String id) async {
     try {
-      final output = (await _client.getApiAccountsIdBalance(id: id)).data;
+      final output = (await _client.getApiAccountsByIdBalance(id: id)).data;
 
       if (output == null || output.balance == null) {
         // AF-07. No balance is reported rather than one being invented; the
@@ -177,11 +188,13 @@ class HttpAccountRepository implements AccountRepository {
         AccountBalance(
           // The decimal string the API sent, parsed exactly.
           balance: Money.parse(output.balance!, output.currencyCode ?? ''),
-          asOf: output.asOf,
+          asOf: dateFromWire(output.asOf),
         ),
       );
     } on DioException catch (exception) {
       return failureFromDioException<AccountBalance>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<AccountBalance>(error, stackTrace);
     }
   }
 
@@ -209,6 +222,8 @@ class HttpAccountRepository implements AccountRepository {
     } on DioException catch (exception) {
       // AF-02: a duplicate name is the API's rule, in the API's words.
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -220,7 +235,7 @@ class HttpAccountRepository implements AccountRepository {
     String? institution,
   }) async {
     try {
-      await _client.putApiAccountsId(
+      await _client.putApiAccountsById(
         id: id,
         body: UpdateFinancialAccountCommand(
           name: name,
@@ -231,18 +246,22 @@ class HttpAccountRepository implements AccountRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiAccountsId(id: id);
+      await _client.deleteApiAccountsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       // AF-05: records still referencing the account are the API's reason to
       // give, and it knows about references this client cannot see.
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 

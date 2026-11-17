@@ -5,15 +5,22 @@
 /// date: OpenAPI `format: date`, a .NET `DateOnly`, which accepts exactly
 /// `yyyy-MM-dd` and refuses anything with a time in it.
 ///
-/// The generated client cannot express that. `swagger_parser` maps `date` and
-/// `date-time` alike to `DateTime`, and the generated `toJson` writes every
-/// `DateTime` with `toIso8601String()` — `2026-10-09T00:00:00.000` — which the
-/// API rejects as unbindable, so every command carrying a date failed before
-/// it was even validated. The offline core stored the same string as given,
-/// so the two transports did not even fail alike.
+/// The generated client types such a property as the `String` the contract
+/// carries, so the date the user picked is written in that shape by
+/// [wireDate] where a request is built, and read back by [dateFromWire] —
+/// the same local-midnight `DateTime` the rest of the application has always
+/// worked with. A calendar date is never converted between zones: the day
+/// kept is the day the `DateTime` itself holds.
 ///
-/// Since the generated code is never hand-edited (BR-36), the date is put back
-/// into the contract's shape here, on the way out, for both transports at once.
+/// The same [wireDate] writes a `format: date` query parameter (a list's
+/// From and To, a figure date), which the generated client also types as a
+/// `String`.
+///
+/// [normalizeDateOnlyFields] is the older guard, still applied to every body
+/// on its way out (`RequestBodyInterceptor`), so a `DateTime` written into a
+/// body with `toIso8601String()` — `2026-10-09T00:00:00.000`, which the API
+/// rejects as unbindable — is still put back into the contract's shape, for
+/// both transports at once.
 library;
 
 /// Every request-body property the contract declares as `format: date`.
@@ -39,6 +46,28 @@ const dateOnlyRequestFields = <String>{
 };
 
 final _isoDateTime = RegExp(r'^(\d{4}-\d{2}-\d{2})T');
+
+/// [date] as the contract writes a calendar date: `yyyy-MM-dd`.
+///
+/// The day kept is the one [date] itself holds — the day the user picked —
+/// not that day converted to another zone.
+String wireDate(DateTime date) =>
+    '${date.year.toString().padLeft(4, '0')}-'
+    '${date.month.toString().padLeft(2, '0')}-'
+    '${date.day.toString().padLeft(2, '0')}';
+
+/// [wireDate] for an optional date.
+String? wireDateOrNull(DateTime? date) => date == null ? null : wireDate(date);
+
+/// The calendar date the contract carries in [value], as midnight of that
+/// day in the local zone, or `null` where there is none.
+///
+/// What the 1.x client produced for a `format: date` property, and what the
+/// application's day arithmetic, grouping and formatting are written
+/// against. A value that is not a date fails here as it failed there, with a
+/// `FormatException` the repositories report as an unreadable answer.
+DateTime? dateFromWire(String? value) =>
+    value == null ? null : DateTime.parse(value);
 
 /// [body] with every [dateOnlyRequestFields] value reduced to `yyyy-MM-dd`.
 ///

@@ -11,6 +11,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:fortuna_ui/core/network/api_client.dart'
+    show RequestBodyInterceptor;
 
 /// What the stub answers a request with.
 typedef StubAnswer = ResponseBody Function(RequestOptions request);
@@ -38,9 +40,11 @@ class ApiStub implements HttpClientAdapter {
   /// Every request the stub was sent, oldest first.
   final List<RequestOptions> requests = [];
 
-  /// A `dio` whose requests go to this stub.
+  /// A `dio` whose requests go to this stub, their bodies shaped as the
+  /// application's own `dio` shapes them ([RequestBodyInterceptor]).
   late final Dio dio = Dio(BaseOptions(baseUrl: stubBaseUrl))
-    ..httpClientAdapter = this;
+    ..httpClientAdapter = this
+    ..interceptors.add(const RequestBodyInterceptor());
 
   /// The one request the stub was sent; fails when there was not exactly one.
   RequestOptions get request {
@@ -50,7 +54,7 @@ class ApiStub implements HttpClientAdapter {
     return requests.single;
   }
 
-  /// The body of the one request, as the generated client handed it to `dio`.
+  /// The body of the one request, as it left `dio` for the transport.
   Object? get body => request.data;
 
   @override

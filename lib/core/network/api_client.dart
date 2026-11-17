@@ -11,6 +11,8 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:json_annotation/json_annotation.dart'
+    show BadKeyException, CheckedFromJsonException;
 
 import '../bindings/core_dispatcher.dart';
 import '../config/instance_config.dart';
@@ -19,6 +21,7 @@ import '../session/session.dart';
 import '../session/session_controller.dart';
 import '../storage/token_store.dart';
 import 'date_only_fields.dart';
+import 'explicit_nulls.dart';
 import 'ffi_transport.dart';
 
 /// Routes a caller reaches without a session (`UC-03`, `UC-04`, `UC-05`, `UC-09`,
@@ -85,11 +88,6 @@ class ApiClientFactory {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          // Calendar dates in the contract's own shape, on either transport
-          // (see date_only_fields.dart).
-          if (options.data is Map || options.data is List) {
-            options.data = normalizeDateOnlyFields(options.data);
-          }
           handler.next(options);
         },
         onResponse: (response, handler) {
@@ -117,7 +115,28 @@ class ApiClientFactory {
       ),
     );
 
+    dio.interceptors.add(const RequestBodyInterceptor());
+
     return dio;
+  }
+}
+
+/// Puts every request body into the contract's shape, on either transport:
+/// calendar dates as `yyyy-MM-dd` (see date_only_fields.dart) and the
+/// explicit nulls of an update (see explicit_nulls.dart).
+class RequestBodyInterceptor extends Interceptor {
+  const RequestBodyInterceptor();
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.data is Map || options.data is List) {
+      options.data = withExplicitNulls(
+        options.method,
+        options.path,
+        normalizeDateOnlyFields(options.data),
+      );
+    }
+    handler.next(options);
   }
 }
 
@@ -158,6 +177,38 @@ Failure<T> failureFromDioException<T>(DioException exception) {
 
   return Failure<T>(message: message, kind: kind);
 }
+
+/// Translates an answer the generated client could not read into a
+/// [Failure] (`UC-02 AF-07`), and rethrows anything else.
+///
+/// The generated client decodes strictly: a key the contract does not declare
+/// (every DTO is `additionalProperties: false`), a null where a value is
+/// required, or a value of the wrong type fails the parse — with a
+/// [BadKeyException], a [CheckedFromJsonException], a [TypeError], an
+/// [ArgumentError] or a [FormatException], never a [DioException]. Such an
+/// answer fails the way a body that is not JSON at all already does: dio
+/// reports that as an `unknown` [DioException] with no response, so this is
+/// that failure.
+///
+/// Any other [error] is not an unreadable answer, and is rethrown with its
+/// [stackTrace] rather than reported as one.
+Failure<T> failureFromUnreadableAnswer<T>(Object error, StackTrace stackTrace) {
+  if (!isUnreadableAnswer(error)) {
+    Error.throwWithStackTrace(error, stackTrace);
+  }
+  return failureFromDioException<T>(
+    DioException(requestOptions: RequestOptions(), error: error),
+  );
+}
+
+/// Whether [error] is what the generated decoders throw for an answer that
+/// does not match the contract (see [failureFromUnreadableAnswer]).
+bool isUnreadableAnswer(Object error) =>
+    error is BadKeyException ||
+    error is CheckedFromJsonException ||
+    error is TypeError ||
+    error is ArgumentError ||
+    error is FormatException;
 
 /// Reads the reason out of the API's `DataOutput` envelope.
 ///

@@ -7,7 +7,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/result/result.dart';
@@ -70,6 +70,8 @@ class HttpSessionRepository implements SessionRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<VerifiedProfile>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<VerifiedProfile>(error, stackTrace);
     }
   }
 }

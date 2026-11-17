@@ -54,12 +54,10 @@ void main() {
       expect(stub.request.path, '/api/installment-plans');
       expect(stub.body, {
         'categoryId': 'electronics',
-        'counterparty': null,
         'creditCardId': 'card1',
         'currencyCode': 'BRL',
         'installmentCount': 3,
-        'ownerId': null,
-        'purchasedOn': '2026-11-10T00:00:00.000',
+        'purchasedOn': '2026-11-10',
         'totalAmount': '100.00',
       });
       final plan = result.valueOrNull!;

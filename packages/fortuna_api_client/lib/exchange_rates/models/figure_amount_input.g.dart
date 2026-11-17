@@ -1,0 +1,25 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'figure_amount_input.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+FigureAmountInput _$FigureAmountInputFromJson(Map<String, dynamic> json) {
+  $checkKeys(
+    json,
+    allowedKeys: const ['amount', 'currencyCode'],
+    disallowNullValues: const ['amount'],
+  );
+  return FigureAmountInput(
+    amount: json['amount'] as String?,
+    currencyCode: json['currencyCode'] as String?,
+  );
+}
+
+Map<String, dynamic> _$FigureAmountInputToJson(FigureAmountInput instance) =>
+    <String, dynamic>{
+      'amount': ?instance.amount,
+      'currencyCode': ?instance.currencyCode,
+    };

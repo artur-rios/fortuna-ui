@@ -1,0 +1,356 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'counterparties_client.dart';
+
+// dart format off
+
+// **************************************************************************
+// RetrofitGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter,avoid_unused_constructor_parameters,unreachable_from_main,avoid_redundant_argument_values
+
+class _CounterpartiesClient extends CounterpartiesClient {
+  _CounterpartiesClient._(
+    this._dio,
+    Dio _transport, {
+    this.baseUrl,
+    this.errorLogger,
+  }) : super._(_transport);
+
+  final Dio _dio;
+
+  String? baseUrl;
+
+  final ParseErrorLogger? errorLogger;
+
+  @override
+  Future<CounterpartyListOutputDataOutput$Response> getApiCounterparties({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    bool? includeDeleted = false,
+    int? pageNumber = 1,
+    int? pageSize = 100,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{
+      r'includeDeleted': includeDeleted,
+      r'pageNumber': pageNumber,
+      r'pageSize': pageSize,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Accept': 'application/json'};
+    _headers.removeWhere((k, v) => v == null);
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<CounterpartyListOutputDataOutput$Response>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/api/counterparties',
+            queryParameters: queryParameters,
+            data: _data,
+            cancelToken: cancelToken,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late CounterpartyListOutputDataOutput$Response _value;
+    try {
+      _value = CounterpartyListOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CounterpartyCommandOutputDataOutput$Response> postApiCounterparties({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required CreateCounterpartyCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<CounterpartyCommandOutputDataOutput$Response>(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/counterparties',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late CounterpartyCommandOutputDataOutput$Response _value;
+    try {
+      _value = CounterpartyCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CounterpartyCommandOutputDataOutput$Response>
+  putApiCounterpartiesById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required UpdateCounterpartyCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<CounterpartyCommandOutputDataOutput$Response>(
+          Options(
+                method: 'PUT',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/counterparties/${id}',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late CounterpartyCommandOutputDataOutput$Response _value;
+    try {
+      _value = CounterpartyCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CounterpartyCommandOutputDataOutput$Response>
+  deleteApiCounterpartiesById({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Accept': 'application/json'};
+    _headers.removeWhere((k, v) => v == null);
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<CounterpartyCommandOutputDataOutput$Response>(
+          Options(method: 'DELETE', headers: _headers, extra: _extra)
+              .compose(
+                _dio.options,
+                '/api/counterparties/${id}',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late CounterpartyCommandOutputDataOutput$Response _value;
+    try {
+      _value = CounterpartyCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CounterpartyMergeCommandOutputDataOutput$Response>
+  postApiCounterpartiesByIdMerge({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+    required MergeCounterpartiesCommand body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': 'application/json',
+      r'Content-Type': 'application/json',
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options =
+        _setStreamType<CounterpartyMergeCommandOutputDataOutput$Response>(
+          Options(
+                method: 'POST',
+                headers: _headers,
+                extra: _extra,
+                contentType: 'application/json',
+              )
+              .compose(
+                _dio.options,
+                '/api/counterparties/${id}/merge',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late CounterpartyMergeCommandOutputDataOutput$Response _value;
+    try {
+      _value = CounterpartyMergeCommandOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CounterpartyCategorySuggestionOutputDataOutput$Response>
+  getApiCounterpartiesByIdSuggestedCategory({
+    Map<String, Object?> extra = const {
+      "openapi.security": [{}],
+      "openapi.securitySchemes": {},
+    },
+    CancelToken? cancelToken,
+    Options? options,
+    required String id,
+  }) async {
+    final _extra = <String, dynamic>{};
+    _extra.addAll(extra);
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Accept': 'application/json'};
+    _headers.removeWhere((k, v) => v == null);
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<CounterpartyCategorySuggestionOutputDataOutput$Response>(
+          Options(method: 'GET', headers: _headers, extra: _extra)
+              .compose(
+                _dio.options,
+                '/api/counterparties/${id}/suggested-category',
+                queryParameters: queryParameters,
+                data: _data,
+                cancelToken: cancelToken,
+              )
+              .copyWith(
+                baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+              ),
+        );
+    final _result = await _dio.fetch<Map<String, Object?>>(_options);
+    late CounterpartyCategorySuggestionOutputDataOutput$Response _value;
+    try {
+      _value = CounterpartyCategorySuggestionOutputDataOutput$Response.fromJson(
+        _result.data!,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
+    if (T != dynamic &&
+        !(requestOptions.responseType == ResponseType.bytes ||
+            requestOptions.responseType == ResponseType.stream)) {
+      if (T == String) {
+        requestOptions.responseType = ResponseType.plain;
+      } else {
+        requestOptions.responseType = ResponseType.json;
+      }
+    }
+    return requestOptions;
+  }
+
+  String _combineBaseUrls(String dioBaseUrl, String? baseUrl) {
+    if (baseUrl == null || baseUrl.trim().isEmpty) {
+      return dioBaseUrl;
+    }
+
+    final url = Uri.parse(baseUrl);
+
+    if (url.isAbsolute) {
+      return url.toString();
+    }
+
+    return Uri.parse(dioBaseUrl).resolveUri(url).toString();
+  }
+}
+
+// dart format on

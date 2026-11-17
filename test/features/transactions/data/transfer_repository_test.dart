@@ -39,10 +39,8 @@ void main() {
       expect(stub.body, {
         'amount': '150.00',
         'destinationFinancialAccountId': 'a2',
-        'destinationStatementId': null,
-        'occurredOn': '2026-11-10T00:00:00.000',
+        'occurredOn': '2026-11-10',
         'originFinancialAccountId': 'a1',
-        'ownerId': null,
       });
       final transfer = result.valueOrNull!;
       expect(transfer.id, 'tr1');

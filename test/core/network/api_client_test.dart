@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:fortuna_ui/core/bindings/core_dispatcher.dart';
 import 'package:fortuna_ui/core/bindings/core_library.dart';
 import 'package:fortuna_ui/core/config/app_config.dart';
@@ -18,6 +18,8 @@ import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/core/session/session.dart';
 import 'package:fortuna_ui/core/session/session_controller.dart';
 import 'package:fortuna_ui/core/storage/token_store.dart';
+import 'package:json_annotation/json_annotation.dart'
+    show CheckedFromJsonException, UnrecognizedKeysException;
 
 import '../../support/api_stub.dart' show ApiStub;
 
@@ -92,9 +94,9 @@ Dio ffiDio(CapturingDispatcher dispatcher) => ApiClientFactory(
 
 RecordTransactionCommand command(DateTime occurredOn) =>
     RecordTransactionCommand(
-      occurredOn: occurredOn,
+      occurredOn: wireDate(occurredOn),
       amount: '12.5',
-      direction: TransactionDirection.value2,
+      direction: TransactionDirection.earning,
       categoryId: 'c0ffee00-0000-0000-0000-000000000000',
       financialAccountId: 'acc00000-0000-0000-0000-000000000000',
     );
@@ -428,15 +430,107 @@ void main() {
     });
   });
 
+  group('failureFromUnreadableAnswer', () {
+    test(
+      'Given what the generated decoders throw for an answer that does not '
+      'match the contract '
+      'When it is translated '
+      'Then it is the failure a malformed answer already is (UC-02 AF-07)',
+      () {
+        for (final error in <Object>[
+          UnrecognizedKeysException(['surprise'], {'surprise': 1}, ['id']),
+          CheckedFromJsonException({}, 'id', 'Tag', 'not a string'),
+          TypeError(),
+          ArgumentError.value('x', 'AuditOutcome'),
+          const FormatException('not a date'),
+        ]) {
+          expect(
+            failureFromUnreadableAnswer<void>(error, StackTrace.current),
+            const Failure<void>(
+              message: 'The request could not be completed.',
+              kind: FailureKind.unreachable,
+            ),
+            reason: '${error.runtimeType}',
+          );
+        }
+      },
+    );
+
+    test('Given an error that is not an unreadable answer '
+        'When it is translated '
+        'Then it is rethrown rather than reported as one', () {
+      expect(
+        () => failureFromUnreadableAnswer<void>(
+          StateError('a bug'),
+          StackTrace.current,
+        ),
+        throwsStateError,
+      );
+    });
+  });
+
+  group('Explicit nulls on the wire', () {
+    const updated =
+        '{"data":null,"messages":["Updated."],"errors":[],'
+        '"timestamp":"2026-10-08T12:00:00Z","success":true}';
+
+    test('Given an update that leaves nullable fields empty '
+        'When it is sent offline '
+        'Then the core receives each of them as null, which is what clears a '
+        'stored field there', () async {
+      final dispatcher = CapturingDispatcher(
+        const CoreResponse(status: 200, body: updated),
+      );
+
+      await CategoriesClient(ffiDio(dispatcher)).putApiCategoriesById(
+        id: 'c0ffee00-0000-0000-0000-000000000000',
+        body: const UpdateCategoryCommand(name: 'Produce'),
+      );
+
+      expect(dispatcher.sent!['body'], {'name': 'Produce', 'parentId': null});
+    });
+
+    test('Given the same update '
+        'When it is sent over either transport '
+        'Then both receive the same body (FR-DA-03)', () async {
+      final adapter = CapturingHttpAdapter(updated);
+      final dispatcher = CapturingDispatcher(
+        const CoreResponse(status: 200, body: updated),
+      );
+      const body = UpdateCategoryCommand(name: 'Produce');
+
+      await CategoriesClient(httpDio(adapter))
+          .putApiCategoriesById(id: 'c1', body: body);
+      await CategoriesClient(ffiDio(dispatcher))
+          .putApiCategoriesById(id: 'c1', body: body);
+
+      expect(dispatcher.sent!['body'], adapter.sent);
+    });
+
+    test('Given a create that leaves nullable fields empty '
+        'When it is sent '
+        'Then they are left out: a create stores no field it is not given, '
+        'and the API reads a missing field as null', () async {
+      final adapter = CapturingHttpAdapter(updated, status: 201);
+
+      await CategoriesClient(httpDio(adapter))
+          .postApiCategories(body: const CreateCategoryCommand(name: 'Food'));
+
+      expect(adapter.sent, {'name': 'Food'});
+    });
+  });
+
   group('An answer with no body', () {
     test(
-      'Given the API answers 204 to a call that expects its envelope '
+      'Given a 200 with an empty body to a call that expects the envelope '
       'When the call is made '
       'Then it reads as an envelope with no data rather than throwing',
       () async {
-        final dio = httpDio(CapturingHttpAdapter('', status: 204));
+        // No route of the API answers without its envelope (every success it
+        // declares has one, and none is a 204); a proxy in front of it can.
+        final dio = httpDio(CapturingHttpAdapter(''));
 
-        final output = await GoalsClient(dio).putApiGoalsId(
+        final output = await GoalsClient(dio).putApiGoalsById(
           id: 'g1',
           body: const UpdateGoalCommand(name: 'New laptop'),
         );

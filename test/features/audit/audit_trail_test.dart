@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fortuna_api_client/export.dart' show AuditOutcome;
+import 'package:fortuna_api_client/api.dart' show AuditOutcome;
 import 'package:fortuna_ui/core/config/instance_config.dart';
 import 'package:fortuna_ui/core/network/paging.dart';
 import 'package:fortuna_ui/core/result/result.dart';
@@ -277,8 +277,9 @@ void main() {
         'When it is mapped '
         'Then success and refusal are distinguished, and anything else is '
         'unknown rather than assumed to have worked', () {
-      expect(AuditResult.from(AuditOutcome.value1), AuditResult.succeeded);
-      expect(AuditResult.from(AuditOutcome.value2), AuditResult.refused);
+      expect(AuditResult.from(AuditOutcome.succeeded), AuditResult.succeeded);
+      expect(AuditResult.from(AuditOutcome.refused), AuditResult.refused);
+      expect(AuditResult.from(AuditOutcome.fromJson(3)), AuditResult.unknown);
       expect(AuditResult.from(null), AuditResult.unknown);
     });
   });

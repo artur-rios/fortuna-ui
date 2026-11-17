@@ -1,0 +1,40 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'goal_progress_command_output.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+GoalProgressCommandOutput _$GoalProgressCommandOutputFromJson(
+  Map<String, dynamic> json,
+) {
+  $checkKeys(
+    json,
+    allowedKeys: const [
+      'currentAmount',
+      'isFullyConverted',
+      'isReached',
+      'proportionReached',
+      'remaining',
+    ],
+    disallowNullValues: const ['isFullyConverted'],
+  );
+  return GoalProgressCommandOutput(
+    currentAmount: json['currentAmount'] as String?,
+    isFullyConverted: json['isFullyConverted'] as bool?,
+    isReached: json['isReached'] as bool?,
+    proportionReached: json['proportionReached'] as String?,
+    remaining: json['remaining'] as String?,
+  );
+}
+
+Map<String, dynamic> _$GoalProgressCommandOutputToJson(
+  GoalProgressCommandOutput instance,
+) => <String, dynamic>{
+  'currentAmount': ?instance.currentAmount,
+  'isFullyConverted': ?instance.isFullyConverted,
+  'isReached': ?instance.isReached,
+  'proportionReached': ?instance.proportionReached,
+  'remaining': ?instance.remaining,
+};

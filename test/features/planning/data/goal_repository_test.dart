@@ -231,7 +231,7 @@ void main() {
         'investmentIds': <String>[],
         'name': 'New laptop',
         'targetAmount': '5000.00',
-        'targetDate': '2027-03-01T00:00:00.000',
+        'targetDate': '2027-03-01',
       });
     });
 
@@ -302,7 +302,7 @@ void main() {
         'investmentIds': <String>[],
         'name': 'Faster laptop',
         'targetAmount': '6000',
-        'targetDate': '2027-06-01T00:00:00.000',
+        'targetDate': '2027-06-01',
       });
     });
 

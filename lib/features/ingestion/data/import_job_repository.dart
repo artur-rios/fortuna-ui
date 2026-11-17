@@ -7,7 +7,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -31,10 +31,13 @@ enum JobState {
   unknown;
 
   static JobState from(ImportJobStatus? status) => switch (status) {
-    ImportJobStatus.value1 => JobState.pending,
-    ImportJobStatus.value2 => JobState.running,
-    ImportJobStatus.value3 => JobState.completed,
-    ImportJobStatus.value4 => JobState.failed,
+    ImportJobStatusKnown(value: ImportJobStatusValue.pending) =>
+      JobState.pending,
+    ImportJobStatusKnown(value: ImportJobStatusValue.running) =>
+      JobState.running,
+    ImportJobStatusKnown(value: ImportJobStatusValue.completed) =>
+      JobState.completed,
+    ImportJobStatusKnown(value: ImportJobStatusValue.failed) => JobState.failed,
     _ => JobState.unknown,
   };
 
@@ -136,6 +139,11 @@ class HttpImportJobRepository implements ImportJobRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PagedList<ImportJob>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<PagedList<ImportJob>>(
+        error,
+        stackTrace,
+      );
     }
   }
 
@@ -146,8 +154,8 @@ class HttpImportJobRepository implements ImportJobRepository {
       // is read whole.
       final jobs = <ImportJobOutput>[
         for (final status in const [
-          ImportJobStatus.value1,
-          ImportJobStatus.value2,
+          ImportJobStatus.pending,
+          ImportJobStatus.running,
         ])
           ...await readEveryPage((pageNumber, pageSize) async {
             final page = await _client.getApiImportJobs(
@@ -165,13 +173,15 @@ class HttpImportJobRepository implements ImportJobRepository {
       return Success([for (final job in jobs) _from(job)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<ImportJob>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<ImportJob>>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<ImportJob>> read(String id) async {
     try {
-      final response = await _client.getApiImportJobsId(id: id);
+      final response = await _client.getApiImportJobsById(id: id);
       final job = response.data;
 
       if (job == null) {
@@ -186,16 +196,20 @@ class HttpImportJobRepository implements ImportJobRepository {
       return Success(_from(job));
     } on DioException catch (exception) {
       return failureFromDioException<ImportJob>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<ImportJob>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<void>> retry(String id) async {
     try {
-      await _client.postApiImportJobsIdRetry(id: id);
+      await _client.postApiImportJobsByIdRetry(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 

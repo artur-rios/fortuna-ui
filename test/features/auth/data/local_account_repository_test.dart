@@ -24,11 +24,7 @@ void main() {
 
       expect(stub.request.method, 'POST');
       expect(stub.request.path, '/api/local-accounts');
-      expect(stub.body, {
-        'displayName': 'Ada',
-        'secret': 'local secret',
-        'storageMode': null,
-      });
+      expect(stub.body, {'displayName': 'Ada', 'secret': 'local secret'});
       final created = result.valueOrNull!;
       expect(created.displayName, 'Ada');
       expect(created.recoveryCodes, ['aaaa-1111', 'bbbb-2222']);

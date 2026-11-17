@@ -8,7 +8,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -26,8 +26,9 @@ enum AuditResult {
   unknown;
 
   static AuditResult from(AuditOutcome? outcome) => switch (outcome) {
-    AuditOutcome.value1 => AuditResult.succeeded,
-    AuditOutcome.value2 => AuditResult.refused,
+    AuditOutcomeKnown(value: AuditOutcomeValue.succeeded) =>
+      AuditResult.succeeded,
+    AuditOutcomeKnown(value: AuditOutcomeValue.refused) => AuditResult.refused,
     _ => AuditResult.unknown,
   };
 }
@@ -129,8 +130,9 @@ class HttpAuditRepository implements AuditRepository {
   Future<Result<PagedList<AuditEntry>>> read(AuditFilter filter) async {
     try {
       final page = await _client.getApiAuditEntries(
-        from: filter.from,
-        to: filter.to,
+        // Instants, written as the 1.x client wrote them.
+        from: filter.from?.toIso8601String(),
+        to: filter.to?.toIso8601String(),
         operation: filter.operation,
         pageNumber: filter.pageNumber,
         pageSize: browsePageSize,
@@ -162,6 +164,11 @@ class HttpAuditRepository implements AuditRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PagedList<AuditEntry>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<PagedList<AuditEntry>>(
+        error,
+        stackTrace,
+      );
     }
   }
 }

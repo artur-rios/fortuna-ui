@@ -7,7 +7,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -127,6 +127,8 @@ class HttpCategoryRepository implements CategoryRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<CategoryTree>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<CategoryTree>(error, stackTrace);
     }
   }
 
@@ -143,7 +145,7 @@ class HttpCategoryRepository implements CategoryRepository {
     required String name,
     String? parentId,
   }) => _run(
-    () => _client.putApiCategoriesId(
+    () => _client.putApiCategoriesById(
       id: id,
       body: UpdateCategoryCommand(name: name, parentId: parentId),
     ),
@@ -151,7 +153,7 @@ class HttpCategoryRepository implements CategoryRepository {
 
   @override
   Future<Result<void>> delete(String id) =>
-      _run(() => _client.deleteApiCategoriesId(id: id));
+      _run(() => _client.deleteApiCategoriesById(id: id));
 
   @override
   Future<Result<void>> reassign({
@@ -159,7 +161,7 @@ class HttpCategoryRepository implements CategoryRepository {
     required String toId,
     bool includeDescendants = true,
   }) => _run(
-    () => _client.postApiCategoriesIdReassign(
+    () => _client.postApiCategoriesByIdReassign(
       id: fromId,
       body: ReassignCategoryTransactionsCommand(
         targetCategoryId: toId,
@@ -176,6 +178,8 @@ class HttpCategoryRepository implements CategoryRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 

@@ -15,11 +15,12 @@ library;
 import 'package:decimal/decimal.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
@@ -172,13 +173,15 @@ class HttpGoalRepository implements GoalRepository {
       return Success([for (final goal in goals) _from(goal)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Goal>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Goal>>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<Goal>> read(String id) async {
     try {
-      final output = (await _client.getApiGoalsId(id: id)).data;
+      final output = (await _client.getApiGoalsById(id: id)).data;
 
       // AF-05.
       if (output == null) {
@@ -191,6 +194,8 @@ class HttpGoalRepository implements GoalRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<Goal>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Goal>(error, stackTrace);
     }
   }
 
@@ -210,7 +215,7 @@ class HttpGoalRepository implements GoalRepository {
           // The string as typed. Never parsed to a number on the way out.
           targetAmount: targetAmount,
           currencyCode: currencyCode,
-          targetDate: targetDate,
+          targetDate: wireDate(targetDate),
           // Empty lists, never null: the API counts both, and a null list
           // is a failure on its side rather than a refusal it can explain.
           accountIds: accountIds,
@@ -220,6 +225,8 @@ class HttpGoalRepository implements GoalRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -234,13 +241,13 @@ class HttpGoalRepository implements GoalRepository {
     List<String> investmentIds = const [],
   }) async {
     try {
-      await _client.putApiGoalsId(
+      await _client.putApiGoalsById(
         id: id,
         body: UpdateGoalCommand(
           name: name,
           targetAmount: targetAmount,
           currencyCode: currencyCode,
-          targetDate: targetDate,
+          targetDate: wireDate(targetDate),
           // Empty lists, never null: the API counts both, and a null list
           // is a failure on its side rather than a refusal it can explain.
           accountIds: accountIds,
@@ -250,16 +257,20 @@ class HttpGoalRepository implements GoalRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiGoalsId(id: id);
+      await _client.deleteApiGoalsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -274,7 +285,7 @@ class HttpGoalRepository implements GoalRepository {
       id: output.id ?? '',
       name: output.name ?? '',
       targetAmount: Money.parse(output.targetAmount ?? '0', currency),
-      targetDate: output.targetDate ?? DateTime(1970),
+      targetDate: dateFromWire(output.targetDate) ?? DateTime(1970),
       accountNames: [
         for (final account in output.accounts ?? const <GoalResourceOutput>[])
           account.name ?? '',

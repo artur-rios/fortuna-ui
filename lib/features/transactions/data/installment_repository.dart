@@ -13,11 +13,12 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/result/result.dart';
 
 /// One charge of a plan, as the API generated it.
@@ -119,7 +120,7 @@ class HttpInstallmentRepository implements InstallmentRepository {
           // The string as typed. The split is the API's to perform.
           totalAmount: totalAmount,
           installmentCount: installmentCount,
-          purchasedOn: purchasedOn,
+          purchasedOn: wireDate(purchasedOn),
           currencyCode: currencyCode,
           counterparty: counterparty,
         ),
@@ -142,6 +143,8 @@ class HttpInstallmentRepository implements InstallmentRepository {
       // AF-03 and AF-05: a rule this client does not enforce, and a card that
       // is not the user's, both in the API's own words.
       return failureFromDioException<InstallmentPlan>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<InstallmentPlan>(error, stackTrace);
     }
   }
 
@@ -153,7 +156,7 @@ class HttpInstallmentRepository implements InstallmentRepository {
       creditCardId: output.creditCardId ?? '',
       totalAmount: Money.parse(output.totalAmount ?? '0', currency),
       installmentCount: output.installmentCount ?? 0,
-      purchasedOn: output.purchasedOn ?? DateTime(1970),
+      purchasedOn: dateFromWire(output.purchasedOn) ?? DateTime(1970),
       installments: [
         for (final installment
             in output.installments ?? const <InstallmentCommandOutput>[])
@@ -166,7 +169,7 @@ class HttpInstallmentRepository implements InstallmentRepository {
               installment.amount ?? '0',
               installment.currencyCode ?? currency,
             ),
-            occurredOn: installment.occurredOn ?? DateTime(1970),
+            occurredOn: dateFromWire(installment.occurredOn) ?? DateTime(1970),
           ),
       ],
     );

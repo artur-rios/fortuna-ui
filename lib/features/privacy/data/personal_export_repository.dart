@@ -10,7 +10,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -29,19 +29,20 @@ enum PersonalExportStatus {
 
   /// Maps the API's status onto this one.
   ///
-  /// Matched on the numeric value rather than the generated name. The contract
-  /// does name these — `x-enum-varnames: [Pending, Running, Completed,
-  /// Failed]` — but swagger_parser does not read that extension, so the
-  /// generated enum is positional (`value1` … `value4`). Matching on the
-  /// number is the honest reading of what the contract actually specifies, and
-  /// it does not silently change meaning if the generator learns those names
-  /// later.
+  /// Matched on the generated `DataExportStatusKnown` members, which
+  /// swagger_parser names after the contract's values. A status this build
+  /// does not know arrives as `DataExportStatusUnknown` and reads as
+  /// [unknown].
   static PersonalExportStatus from(DataExportStatus? status) =>
-      switch (status?.json) {
-        1 => PersonalExportStatus.pending,
-        2 => PersonalExportStatus.running,
-        3 => PersonalExportStatus.completed,
-        4 => PersonalExportStatus.failed,
+      switch (status) {
+        DataExportStatusKnown(value: DataExportStatusValue.pending) =>
+          PersonalExportStatus.pending,
+        DataExportStatusKnown(value: DataExportStatusValue.running) =>
+          PersonalExportStatus.running,
+        DataExportStatusKnown(value: DataExportStatusValue.completed) =>
+          PersonalExportStatus.completed,
+        DataExportStatusKnown(value: DataExportStatusValue.failed) =>
+          PersonalExportStatus.failed,
         _ => PersonalExportStatus.unknown,
       };
 
@@ -154,13 +155,16 @@ class HttpPersonalExportRepository implements PersonalExportRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PersonalExport>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<PersonalExport>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<PersonalExport>> read(String jobId) async {
     try {
-      final output = (await _client.getApiMeDataExportJobId(jobId: jobId)).data;
+      final output = (await _client.getApiMeDataExportByJobId(jobId: jobId))
+          .data;
 
       if (output == null) {
         return const Failure(
@@ -182,6 +186,8 @@ class HttpPersonalExportRepository implements PersonalExportRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PersonalExport>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<PersonalExport>(error, stackTrace);
     }
   }
 
@@ -215,6 +221,8 @@ class HttpPersonalExportRepository implements PersonalExportRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<PersonalArchive>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<PersonalArchive>(error, stackTrace);
     }
   }
 }

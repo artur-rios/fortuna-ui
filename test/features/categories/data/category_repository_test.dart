@@ -156,7 +156,7 @@ void main() {
       expect(result, const Success<void>(null));
       expect(stub.request.method, 'POST');
       expect(stub.request.path, '/api/categories');
-      expect(stub.body, {'name': 'Food', 'parentId': null});
+      expect(stub.body, {'name': 'Food'});
     });
 
     test('Given a category beneath another '

@@ -12,7 +12,7 @@ Map<String, Object?> jobOutput({
   int rejected = 1,
 }) => {
   'id': 'j1',
-  'status': status,
+  'status': ?status,
   'processedCount': 400,
   'importedCount': imported,
   'duplicateCount': duplicates,

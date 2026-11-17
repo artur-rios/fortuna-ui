@@ -62,8 +62,8 @@ void main() {
       final query = stub.request.queryParameters;
       expect(query['Dimension'], 'category');
       expect(query['Granularity'], 'monthly');
-      expect(query['From'], '2026-01-01T00:00:00.000');
-      expect(query['To'], '2026-03-31T00:00:00.000');
+      expect(query['From'], '2026-01-01');
+      expect(query['To'], '2026-03-31');
       expect(query['RollupCategories'], isTrue);
       expect(query['DisplayCurrencyCode'], 'BRL');
       expect('${query['Direction']}', '1');
@@ -83,8 +83,8 @@ void main() {
 
       expect(stub.request.queryParameters, {
         'Dimension': 'period',
-        'From': '2026-01-01T00:00:00.000',
-        'To': '2026-03-31T00:00:00.000',
+        'From': '2026-01-01',
+        'To': '2026-03-31',
         'RollupCategories': true,
       });
     });

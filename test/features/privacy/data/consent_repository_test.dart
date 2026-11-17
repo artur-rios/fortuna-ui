@@ -48,11 +48,7 @@ void main() {
       () async {
         final stub = ApiStub.data({
           'consents': [
-            {
-              'purpose': 'open-banking',
-              'grantedAt': '2026-09-01T10:00:00Z',
-              'isCurrent': null,
-            },
+            {'purpose': 'open-banking', 'grantedAt': '2026-09-01T10:00:00Z'},
           ],
         });
 

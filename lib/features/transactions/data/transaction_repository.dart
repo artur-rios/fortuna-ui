@@ -15,22 +15,28 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart'
+import 'package:fortuna_api_client/api.dart'
     hide TransactionDirection, TransactionSourceType;
-import 'package:fortuna_api_client/export.dart'
+import 'package:fortuna_api_client/api.dart'
     as api
-    show TransactionDirection, TransactionSourceType;
+    show
+        TransactionDirection,
+        TransactionDirectionKnown,
+        TransactionDirectionValue,
+        TransactionSourceType,
+        TransactionSourceTypeKnown,
+        TransactionSourceTypeValue;
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/result/result.dart';
 
 /// Which way the money went.
 ///
-/// Mapped from the contract's numbers rather than the generated names, for the
-/// reason `AccountType` gives: swagger_parser does not read `x-enum-varnames`,
-/// so the generated enum is positional.
+/// Read from the generated `TransactionDirectionKnown` members, as
+/// `AccountType` is; an unknown value reads as [expense], as it always has.
 enum Direction {
   expense(1, 'Expense'),
   earning(2, 'Earning');
@@ -41,8 +47,11 @@ enum Direction {
   final String label;
 
   static Direction from(api.TransactionDirection? direction) =>
-      switch (direction?.json) {
-        2 => Direction.earning,
+      switch (direction) {
+        api.TransactionDirectionKnown(
+          value: api.TransactionDirectionValue.earning,
+        ) =>
+          Direction.earning,
         _ => Direction.expense,
       };
 
@@ -51,7 +60,9 @@ enum Direction {
 
 /// Where a transaction came from (`FR-MM-13`).
 ///
-/// Mapped from the contract's numbers for the reason [Direction] gives.
+/// Read from the generated `TransactionSourceTypeKnown` members (`pluggy`,
+/// `excel`, `pdf`, named after the contract's values); an unknown value reads
+/// as [manual], as it always has.
 enum TransactionSource {
   manual(1, 'Entered by hand'),
   connection(2, 'From a connected institution'),
@@ -64,10 +75,19 @@ enum TransactionSource {
   final String label;
 
   static TransactionSource from(api.TransactionSourceType? source) =>
-      switch (source?.json) {
-        2 => TransactionSource.connection,
-        3 => TransactionSource.spreadsheet,
-        4 => TransactionSource.statementFile,
+      switch (source) {
+        api.TransactionSourceTypeKnown(
+          value: api.TransactionSourceTypeValue.pluggy,
+        ) =>
+          TransactionSource.connection,
+        api.TransactionSourceTypeKnown(
+          value: api.TransactionSourceTypeValue.excel,
+        ) =>
+          TransactionSource.spreadsheet,
+        api.TransactionSourceTypeKnown(
+          value: api.TransactionSourceTypeValue.pdf,
+        ) =>
+          TransactionSource.statementFile,
         _ => TransactionSource.manual,
       };
 
@@ -342,7 +362,7 @@ class HttpTransactionRepository implements TransactionRepository {
     try {
       final response = await _client.postApiTransactions(
         body: RecordTransactionCommand(
-          occurredOn: occurredOn,
+          occurredOn: wireDate(occurredOn),
           // The exact decimal, serialized. Never a number on the wire.
           amount: amount,
           direction: direction.asApi,
@@ -376,13 +396,15 @@ class HttpTransactionRepository implements TransactionRepository {
       // unreachable — which is what lets the form offer a retry rather than
       // claiming the transaction was recorded.
       return failureFromDioException<Transaction>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Transaction>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<Transaction>> read(String id) async {
     try {
-      final output = (await _client.getApiTransactionsId(
+      final output = (await _client.getApiTransactionsById(
         id: id,
         // AF-05 needs the deleted one back, not a 404 that would read as
         // AF-02 and send the user looking for something that is still there.
@@ -400,6 +422,8 @@ class HttpTransactionRepository implements TransactionRepository {
       return Success(fromOutput(output));
     } on DioException catch (exception) {
       return failureFromDioException<Transaction>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Transaction>(error, stackTrace);
     }
   }
 
@@ -418,10 +442,10 @@ class HttpTransactionRepository implements TransactionRepository {
     List<String> tags = const [],
   }) async {
     try {
-      await _client.putApiTransactionsId(
+      await _client.putApiTransactionsById(
         id: id,
         body: UpdateTransactionCommand(
-          occurredOn: occurredOn,
+          occurredOn: wireDate(occurredOn),
           amount: amount,
           direction: direction.asApi,
           categoryId: categoryId,
@@ -442,16 +466,20 @@ class HttpTransactionRepository implements TransactionRepository {
       // AF-03: a settled statement, a reconciled record, or any other rule
       // this client does not know — all in the API's own words.
       return failureFromDioException<Transaction>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Transaction>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiTransactionsId(id: id);
+      await _client.deleteApiTransactionsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -475,8 +503,8 @@ class HttpTransactionRepository implements TransactionRepository {
   }) async {
     try {
       final output = (await _client.getApiTransactions(
-        from: from,
-        to: to,
+        from: wireDateOrNull(from),
+        to: wireDateOrNull(to),
         financialAccountId: financialAccountId,
         creditCardId: creditCardId,
         categoryId: categoryId,
@@ -518,6 +546,8 @@ class HttpTransactionRepository implements TransactionRepository {
     } on DioException catch (exception) {
       // AF-03.
       return failureFromDioException<TransactionPage>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<TransactionPage>(error, stackTrace);
     }
   }
 
@@ -528,7 +558,7 @@ class HttpTransactionRepository implements TransactionRepository {
     String? importJobId,
   }) async {
     try {
-      await _client.postApiTransactionsIdReconcile(
+      await _client.postApiTransactionsByIdReconcile(
         id: id,
         body: ReconcileTransactionCommand(
           importedRecordId: importedRecordId,
@@ -547,6 +577,8 @@ class HttpTransactionRepository implements TransactionRepository {
     } on DioException catch (exception) {
       // AF-03 and AF-04, in the API's own words.
       return failureFromDioException<Transaction>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Transaction>(error, stackTrace);
     }
   }
 
@@ -561,7 +593,7 @@ class HttpTransactionRepository implements TransactionRepository {
 
     return Transaction(
       id: output.id ?? '',
-      occurredOn: output.occurredOn ?? DateTime(1970),
+      occurredOn: dateFromWire(output.occurredOn) ?? DateTime(1970),
       amount: Money.parse(output.amount ?? '0', currency),
       direction: Direction.from(output.direction),
       categoryId: output.categoryId ?? '',
@@ -586,7 +618,7 @@ class HttpTransactionRepository implements TransactionRepository {
               amount: importedAmount == null
                   ? null
                   : Money.parse(importedAmount, currency),
-              occurredOn: output.importedOccurredOn,
+              occurredOn: dateFromWire(output.importedOccurredOn),
             ),
     );
   }
@@ -601,7 +633,7 @@ class HttpTransactionRepository implements TransactionRepository {
 
     return Transaction(
       id: output.id ?? '',
-      occurredOn: output.occurredOn ?? DateTime(1970),
+      occurredOn: dateFromWire(output.occurredOn) ?? DateTime(1970),
       amount: Money.parse(output.amount ?? '0', currency),
       direction: Direction.from(output.direction),
       categoryId: output.categoryId ?? '',

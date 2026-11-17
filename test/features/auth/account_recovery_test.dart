@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:fortuna_ui/core/result/result.dart';
 import 'package:fortuna_ui/features/auth/data/account_recovery_repository.dart';
 import 'package:fortuna_ui/features/auth/state/account_recovery_controller.dart';

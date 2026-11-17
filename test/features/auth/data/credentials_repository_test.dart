@@ -366,7 +366,6 @@ void main() {
       expect(stub.body, {
         'challengeToken': 'challenge-token',
         'code': '123456',
-        'recoveryCode': null,
       });
       expect(result.valueOrNull!.token, 'session-token');
       expect(result.valueOrNull!.emailVerified, isTrue);
@@ -385,7 +384,6 @@ void main() {
 
       expect(stub.body, {
         'challengeToken': 'challenge-token',
-        'code': null,
         'recoveryCode': 'abcd-efgh',
       });
       expect(result.valueOrNull!.emailVerified, isTrue);

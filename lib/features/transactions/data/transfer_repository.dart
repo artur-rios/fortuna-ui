@@ -13,11 +13,12 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/result/result.dart';
 
 /// A recorded transfer, as the API stored it.
@@ -93,7 +94,7 @@ class HttpTransferRepository implements TransferRepository {
           destinationFinancialAccountId: destinationAccountId,
           // The exact decimal, serialized. Never a number on the wire.
           amount: amount,
-          occurredOn: occurredOn,
+          occurredOn: wireDate(occurredOn),
         ),
       );
 
@@ -114,12 +115,14 @@ class HttpTransferRepository implements TransferRepository {
       // not convert is refused in its own words, and an account that is not
       // the user's reads as not found. Nothing is converted locally.
       return failureFromDioException<Transfer>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Transfer>(error, stackTrace);
     }
   }
 
   static Transfer _from(RecordTransferCommandOutput output) => Transfer(
     id: output.id ?? '',
-    occurredOn: output.occurredOn ?? DateTime(1970),
+    occurredOn: dateFromWire(output.occurredOn) ?? DateTime(1970),
     originAccountId: output.originFinancialAccountId ?? '',
     destinationAccountId: output.destinationFinancialAccountId,
     outboundAmount: Money.parse(
@@ -131,7 +134,7 @@ class HttpTransferRepository implements TransferRepository {
       output.inboundCurrencyCode ?? '',
     ),
     appliedRate: output.appliedRate,
-    rateDate: output.rateDate,
+    rateDate: dateFromWire(output.rateDate),
   );
 }
 

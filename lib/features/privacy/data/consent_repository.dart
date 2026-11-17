@@ -7,7 +7,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -111,6 +111,8 @@ class HttpConsentRepository implements ConsentRepository {
       // empty list would read as "you have consented to nothing" — which is a
       // claim, and this is the absence of one.
       return failureFromDioException<List<Consent>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Consent>>(error, stackTrace);
     }
   }
 
@@ -126,18 +128,22 @@ class HttpConsentRepository implements ConsentRepository {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<void>> withdraw(String purpose) async {
     try {
-      await _client.deleteApiMeConsentsPurpose(purpose: purpose);
+      await _client.deleteApiMeConsentsByPurpose(purpose: purpose);
       return const Success(null);
     } on DioException catch (exception) {
       // AF-03: withdrawing something never given is the API's not-found, shown
       // as the API worded it.
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 }

@@ -16,11 +16,12 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/result/result.dart';
 import '../../../core/time/clock.dart';
 
@@ -143,12 +144,17 @@ enum ObligationKind {
   final int wire;
   final String label;
 
-  static ObligationKind from(CommittedObligationKind? kind) =>
-      switch (kind?.json) {
-        1 => ObligationKind.installment,
-        2 => ObligationKind.statement,
-        _ => ObligationKind.other,
-      };
+  static ObligationKind from(CommittedObligationKind? kind) => switch (kind) {
+    CommittedObligationKindKnown(
+      value: CommittedObligationKindValue.installment,
+    ) =>
+      ObligationKind.installment,
+    CommittedObligationKindKnown(
+      value: CommittedObligationKindValue.statement,
+    ) =>
+      ObligationKind.statement,
+    _ => ObligationKind.other,
+  };
 }
 
 /// Something already committed to but not yet materialized (`FR-PJ-03`).
@@ -252,7 +258,7 @@ class HttpProjectionRepository implements ProjectionRepository {
 
       return Success(
         NetPosition(
-          asOf: output.asOf ?? _clock(),
+          asOf: dateFromWire(output.asOf) ?? _clock(),
           isFullyConverted: output.isFullyConverted ?? true,
           displayCurrencyCode: currency,
           total: (total != null && currency != null)
@@ -268,6 +274,8 @@ class HttpProjectionRepository implements ProjectionRepository {
     } on DioException catch (exception) {
       // AF-02.
       return failureFromDioException<NetPosition>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<NetPosition>(error, stackTrace);
     }
   }
 
@@ -293,8 +301,8 @@ class HttpProjectionRepository implements ProjectionRepository {
 
       return Success(
         CashFlowProjection(
-          asOf: output.asOf ?? _clock(),
-          through: output.through ?? _clock(),
+          asOf: dateFromWire(output.asOf) ?? _clock(),
+          through: dateFromWire(output.through) ?? _clock(),
           // The starting point is today's balance: a record, not a forecast.
           startingBalance: Money.parse(output.startingBalance ?? '0', currency),
           flatReason: output.flatReason,
@@ -303,8 +311,8 @@ class HttpProjectionRepository implements ProjectionRepository {
             for (final period
                 in output.periods ?? const <CashFlowPeriodOutput>[])
               ProjectedPeriod(
-                periodStart: period.periodStart ?? _clock(),
-                periodEnd: period.periodEnd ?? _clock(),
+                periodStart: dateFromWire(period.periodStart) ?? _clock(),
+                periodEnd: dateFromWire(period.periodEnd) ?? _clock(),
                 // FR-PJ-04: the distinction rides on the value, so nothing
                 // downstream can lose it.
                 openingBalance: Money.parse(
@@ -323,6 +331,8 @@ class HttpProjectionRepository implements ProjectionRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<CashFlowProjection>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<CashFlowProjection>(error, stackTrace);
     }
   }
 
@@ -349,8 +359,8 @@ class HttpProjectionRepository implements ProjectionRepository {
 
       return Success(
         CommittedObligations(
-          asOf: output.asOf ?? _clock(),
-          through: output.through ?? _clock(),
+          asOf: dateFromWire(output.asOf) ?? _clock(),
+          through: dateFromWire(output.through) ?? _clock(),
           isFullyConverted: output.isFullyConverted ?? true,
           displayCurrencyCode: displayCurrency,
           total: (total != null && displayCurrency != null)
@@ -374,7 +384,7 @@ class HttpProjectionRepository implements ProjectionRepository {
                     isProjected: true,
                   ),
                 },
-                dueDate: item.dueDate ?? _clock(),
+                dueDate: dateFromWire(item.dueDate) ?? _clock(),
                 isOverdue: item.isOverdue ?? false,
                 daysOverdue: item.daysOverdue ?? 0,
               ),
@@ -383,6 +393,11 @@ class HttpProjectionRepository implements ProjectionRepository {
       );
     } on DioException catch (exception) {
       return failureFromDioException<CommittedObligations>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<CommittedObligations>(
+        error,
+        stackTrace,
+      );
     }
   }
 

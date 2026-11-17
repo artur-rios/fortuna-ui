@@ -14,18 +14,19 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/format/money.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/date_only_fields.dart';
 import '../../../core/network/paging.dart';
 import '../../../core/result/result.dart';
 
 /// How long a budget's period runs.
 ///
-/// Mapped from the contract's numbers rather than the generated names, for the
-/// reason `AccountType` gives.
+/// Read from the generated `BudgetPeriodTypeKnown` members, as `AccountType`
+/// is; an unknown value reads as [monthly], as it always has.
 enum BudgetPeriod {
   monthly(1, 'Monthly'),
   quarterly(2, 'Quarterly'),
@@ -36,9 +37,11 @@ enum BudgetPeriod {
   final int wire;
   final String label;
 
-  static BudgetPeriod from(BudgetPeriodType? type) => switch (type?.json) {
-    2 => BudgetPeriod.quarterly,
-    3 => BudgetPeriod.yearly,
+  static BudgetPeriod from(BudgetPeriodType? type) => switch (type) {
+    BudgetPeriodTypeKnown(value: BudgetPeriodTypeValue.quarterly) =>
+      BudgetPeriod.quarterly,
+    BudgetPeriodTypeKnown(value: BudgetPeriodTypeValue.yearly) =>
+      BudgetPeriod.yearly,
     _ => BudgetPeriod.monthly,
   };
 
@@ -166,13 +169,15 @@ class HttpBudgetRepository implements BudgetRepository {
       return Success([for (final budget in budgets) _from(budget)]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Budget>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Budget>>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<Budget>> read(String id) async {
     try {
-      final output = (await _client.getApiBudgetsId(id: id)).data;
+      final output = (await _client.getApiBudgetsById(id: id)).data;
 
       // AF-05: not found and not yours are the same answer.
       if (output == null) {
@@ -185,6 +190,8 @@ class HttpBudgetRepository implements BudgetRepository {
       return Success(_from(output));
     } on DioException catch (exception) {
       return failureFromDioException<Budget>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<Budget>(error, stackTrace);
     }
   }
 
@@ -205,7 +212,7 @@ class HttpBudgetRepository implements BudgetRepository {
           amount: amount,
           currencyCode: currencyCode,
           periodType: period.asApi,
-          periodStart: periodStart,
+          periodStart: wireDate(periodStart),
           includeDescendants: includeDescendants,
         ),
       );
@@ -213,6 +220,8 @@ class HttpBudgetRepository implements BudgetRepository {
     } on DioException catch (exception) {
       // AF-03: an overlapping budget is the API's rule to state.
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -227,30 +236,34 @@ class HttpBudgetRepository implements BudgetRepository {
     bool includeDescendants = false,
   }) async {
     try {
-      await _client.putApiBudgetsId(
+      await _client.putApiBudgetsById(
         id: id,
         body: UpdateBudgetCommand(
           categoryIds: categoryIds,
           amount: amount,
           currencyCode: currencyCode,
           periodType: period.asApi,
-          periodStart: periodStart,
+          periodStart: wireDate(periodStart),
           includeDescendants: includeDescendants,
         ),
       );
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
   @override
   Future<Result<void>> delete(String id) async {
     try {
-      await _client.deleteApiBudgetsId(id: id);
+      await _client.deleteApiBudgetsById(id: id);
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 
@@ -265,7 +278,7 @@ class HttpBudgetRepository implements BudgetRepository {
       id: output.id ?? '',
       amount: Money.parse(output.amount ?? '0', currency),
       period: BudgetPeriod.from(output.periodType),
-      periodStart: output.periodStart ?? DateTime(1970),
+      periodStart: dateFromWire(output.periodStart) ?? DateTime(1970),
       categoryNames: [
         for (final category
             in output.categories ?? const <BudgetCategoryOutput>[])
@@ -275,8 +288,8 @@ class HttpBudgetRepository implements BudgetRepository {
       consumption: period == null
           ? null
           : BudgetConsumption(
-              periodStart: period.periodStart ?? DateTime(1970),
-              periodEnd: period.periodEnd ?? DateTime(1970),
+              periodStart: dateFromWire(period.periodStart) ?? DateTime(1970),
+              periodEnd: dateFromWire(period.periodEnd) ?? DateTime(1970),
               // AF-04 hinges on these staying null where the API sent none.
               spent: money(period.spent),
               remaining: money(period.remaining),

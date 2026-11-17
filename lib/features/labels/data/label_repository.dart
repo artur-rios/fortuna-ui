@@ -8,7 +8,7 @@ library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fortuna_api_client/export.dart';
+import 'package:fortuna_api_client/api.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_client.dart';
@@ -72,6 +72,8 @@ mixin _CommandRunner {
       return const Success(null);
     } on DioException catch (exception) {
       return failureFromDioException<void>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<void>(error, stackTrace);
     }
   }
 }
@@ -110,6 +112,8 @@ class HttpTagRepository with _CommandRunner implements LabelRepository {
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Label>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Label>>(error, stackTrace);
     }
   }
 
@@ -120,7 +124,7 @@ class HttpTagRepository with _CommandRunner implements LabelRepository {
   @override
   Future<Result<void>> rename({required String id, required String name}) =>
       run(
-        () => _client.putApiTagsId(
+        () => _client.putApiTagsById(
           id: id,
           body: UpdateTagCommand(name: name),
         ),
@@ -128,7 +132,7 @@ class HttpTagRepository with _CommandRunner implements LabelRepository {
 
   @override
   Future<Result<void>> delete(String id) =>
-      run(() => _client.deleteApiTagsId(id: id));
+      run(() => _client.deleteApiTagsById(id: id));
 }
 
 class HttpCounterpartyRepository
@@ -167,6 +171,8 @@ class HttpCounterpartyRepository
       ]);
     } on DioException catch (exception) {
       return failureFromDioException<List<Label>>(exception);
+    } on Object catch (error, stackTrace) {
+      return failureFromUnreadableAnswer<List<Label>>(error, stackTrace);
     }
   }
 
@@ -180,7 +186,7 @@ class HttpCounterpartyRepository
   @override
   Future<Result<void>> rename({required String id, required String name}) =>
       run(
-        () => _client.putApiCounterpartiesId(
+        () => _client.putApiCounterpartiesById(
           id: id,
           body: UpdateCounterpartyCommand(name: name),
         ),
@@ -188,7 +194,7 @@ class HttpCounterpartyRepository
 
   @override
   Future<Result<void>> delete(String id) =>
-      run(() => _client.deleteApiCounterpartiesId(id: id));
+      run(() => _client.deleteApiCounterpartiesById(id: id));
 }
 
 /// One repository per kind, selected by the family's argument.

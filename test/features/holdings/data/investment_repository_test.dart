@@ -256,7 +256,6 @@ void main() {
       expect(stub.request.path, '/api/investments');
       expect(stub.body, {
         'currencyCode': 'BRL',
-        'institution': null,
         'instrument': 'Index fund',
         'investmentType': 3,
       });
@@ -313,6 +312,18 @@ void main() {
   });
 
   group('HttpInvestmentRepository.update', () {
+    test('Given an investment whose institution was removed '
+        'When it is saved '
+        'Then the institution travels as null, which clears it offline as '
+        'online', () async {
+      final stub = ApiStub.data({'id': 'i1'});
+
+      await HttpInvestmentRepository.fromDio(stub.dio)
+          .update(id: 'i1', instrument: 'Stocks', type: InvestmentType.equity);
+
+      expect(stub.body, containsPair('institution', null));
+    });
+
     test('Given an edited investment '
         'When it is saved '
         'Then it is put to its own address without a currency', () async {
@@ -530,7 +541,7 @@ void main() {
         'financialAccountId': 'a1',
         'id': 'i1',
         'movementType': 1,
-        'occurredOn': '2026-03-05T00:00:00.000',
+        'occurredOn': '2026-03-05',
       });
     });
 
@@ -631,7 +642,7 @@ void main() {
       expect(stub.body, {
         'id': 'i1',
         'value': '10400.00',
-        'valuedOn': '2026-02-28T00:00:00.000',
+        'valuedOn': '2026-02-28',
       });
     });
 
