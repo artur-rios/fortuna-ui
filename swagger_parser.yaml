@@ -9,29 +9,39 @@
 # Everything under packages/fortuna_api_client/lib is generated and is never
 # hand-edited (BR-36). The package's own pubspec.yaml is maintained by hand.
 # Ergonomic wrappers belong in the consuming feature's data/ layer.
+#
+# swagger_parser 2 always emits one entry point (`api.dart`, re-exporting
+# `exports.dart`) and one folder per tag, each client named after the area it
+# serves, so the 1.x layout settings (`name`, `put_clients_in_folder`,
+# `squash_clients`, `root_client`, `export_file`, `enums_to_json`,
+# `enums_prefix`) have no equivalent here.
+#
+# The contract closes every DTO (`additionalProperties: false`), and the
+# generated decoders reject a response carrying a key they do not know. Such a
+# response fails like any other malformed answer (UC-02 AF-07); the contract is
+# fixed at the API and re-vendored.
 
 swagger_parser:
   schema_path: api/fortuna.json
   output_directory: packages/fortuna_api_client/lib
-  name: fortuna_api_client
 
-  language: dart
-  json_serializer: json_serializable
+  generation:
+    http_client: retrofit
+    serializer: json_serializable
 
-  # One client per tag, in its own folder, named after the area it serves.
-  put_clients_in_folder: true
-  squash_clients: false
-  root_client: false
+    # The API's enums travel as numbers or strings; a value this build does
+    # not know decodes to the enum's Unknown case, which the screens show as
+    # unknown rather than failing the whole response.
+    unknown_enum_values: preserve
 
-  # The API's enums travel as strings; keeping them enums here is what makes an
-  # unknown value a visible failure rather than a silent empty string.
-  enums_to_json: false
-  enums_prefix: false
+    # Every response is wrapped in the API's DataOutput envelope, so unwrapping
+    # is the repository's job in the consuming feature, not the generator's.
+    original_http_response: false
 
-  # Every response is wrapped in the API's DataOutput envelope, so unwrapping is
-  # the repository's job in the consuming feature, not the generator's.
-  unknown_enum_value: true
-  original_http_response: false
-
-  # A single entry point, so consumers import one file.
-  export_file: true
+    # An optional nullable property is a `({T? value})?` record, so a request
+    # can say "set this to null" (`(value: null)`) apart from "leave it out"
+    # (`null`). The offline core merges a PUT body into the stored record, so
+    # a key left out keeps its old value there: clearing a description, a
+    # counterparty or a parent category needs the explicit null the 1.x
+    # client always sent.
+    use_presence_records: true
