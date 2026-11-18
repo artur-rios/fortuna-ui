@@ -24,6 +24,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   attachment and the personal data archive (fortuna-api#268). Exports and the archive are downloaded as before.
 - The API client is regenerated from the contract that describes every error the instance answers with
   (fortuna-api#269). Errors are shown as before.
+- The API client is regenerated from the contract that lists, for each request, only the errors the instance can
+  actually answer it with (fortuna-api#270). Nothing the app shows changes.
 - A request leaves out the optional fields it has no value for, where it used to send them as null. An update
   still sends every one of them, null included, so that clearing a field (a description, a parent category, the
   account a transaction was on) clears it in offline mode too, where a field left out of an update is kept.
