@@ -7,6 +7,8 @@ import 'package:dio/dio.dart'
 import 'package:retrofit/retrofit.dart'
     show RestApi, Extras, CancelRequest, POST, ParseErrorLogger, Body, Headers;
 
+import '../attachments/models/object_data_output_response.dart'
+    show ObjectDataOutput$Response;
 import 'models/authenticate_local_account_command.dart'
     show AuthenticateLocalAccountCommand;
 import 'models/authenticate_local_account_command_output_data_output_response.dart'
@@ -15,7 +17,6 @@ import 'models/create_local_account_command.dart'
     show CreateLocalAccountCommand;
 import 'models/create_local_account_command_output_data_output_response.dart'
     show CreateLocalAccountCommandOutputDataOutput$Response;
-import 'models/object_data_output_response.dart' show ObjectDataOutput$Response;
 import 'models/recover_local_account_command.dart'
     show RecoverLocalAccountCommand;
 import 'models/recover_local_account_command_output_data_output_response.dart'
