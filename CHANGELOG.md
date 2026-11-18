@@ -28,6 +28,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   actually answer it with (fortuna-api#270). Nothing the app shows changes.
 - The vendored contract also describes the answers the web server and the proxy in front of the instance give
   before a request reaches it (fortuna-api#271). The API client is unchanged by it.
+- The vendored contract also describes how the instance refuses a request body it cannot read: malformed, too
+  slow or too large (fortuna-api#272). The API client is unchanged by it.
 - A request leaves out the optional fields it has no value for, where it used to send them as null. An update
   still sends every one of them, null included, so that clearing a field (a description, a parent category, the
   account a transaction was on) clears it in offline mode too, where a field left out of an update is kept.
