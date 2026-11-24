@@ -137,7 +137,7 @@ arguments live in yggdrasil's, at `/etc/yggdrasil/<environment>/fortuna-ui.env` 
 
 ## Container image (web)
 
-`Dockerfile` builds the web target into a production image: a pinned Flutter SDK (3.50.0; 3.47.2,
+`Dockerfile` builds the web target into a production image: a pinned Flutter SDK (3.50.1; 3.47.2,
 the first 3.47 release, is the earliest Flutter whose Dart satisfies `sdk: ^3.13.2`) compiles
 `build/web`, and `nginxinc/nginx-unprivileged:alpine` serves it as a non-root user on port
 **8080**, with a deep-link fallback to `index.html` and a `/healthz` probe. The server

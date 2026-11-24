@@ -22,7 +22,7 @@ concurrency:
 env:
   # Renovate does not track this one. Keep it equal to FLUTTER_VERSION in ci/flutter-env.sh and to the
   # ARG FLUTTER_VERSION of the Dockerfile, and bump the three together.
-  FLUTTER_VERSION: 3.50.0
+  FLUTTER_VERSION: 3.50.1
 
 jobs:
   windows:
